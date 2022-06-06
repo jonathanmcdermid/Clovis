@@ -15,8 +15,7 @@ namespace Clovis {
     constexpr int MAX_MOVES = 256;
 
     /*
-    
-    MOVE BIT FORMATTING
+                    MOVE BIT FORMATTING
     
     binary                                              hexidecimal
 
@@ -28,7 +27,6 @@ namespace Clovis {
     0010 0000 0000 0000 0000 0000   double push flag    0x200000
     0100 0000 0000 0000 0000 0000   enpassant flag      0x400000
     1000 0000 0000 0000 0000 0000   castling flag       0x800000
-
     */
 
     enum Move : int {
@@ -46,6 +44,10 @@ namespace Clovis {
         PIECETYPE_N = 6
     };
 
+    inline void operator++(PieceType& pt) {
+        pt = static_cast<PieceType>(static_cast<int>(pt) + 1);
+    }
+
     enum Piece {
         NO_PIECE,
         W_PAWN = PAWN, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
@@ -57,7 +59,6 @@ namespace Clovis {
         EAST = 1,
         SOUTH = -NORTH,
         WEST = -EAST,
-
         NORTH_EAST = NORTH + EAST,
         SOUTH_EAST = SOUTH + EAST,
         SOUTH_WEST = SOUTH + WEST,
@@ -82,13 +83,57 @@ namespace Clovis {
         sq = static_cast<Square>(static_cast<int>(sq) + 1);
     }
 
+    inline Square operator+(Square& sq, Direction d) {
+        return static_cast<Square>(static_cast<int>(sq) + static_cast<int>(d));
+    }
+
+    inline Square operator-(Square& sq, Direction d) {
+        return static_cast<Square>(static_cast<int>(sq) - static_cast<int>(d));
+    }
+
+    inline Square operator+(Square& sq, int i) {
+        return static_cast<Square>(static_cast<int>(sq) + i);
+    }
+
     enum File : int {
         FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NB
     };
 
+    inline void operator++(File& f) {
+        f = static_cast<File>(static_cast<int>(f) + 1);
+    }
+
+    inline void operator--(File& f) {
+        f = static_cast<File>(static_cast<int>(f) - 1);
+    }
+
+    inline File operator+(File& f, int i) {
+        return static_cast<File>(static_cast<int>(f) + i);
+    }
+
+    inline File operator-(File& f, int i) {
+        return static_cast<File>(static_cast<int>(f) - i);
+    }
+
     enum Rank : int {
         RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NB
     };
+
+    inline void operator++(Rank& r) {
+        r = static_cast<Rank>(static_cast<int>(r) + 1);
+    }
+
+    inline void operator--(Rank& r) {
+        r = static_cast<Rank>(static_cast<int>(r) - 1);
+    }
+
+    inline Rank operator+(Rank& r, int i) {
+        return static_cast<Rank>(static_cast<int>(r) + i);
+    }
+
+    inline Rank operator-(Rank& r, int i) {
+        return static_cast<Rank>(static_cast<int>(r) - i);
+    }
 
     enum CastleRights {
         NO_CASTLING,

@@ -48,6 +48,6 @@ namespace Clovis {
     Bitboard get_rook_attacks(Bitboard occ, Square sq);
     Bitboard get_queen_attacks(Bitboard occ, Square sq);
 
-    void init_bitboards();
+    void init_bitboards(bool calc_magic = false);
 
 } // namespace Clovis

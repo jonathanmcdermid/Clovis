@@ -12,8 +12,8 @@ namespace Clovis {
 	constexpr Bitboard not_gh_file = 4557430888798830399ULL;
 	constexpr Bitboard not_ab_file = 18229723555195321596ULL;
 
-	// number of relevant occupancy for every bishop square
-	constexpr int bishop_relevant_bits[SQ_N] = {
+	// number of relevant occupancy bits for every bishop square
+	constexpr int b_rbits[SQ_N] = {
 		6, 5, 5, 5, 5, 5, 5, 6,
 		5, 5, 5, 5, 5, 5, 5, 5,
 		5, 5, 7, 7, 7, 7, 5, 5,
@@ -24,8 +24,8 @@ namespace Clovis {
 		6, 5, 5, 5, 5, 5, 5, 6
 	};
 
-	// number of relevant occupancy for every rook square
-	constexpr int rook_relevant_bits[SQ_N] = {
+	// number of relevant occupancy bits for every rook square
+	constexpr int r_rbits[SQ_N] = {
 		12, 11, 11, 11, 11, 11, 11, 12,
 		11, 10, 10, 10, 10, 10, 10, 11,
 		11, 10, 10, 10, 10, 10, 10, 11,
@@ -49,7 +49,7 @@ namespace Clovis {
 	Bitboard rook_masks[SQ_N];
 
 	// precalculated magic numbers for generating rook attacks
-	Bitboard rook_magic_numbers[SQ_N] = {
+	Bitboard r_magic[SQ_N] = {
 		0x8a80104000800020ULL,
 		0x140002000100040ULL,
 		0x2801880a0017001ULL,
@@ -117,7 +117,7 @@ namespace Clovis {
 	};
 	
 	// precalculated magic numbers for generating bishop attacks
-	Bitboard bishop_magic_numbers[SQ_N] = {
+	Bitboard b_magic[SQ_N] = {
 		0x40040844404084ULL,
 		0x2004208a004208ULL,
 		0x10190041080202ULL,
@@ -189,10 +189,12 @@ namespace Clovis {
 	{
 		cout << "+---+---+---+---+---+---+---+---+\n";
 
-		for (int r = RANK_8; r >= RANK_1; --r) 
+		for (Rank r = RANK_8; r >= RANK_1; --r) 
 		{
-			for (int f = FILE_A; f <= FILE_H; ++f)
-				cout << (get_bit(bb, make_square((File)f, (Rank)r)) ? "| X " : "|   ");
+			for (File f = FILE_A; f <= FILE_H; ++f)
+			{
+				cout << (get_bit(bb, make_square(f, r)) ? "| X " : "|   ");
+			}
 			cout << "|" + std::to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
 		}
 		cout << "  a   b   c   d   e   f   g   h\n" << "  Bitboard: " << bb << endl;
@@ -239,17 +241,16 @@ namespace Clovis {
 	Bitboard mask_bishop_attacks(Square sq)
 	{
 		Bitboard attacks = 0ULL;
-		int r, f;
-		Rank tr = rank_of(sq);
-		File tf = file_of(sq);
+		Rank r, tr = rank_of(sq);
+		File f, tf = file_of(sq);
 
-		for (r = tr + 1, f = tf + 1; r <= 6 && f <= 6; ++r, ++f)
+		for (r = tr + 1, f = tf + 1; r < RANK_8 && f < FILE_H; ++r, ++f)
 			attacks |= (1ULL << (r * RANK_NB + f));
-		for (r = tr - 1, f = tf + 1; r > 0 && f <= 6; --r, ++f)
+		for (r = tr - 1, f = tf + 1; r > RANK_1 && f < FILE_H; --r, ++f)
 			attacks |= (1ULL << (r * RANK_NB + f));
-		for (r = tr + 1, f = tf - 1; r <= 6 && f > 0; ++r, --f)
+		for (r = tr + 1, f = tf - 1; r < RANK_8 && f > FILE_A; ++r, --f)
 			attacks |= (1ULL << (r * RANK_NB + f));
-		for (r = tr - 1, f = tf - 1; r > 0 && f > 0; --r, --f)
+		for (r = tr - 1, f = tf - 1; r > RANK_1 && f > FILE_A; --r, --f)
 			attacks |= (1ULL << (r * RANK_NB + f));
 
 		return attacks;
@@ -259,9 +260,8 @@ namespace Clovis {
 	Bitboard mask_rook_attacks(Square sq) 
 	{
 		Bitboard attacks = 0ULL;
-		int r, f;
-		Rank tr = rank_of(sq);
-		File tf = file_of(sq);
+		Rank r, tr = rank_of(sq);
+		File f, tf = file_of(sq);
 
 		for (r = tr + 1; r <= 6; ++r)
 			attacks |= (1ULL << (r * 8 + tf));
@@ -298,23 +298,22 @@ namespace Clovis {
 	Bitboard bishop_otf(Square sq, Bitboard block)
 	{
 		Bitboard attacks = 0ULL;
-		int r, f;
-		Rank origin_rank = rank_of(sq);
-		File origin_file = file_of(sq);
+		Rank r, tr = rank_of(sq);
+		File f, tf = file_of(sq);
 
-		for (r = origin_rank + 1, f = origin_file + 1; r <= 7 && f <= 7; ++r, ++f) {
+		for (r = tr + 1, f = tf + 1; r <= RANK_8 && f <= FILE_H; ++r, ++f) {
 			attacks |= (1ULL << (r * 8 + f));
 			if ((1ULL << (r * 8 + f)) & block) break;
 		}
-		for (r = origin_rank - 1, f = origin_file + 1; r >= 0 && f <= 7; --r, ++f) {
+		for (r = tr - 1, f = tf + 1; r >= RANK_1 && f <= FILE_H; --r, ++f) {
 			attacks |= (1ULL << (r * 8 + f));
 			if ((1ULL << (r * 8 + f)) & block) break;
 		}
-		for (r = origin_rank + 1, f = origin_file - 1; r <= 7 && f >= 0; ++r, --f) {
+		for (r = tr + 1, f = tf - 1; r <= RANK_8 && f >= FILE_A; ++r, --f) {
 			attacks |= (1ULL << (r * 8 + f));
 			if ((1ULL << (r * 8 + f)) & block) break;
 		}
-		for (r = origin_rank - 1, f = origin_file - 1; r >= 0 && f >= 0; --r, --f) {
+		for (r = tr - 1, f = tf - 1; r >= RANK_1 && f >= FILE_A; --r, --f) {
 			attacks |= (1ULL << (r * 8 + f));
 			if ((1ULL << (r * 8 + f)) & block) break;
 		}
@@ -326,25 +325,24 @@ namespace Clovis {
 	Bitboard rook_otf(Square sq, Bitboard block)
 	{
 		Bitboard attacks = 0ULL;
-		int r, f;
-		Rank origin_rank = rank_of(sq);
-		File origin_file = file_of(sq);
+		Rank r, tr = rank_of(sq);
+		File f, tf = file_of(sq);
 
-		for (r = origin_rank + 1; r <= 7; ++r) {
-			attacks |= (1ULL << (r * 8 + origin_file));
-			if ((1ULL << (r * 8 + origin_file)) & block) break;
+		for (r = tr + 1; r <= RANK_8; ++r) {
+			attacks |= (1ULL << (r * 8 + tf));
+			if ((1ULL << (r * 8 + tf)) & block) break;
 		}
-		for (r = origin_rank - 1; r >= 0; --r) {
-			attacks |= (1ULL << (r * 8 + origin_file));
-			if ((1ULL << (r * 8 + origin_file)) & block) break;
+		for (r = tr - 1; r >= RANK_1; --r) {
+			attacks |= (1ULL << (r * 8 + tf));
+			if ((1ULL << (r * 8 + tf)) & block) break;
 		}
-		for (f = origin_file + 1; f <= 7; ++f) {
-			attacks |= (1ULL << (origin_rank * 8 + f));
-			if ((1ULL << (origin_rank * 8 + f)) & block) break;
+		for (f = tf + 1; f <= FILE_H; ++f) {
+			attacks |= (1ULL << (tr * 8 + f));
+			if ((1ULL << (tr * 8 + f)) & block) break;
 		}
-		for (f = origin_file - 1; f >= 0; --f) {
-			attacks |= (1ULL << (origin_rank * 8 + f));
-			if ((1ULL << (origin_rank * 8 + f)) & block) break;
+		for (f = tf - 1; f >= FILE_A; --f) {
+			attacks |= (1ULL << (tr * 8 + f));
+			if ((1ULL << (tr * 8 + f)) & block) break;
 		}
 
 		return attacks;
@@ -400,7 +398,7 @@ namespace Clovis {
 
 			for (index = 0; index < occ_indices; ++index)
 			{
-				int magic_index = (int)((occ[index] * magic) >> (SQ_N - relevant_bits));
+				int magic_index = (occ[index] * magic) >> (SQ_N - relevant_bits);
 
 				if (used_attacks[magic_index] == 0ULL)
 					used_attacks[magic_index] = attacks[index];
@@ -419,13 +417,14 @@ namespace Clovis {
 	// populates magic number tables
 	void init_magic_numbers()
 	{
-		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-			//rook_magic_numbers[sq] = find_magic(sq, rook_relevant_bits[sq], false);
-			std::cout << "0x" << std::hex << find_magic(sq, rook_relevant_bits[sq], false) << "ULL, \n";
-
-		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-			//bishop_magic_numbers[sq] = find_magic(sq, bishop_relevant_bits[sq], true);
-			std::cout << "0x" << std::hex << find_magic(sq, bishop_relevant_bits[sq], true) << "ULL, \n";
+		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
+			r_magic[sq] = find_magic(sq, r_rbits[sq], false);
+			//std::cout << "0x" << std::hex << r_magic[sq] << "ULL, \n";
+		}
+		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
+			b_magic[sq] = find_magic(sq, b_rbits[sq], true);
+			//std::cout << "0x" << std::hex << b_magic[sq] << "ULL, \n";
+		}
 	}
 
 	// populates leaper attack tables
@@ -460,13 +459,11 @@ namespace Clovis {
 				Bitboard occ = set_occupancy(attack_mask, index, relevant_bits_count);
 				if (is_bishop)
 				{
-					int magic_index = (occ * bishop_magic_numbers[sq]) >> (SQ_N - bishop_relevant_bits[sq]);
-					bishop_attacks[sq][magic_index] = bishop_otf(sq, occ);
+					bishop_attacks[sq][(occ * b_magic[sq]) >> (SQ_N - b_rbits[sq])] = bishop_otf(sq, occ);
 				}
 				else
 				{
-					int magic_index = (occ * rook_magic_numbers[sq]) >> (SQ_N - rook_relevant_bits[sq]);
-					rook_attacks[sq][magic_index] = rook_otf(sq, occ);
+					rook_attacks[sq][(occ * r_magic[sq]) >> (SQ_N - r_rbits[sq])] = rook_otf(sq, occ);
 				}
 			}
 		}
@@ -476,49 +473,48 @@ namespace Clovis {
 		}
 	}
 
-	void init_bitboards()
+	void init_bitboards(bool calc_magic)
 	{
 		init_leapers_attacks();
 		init_sliders_attacks();
 
-		init_magic_numbers();
+		if (calc_magic)
+			init_magic_numbers();
 	}
 
-	inline static Bitboard get_bishop_attacks(Bitboard occ, Square sq)
+	Bitboard get_bishop_attacks(Bitboard occ, Square sq)
 	{
 		occ &= bishop_masks[sq];
-		occ *= bishop_magic_numbers[sq];
-		occ >>= SQ_N - bishop_relevant_bits[sq];
+		occ *= b_magic[sq];
+		occ >>= SQ_N - b_rbits[sq];
 
 		return bishop_attacks[sq][occ];
 	}
 
-	inline static Bitboard get_rook_attacks(Bitboard occ, Square sq)
+	Bitboard get_rook_attacks(Bitboard occ, Square sq)
 	{
 		occ &= rook_masks[sq];
-		occ *= rook_magic_numbers[sq];
-		occ >>= SQ_N - rook_relevant_bits[sq];
+		occ *= r_magic[sq];
+		occ >>= SQ_N - r_rbits[sq];
 
 		return rook_attacks[sq][occ];
 	}
 
-	inline static Bitboard get_queen_attacks(Bitboard occ, Square sq)
+	Bitboard get_queen_attacks(Bitboard occ, Square sq)
 	{
 		Bitboard queen_attacks = 0ULL;
-
 		Bitboard bishop_occ = occ;
-
 		Bitboard rook_occ = occ;
 
 		bishop_occ &= bishop_masks[sq];
-		bishop_occ *= bishop_magic_numbers[sq];
-		bishop_occ >>= SQ_N - bishop_relevant_bits[sq];
+		bishop_occ *= b_magic[sq];
+		bishop_occ >>= SQ_N - b_rbits[sq];
 
 		queen_attacks = bishop_attacks[sq][bishop_occ];
 
 		rook_occ &= rook_masks[sq];
-		rook_occ *= rook_magic_numbers[sq];
-		rook_occ >>= SQ_N - rook_relevant_bits[sq];
+		rook_occ *= r_magic[sq];
+		rook_occ >>= SQ_N - r_rbits[sq];
 
 		queen_attacks |= rook_attacks[sq][rook_occ];
 
