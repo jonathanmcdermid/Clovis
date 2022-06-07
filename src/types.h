@@ -10,6 +10,7 @@ namespace Clovis {
     typedef U64 Key;
     typedef U64 Bitboard;
 
+    constexpr int MAX_GAMEPHASE = 24;
     constexpr int MAX_MAGIC_LOOPS = INT_MAX;
     constexpr int MAX_PLY = 64;
     constexpr int MAX_MOVES = 256;
@@ -195,11 +196,15 @@ namespace Clovis {
         return Square((r << 3) + f);
     }
 
+    constexpr Square flip_square(Square sq) {
+        return Square(sq ^ 56);
+    }
+
     constexpr bool is_valid(Square sq) {
         return sq >= A1 && sq <= H8;
     }
 
-    constexpr bool get_side(Piece p) {
+    constexpr Colour get_side(Piece p) {
         return p < B_PAWN ? WHITE : BLACK;
     }
 

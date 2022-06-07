@@ -6,8 +6,17 @@
 
 #include "types.h"
 #include "bitboard.h"
+#include "evaluate.h"
 
 namespace Clovis {
+
+	class Position;
+
+	namespace Eval {
+
+		int evaluate(const Position& pos);
+
+	} // namespace Eval
 
 	std::string sq2str(Square s);
 
@@ -51,7 +60,7 @@ namespace Clovis {
 		BoardState* bs;
 		Colour side;
 		friend class MoveList;
-		friend int evaluate(const Position& pos);
+		friend int Eval::evaluate(const Position& pos);
 	};
 
 	inline Colour Position::side_to_move() const {
