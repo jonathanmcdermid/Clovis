@@ -6,9 +6,9 @@
 
 namespace Clovis {
 
-    const extern std::string PieceStr = " PNBRQK  pnbrqk";
+    const extern std::string piece_str = " PNBRQK  pnbrqk";
 
-    static const int position_size = sizeof(Position);
+    constexpr int position_size = sizeof(Position);
 
     // castling rights lookup table
     const int castling_rights[SQ_N] = {
@@ -42,7 +42,7 @@ namespace Clovis {
                 sq = sq + (token - '0') * EAST;
             else if (token == '/')
                 sq = sq + 2 * SOUTH;
-            else if ((index = PieceStr.find(token)) != PieceStr.size()) {
+            else if ((index = piece_str.find(token)) != piece_str.size()) {
                 put_piece(Piece(index), sq);
                 ++sq;
             }
@@ -71,12 +71,12 @@ namespace Clovis {
     // returns whether or not a square is attacked by a particular side
     bool Position::is_attacked (Square sq, Colour s) const
     {
-        return ((piece_bitboard[make_piece(PAWN, s)] & pawn_attacks[!s][sq]) ||
-            (piece_bitboard[make_piece(KNIGHT, s)] & knight_attacks[sq]) ||
-            (piece_bitboard[make_piece(BISHOP, s)] & get_bishop_attacks(occ_bitboard[BOTH], sq)) ||
-            (piece_bitboard[make_piece(ROOK, s)] & get_rook_attacks(occ_bitboard[BOTH], sq)) ||
-            (piece_bitboard[make_piece(QUEEN, s)] & get_queen_attacks(occ_bitboard[BOTH], sq)) ||
-            (piece_bitboard[make_piece(KING, s)] & king_attacks[sq]));
+        return ((piece_bitboard[make_piece(PAWN, s)] & Bitboards::pawn_attacks[!s][sq]) ||
+            (piece_bitboard[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) ||
+            (piece_bitboard[make_piece(BISHOP, s)] & Bitboards::get_bishop_attacks(occ_bitboard[BOTH], sq)) ||
+            (piece_bitboard[make_piece(ROOK, s)] & Bitboards::get_rook_attacks(occ_bitboard[BOTH], sq)) ||
+            (piece_bitboard[make_piece(QUEEN, s)] & Bitboards::get_queen_attacks(occ_bitboard[BOTH], sq)) ||
+            (piece_bitboard[make_piece(KING, s)] & Bitboards::king_attacks[sq]));
     }
 
     // updates bitboards to represent a new piece on a square
@@ -249,7 +249,7 @@ namespace Clovis {
                     if (get_bit(piece_bitboard[bb_piece], sq))
                         break;
 
-                std::cout << "| " << ((bb_piece > B_KING) ? ' ' : PieceStr[bb_piece]) << " ";
+                std::cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
             }
             std::cout << "|" + std::to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
         }
@@ -272,9 +272,9 @@ namespace Clovis {
         // therefore some of the bitboards printed are empty
         std::cout << "Printing Bitboards\n";
         for (auto it : piece_bitboard)
-            print_bitboard(it);
+            Bitboards::print_bitboard(it);
         for (auto it : occ_bitboard)
-            print_bitboard(it);
+            Bitboards::print_bitboard(it);
     }
 
     // prints the attacked squares for a given side

@@ -11,7 +11,7 @@ namespace Clovis {
 
 	std::string sq2str(Square s);
 
-	const extern std::string PieceStr;
+	const extern std::string piece_str;
 
 	// generation type flags for quiescent search
 	enum GenType {

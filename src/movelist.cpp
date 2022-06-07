@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "movelist.h"
 
 namespace Clovis {
@@ -62,7 +60,7 @@ namespace Clovis {
                 }
             }
 
-            att = pawn_attacks[pos.side][src] & pos.occ_bitboard[!pos.side];
+            att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[!pos.side];
 
             while (att)
             {
@@ -82,7 +80,7 @@ namespace Clovis {
 
             if (pos.bs->enpassant != SQ_NONE)
             {
-                Bitboard enpassant_attacks = pawn_attacks[pos.side][src] & (1ULL << pos.bs->enpassant);
+                Bitboard enpassant_attacks = Bitboards::pawn_attacks[pos.side][src] & (1ULL << pos.bs->enpassant);
 
                 if (enpassant_attacks)
                 {
@@ -119,11 +117,11 @@ namespace Clovis {
                 att = ~pos.occ_bitboard[pos.side];
 
                 switch (pt) {
-                case KNIGHT: att &= knight_attacks[src]; break;
-                case BISHOP: att &= get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
-                case ROOK: att &= get_rook_attacks(pos.occ_bitboard[BOTH], src); break;
-                case QUEEN: att &= get_queen_attacks(pos.occ_bitboard[BOTH], src); break;
-                default: att &= king_attacks[src];
+                case KNIGHT: att &= Bitboards::knight_attacks[src]; break;
+                case BISHOP: att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
+                case ROOK: att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); break;
+                case QUEEN: att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src); break;
+                default: att &= Bitboards::king_attacks[src];
                 }
 
                 while (att)
@@ -150,8 +148,8 @@ namespace Clovis {
         {
             std::cout << sq2str(move_from_sq(*move))
                 << sq2str(move_to_sq(*move)) 
-                << PieceStr[move_promotion_type(*move)] << '\t'
-                << PieceStr[move_piece_type(*move)] << '\t'
+                << piece_str[move_promotion_type(*move)] << '\t'
+                << piece_str[move_piece_type(*move)] << '\t'
                 << int(move_capture(*move)) << '\t'
                 << int(move_double(*move)) << '\t'
                 << int(move_enpassant(*move)) << '\t'
