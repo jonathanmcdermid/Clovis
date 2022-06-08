@@ -2,25 +2,6 @@
 
 namespace Clovis {
 
-    // MVV-LVA lookup table [attacker][victim]
-    constexpr int mvv_lva[15][15] = {
-          0,   0,   0,   0,   0,   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
-          0, 105, 205, 305, 405, 505, 605,    0,   0, 105, 205, 305, 405, 505, 605,
-          0, 104, 204, 304, 404, 504, 604,    0,   0, 104, 204, 304, 404, 504, 604,
-          0, 103, 203, 303, 403, 503, 603,    0,   0, 103, 203, 303, 403, 503, 603,
-          0, 102, 202, 302, 402, 502, 602,    0,   0, 102, 202, 302, 402, 502, 602,
-          0, 101, 201, 301, 401, 501, 601,    0,   0, 101, 201, 301, 401, 501, 601,
-          0, 100, 200, 300, 400, 500, 600,    0,   0, 100, 200, 300, 400, 500, 600,
-          0,   0,   0,   0,   0,   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
-          0,   0,   0,   0,   0,   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
-          0, 105, 205, 305, 405, 505, 605,    0,   0, 105, 205, 305, 405, 505, 605,
-          0, 104, 204, 304, 404, 504, 604,    0,   0, 104, 204, 304, 404, 504, 604,
-          0, 103, 203, 303, 403, 503, 603,    0,   0, 103, 203, 303, 403, 503, 603,
-          0, 102, 202, 302, 402, 502, 602,    0,   0, 102, 202, 302, 402, 502, 602,
-          0, 101, 201, 301, 401, 501, 601,    0,   0, 101, 201, 301, 401, 501, 601,
-          0, 100, 200, 300, 400, 500, 600,    0,   0, 100, 200, 300, 400, 500, 600
-    };
-
     // gen all pseudo-legal moves for a position
     ScoredMove* gen_moves(const Position& pos, ScoredMove* ml)
     {
@@ -61,18 +42,18 @@ namespace Clovis {
                 // promotion
                 if (rank_of(src) == promorank)
                 {
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 0, 0, 0, 0));
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 0, 0, 0, 0));
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 0, 0, 0, 0));
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 0, 0, 0, 0));
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 0, 0, 0, 0);
                 }
                 else
                 {
                     // single push
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0));
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     // double push
                     if ((rank_of(src)) == dprank && !get_bit(pos.occ_bitboard[BOTH], tar + dir))
-                        *ml++ = score_move(pos, encode_move(src, tar + dir, pos.piece_board[src], NO_PIECE, 0, 1, 0, 0));
+                        *ml++ = encode_move(src, tar + dir, pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
                 }
             }
 
@@ -84,13 +65,13 @@ namespace Clovis {
 
                 if (rank_of(src) == promorank)
                 {
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 1, 0, 0, 0));
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 1, 0, 0, 0));
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 1, 0, 0, 0));
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 1, 0, 0, 0));
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 1, 0, 0, 0);
                 }
                 else
-                    *ml++ = score_move(pos, encode_move(src, tar, make_piece(PAWN, pos.side), NO_PIECE, 1, 0, 0, 0));
+                    *ml++ = encode_move(src, tar, make_piece(PAWN, pos.side), NO_PIECE, 1, 0, 0, 0);
                 pop_bit(att, tar);
             }
 
@@ -101,7 +82,7 @@ namespace Clovis {
                 if (enpassant_attacks)
                 {
                     tar = get_lsb_index(enpassant_attacks);
-                    *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 1, 0));
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 1, 0);
                 }
             }
             pop_bit(bb, src);
@@ -112,7 +93,7 @@ namespace Clovis {
             if (!get_bit(pos.occ_bitboard[BOTH], kingpos + EAST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * EAST))
             {
                 if (!pos.is_attacked(kingpos, Colour(!pos.side)) && !pos.is_attacked(kingpos + EAST, Colour(!pos.side)))
-                    *ml++ = score_move(pos, encode_move(kingpos, kingpos + 2 * EAST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1));
+                    *ml++ = encode_move(kingpos, kingpos + 2 * EAST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
             }
         }
 
@@ -121,7 +102,7 @@ namespace Clovis {
             if (!get_bit(pos.occ_bitboard[BOTH], kingpos + WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 3 * WEST))
             {
                 if (!pos.is_attacked(kingpos, Colour(!pos.side)) && !pos.is_attacked(kingpos + WEST, Colour(!pos.side)))
-                    *ml++ = score_move(pos, encode_move(kingpos, kingpos + 2 * WEST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1));
+                    *ml++ = encode_move(kingpos, kingpos + 2 * WEST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
             }
         }
 
@@ -145,9 +126,9 @@ namespace Clovis {
                     tar = get_lsb_index(att);
 
                     if (!get_bit((pos.occ_bitboard[!pos.side]), tar))
-                        *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0));
+                        *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     else
-                        *ml++ = score_move(pos, encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0));
+                        *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
                     pop_bit(att, tar);
                 }
                 pop_bit(bb, src);
@@ -155,21 +136,6 @@ namespace Clovis {
         }
 
         return ml;
-    }
-
-    ScoredMove score_move(const Position& pos, const Move m) 
-    {
-        ScoredMove sm;
-        sm.m = m;
-        if (move_capture(m))
-        {
-            sm.score = mvv_lva[move_piece_type(m)][pos.piece_on(move_to_sq(m))];
-        }
-        else
-        {
-            sm.score = 0; // work to be done here
-        }
-        return sm;
     }
 
     namespace MoveGen {

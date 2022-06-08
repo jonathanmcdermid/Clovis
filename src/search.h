@@ -30,7 +30,7 @@ namespace Clovis {
 
         Move start_search(Position& pos, SearchLimits& lim);
         int negamax(Position& pos, int alpha, int beta, int depth, int ply);
-        int quiescent(Position& pos, int alpha, int beta);
+        int quiescent(Position& pos, int alpha, int beta, int ply);
         void init_search();
         void clear();
 

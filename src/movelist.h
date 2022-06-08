@@ -23,7 +23,6 @@ namespace Clovis {
 	}
 
 	ScoredMove* gen_moves(const Position& pos, ScoredMove* ml);
-	ScoredMove score_move(const Position& pos, const Move m);
 
 	namespace MoveGen {
 
