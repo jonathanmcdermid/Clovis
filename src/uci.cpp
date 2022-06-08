@@ -84,7 +84,6 @@ namespace Clovis {
 
 			while (is >> token && (m = UCI::to_move(pos, token)) != MOVE_NONE) {
 				pos.do_move(m);
-				pos.print_position();
 			}
 		}
 

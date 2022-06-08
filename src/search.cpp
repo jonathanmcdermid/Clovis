@@ -76,6 +76,9 @@ namespace Clovis {
         {
             ++nodes;
 
+            return Eval::evaluate(pos);
+
+
             int score = Eval::evaluate(pos);
 
             if (score >= beta)
