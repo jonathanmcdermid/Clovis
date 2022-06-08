@@ -18,6 +18,7 @@ namespace Clovis {
             int alpha = NEG_INF;
             int beta = POS_INF;
             int score;
+
             for (int depth = 1; depth <= MAX_PLY; ++depth) {
                 score = negamax(pos, alpha, beta, depth, 0);
                 std::cout << "info depth " << depth
@@ -28,8 +29,11 @@ namespace Clovis {
                 if (tm.get_time_elapsed() > allocated_time)
                     break;
             }
-            std::cout << "time " << tm.get_time_elapsed() << std::endl;
-            std::cout << "bestmove " << UCI::move2str(best_move) << std::endl;
+
+            std::cout << "time " << tm.get_time_elapsed() << std::endl
+                << "bestmove " << UCI::move2str(best_move) 
+                << std::endl;
+
             return best_move;
         }
 
@@ -41,14 +45,19 @@ namespace Clovis {
             ++nodes;
             int score = NEG_INF;
 
-            for (const auto& m : MoveList(pos))
+            MovePick::MovePicker mp = MovePick::MovePicker(pos);
+            mp.sm_sort();
+
+            ScoredMove curr_move;
+            
+            while ((curr_move = mp.get_next()) != MOVE_NONE) 
             {
                 // illegal move
-                if (pos.do_move(m) == false) continue;
+                if (pos.do_move(curr_move.m) == false) continue;
 
                 score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1);
 
-                pos.undo_move(m);
+                pos.undo_move(curr_move.m);
 
                 if (score > alpha)
                 {
@@ -62,10 +71,12 @@ namespace Clovis {
                     alpha = score;
 
                     if (ply == 0) {
-                        best_move = m;
+                        best_move = curr_move.m;
                     }
                 }
             }
+
+            // no legal moves
             if (score == NEG_INF)
                 return pos.is_king_in_check(pos.side_to_move()) ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
@@ -81,16 +92,25 @@ namespace Clovis {
             if (score >= beta)
                 return beta;
 
+            if (score > alpha)
+                alpha = score;
+
             int best_score = score;
 
-            for (const auto& m : MoveList(pos))
+            MovePick::MovePicker mp = MovePick::MovePicker(pos);
+            mp.sm_sort();
+            
+            ScoredMove curr_move;
+
+            while ((curr_move = mp.get_next()) != MOVE_NONE)
             {
                 // illegal move or non capture
-                if (pos.do_move(m, true) == false) continue;
+                if (pos.do_move(curr_move.m, true) == false) 
+                    continue;
 
                 score = -quiescent(pos, -beta, -alpha);
 
-                pos.undo_move(m);
+                pos.undo_move(curr_move.m);
 
                 if (score > best_score)
                 {

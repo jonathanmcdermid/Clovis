@@ -4,6 +4,7 @@
 #include "position.h"
 #include "evaluate.h"
 #include "movelist.h"
+#include "movepicker.h"
 #include "time.h"
 
 namespace Clovis {

@@ -7,16 +7,21 @@
 #include "types.h"
 #include "bitboard.h"
 #include "evaluate.h"
+#include "movelist.h"
 
 namespace Clovis {
 
 	class Position;
+
+	struct ScoredMove;
 
 	namespace Eval {
 
 		int evaluate(const Position& pos);
 
 	} // namespace Eval
+
+	ScoredMove* gen_moves(const Position& pos, ScoredMove* ml);
 
 	std::string sq2str(Square s);
 
@@ -54,7 +59,7 @@ namespace Clovis {
 		Bitboard occ_bitboard[COLOUR_N + 1];
 		BoardState* bs;
 		Colour side;
-		friend class MoveList;
+		friend ScoredMove* gen_moves(const Position& pos, ScoredMove* ml);
 		friend int Eval::evaluate(const Position& pos);
 	};
 

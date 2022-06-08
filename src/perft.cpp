@@ -26,11 +26,11 @@ namespace Clovis {
 				return;
 			}
 
-			for (const auto& m : MoveList(pos)) {
-				if (!pos.do_move(m))
+			for (const auto& sm : MoveGen::MoveList(pos)) {
+				if (!pos.do_move(sm.m))
 					continue;
 				perft(depth - 1);
-				pos.undo_move(m);
+				pos.undo_move(sm.m);
 			}
 		}
 

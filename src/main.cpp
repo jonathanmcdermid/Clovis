@@ -1,6 +1,7 @@
 #include "UCI.h"
 #include "perft.h"
 #include "evaluate.h"
+#include "movelist.h"
 #include <iostream>
 
 using namespace Clovis;
