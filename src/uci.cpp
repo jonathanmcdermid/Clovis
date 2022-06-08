@@ -39,6 +39,7 @@ namespace Clovis {
 				else if (token == "position")   position(pos, is);
 				else if (token == "ucinewgame") Search::clear();
 				else if (token == "isready")    cout << "readyok" << endl;
+				else if (token == "local")		local(pos, is);
 			} while (token != "quit" && argc == 1);
 		}
 
@@ -55,7 +56,7 @@ namespace Clovis {
 				else if (token == "movestogo")	is >> limits.moves_left;
 				else if (token == "depth")		is >> limits.depth;
 				else if (token == "nodes")		is >> limits.nodes;
-				else if (token == "movetime")	is >> limits.moveTime;
+				else if (token == "movetime")	is >> limits.move_time;
 				else if (token == "mate")		is >> limits.mate;
 				else if (token == "perft")		is >> limits.perft;
 				else if (token == "infinite")	limits.infinite = 1;
@@ -83,6 +84,26 @@ namespace Clovis {
 
 			while (is >> token && (m = UCI::to_move(pos, token)) != MOVE_NONE) {
 				pos.do_move(m);
+				pos.print_position();
+			}
+		}
+
+		// for self play and debugging
+		void local(Position& pos, std::istringstream& is)
+		{
+			Search::SearchLimits limits;
+
+			string user_move;
+
+
+			while (1) {
+				pos.print_position();
+				do {
+					cin >> user_move;
+				} while (to_move(pos, user_move) == MOVE_NONE);
+				pos.do_move(to_move(pos, user_move));
+				pos.print_position();
+				pos.do_move(Search::start_search(pos, limits));
 			}
 		}
 

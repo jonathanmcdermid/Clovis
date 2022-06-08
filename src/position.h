@@ -22,11 +22,6 @@ namespace Clovis {
 
 	const extern std::string piece_str;
 
-	// generation type flags for quiescent search
-	enum GenType {
-		ALL_MOVES, ONLY_CAPTURES
-	};
-
 	// linked list implementation for board state info
 	struct BoardState {
 		BoardState* prev = NULL;
@@ -41,7 +36,7 @@ namespace Clovis {
 	public:
 		void set(const char* fen);
 		bool is_attacked(Square sq, Colour s) const;
-		bool do_move(Move m, int flag = ALL_MOVES);
+		bool do_move(Move m, bool only_captures = false);
 		void undo_move(Move m);
 		void print_position();
 		void print_bitboards();

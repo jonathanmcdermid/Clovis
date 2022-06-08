@@ -99,9 +99,9 @@ namespace Clovis {
     }
 
     // executes a move and updates the position
-    bool Position::do_move(Move m, int flag) 
+    bool Position::do_move(Move m, bool only_captures) 
     {
-        if (flag == ALL_MOVES || move_capture(m))
+        if (only_captures == false || move_capture(m))
         {
             BoardState* bs_new = new BoardState;
             assert(bs_new != bs);
@@ -170,6 +170,7 @@ namespace Clovis {
                 }
                 else if (move_promotion_type(m))
                 {
+                    remove_piece(tar);
                     put_piece(move_promotion_type(m), tar);
                 }
                 bs->hmc = 0;

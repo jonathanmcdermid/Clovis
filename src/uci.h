@@ -14,6 +14,7 @@ namespace Clovis {
 		void loop(int argc, char* argv[]);
 		void go(Position& pos, std::istringstream& is);
 		void position(Position& pos, std::istringstream& is);
+		void local(Position& pos, std::istringstream& is);
 		Move to_move(const Position& pos, std::string& str);
 		std::string move2str(Move m);
 

@@ -11,11 +11,6 @@ int main(int argc, char* argv[])
 	Search::init_search();
 	Eval::init_eval();
 
-	Position pos;
-	pos.set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
-	std::cout<<Eval::evaluate(pos);
-
 	UCI::loop(argc, argv);
 
 	return 0;

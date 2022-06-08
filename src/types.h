@@ -1,7 +1,5 @@
 #pragma once
 
-#include <climits>
-
 namespace Clovis {
 
     typedef unsigned int U32;
@@ -11,9 +9,13 @@ namespace Clovis {
     typedef U64 Bitboard;
 
     constexpr int MAX_GAMEPHASE = 24;
-    constexpr int MAX_MAGIC_LOOPS = INT_MAX;
+    constexpr int MAX_MAGIC_LOOPS = 50000;
+    constexpr int POS_INF = 50000;
+    constexpr int NEG_INF = -50000;
     constexpr int MAX_PLY = 64;
     constexpr int MAX_MOVES = 256;
+    constexpr int CHECKMATE_SCORE = 25000;
+    constexpr int DRAW_SCORE = -100;
 
     /*
                     MOVE BIT FORMATTING
