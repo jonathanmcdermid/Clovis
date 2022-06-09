@@ -138,9 +138,11 @@ namespace Clovis {
 
             int score;
 
+            if (king_in_check)
+                goto loop;
+
             // null move pruning
             if (pv_node == false &&
-                king_in_check == false &&
                 is_null == false &&
                 depth >= 3 &&
                 pos.has_promoted(pos.side_to_move())) 
@@ -152,7 +154,21 @@ namespace Clovis {
                     return beta;
             }
 
-            Move tt_move = (pv_node) ? pv_table[ply][ply] : MOVE_NONE;
+            // internal iterative deepening
+            if (tt_hit == false &&
+                ((pv_node && depth >= 6) || (pv_node == false && depth >= 8))) {
+                int iid_depth = pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2;
+                negamax(pos, alpha, beta, iid_depth, ply, false);
+                tte = tt.probe(pos.get_key(), tt_hit);
+                if (tt_hit) {
+                    pv_table[ply][ply] = tte->move;
+                    pv_length[ply] = 1;
+                }
+            }
+
+        loop:
+
+            Move tt_move = pv_table[ply][ply];
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply, tt_move);
             mp.sm_sort();
@@ -170,8 +186,9 @@ namespace Clovis {
             {
                 // illegal move
                 if (pos.do_move(curr_move.m) == false) continue;
-
-                if (moves_searched == 0)
+                if (pos.is_repeat())// || (myThread->myBoard.isMaterialDraw(WHITE) && myThread->myBoard.isMaterialDraw(BLACK)))
+                    score = DRAW_SCORE;
+                else if (moves_searched == 0)
                 {
                     score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
                 }

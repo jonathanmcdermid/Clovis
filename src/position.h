@@ -39,6 +39,7 @@ namespace Clovis {
 		int castle = 0;
 		int hmc = 0;
 		int fmc = 0;
+		int ply_null = 0;
 	};
 
 	class Position {
@@ -50,6 +51,7 @@ namespace Clovis {
 		bool is_attacked(Square sq, Colour s) const;
 		bool do_move(Move m, bool only_captures = false);
 		void undo_move(Move m);
+		bool is_repeat() const;
 		void print_position();
 		void print_bitboards();
 		void print_attacked_squares(Colour s);

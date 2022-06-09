@@ -151,6 +151,7 @@ namespace Clovis {
             bs_new->castle = bs->castle;
             bs_new->hmc = bs->hmc + 1;
             bs_new->fmc = bs->fmc + (side == BLACK);
+            bs_new->ply_null = bs->ply_null + 1;
             bs_new->key = bs->key;
             bs_new->prev = bs;
             // position now refers to new boardstate
@@ -165,6 +166,7 @@ namespace Clovis {
                     bs->enpassant = SQ_NONE;
                 }
                 bs->captured_piece = NO_PIECE;
+                bs->ply_null = 0;
                 goto nullmove;
             }
 
@@ -330,6 +332,20 @@ namespace Clovis {
         BoardState* temp = bs;
         bs = bs->prev;
         delete temp;
+    }
+
+    bool Position::is_repeat() const {
+
+        BoardState* temp = bs;
+       
+        for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4)
+        {
+            temp = temp->prev->prev->prev->prev;
+
+            if (temp->key == bs->key)
+                return true;
+        }
+        return false;
     }
 
     // prints the current position

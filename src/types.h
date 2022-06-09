@@ -15,7 +15,7 @@ namespace Clovis {
     constexpr int MAX_PLY = 64;
     constexpr int MAX_MOVES = 256;
     constexpr int CHECKMATE_SCORE = 25000;
-    constexpr int DRAW_SCORE = -100;
+    constexpr int DRAW_SCORE = 0;
 
     /*
                     MOVE BIT FORMATTING
