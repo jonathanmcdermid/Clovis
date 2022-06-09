@@ -9,14 +9,6 @@ namespace Clovis {
             ht[i] = TTEntry();
     }
 
-    // resets every other TTEntry in the table
-    void TTable::erode()
-    {
-        for (unsigned i = master; i < ht.size(); i += 2)
-            ht[i].depth = 0;
-        master = !master;
-    }
-
     // set the size of the table
     void TTable::setSize(int bytes) 
     {

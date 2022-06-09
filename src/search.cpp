@@ -60,7 +60,6 @@ namespace Clovis {
             memset(history, 0, sizeof(history));
             memset(pv_table, 0, sizeof(pv_table));
             memset(pv_length, 0, sizeof(pv_length));
-            tt.erode();
 
             nodes = 0;
 

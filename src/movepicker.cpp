@@ -49,7 +49,7 @@ namespace Clovis {
             }
             else if (move_capture(m))
             {
-                sm.score = 10000 + mvv_lva[move_piece_type(m)][pos.piece_on(move_to_sq(m))];
+                sm.score = 10000 + mvv_lva[move_piece_type(m)][pos.piece_on(move_to_sq(m))] + move_promotion_type(m);
             }
             else
             {
@@ -68,6 +68,27 @@ namespace Clovis {
 		void MovePicker::sm_sort() {
 			std::sort(curr, curr + (last - curr), sm_score_comp);
 		}
+
+        void MovePicker::print()
+        {
+            std::cout << "\nmove\tpiece\tcapture\tdouble\tenpass\tcastling\tscore\n\n";
+
+            int move_count = 0;
+            for (ScoredMove* m = moves; m != last; ++m, ++move_count)
+            {
+                std::cout << sq2str(move_from_sq(m->m))
+                    << sq2str(move_to_sq(m->m))
+                    << piece_str[move_promotion_type(m->m)] << '\t'
+                    << piece_str[move_piece_type(m->m)] << '\t'
+                    << int(move_capture(m->m)) << '\t'
+                    << int(move_double(m->m)) << '\t'
+                    << int(move_enpassant(m->m)) << '\t'
+                    << int(move_castling(m->m)) << '\t'
+                    << m->score << '\n';
+
+            }
+            std::cout << "\n\nTotal move count:" << move_count;
+        }
 
 		inline static bool sm_score_comp(ScoredMove const& lhs, ScoredMove const& rhs) {
 			return lhs.score > rhs.score;

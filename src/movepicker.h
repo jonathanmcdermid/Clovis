@@ -23,6 +23,7 @@ namespace Clovis {
 			ScoredMove score_move(const Position& pos, const Move m);
 			void sm_sort();
 			ScoredMove get_next();
+			void print();
 			const ScoredMove* begin() const { return moves; }
 			const ScoredMove* end() const { return last; }
 		private:

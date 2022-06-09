@@ -30,10 +30,8 @@ namespace Clovis {
 
 	class TTable {
     public:
-        TTable() { master = true; }
         void setSize(int bytes);
         void clear();
-        void erode();
         void newEntry(Key key, int d, int e, HashFlag f, Move m) { ht[key % ht.size()] = TTEntry(key, d, e, f, m); }
         void newEntry(Key key, TTEntry& h) { ht[key % ht.size()] = h; }
         TTEntry getEntry(Key key) const { return ht[key % ht.size()]; }
@@ -45,7 +43,6 @@ namespace Clovis {
         TTEntry* probe(Key key, bool& found);
     private:
         std::vector<TTEntry> ht;
-        bool master;
 	};
 
 } // Clovis
