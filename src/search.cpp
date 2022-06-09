@@ -18,6 +18,10 @@ namespace Clovis {
 
         int null_pruning_depth = 2;
 
+        int asp_window = 50;
+
+        int asp_threshold_depth = 5;
+
         // initialize LMR lookup table values
         void init_search()
         {
@@ -69,8 +73,21 @@ namespace Clovis {
                 for (int i = 0; i < pv_length[0]; ++i) 
                     std::cout << UCI::move2str(pv_table[0][i]) << " ";
                 std::cout << std::endl;
+
                 if (tm.get_time_elapsed() > allocated_time)
                     break;
+
+                if (score <= alpha || score >= beta) 
+                {
+                    beta = NEG_INF;
+                    alpha = POS_INF;
+                    --depth;
+                }
+                else 
+                {
+                    alpha = depth > asp_threshold_depth ? score - asp_window : NEG_INF;
+                    beta = depth > asp_threshold_depth ? score + asp_window : POS_INF;
+                }
             }
 
             std::cout << "time " << tm.get_time_elapsed() << std::endl
