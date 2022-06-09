@@ -45,7 +45,8 @@ namespace Clovis {
 	public:
 		static void init();
 		void set(const char* fen);
-		Key make_key();
+		Key get_key() const { return bs->key; }
+		void compute_key() { bs->key = make_key(); }
 		bool is_attacked(Square sq, Colour s) const;
 		bool do_move(Move m, bool only_captures = false);
 		void undo_move(Move m);
@@ -58,8 +59,9 @@ namespace Clovis {
 		Colour other_side(Colour c) const;
 		bool is_king_in_check(Colour c) const;
 		void change() { side = other_side(side); }
-		bool has_promoted() const;
+		bool has_promoted(Colour c) const;
 	private:
+		Key make_key();
 		void put_piece(Piece pc, Square s);
 		void remove_piece(Square s);
 		Piece piece_board[SQ_N];
@@ -92,16 +94,12 @@ namespace Clovis {
 		return is_attacked(get_lsb_index(piece_bitboard[make_piece(KING, c)]), other_side(c));
 	}
 
-	inline bool Position::has_promoted() const {
+	inline bool Position::has_promoted(Colour c) const {
 		return bool(
-			piece_bitboard[W_KNIGHT] |
-			piece_bitboard[B_KNIGHT] |
-			piece_bitboard[W_BISHOP] |
-			piece_bitboard[B_BISHOP] |
-			piece_bitboard[W_ROOK] |
-			piece_bitboard[B_ROOK] |
-			piece_bitboard[W_QUEEN] |
-			piece_bitboard[B_QUEEN]);
+			piece_bitboard[make_piece(KNIGHT, c)] |
+			piece_bitboard[make_piece(BISHOP, c)] |
+			piece_bitboard[make_piece(ROOK, c)] |
+			piece_bitboard[make_piece(QUEEN, c)]);
 	}
 
 } // namespace Clovis

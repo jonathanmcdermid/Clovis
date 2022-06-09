@@ -18,13 +18,16 @@ namespace Clovis {
 
         int null_pruning_depth = 2;
 
-        int asp_window = 50;
+        int asp_window = 25;
 
         int asp_threshold_depth = 5;
+
+        TTable tt;
 
         // initialize LMR lookup table values
         void init_search()
         {
+            tt.setSize(220000000);
             clear();
             init_lmr_tables();
         }
@@ -43,6 +46,7 @@ namespace Clovis {
             memset(history, 0, sizeof(history));
             memset(pv_table, 0, sizeof(pv_table));
             memset(pv_length, 0, sizeof(pv_length));
+            tt.clear();
         }
 
         // begin search
@@ -56,6 +60,7 @@ namespace Clovis {
             memset(history, 0, sizeof(history));
             memset(pv_table, 0, sizeof(pv_table));
             memset(pv_length, 0, sizeof(pv_length));
+            tt.erode();
 
             nodes = 0;
 
@@ -79,8 +84,8 @@ namespace Clovis {
 
                 if (score <= alpha || score >= beta) 
                 {
-                    beta = NEG_INF;
-                    alpha = POS_INF;
+                    alpha = NEG_INF;
+                    beta = POS_INF;
                     --depth;
                 }
                 else 
@@ -113,6 +118,22 @@ namespace Clovis {
 
             ++nodes;
 
+            bool tt_hit;
+            TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
+            if (tt_hit) 
+            {
+                pv_table[ply][ply] = tte->move;
+                pv_length[ply] = 1;
+                if (pv_node == false &&
+                    tte->depth >= depth &&
+                    (tte->flags == HASH_EXACT ||
+                    (tte->flags == HASH_BETA && tte->eval >= beta) ||
+                    (tte->flags == HASH_ALPHA && tte->eval <= alpha))) 
+                {
+                    return tte->eval;
+                }
+            }
+
             bool king_in_check = pos.is_king_in_check(pos.side_to_move());
 
             int score;
@@ -121,28 +142,29 @@ namespace Clovis {
             if (pv_node == false &&
                 king_in_check == false &&
                 is_null == false &&
-                depth > 2 &&
-                pos.has_promoted()) 
+                depth >= 3 &&
+                pos.has_promoted(pos.side_to_move())) 
             {
                 pos.do_move(MOVE_NULL);
-                score = -negamax(pos, -beta, -beta + 1, depth - 2, ply, true);
+                score = -negamax(pos, -beta, -beta + 1, depth - 3, ply + 1, true);
                 pos.undo_move(MOVE_NULL);
                 if (score >= beta)
                     return beta;
             }
 
-            Move pv_move = (pv_node) ? pv_table[ply][ply] : MOVE_NONE;
+            Move tt_move = (pv_node) ? pv_table[ply][ply] : MOVE_NONE;
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply, pv_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply, tt_move);
             mp.sm_sort();
 
             ScoredMove curr_move;
 
-            if (king_in_check) {
+            if (king_in_check) 
                 ++depth;
-            }
 
             int moves_searched = 0;
+
+            HashFlag eval_type = HASH_ALPHA;
 
             while ((curr_move = mp.get_next()) != MOVE_NONE)
             {
@@ -201,6 +223,8 @@ namespace Clovis {
                             killers[MAX_PLY + ply] = killers[ply];
                             killers[ply] = curr_move.m;
                         }
+                        if (tte->depth <= depth)
+                            *tte = TTEntry(pos.get_key(), depth, score, HASH_BETA, curr_move.m);
                         return beta;
                     }
 
@@ -219,6 +243,8 @@ namespace Clovis {
 
                     pv_length[ply] = pv_length[ply + 1];
 
+                    eval_type = HASH_EXACT;
+
                     // new best move found
                     alpha = score;
                 }
@@ -230,6 +256,9 @@ namespace Clovis {
             if (moves_searched == 0)
                 return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
+            if (tte->depth <= depth)
+                *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, pv_table[ply][ply]);
+
             return alpha;
         }
 
@@ -237,10 +266,24 @@ namespace Clovis {
         {
             ++nodes;
 
+            bool tt_hit;
+            TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
+            if (tt_hit) 
+            {
+                if (tte->flags == HASH_EXACT ||
+                   (tte->flags == HASH_BETA && tte->eval >= beta) ||
+                   (tte->flags == HASH_ALPHA && tte->eval <= alpha)) 
+                {
+                    return tte->eval;
+                }
+            }
+
             int score = Eval::evaluate(pos);
 
             if (score >= beta)
                 return beta;
+
+            int old_alpha = alpha;
 
             if (score > alpha)
                 alpha = score;
@@ -249,6 +292,11 @@ namespace Clovis {
             mp.sm_sort();
             
             ScoredMove curr_move;
+
+            bool once = false;
+
+            ScoredMove best_move;
+            best_move.score = NEG_INF;
 
             while ((curr_move = mp.get_next()) != MOVE_NONE)
             {
@@ -263,14 +311,24 @@ namespace Clovis {
                 // fail high
                 if (score >= beta)
                 {
+                    if (tte->depth == 0)
+                        *tte = TTEntry(pos.get_key(), 0, score, HASH_BETA, curr_move.m);
                     return beta;
                 }
-                if (score > alpha)
+                if (score > best_move.score)
                 {
-                    // new best move found
-                    alpha = score;
+                    best_move.score = score;
+                    best_move.m = curr_move.m;
+                    if (score > alpha)
+                    {
+                        // new best move found
+                        alpha = score;
+                    }
                 }
             }
+
+            if (best_move.score != NEG_INF && tte->depth == 0)
+                *tte = TTEntry(pos.get_key(), 0, best_move.score, best_move.score > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move.m);
 
             return alpha;
         }

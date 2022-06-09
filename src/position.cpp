@@ -256,6 +256,18 @@ namespace Clovis {
             side = other_side(side);
             bs->key ^= Zobrist::side;
 
+            //Key checkhash = make_key();
+            //
+            //if (checkhash != bs->key)
+            //{
+            //    std::cout << UCI::move2str(m) << "\n";
+            //    print_position();
+            //    undo_move(m);
+            //    print_position();
+            //    U64 sss = bs->key ^ checkhash;
+            //    side = side;
+            //}
+
             // move gen doesnt check for suicidal king, so we check here
             if (is_king_in_check(other_side(side)))
             {

@@ -43,7 +43,7 @@ namespace Clovis {
             ScoredMove sm;
             sm.m = m;
 
-            if (m == pv_move) 
+            if (m == tt_move) 
             {
                 sm.score = 15000;
             }
@@ -57,6 +57,8 @@ namespace Clovis {
                     sm.score = 9999;
                 else if (killers[MAX_PLY + ply] == m)
                     sm.score = 8888;
+                else if (move_promotion_type(m))
+                    sm.score = 5000 + move_promotion_type(m);
                 else
                     sm.score = history[move_piece_type(m) * SQ_N + move_to_sq(m)];
             }

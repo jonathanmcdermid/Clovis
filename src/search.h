@@ -6,6 +6,7 @@
 #include "movelist.h"
 #include "movepicker.h"
 #include "time.h"
+#include "tt.h"
 
 namespace Clovis {
 

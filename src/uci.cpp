@@ -10,9 +10,9 @@ namespace Clovis {
 
 	namespace UCI {
 
-		const char* version_no = "Clovis v0.5";
+		const char* version_no = "Clovis v0.6";
 		const char* authors = "Jonathan McDermid";
-		const char* start_pos = "1nbqkbnr/Pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1";
+		const char* start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		const char* promo_str = " pnbrqk  pnbrqk";
 
 		void loop(int argc, char* argv[])
@@ -95,11 +95,11 @@ namespace Clovis {
 			string user_move;
 
 			while (1) {
-				//pos.print_position();
-				//do {
-				//	cin >> user_move;
-				//} while (to_move(pos, user_move) == MOVE_NONE);
-				//pos.do_move(to_move(pos, user_move));
+				pos.print_position();
+				do {
+					cin >> user_move;
+				} while (to_move(pos, user_move) == MOVE_NONE);
+				pos.do_move(to_move(pos, user_move));
 				pos.print_position();
 				pos.do_move(Search::start_search(pos, limits));
 			}
