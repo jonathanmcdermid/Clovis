@@ -105,10 +105,6 @@ namespace Clovis {
         {
             BoardState* bs_new = new BoardState;
             assert(bs_new != bs);
-            assert(get_side(move_piece_type(m)) == side);
-            assert(get_side(piece_board[move_from_sq(m)]) == side);
-            assert(piece_board[move_to_sq(m)] == NO_PIECE || get_side(piece_board[move_to_sq(m)]) != side);
-            assert(piece_type(piece_board[move_to_sq(m)]) != KING);
             // copy old boardstate info to new boardstate and update clocks
             bs_new->enpassant = bs->enpassant;
             bs_new->castle = bs->castle;
@@ -118,12 +114,26 @@ namespace Clovis {
             // position now refers to new boardstate
             bs = bs_new;
 
+            // null moves
+            if (m == MOVE_NULL)
+            {
+                bs->enpassant = SQ_NONE;
+                bs->captured_piece = NO_PIECE;
+                goto nullmove;
+            }
+
             Square src = move_from_sq(m);
             Square tar = move_to_sq(m);
             Piece piece = move_piece_type(m);
 
+            assert(get_side(move_piece_type(m)) == side);
+            assert(get_side(piece_board[src]) == side);
+            assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
+            assert(piece_type(piece_board[tar]) != KING);
+
             // move piece
             bs->captured_piece = piece_board[tar];
+
             remove_piece(tar); // only necessary for caps
             put_piece(piece, tar);
             remove_piece(src);
@@ -132,12 +142,12 @@ namespace Clovis {
             {
                 Square rt;
                 Square rf;
-                if (king_side_castle(src, tar)) 
+                if (king_side_castle(src, tar))
                 {
                     rt = make_square(FILE_F, rank_of(src));
                     rf = rt + 2 * EAST;
                 }
-                else 
+                else
                 {
                     rt = make_square(FILE_D, rank_of(src));
                     rf = rt + 3 * WEST;
@@ -152,9 +162,9 @@ namespace Clovis {
 
             if (move_capture(m))
             {
-                if (move_enpassant(m)) 
+                if (move_enpassant(m))
                 {
-                    bs->captured_piece = make_piece(PAWN, change_side(side));
+                    bs->captured_piece = make_piece(PAWN, other_side(side));
                     remove_piece(tar - pawn_push(side));
                 }
                 bs->hmc = 0;
@@ -176,10 +186,12 @@ namespace Clovis {
                 bs->hmc = 0;
             }
 
-            side = change_side(side);
+        nullmove:
+
+            side = other_side(side);
 
             // move gen doesnt check for suicidal king, so we check here
-            if (is_king_in_check(change_side(side))) 
+            if (is_king_in_check(other_side(side)))
             {
                 undo_move(m);
                 return false;
@@ -192,7 +204,11 @@ namespace Clovis {
     // reverts a move and rolls back the position
     void Position::undo_move(Move m)
     {
-        side = change_side(side);
+        side = other_side(side);
+
+        // null moves
+        if (m == MOVE_NULL)
+            goto nullmove;
 
         Square src = move_from_sq(m);
         Square tar = move_to_sq(m);
@@ -204,12 +220,12 @@ namespace Clovis {
         {
             Square rt;
             Square rf;
-            if (king_side_castle(src, tar)) 
+            if (king_side_castle(src, tar))
             {
                 rt = make_square(FILE_F, rank_of(src));
                 rf = rt + 2 * EAST;
             }
-            else 
+            else
             {
                 rt = make_square(FILE_D, rank_of(src));
                 rf = rt + 3 * WEST;
@@ -222,13 +238,16 @@ namespace Clovis {
         {
             if (move_enpassant(m))
             {
-                put_piece(bs->captured_piece, tar - pawn_push(side)); 
+                put_piece(bs->captured_piece, tar - pawn_push(side));
             }
-            else 
+            else
             {
                 put_piece(bs->captured_piece, tar);
             }
         }
+
+    nullmove:
+
         assert(bs->prev != NULL);
         BoardState* temp = bs;
         bs = bs->prev;

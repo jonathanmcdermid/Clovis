@@ -33,7 +33,8 @@ namespace Clovis {
     */
 
     enum Move : int {
-        MOVE_NONE
+        MOVE_NONE,
+        MOVE_NULL = 65
     };
 
     enum Colour {

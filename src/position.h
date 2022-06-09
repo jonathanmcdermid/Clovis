@@ -49,8 +49,10 @@ namespace Clovis {
 		Colour side_to_move() const;
 		Piece piece_on(Square s) const;
 		bool empty(Square s) const;
-		Colour change_side(Colour c) const;
+		Colour other_side(Colour c) const;
 		bool is_king_in_check(Colour c) const;
+		void change() { side = other_side(side); }
+		bool has_promoted() const;
 	private:
 		void put_piece(Piece pc, Square s);
 		void remove_piece(Square s);
@@ -76,12 +78,24 @@ namespace Clovis {
 		return piece_on(sq) == NO_PIECE;
 	}
 
-	inline Colour Position::change_side(Colour c) const {
+	inline Colour Position::other_side(Colour c) const {
 		return c == WHITE ? BLACK : WHITE;
 	}
 
 	inline bool Position::is_king_in_check(Colour c) const {
-		return is_attacked(get_lsb_index(piece_bitboard[make_piece(KING, c)]), change_side(c));
+		return is_attacked(get_lsb_index(piece_bitboard[make_piece(KING, c)]), other_side(c));
+	}
+
+	inline bool Position::has_promoted() const {
+		return bool(
+			piece_bitboard[W_KNIGHT] |
+			piece_bitboard[B_KNIGHT] |
+			piece_bitboard[W_BISHOP] |
+			piece_bitboard[B_BISHOP] |
+			piece_bitboard[W_ROOK] |
+			piece_bitboard[B_ROOK] |
+			piece_bitboard[W_QUEEN] |
+			piece_bitboard[B_QUEEN]);
 	}
 
 } // namespace Clovis

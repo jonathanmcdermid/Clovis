@@ -16,6 +16,8 @@ namespace Clovis {
 
         int lmr_table[MAX_PLY + 1][64];
 
+        int null_pruning_depth = 2;
+
         // initialize LMR lookup table values
         void init_search()
         {
@@ -59,7 +61,7 @@ namespace Clovis {
 
             for (int depth = 1; depth <= MAX_PLY; ++depth) 
             {
-                score = negamax(pos, alpha, beta, depth, 0);
+                score = negamax(pos, alpha, beta, depth, 0, false);
                 std::cout << "info depth " << depth
                     << " score cp " << score
                     << " nodes " << nodes
@@ -78,7 +80,7 @@ namespace Clovis {
             return pv_table[0][0];
         }
 
-        int negamax(Position& pos, int alpha, int beta, int depth, int ply)
+        int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null)
         {
             bool pv_node = beta - alpha != 1;
             bool root_node = ply == 0;
@@ -93,7 +95,24 @@ namespace Clovis {
                 return Eval::evaluate(pos);
 
             ++nodes;
-            int score = NEG_INF;
+
+            bool king_in_check = pos.is_king_in_check(pos.side_to_move());
+
+            int score;
+
+            // null move pruning
+            if (pv_node == false &&
+                king_in_check == false &&
+                is_null == false &&
+                depth > 2 &&
+                pos.has_promoted()) 
+            {
+                pos.do_move(MOVE_NULL);
+                score = -negamax(pos, -beta, -beta + 1, depth - 2, ply, true);
+                pos.undo_move(MOVE_NULL);
+                if (score >= beta)
+                    return beta;
+            }
 
             Move pv_move = (pv_node) ? pv_table[ply][ply] : MOVE_NONE;
 
@@ -101,8 +120,6 @@ namespace Clovis {
             mp.sm_sort();
 
             ScoredMove curr_move;
-
-            bool king_in_check = pos.is_king_in_check(pos.side_to_move());
 
             if (king_in_check) {
                 ++depth;
@@ -120,16 +137,16 @@ namespace Clovis {
 
                 if (found_pv) 
                 {
-                    score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1);
+                    score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false);
 
                     if (score > alpha && score < beta)
-                        score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1);
+                        score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
                 }
                 else
                 {
                     if (moves_searched == 0)
                     {
-                        score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1);
+                        score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
                     }
                     // late move reductions
                     else
@@ -148,7 +165,7 @@ namespace Clovis {
                             R = std::min(depth - 1, std::max(R, 1));
 
                             // search current move with reduced depth:
-                            score = -negamax(pos, -alpha - 1, -alpha, depth - R, ply + 1);
+                            score = -negamax(pos, -alpha - 1, -alpha, depth - R, ply + 1, false);
 
                         }
 
@@ -158,11 +175,11 @@ namespace Clovis {
                         if (score > alpha)
                         {
                             // re-search at full depth but with narrowed alpha beta window
-                            score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1);
+                            score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false);
 
                             // if previous search doesnt fail, re-search at full depth and full alpha beta window
                             if ((score > alpha) && (score < beta))
-                                score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1);
+                                score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
                         }
                     }
                 }
