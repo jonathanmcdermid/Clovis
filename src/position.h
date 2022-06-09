@@ -3,11 +3,14 @@
 #include <string>
 #include <memory>
 #include <cassert>
+#include <sstream>
+#include <iostream>
 
 #include "types.h"
 #include "bitboard.h"
 #include "evaluate.h"
 #include "movelist.h"
+#include "random.h"
 
 namespace Clovis {
 
@@ -32,6 +35,7 @@ namespace Clovis {
 		BoardState* prev = NULL;
 		Piece captured_piece = NO_PIECE;
 		Square enpassant = SQ_NONE;
+		Key key;
 		int castle = 0;
 		int hmc = 0;
 		int fmc = 0;
@@ -39,7 +43,9 @@ namespace Clovis {
 
 	class Position {
 	public:
+		static void init();
 		void set(const char* fen);
+		Key make_key();
 		bool is_attacked(Square sq, Colour s) const;
 		bool do_move(Move m, bool only_captures = false);
 		void undo_move(Move m);

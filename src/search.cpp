@@ -142,62 +142,49 @@ namespace Clovis {
                 ++depth;
             }
 
-            bool found_pv = false;
-
             int moves_searched = 0;
 
-            while ((curr_move = mp.get_next()) != MOVE_NONE) 
+            while ((curr_move = mp.get_next()) != MOVE_NONE)
             {
                 // illegal move
                 if (pos.do_move(curr_move.m) == false) continue;
 
-
-                if (found_pv) 
+                if (moves_searched == 0)
                 {
-                    score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false);
-
-                    if (score > alpha && score < beta)
-                        score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
+                    score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
                 }
+                // late move reductions
                 else
                 {
-                    if (moves_searched == 0)
+                    if (depth > 2 &&
+                        move_capture(curr_move.m) == 0 &&
+                        move_promotion_type(curr_move.m) == 0)
                     {
-                        score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
+                        // reduction factor
+                        int R = lmr_table[depth][moves_searched % 64];
+                        // increase for non pv nodes
+                        R += (pv_node == false);
+                        // increase for check evasions with king
+                        R += (king_in_check && piece_type(move_piece_type(curr_move.m)) == KING);
+
+                        R = std::min(depth - 1, std::max(R, 1));
+
+                        // search current move with reduced depth:
+                        score = -negamax(pos, -alpha - 1, -alpha, depth - R, ply + 1, false);
+
                     }
-                    // late move reductions
-                    else
+
+                    // hack to ensure full search
+                    else score = alpha + 1;
+
+                    if (score > alpha)
                     {
-                        if (depth > 2 && 
-                            move_capture(curr_move.m) == 0 && 
-                            move_promotion_type(curr_move.m) == 0)
-                        {
-                            // reduction factor
-                            int R = lmr_table[depth][moves_searched % 64];
-                            // increase for non pv nodes
-                            R += (pv_node == false);
-                            // increase for check evasions with king
-                            R += (king_in_check && piece_type(move_piece_type(curr_move.m)) == KING);
+                        // re-search at full depth but with narrowed alpha beta window
+                        score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false);
 
-                            R = std::min(depth - 1, std::max(R, 1));
-
-                            // search current move with reduced depth:
-                            score = -negamax(pos, -alpha - 1, -alpha, depth - R, ply + 1, false);
-
-                        }
-
-                        // hack to ensure full search
-                        else score = alpha + 1;
-
-                        if (score > alpha)
-                        {
-                            // re-search at full depth but with narrowed alpha beta window
-                            score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false);
-
-                            // if previous search doesnt fail, re-search at full depth and full alpha beta window
-                            if ((score > alpha) && (score < beta))
-                                score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
-                        }
+                        // if previous search doesnt fail, re-search at full depth and full alpha beta window
+                        if ((score > alpha) && (score < beta))
+                            score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
                     }
                 }
 
@@ -231,9 +218,6 @@ namespace Clovis {
                     }
 
                     pv_length[ply] = pv_length[ply + 1];
-
-                    if(found_pv == false) 
-                        found_pv = true;
 
                     // new best move found
                     alpha = score;

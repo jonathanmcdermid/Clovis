@@ -247,13 +247,13 @@ namespace Clovis {
 			File f, tf = file_of(sq);
 
 			for (r = tr + 1, f = tf + 1; r < RANK_8 && f < FILE_H; ++r, ++f)
-				attacks |= (1ULL << (r * RANK_NB + f));
+				attacks |= (1ULL << (r * RANK_N + f));
 			for (r = tr - 1, f = tf + 1; r > RANK_1 && f < FILE_H; --r, ++f)
-				attacks |= (1ULL << (r * RANK_NB + f));
+				attacks |= (1ULL << (r * RANK_N + f));
 			for (r = tr + 1, f = tf - 1; r < RANK_8 && f > FILE_A; ++r, --f)
-				attacks |= (1ULL << (r * RANK_NB + f));
+				attacks |= (1ULL << (r * RANK_N + f));
 			for (r = tr - 1, f = tf - 1; r > RANK_1 && f > FILE_A; --r, --f)
-				attacks |= (1ULL << (r * RANK_NB + f));
+				attacks |= (1ULL << (r * RANK_N + f));
 
 			return attacks;
 		}

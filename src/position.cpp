@@ -1,8 +1,5 @@
-#include <memory>
-#include <sstream>
-#include <iostream>
-
 #include "position.h"
+#include "UCI.h"
 
 namespace Clovis {
 
@@ -21,6 +18,27 @@ namespace Clovis {
         15, 15, 15, 15, 15, 15, 15, 15,
          7, 15, 15, 15,  3, 15, 15, 11
     };
+
+    namespace Zobrist {
+
+        Key piece_square[15][SQ_N];
+        Key enpassant[SQ_N];
+        Key castling[16];
+        Key side;
+
+    } // namespace Zobrist
+
+    void Position::init()
+    {
+        for (int i = NO_PIECE; i <= B_KING; ++i)
+            for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+                Zobrist::piece_square[i][sq] = Random::random_U64();
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+            Zobrist::enpassant[sq] = Random::random_U64();
+        for (int i = 0; i < 16; ++i)
+            Zobrist::castling[i] = Random::random_U64();
+        Zobrist::side = Random::random_U64();
+    }
 
     // sets position to the state specified by FEN string
 	void Position::set(const char* fen)
@@ -66,7 +84,30 @@ namespace Clovis {
         }
         else bs->enpassant = SQ_NONE;
         ss >> std::skipws >> bs->hmc >> bs->fmc;
+        bs->key = make_key();
 	}
+
+    Key Position::make_key()
+    {
+        Key k = 0ULL;
+
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) 
+        {
+            Piece p = piece_board[sq];
+            if(p != NO_PIECE)
+                k ^= Zobrist::piece_square[p][sq];
+        }
+
+        if (bs->enpassant != SQ_NONE)
+            k ^= Zobrist::enpassant[bs->enpassant];
+
+        if (side == BLACK)
+            k ^= Zobrist::side;
+
+        k ^= Zobrist::castling[bs->castle];
+
+        return k;
+    }
 
     // returns whether or not a square is attacked by a particular side
     bool Position::is_attacked (Square sq, Colour s) const
@@ -110,6 +151,7 @@ namespace Clovis {
             bs_new->castle = bs->castle;
             bs_new->hmc = bs->hmc + 1;
             bs_new->fmc = bs->fmc + (side == BLACK);
+            bs_new->key = bs->key;
             bs_new->prev = bs;
             // position now refers to new boardstate
             bs = bs_new;
@@ -117,7 +159,11 @@ namespace Clovis {
             // null moves
             if (m == MOVE_NULL)
             {
-                bs->enpassant = SQ_NONE;
+                if (bs->enpassant != SQ_NONE)
+                {
+                    bs->key ^= Zobrist::enpassant[bs->enpassant];
+                    bs->enpassant = SQ_NONE;
+                }
                 bs->captured_piece = NO_PIECE;
                 goto nullmove;
             }
@@ -134,10 +180,6 @@ namespace Clovis {
             // move piece
             bs->captured_piece = piece_board[tar];
 
-            remove_piece(tar); // only necessary for caps
-            put_piece(piece, tar);
-            remove_piece(src);
-
             if (move_castling(m))
             {
                 Square rt;
@@ -152,36 +194,59 @@ namespace Clovis {
                     rt = make_square(FILE_D, rank_of(src));
                     rf = rt + 3 * WEST;
                 }
+                bs->key ^= Zobrist::piece_square[piece_board[rf]][rf];
+                bs->key ^= Zobrist::piece_square[piece_board[rf]][rt];
                 remove_piece(rf);
                 put_piece(make_piece(ROOK, side), rt);
             }
 
             // update castling rights
+            bs->key ^= Zobrist::castling[bs->castle];
             bs->castle &= castling_rights[src];
             bs->castle &= castling_rights[tar];
+            bs->key ^= Zobrist::castling[bs->castle];
 
             if (move_capture(m))
             {
                 if (move_enpassant(m))
                 {
+                    Square victim_sq = tar - pawn_push(side);
                     bs->captured_piece = make_piece(PAWN, other_side(side));
-                    remove_piece(tar - pawn_push(side));
+                    bs->key ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
+                    remove_piece(victim_sq);
+                }
+                else
+                {
+                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    remove_piece(tar);
                 }
                 bs->hmc = 0;
             }
 
-            bs->enpassant = SQ_NONE;
+            put_piece(piece, tar);
+            bs->key ^= Zobrist::piece_square[piece_board[src]][src];
+            bs->key ^= Zobrist::piece_square[piece_board[src]][tar];
+            remove_piece(src);
+
+            if (bs->enpassant != SQ_NONE)
+            {
+                bs->key ^= Zobrist::enpassant[bs->enpassant];
+                bs->enpassant = SQ_NONE;
+            }
 
             if (piece_type(piece) == PAWN)
             {
                 if (move_double(m))
                 {
                     bs->enpassant = tar - pawn_push(side);
+                    bs->key ^= Zobrist::enpassant[bs->enpassant];
                 }
                 else if (move_promotion_type(m))
                 {
+                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                     remove_piece(tar);
                     put_piece(move_promotion_type(m), tar);
+                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                 }
                 bs->hmc = 0;
             }
@@ -189,6 +254,7 @@ namespace Clovis {
         nullmove:
 
             side = other_side(side);
+            bs->key ^= Zobrist::side;
 
             // move gen doesnt check for suicidal king, so we check here
             if (is_king_in_check(other_side(side)))
@@ -260,7 +326,7 @@ namespace Clovis {
         std::cout << "+---+---+---+---+---+---+---+---+\n";
         for (Rank r = RANK_8; r >= 0; --r)
         {
-            for (File f = FILE_A; f < FILE_NB; ++f)
+            for (File f = FILE_A; f < FILE_N; ++f)
             {
                 Square sq = make_square(f, r);
 
