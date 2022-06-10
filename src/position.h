@@ -52,7 +52,7 @@ namespace Clovis {
 		bool do_move(Move m, bool only_captures = false);
 		void undo_move(Move m);
 		bool is_repeat() const;
-		void print_position();
+		void print_position() const;
 		void print_bitboards();
 		void print_attacked_squares(Colour s);
 		Colour side_to_move() const;
@@ -62,6 +62,9 @@ namespace Clovis {
 		bool is_king_in_check(Colour c) const;
 		void change() { side = other_side(side); }
 		bool has_promoted(Colour c) const;
+		bool is_material_draw() const;
+		bool is_insufficient(Colour c) const;
+		bool is_draw_50() const;
 	private:
 		Key make_key();
 		void put_piece(Piece pc, Square s);
@@ -102,6 +105,23 @@ namespace Clovis {
 			piece_bitboard[make_piece(BISHOP, c)] |
 			piece_bitboard[make_piece(ROOK, c)] |
 			piece_bitboard[make_piece(QUEEN, c)]);
+	}
+
+	inline bool Position::is_material_draw() const {
+		return is_insufficient(WHITE) && is_insufficient(BLACK);
+	}
+
+	inline bool Position::is_insufficient(Colour c) const {
+		return 
+			(count_bits(piece_bitboard[make_piece(PAWN, c)]) == 0 &&
+			count_bits(piece_bitboard[make_piece(QUEEN, c)]) == 0 &&
+			count_bits(piece_bitboard[make_piece(ROOK, c)]) == 0 &&
+			(count_bits(piece_bitboard[make_piece(KNIGHT, c)]) < 3) &&
+			(count_bits(piece_bitboard[make_piece(BISHOP, c)]) + count_bits(piece_bitboard[make_piece(KNIGHT, c)]) / 2 < 2));
+	}
+
+	inline bool Position::is_draw_50() const {
+		return (bs->hmc >= 100);
 	}
 
 } // namespace Clovis

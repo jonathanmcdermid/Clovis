@@ -19,7 +19,6 @@ namespace Clovis {
 				tt_move = ttm;
 				score(pos);
 			}
-			void score(const Position& pos);
 			ScoredMove score_move(const Position& pos, const Move m);
 			void sm_sort();
 			ScoredMove get_next();
@@ -27,6 +26,7 @@ namespace Clovis {
 			const ScoredMove* begin() const { return moves; }
 			const ScoredMove* end() const { return last; }
 		private:
+			void score(const Position& pos);
 			ScoredMove* curr, * last;
 			ScoredMove moves[MAX_MOVES];
 			const Move* killers;

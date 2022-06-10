@@ -52,9 +52,17 @@ namespace Clovis {
         // begin search
         Move start_search(Position& pos, SearchLimits& lim)
         {
+
             TimePoint allocated_time = lim.time[pos.side_to_move()] / 20;
             TimeManager tm;
             tm.set();
+
+            MoveGen::MoveList ml = MoveGen::MoveList(pos);
+            if (ml.size() == 1)
+            {
+                pv_table[0][0] = ml.begin()->m;
+                goto end;
+            }
 
             memset(killers, 0, sizeof(killers));
             memset(history, 0, sizeof(history));
@@ -89,10 +97,18 @@ namespace Clovis {
                 }
                 else 
                 {
+                    if (score >= CHECKMATE_SCORE - MAX_PLY || 
+                        score <= -CHECKMATE_SCORE + MAX_PLY || 
+                        (score == DRAW_SCORE && pv_length[0] < depth)) 
+                    {
+                        break;
+                    }
                     alpha = depth > asp_threshold_depth ? score - asp_window : NEG_INF;
                     beta = depth > asp_threshold_depth ? score + asp_window : POS_INF;
                 }
             }
+
+        end:
 
             std::cout << "time " << tm.get_time_elapsed() << std::endl
                 << "bestmove " << UCI::move2str(pv_table[0][0]) 
@@ -116,6 +132,21 @@ namespace Clovis {
                 return Eval::evaluate(pos);
 
             ++nodes;
+
+            // Mate distance pruning
+            int mating_score = CHECKMATE_SCORE - ply;
+            if (mating_score < beta) {
+                beta = mating_score;
+                if (alpha >= mating_score)
+                    return alpha;
+            }
+
+            int mated_score = -CHECKMATE_SCORE + ply;
+            if (mated_score > alpha) {
+                alpha = mated_score;
+                if (beta <= mated_score)
+                    return beta;
+            }
 
             bool tt_hit;
             TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
@@ -167,7 +198,7 @@ namespace Clovis {
 
         loop:
 
-            Move tt_move = pv_table[ply][ply];
+            Move tt_move = (tt_hit) ? pv_table[ply][ply] : MOVE_NONE;
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply, tt_move);
             mp.sm_sort();
@@ -185,7 +216,7 @@ namespace Clovis {
             {
                 // illegal move
                 if (pos.do_move(curr_move.m) == false) continue;
-                if (pos.is_repeat())// || (myThread->myBoard.isMaterialDraw(WHITE) && myThread->myBoard.isMaterialDraw(BLACK)))
+                if (pos.is_repeat() || pos.is_draw_50())
                     score = DRAW_SCORE;
                 else if (moves_searched == 0)
                 {

@@ -26,9 +26,9 @@ namespace Clovis {
 
 	namespace MoveGen {
 
-		// the usage of Move type will eventually need to be changed to ScoredMove for ordering
 		struct MoveList {
 			MoveList(const Position& pos) : last(gen_moves(pos, moves)) {}
+			int size() const { return (last - moves); }
 			void print();
 			const ScoredMove* begin() const { return moves; }
 			const ScoredMove* end() const { return last; }

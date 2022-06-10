@@ -31,10 +31,10 @@ namespace Clovis {
 			return *curr++;
 		}
 
-        void MovePicker::score(const Position& p)
+        void MovePicker::score(const Position& pos)
         {
             for (ScoredMove* sm = moves; sm != last; ++sm) {
-                *sm = score_move(p, sm->m);
+                *sm = score_move(pos, sm->m);
             }
         }
 

@@ -100,6 +100,7 @@ namespace Clovis {
     }
 
     enum File : int {
+        FILE_NONE = -1,
         FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_N
     };
 
@@ -120,6 +121,7 @@ namespace Clovis {
     }
 
     enum Rank : int {
+        RANK_NONE = -1,
         RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_N
     };
 
@@ -193,6 +195,14 @@ namespace Clovis {
 
     constexpr Rank rank_of(Square sq) {
         return Rank(sq >> 3);
+    }
+
+    constexpr Rank relative_rank(Colour c, Rank r) {
+        return Rank(r ^ (c * 7));
+    }
+
+    constexpr Rank relative_rank(Colour c, Square s) {
+        return relative_rank(c, rank_of(s));
     }
 
     constexpr Square make_square(File f, Rank r) {

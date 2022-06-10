@@ -85,6 +85,7 @@ namespace Clovis {
         else bs->enpassant = SQ_NONE;
         ss >> std::skipws >> bs->hmc >> bs->fmc;
         bs->key = make_key();
+        bs->ply_null = 0;
 	}
 
     Key Position::make_key()
@@ -349,7 +350,7 @@ namespace Clovis {
     }
 
     // prints the current position
-    void Position::print_position()
+    void Position::print_position() const
     {
         std::cout << "+---+---+---+---+---+---+---+---+\n";
         for (Rank r = RANK_8; r >= 0; --r)
