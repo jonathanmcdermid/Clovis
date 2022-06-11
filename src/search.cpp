@@ -338,7 +338,9 @@ namespace Clovis {
             if (score > alpha)
                 alpha = score;
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply);
+            Move tt_move = (tt_hit) ? tte->move : MOVE_NONE;
+
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply, tt_move);
             
             ScoredMove curr_move;
 
