@@ -6,9 +6,9 @@ namespace Clovis {
 
         // using texels tuned psqts until I make my own
 
-        int mg_value[7] = { 0, 82, 343, 351, 480, 1139, 0, };
+        int mg_value[7] = { 0, 83, 328, 365, 473, 968, 0, };
 
-        int eg_value[7] = { 0, 94, 324, 361, 645, 1110, 0, };
+        int eg_value[7] = { 0, 98, 273, 303, 522, 976, 0, };
 
         int mg_pawn_table[SQ_N] = {
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -142,7 +142,7 @@ namespace Clovis {
         -45, -29, -17, 1, -15, -4, -21, -39,
         };
 
-        int* mg_pesto_table[7] =
+        int* mg_piece_table[7] =
         {
             NULL,
             mg_pawn_table,
@@ -153,7 +153,7 @@ namespace Clovis {
             mg_king_table
         };
 
-        int* eg_pesto_table[7] =
+        int* eg_piece_table[7] =
         {
             NULL,
             eg_pawn_table,
@@ -178,6 +178,12 @@ namespace Clovis {
         int mg_passed_pawn_bonus[RANK_N] = { 0, 9, 4, 1, 13, 48, 109, 0 };
         int eg_passed_pawn_bonus[RANK_N] = { 0, 1, 5, 25, 50, 103, 149, 0 };
 
+        int semi_open_file_score = 10;
+
+        int open_file_score = 15;
+
+        int king_shield_bonus = 2;
+
         Bitboard file_masks[SQ_N];
 
         Bitboard rank_masks[SQ_N];
@@ -189,10 +195,10 @@ namespace Clovis {
         void init_eval() {
             for (PieceType pt = PAWN; pt <= KING; ++pt) {
                 for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-                    mg_table[make_piece(pt, WHITE)][sq] = mg_value[pt] + mg_pesto_table[pt][flip_square(sq)];
-                    eg_table[make_piece(pt, WHITE)][sq] = eg_value[pt] + eg_pesto_table[pt][flip_square(sq)];
-                    mg_table[make_piece(pt, BLACK)][sq] = mg_value[pt] + mg_pesto_table[pt][sq];
-                    eg_table[make_piece(pt, BLACK)][sq] = eg_value[pt] + eg_pesto_table[pt][sq];
+                    mg_table[make_piece(pt, WHITE)][sq] = mg_value[pt] + mg_piece_table[pt][flip_square(sq)];
+                    eg_table[make_piece(pt, WHITE)][sq] = eg_value[pt] + eg_piece_table[pt][flip_square(sq)];
+                    mg_table[make_piece(pt, BLACK)][sq] = mg_value[pt] + mg_piece_table[pt][sq];
+                    eg_table[make_piece(pt, BLACK)][sq] = eg_value[pt] + eg_piece_table[pt][sq];
                 }
             }
             init_masks();
@@ -224,25 +230,14 @@ namespace Clovis {
                     passed_masks[WHITE][sq] |= set_file_rank_mask(f, RANK_NONE);
                     passed_masks[WHITE][sq] |= set_file_rank_mask(f + 1, RANK_NONE);
 
-                    // loop over redudant ranks
                     for (int i = 0; i < r + 1; ++i)
-                        // reset redudant bits 
                         passed_masks[WHITE][sq] &= ~rank_masks[i * 8 + f];
-                }
-            }
-            for (Rank r = RANK_1; r <= RANK_8; ++r)
-            {
-                for (File f = FILE_A; f <= FILE_H; ++f)
-                {
-                    Square sq = make_square(f, r);
 
                     passed_masks[BLACK][sq] |= set_file_rank_mask(f - 1, RANK_NONE);
                     passed_masks[BLACK][sq] |= set_file_rank_mask(f, RANK_NONE);
                     passed_masks[BLACK][sq] |= set_file_rank_mask(f + 1, RANK_NONE);
 
-                    // loop over redudant ranks
                     for (int i = 0; i < 8 - r; ++i)
-                        // reset redudant bits 
                         passed_masks[BLACK][sq] &= ~rank_masks[(7 - i) * 8 + f];
                 }
             }
@@ -297,6 +292,7 @@ namespace Clovis {
             Colour side;
 
             int game_phase = 0;
+            int mobility;
 
             for (PieceType pt = PAWN; pt <= KING; ++pt)
             {
@@ -304,7 +300,7 @@ namespace Clovis {
             repeat:
                 side = get_side(piece);
                 bb = pos.piece_bitboard[piece];
-                if(pt == PAWN)
+                if (pt == PAWN)
                 {
                     while (bb)
                     {
@@ -320,13 +316,13 @@ namespace Clovis {
                         //    mg_score[side] += double_pawns * mg_double_pawn_penalty;
                         //    eg_score[side] += double_pawns * eg_double_pawn_penalty;
                         //}
+
+                        if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
+                        {
+                            mg_score[side] += mg_isolated_pawn_penalty;
+                            eg_score[side] += eg_isolated_pawn_penalty;
                         
-                        //if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
-                        //{
-                        //    mg_score[side] += mg_isolated_pawn_penalty;
-                        //    eg_score[side] += eg_isolated_pawn_penalty;
-                        //
-                        //}
+                        }
 
                         if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, Colour(!side))]) == 0) {
                             mg_score[side] += mg_passed_pawn_bonus[relative_rank(side, sq)];
@@ -336,7 +332,19 @@ namespace Clovis {
                         pop_bit(bb, sq);
                     }
                 }
-                else 
+                //else if (pt == KING)
+                //{
+                //    while (bb)
+                //    {
+                //        sq = get_lsb_index(bb);
+                //        mg_score[side] += mg_table[piece][sq];
+                //        eg_score[side] += eg_table[piece][sq];
+                //        game_phase += game_phase_inc[pt];
+                //        //mg_score[side] += count_bits(Bitboards::king_attacks[sq] & pos.occ_bitboard[side]) * king_shield_bonus;
+                //        pop_bit(bb, sq);
+                //    }
+                //}
+                else
                 {
                     while (bb)
                     {

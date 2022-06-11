@@ -6,32 +6,42 @@
 
 namespace Clovis {
 
+	enum StageType : int {
+		TT_MOVE,
+		INIT_CAPTURES,
+		WIN_CAPTURES,
+		INIT_QUIETS,
+		QUIETS,
+		LOSING_CAPTURES
+	};
+
 	namespace MovePick {
 
 		class MovePicker {
 		public:
-			MovePicker(const Position& pos, const Move* k, const int* h, int p, Move ttm = MOVE_NONE) {
-				last = gen_moves(pos, moves);
-				ply = p;
-				curr = moves;
+			MovePicker(const Position& p, const Move* k, const int* h, int pl, Move ttm = MOVE_NONE) : pos(p) {
+				ply = pl;
+				curr = last = end_good_caps = end_bad_caps = moves;
 				killers = k;
 				history = h;
 				tt_move = ttm;
-				score(pos);
+				stage = TT_MOVE;
 			}
-			ScoredMove score_move(const Position& pos, const Move m);
-			void sm_sort();
-			ScoredMove get_next();
+			ScoredMove get_next(bool skip_quiets);
 			void print();
-			const ScoredMove* begin() const { return moves; }
-			const ScoredMove* end() const { return last; }
 		private:
-			void score(const Position& pos);
-			ScoredMove* curr, * last;
+			void score_captures();
+			void score_quiets();
+			ScoredMove score_capture_move(const Move m);
+			ScoredMove score_quiet_move(const Move m);
+			void sm_sort();
+			ScoredMove* curr, *last, *end_good_caps, *end_bad_caps;
 			ScoredMove moves[MAX_MOVES];
+			const Position& pos;
 			const Move* killers;
 			const int* history;
-			Move tt_move;
+			ScoredMove tt_move;
+			int stage;
 			int ply;
 		};
 

@@ -75,6 +75,8 @@ namespace Clovis {
 		BoardState* bs;
 		Colour side;
 		friend ScoredMove* gen_moves(const Position& pos, ScoredMove* ml);
+		friend ScoredMove* gen_cap_moves(const Position& pos, ScoredMove* ml);
+		friend ScoredMove* gen_quiet_moves(const Position& pos, ScoredMove* ml);
 		friend int Eval::evaluate(const Position& pos);
 	};
 

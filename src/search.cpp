@@ -198,12 +198,13 @@ namespace Clovis {
 
         loop:
 
-            Move tt_move = (tt_hit) ? pv_table[ply][ply] : MOVE_NONE;
+            Move tt_move = (tt_hit) ? tte->move : MOVE_NONE; 
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply, tt_move);
-            mp.sm_sort();
 
             ScoredMove curr_move;
+
+            Move best_move = MOVE_NONE;
 
             if (king_in_check) 
                 ++depth;
@@ -212,7 +213,7 @@ namespace Clovis {
 
             HashFlag eval_type = HASH_ALPHA;
 
-            while ((curr_move = mp.get_next()) != MOVE_NONE)
+            while ((curr_move = mp.get_next(false)) != MOVE_NONE)
             {
                 // illegal move
                 if (pos.do_move(curr_move.m) == false) continue;
@@ -294,6 +295,8 @@ namespace Clovis {
 
                     // new best move found
                     alpha = score;
+
+                    best_move = curr_move.m;
                 }
 
                 ++moves_searched;
@@ -304,7 +307,7 @@ namespace Clovis {
                 return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
             if (tte->depth <= depth)
-                *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, pv_table[ply][ply]);
+                *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
 
             return alpha;
         }
@@ -336,7 +339,6 @@ namespace Clovis {
                 alpha = score;
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history, ply);
-            mp.sm_sort();
             
             ScoredMove curr_move;
 
@@ -345,7 +347,7 @@ namespace Clovis {
             ScoredMove best_move;
             best_move.score = NEG_INF;
 
-            while ((curr_move = mp.get_next()) != MOVE_NONE)
+            while ((curr_move = mp.get_next(true)) != MOVE_NONE)
             {
                 // illegal move or non capture
                 if (pos.do_move(curr_move.m, true) == false)

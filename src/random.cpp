@@ -1,4 +1,6 @@
+#include <random>
 #include "random.h"
+#include <ctime>
 
 namespace Clovis {
 
@@ -19,10 +21,16 @@ namespace Clovis {
 		// XORSHIFT32 extension for pseudo-random 64 bit numbers
 		U64 random_U64()
 		{
-			return	((U64)(random_U32())	& 0xFFFF)			| 
-					(((U64)(random_U32())	& 0xFFFF) << 16)	| 
-					(((U64)(random_U32())	& 0xFFFF) << 32)	| 
-					(((U64)(random_U32())	& 0xFFFF) << 48);
+			std::srand(std::time(0));
+			std::random_device rd;
+			std::mt19937_64 gen(rd());
+			std::uniform_int_distribution<std::uintmax_t> dis;
+			return dis(gen);
+
+			//return	((U64)(random_U32())	& 0xFFFF)			| 
+			//		(((U64)(random_U32())	& 0xFFFF) << 16)	| 
+			//		(((U64)(random_U32())	& 0xFFFF) << 32)	| 
+			//		(((U64)(random_U32())	& 0xFFFF) << 48);
 		}
 
 	} // namespace Random
