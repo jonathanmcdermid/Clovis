@@ -30,7 +30,7 @@ namespace Clovis {
             switch (stage)
             {
             case TT_MOVE:
-                ++stage;////////////////// NEED TO AVOID TT MOVE BEING SEARCHED TWICE
+                ++stage;
                 if (tt_move != MOVE_NONE)
                     return tt_move;
                 else
@@ -43,7 +43,6 @@ namespace Clovis {
                 ++stage;
                 goto start;
             case WIN_CAPTURES:
-                // IF SEE FAILS, ADD MOVE TO BAD CAPS HERE
                 if (curr < last)
                 {
                     if (curr->m == tt_move.m)
@@ -51,7 +50,12 @@ namespace Clovis {
                         ++curr;
                         goto start;
                     }
-                    return *curr++;
+                    if (pos.see(curr->m, 0))
+                        return *curr++;
+                    else {
+                        *end_bad_caps++ = *curr++;
+                        goto start;
+                    }
                 }
                 else
                     end_good_caps = curr;

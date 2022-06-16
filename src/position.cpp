@@ -121,6 +121,23 @@ namespace Clovis {
             (piece_bitboard[make_piece(KING, s)] & Bitboards::king_attacks[sq]));
     }
 
+    Bitboard Position::attackers_to(Square sq, Bitboard occupied) const 
+    {
+        return  (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[W_PAWN]) |
+            (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[B_PAWN]) |
+            (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) |
+            (Bitboards::get_rook_attacks(occupied, sq) & 
+                (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) |
+            (Bitboards::get_bishop_attacks(occupied, sq) & 
+                (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) |
+            (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
+    }
+
+    bool Position::see(Move m, int threshold) const
+    {
+        return true;
+    }
+
     // updates bitboards to represent a new piece on a square
     // does not remove info if a piece was already on that square
 	void Position::put_piece(Piece pc, Square sq) 

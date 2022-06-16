@@ -49,6 +49,8 @@ namespace Clovis {
 		Key get_key() const { return bs->key; }
 		void compute_key() { bs->key = make_key(); }
 		bool is_attacked(Square sq, Colour s) const;
+		Bitboard attackers_to(Square sq, Bitboard occupied) const;
+		bool see(Move m, int threshold) const;
 		bool do_move(Move m, bool only_captures = false);
 		void undo_move(Move m);
 		bool is_repeat() const;

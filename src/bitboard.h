@@ -13,6 +13,7 @@ namespace Clovis {
     constexpr void set_bit(Bitboard& bb, Square sq) { bb |= (1ULL << sq); }
     constexpr void pop_bit(Bitboard& bb, Square sq) { bb = (get_bit(bb, sq) ? bb ^= (1ULL << sq) : bb); }
     constexpr Square get_lsb_index(Bitboard bb) { return (bb) ? Square(count_bits((bb & -bb) - 1)) : SQ_NONE; }
+    constexpr Bitboard get_lsb_bb(Bitboard bb) { return bb & -bb; }
 
     namespace Bitboards {
 

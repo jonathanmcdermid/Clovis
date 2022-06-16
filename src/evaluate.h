@@ -8,6 +8,9 @@ namespace Clovis {
 
 	namespace Eval {
 
+		extern int mg_value[7];
+		extern int eg_value[7];
+
 		void init_eval();
 		void init_masks();
 		Bitboard set_file_rank_mask(File file_number, Rank rank_number);
