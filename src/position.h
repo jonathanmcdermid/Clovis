@@ -21,6 +21,7 @@ namespace Clovis {
 	namespace Eval {
 
 		int evaluate(const Position& pos);
+		int evaluate_pawns(const Position& pos);
 
 	} // namespace Eval
 
@@ -36,6 +37,7 @@ namespace Clovis {
 		Piece captured_piece = NO_PIECE;
 		Square enpassant = SQ_NONE;
 		Key key;
+		Key pkey;
 		int castle = 0;
 		int hmc = 0;
 		int fmc = 0;
@@ -47,7 +49,7 @@ namespace Clovis {
 		static void init();
 		void set(const char* fen);
 		Key get_key() const { return bs->key; }
-		void compute_key() { bs->key = make_key(); }
+		Key get_pawn_key() const { return bs->pkey; }
 		bool is_attacked(Square sq, Colour s) const;
 		Bitboard attackers_to(Square sq, Bitboard occupied) const;
 		bool see(Move m, int threshold) const;
@@ -60,7 +62,6 @@ namespace Clovis {
 		Colour side_to_move() const;
 		Piece piece_on(Square s) const;
 		bool empty(Square s) const;
-		Colour other_side(Colour c) const;
 		bool is_king_in_check(Colour c) const;
 		void change() { side = other_side(side); }
 		bool has_promoted(Colour c) const;
@@ -69,6 +70,7 @@ namespace Clovis {
 		bool is_draw_50() const;
 	private:
 		Key make_key();
+		Key make_pawn_key();
 		void put_piece(Piece pc, Square s);
 		void remove_piece(Square s);
 		Piece piece_board[SQ_N];
@@ -80,6 +82,7 @@ namespace Clovis {
 		friend ScoredMove* gen_cap_moves(const Position& pos, ScoredMove* ml);
 		friend ScoredMove* gen_quiet_moves(const Position& pos, ScoredMove* ml);
 		friend int Eval::evaluate(const Position& pos);
+		friend int Eval::evaluate_pawns(const Position& pos);
 	};
 
 	inline Colour Position::side_to_move() const {
@@ -93,10 +96,6 @@ namespace Clovis {
 
 	inline bool Position::empty(Square sq) const {
 		return piece_on(sq) == NO_PIECE;
-	}
-
-	inline Colour Position::other_side(Colour c) const {
-		return c == WHITE ? BLACK : WHITE;
 	}
 
 	inline bool Position::is_king_in_check(Colour c) const {

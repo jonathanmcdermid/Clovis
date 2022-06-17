@@ -27,7 +27,7 @@ namespace Clovis {
         // initialize LMR lookup table values
         void init_search()
         {
-            tt.setSize(220000000);
+            tt.set_size(220000000);
             clear();
             init_lmr_tables();
         }
@@ -329,6 +329,11 @@ namespace Clovis {
             }
 
             int score = Eval::evaluate(pos);
+
+            if (tt.get_pawn_key(pos.get_pawn_key()) != pos.get_key())
+                tt.new_pawn_entry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
+
+            score += (pos.side_to_move() == BLACK) ? -tt.get_pawn_eval(pos.get_pawn_key()) : tt.get_pawn_eval(pos.get_pawn_key());
 
             if (score >= beta)
                 return beta;

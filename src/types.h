@@ -221,6 +221,10 @@ namespace Clovis {
         return p < B_PAWN ? WHITE : BLACK;
     }
 
+    constexpr Colour other_side(Colour c) {
+        return c == WHITE ? BLACK : WHITE;
+    }
+
     constexpr Piece make_piece(PieceType pt, Colour c) {
         return Piece((c << 3) + pt);
     }

@@ -4,11 +4,11 @@ namespace Clovis {
 
     namespace Eval {
 
-        // using texels tuned psqts until I make my own
+        // using blunder tuned psqts until I make my own
 
-        int mg_value[7] = { 0, 83, 328, 365, 473, 968, 0, };
+        int mg_value[7] = { 0, 83, 328, 365, 473, 968, 10000, };
 
-        int eg_value[7] = { 0, 98, 273, 303, 522, 976, 0, };
+        int eg_value[7] = { 0, 98, 273, 303, 522, 976, 10000, };
 
         int mg_pawn_table[SQ_N] = {
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -297,41 +297,11 @@ namespace Clovis {
             for (PieceType pt = PAWN; pt <= KING; ++pt)
             {
                 piece = make_piece(pt, WHITE);
+
             repeat:
+
                 side = get_side(piece);
                 bb = pos.piece_bitboard[piece];
-                if (pt == PAWN)
-                {
-                    while (bb)
-                    {
-                        sq = get_lsb_index(bb);
-                        mg_score[side] += mg_table[piece][sq];
-                        eg_score[side] += eg_table[piece][sq];
-                        game_phase += game_phase_inc[pt];
-
-                        //int double_pawns = count_bits(pos.piece_bitboard[piece] & file_masks[sq]);
-                        //
-                        //if (double_pawns > 1)
-                        //{ 
-                        //    mg_score[side] += double_pawns * mg_double_pawn_penalty;
-                        //    eg_score[side] += double_pawns * eg_double_pawn_penalty;
-                        //}
-
-                        if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
-                        {
-                            mg_score[side] += mg_isolated_pawn_penalty;
-                            eg_score[side] += eg_isolated_pawn_penalty;
-                        
-                        }
-
-                        if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, Colour(!side))]) == 0) {
-                            mg_score[side] += mg_passed_pawn_bonus[relative_rank(side, sq)];
-                            eg_score[side] += eg_passed_pawn_bonus[relative_rank(side, sq)];
-                        }
-
-                        pop_bit(bb, sq);
-                    }
-                }
                 //else if (pt == KING)
                 //{
                 //    while (bb)
@@ -344,16 +314,13 @@ namespace Clovis {
                 //        pop_bit(bb, sq);
                 //    }
                 //}
-                else
+                while (bb)
                 {
-                    while (bb)
-                    {
-                        sq = get_lsb_index(bb);
-                        mg_score[side] += mg_table[piece][sq];
-                        eg_score[side] += eg_table[piece][sq];
-                        game_phase += game_phase_inc[pt];
-                        pop_bit(bb, sq);
-                    }
+                    sq = get_lsb_index(bb);
+                    mg_score[side] += mg_table[piece][sq];
+                    eg_score[side] += eg_table[piece][sq];
+                    game_phase += game_phase_inc[pt];
+                    pop_bit(bb, sq);
                 }
                 if (side == WHITE) {
                     piece = make_piece(pt, BLACK);
@@ -369,6 +336,56 @@ namespace Clovis {
             int total_score = (mg_score_comb * game_phase + eg_score_comb * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
 
             return std::max(min_score, std::min(max_score, total_score));
+        }
+
+        int evaluate_pawns(const Position& pos)
+        {
+            Piece piece;
+            Square sq;
+            Bitboard bb;
+            Colour side;
+
+            int mg_score[COLOUR_N] = { 0 };
+
+            piece = make_piece(PAWN, WHITE);
+
+        repeat:
+
+            side = get_side(piece);
+            bb = pos.piece_bitboard[piece];
+
+            while (bb)
+            {
+                sq = get_lsb_index(bb);
+
+                //int double_pawns = count_bits(pos.piece_bitboard[piece] & file_masks[sq]);
+                //
+                //if (double_pawns > 1)
+                //{ 
+                //    mg_score[side] += double_pawns * mg_double_pawn_penalty;
+                //    eg_score[side] += double_pawns * eg_double_pawn_penalty;
+                //}
+
+                if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
+                {
+                    mg_score[side] += mg_isolated_pawn_penalty;
+                }
+
+                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, Colour(!side))]) == 0) {
+                    mg_score[side] += mg_passed_pawn_bonus[relative_rank(side, sq)];
+                }
+
+                pop_bit(bb, sq);
+            }
+
+            if (side == WHITE) {
+                piece = make_piece(PAWN, BLACK);
+                goto repeat;
+            }
+
+            int mg_score_comb = mg_score[WHITE] - mg_score[BLACK];
+
+            return mg_score_comb;
         }
 
     } // namespace Eval

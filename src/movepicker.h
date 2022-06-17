@@ -21,7 +21,7 @@ namespace Clovis {
 		public:
 			MovePicker(const Position& p, const Move* k, const int* h, int pl, Move ttm = MOVE_NONE) : pos(p) {
 				ply = pl;
-				curr = last = end_good_caps = end_bad_caps = moves;
+				curr = last = end_bad_caps = moves;
 				killers = k;
 				history = h;
 				tt_move = ttm;
@@ -35,7 +35,7 @@ namespace Clovis {
 			ScoredMove score_capture_move(const Move m);
 			ScoredMove score_quiet_move(const Move m);
 			void sm_sort();
-			ScoredMove* curr, *last, *end_good_caps, *end_bad_caps;
+			ScoredMove* curr, *last, *end_bad_caps;
 			ScoredMove moves[MAX_MOVES];
 			const Position& pos;
 			const Move* killers;

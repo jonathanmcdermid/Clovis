@@ -85,6 +85,7 @@ namespace Clovis {
         else bs->enpassant = SQ_NONE;
         ss >> std::skipws >> bs->hmc >> bs->fmc;
         bs->key = make_key();
+        bs->pkey = make_pawn_key();
         bs->ply_null = 0;
 	}
 
@@ -106,6 +107,20 @@ namespace Clovis {
             k ^= Zobrist::side;
 
         k ^= Zobrist::castling[bs->castle];
+
+        return k;
+    }
+
+    Key Position::make_pawn_key()
+    {
+        Key k = 0ULL;
+
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+        {
+            Piece p = piece_board[sq];
+            if (piece_type(p) == PAWN)
+                k ^= Zobrist::piece_square[p][sq];
+        }
 
         return k;
     }
@@ -171,6 +186,7 @@ namespace Clovis {
             bs_new->fmc = bs->fmc + (side == BLACK);
             bs_new->ply_null = bs->ply_null + 1;
             bs_new->key = bs->key;
+            bs_new->pkey = bs->pkey;
             bs_new->prev = bs;
             // position now refers to new boardstate
             bs = bs_new;
@@ -233,10 +249,13 @@ namespace Clovis {
                     Square victim_sq = tar - pawn_push(side);
                     bs->captured_piece = make_piece(PAWN, other_side(side));
                     bs->key ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
+                    bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
                     remove_piece(victim_sq);
                 }
                 else
                 {
+                    if(piece_type(bs->captured_piece) == PAWN)
+                        bs->pkey ^= Zobrist::piece_square[bs->captured_piece][tar];
                     bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                     remove_piece(tar);
                 }
@@ -264,10 +283,13 @@ namespace Clovis {
                 else if (move_promotion_type(m))
                 {
                     bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    bs->pkey ^= Zobrist::piece_square[piece][tar];
                     remove_piece(tar);
                     put_piece(move_promotion_type(m), tar);
                     bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                 }
+                bs->pkey ^= Zobrist::piece_square[piece][src]; 
+                bs->pkey ^= Zobrist::piece_square[piece][tar];
                 bs->hmc = 0;
             }
 
@@ -276,7 +298,19 @@ namespace Clovis {
             side = other_side(side);
             bs->key ^= Zobrist::side;
 
-            //Key checkhash = make_key();
+            //Key checkhash = make_pawn_key();
+            //
+            //if (checkhash != bs->pkey)
+            //{
+            //    std::cout << UCI::move2str(m) << "\n";
+            //    print_position();
+            //    undo_move(m);
+            //    print_position();
+            //    U64 sss = bs->pkey ^ checkhash;
+            //    side = side;
+            //}
+            //
+            //checkhash = make_key();
             //
             //if (checkhash != bs->key)
             //{

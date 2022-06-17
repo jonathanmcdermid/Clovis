@@ -28,21 +28,38 @@ namespace Clovis {
         Move move;
 	};
 
+    struct PTEntry {
+        PTEntry(Key k = 0ULL, int e = 0) {
+            key = k;
+            eval = e;
+        }
+        void operator=(const PTEntry& rhs) {
+            key = rhs.key;
+            eval = rhs.eval;
+        }
+        Key key;
+        int eval;
+    };
+
 	class TTable {
     public:
-        void setSize(int bytes);
+        void set_size(int bytes);
         void clear();
-        void newEntry(Key key, int d, int e, HashFlag f, Move m) { ht[key % ht.size()] = TTEntry(key, d, e, f, m); }
-        void newEntry(Key key, TTEntry& h) { ht[key % ht.size()] = h; }
-        TTEntry getEntry(Key key) const { return ht[key % ht.size()]; }
-        Key getKey(Key key) const { return ht[key % ht.size()].key; }
-        Move getMove(Key key) const { return ht[key % ht.size()].move; }
-        int getDepth(Key key) const { return ht[key % ht.size()].depth; }
-        int getEval(Key key) const { return ht[key % ht.size()].eval; }
-        int getFlags(Key key) const { return ht[key % ht.size()].flags; }
+        void new_entry(Key key, int d, int e, HashFlag f, Move m) { ht[key % ht.size()] = TTEntry(key, d, e, f, m); }
+        void new_entry(Key key, TTEntry& h) { ht[key % ht.size()] = h; }
+        TTEntry get_entry(Key key) const { return ht[key % ht.size()]; }
+        Key get_key(Key key) const { return ht[key % ht.size()].key; }
+        Move get_move(Key key) const { return ht[key % ht.size()].move; }
+        int get_depth(Key key) const { return ht[key % ht.size()].depth; }
+        int get_eval(Key key) const { return ht[key % ht.size()].eval; }
+        int get_flags(Key key) const { return ht[key % ht.size()].flags; }
         TTEntry* probe(Key key, bool& found);
+        void new_pawn_entry(Key key, int e) { pt[key % pt.size()] = PTEntry(key, e); }
+        int get_pawn_eval(Key key)    const { return pt[key % pt.size()].eval; }
+        Key get_pawn_key(Key key) const { return pt[key % pt.size()].key; }
     private:
         std::vector<TTEntry> ht;
+        std::vector<PTEntry> pt;
 	};
 
 } // Clovis

@@ -7,10 +7,12 @@ namespace Clovis {
     {
         for (unsigned i = 0; i < ht.size(); ++i)
             ht[i] = TTEntry();
+        for (unsigned i = 0; i < pt.size(); ++i)
+            pt[i] = PTEntry();
     }
 
     // set the size of the table
-    void TTable::setSize(int bytes) 
+    void TTable::set_size(int bytes) 
     {
         unsigned i;
         for (i = 31; i > 0; --i) {
@@ -18,10 +20,11 @@ namespace Clovis {
                 break;
         }
         ht.resize(1 << (i - 5));
+        pt.resize(1 << (i - 6));
     }
 
     // probe the table to see if an entry exists
-    TTEntry* TTable::probe(U64 key, bool& found) 
+    TTEntry* TTable::probe(Key key, bool& found) 
     {
         found = (ht[key % ht.size()].key == key);
         return &ht[key % ht.size()];

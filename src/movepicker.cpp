@@ -53,12 +53,11 @@ namespace Clovis {
                     if (pos.see(curr->m, 0))
                         return *curr++;
                     else {
-                        *end_bad_caps++ = *curr++;
+                        *end_bad_caps = *curr++;
+                        ++end_bad_caps;
                         goto start;
                     }
                 }
-                else
-                    end_good_caps = curr;
                 ++stage;
             case INIT_QUIETS:
                 if (skip_quiets == false)
@@ -80,7 +79,7 @@ namespace Clovis {
                     }
                     return *curr++;
                 }
-                curr = end_good_caps;
+                curr = moves;
                 last = end_bad_caps;
                 ++stage;
                 goto start;
@@ -104,14 +103,16 @@ namespace Clovis {
 
         void MovePicker::score_captures()
         {
-            for (ScoredMove* sm = moves; sm != last; ++sm) {
+            for (ScoredMove* sm = moves; sm != last; ++sm) 
+            {
                 *sm = score_capture_move(sm->m);
             }
         }
 
         void MovePicker::score_quiets()
         {
-            for (ScoredMove* sm = moves; sm != last; ++sm) {
+            for (ScoredMove* sm = moves; sm != last; ++sm) 
+            {
                 *sm = score_quiet_move(sm->m);
             }
         }
@@ -132,7 +133,7 @@ namespace Clovis {
                 sm.score = 9999;
             else if (killers[MAX_PLY + ply] == m)
                 sm.score = 8888;
-            else if (move_promotion_type(m))
+            else if (move_promotion_type(m) || move_castling(m))
                 sm.score = 5000 + move_promotion_type(m);
             else
                 sm.score = history[move_piece_type(m) * SQ_N + move_to_sq(m)];

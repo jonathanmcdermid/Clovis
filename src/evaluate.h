@@ -15,6 +15,7 @@ namespace Clovis {
 		void init_masks();
 		Bitboard set_file_rank_mask(File file_number, Rank rank_number);
 		int evaluate(const Position& pos);
+		int evaluate_pawns(const Position& pos);
 
 	} // namespace Eval
 

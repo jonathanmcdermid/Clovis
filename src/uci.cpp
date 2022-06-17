@@ -95,11 +95,11 @@ namespace Clovis {
 			string user_move;
 
 			while (1) {
-				pos.print_position();
-				do {
-					cin >> user_move;
-				} while (to_move(pos, user_move) == MOVE_NONE);
-				pos.do_move(to_move(pos, user_move));
+				//pos.print_position();
+				//do {
+				//	cin >> user_move;
+				//} while (to_move(pos, user_move) == MOVE_NONE);
+				//pos.do_move(to_move(pos, user_move));
 				pos.print_position();
 				pos.do_move(Search::start_search(pos, limits));
 			}
