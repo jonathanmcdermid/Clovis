@@ -115,10 +115,8 @@ namespace Clovis {
             {
                 for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) 
                 {
-                    score_table[make_piece(pt, WHITE)][sq].mg = piece_value[pt].mg + piece_table[pt][flip_square(sq)].mg;
-                    score_table[make_piece(pt, WHITE)][sq].eg = piece_value[pt].eg + piece_table[pt][flip_square(sq)].eg;
-                    score_table[make_piece(pt, BLACK)][sq].mg = piece_value[pt].mg + piece_table[pt][sq].mg;
-                    score_table[make_piece(pt, BLACK)][sq].eg = piece_value[pt].eg + piece_table[pt][sq].eg;
+                    score_table[make_piece(pt, WHITE)][sq] = piece_value[pt] + piece_table[pt][flip_square(sq)];
+                    score_table[make_piece(pt, BLACK)][sq] = piece_value[pt] + piece_table[pt][sq];
                 }
             }
             init_masks();
@@ -221,18 +219,6 @@ namespace Clovis {
 
                 side = get_side(piece);
                 bb = pos.piece_bitboard[piece];
-                //else if (pt == KING)
-                //{
-                //    while (bb)
-                //    {
-                //        sq = get_lsb_index(bb);
-                //        mg_score[side] += mg_table[piece][sq];
-                //        eg_score[side] += eg_table[piece][sq];
-                //        game_phase += game_phase_inc[pt];
-                //        //mg_score[side] += count_bits(Bitboards::king_attacks[sq] & pos.occ_bitboard[side]) * king_shield_bonus;
-                //        pop_bit(bb, sq);
-                //    }
-                //}
                 while (bb)
                 {
                     sq = get_lsb_index(bb);
@@ -247,8 +233,7 @@ namespace Clovis {
 
             int game_phase = pos.get_game_phase();
 
-            Score score_comb = score[pos.side];
-            score_comb -= score[!pos.side];
+            Score score_comb = score[pos.side] - score[!pos.side];
 
             int total_score = (score_comb.mg * game_phase + score_comb.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
 
@@ -279,7 +264,7 @@ namespace Clovis {
                 
                 if (double_pawns > 1)
                 { 
-                    score[side] += double_pawn_penalty;
+                    score[side] += double_pawn_penalty * double_pawns;
                 }
 
                 if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
@@ -299,10 +284,7 @@ namespace Clovis {
                 goto repeat;
             }
 
-            Score score_comb = score[WHITE];
-            score_comb -= score[BLACK];
-
-            return score_comb;
+            return score[WHITE] - score[BLACK];
         }
 
     } // namespace Eval

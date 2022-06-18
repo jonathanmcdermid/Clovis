@@ -27,6 +27,20 @@ namespace Clovis {
 		int eg;
 	};
 
+	inline Score operator+(Score s1, Score s2) {
+		s1 += s2;
+		return s1;
+	}
+
+	inline Score operator-(Score s1, Score s2) {
+		s1 -= s2;
+		return s1;
+	}
+
+	inline Score operator*(Score s1, int i) {
+		return Score(s1.mg * i, s1.eg * i);
+	}
+
 	namespace Eval {
 
 		extern Score piece_value[7];
