@@ -70,7 +70,7 @@ namespace Clovis {
 		bool is_material_draw() const;
 		bool is_insufficient(Colour c) const;
 		bool is_draw_50() const;
-		int get_game_phase() const { return bs->game_phase; }
+		int get_game_phase() const { return std::min(bs->game_phase, MAX_GAMEPHASE); }
 	private:
 		Key make_key();
 		Key make_pawn_key();

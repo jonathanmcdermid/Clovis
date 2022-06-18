@@ -294,7 +294,6 @@ namespace Clovis {
                     bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                     bs->game_phase -= game_phase_inc[W_PAWN];
                     bs->game_phase += game_phase_inc[move_promotion_type(m)];
-                    bs->game_phase = std::min(MAX_GAMEPHASE, bs->game_phase);
                 }
                 bs->pkey ^= Zobrist::piece_square[piece][src]; 
                 bs->pkey ^= Zobrist::piece_square[piece][tar];
