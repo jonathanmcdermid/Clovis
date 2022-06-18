@@ -96,11 +96,13 @@ namespace Clovis {
 
         Score passed_pawn_bonus[RANK_N] = { Score(0,0), Score(3,1), Score(4,5), Score(8,25), Score(13,50), Score(48,103), Score(109,149), Score(0,0) };
 
+        Score bishop_pair_bonus = Score(20, 36);
+
         //int semi_open_file_score = 10;
         //
-        //int open_file_score = 15;
-        //
-        //int king_shield_bonus = 2;
+        Score rook_open_file_score = Score(15,1);
+
+        int king_shield_bonus = 1;
 
         Bitboard file_masks[SQ_N];
 
@@ -219,11 +221,25 @@ namespace Clovis {
 
                 side = get_side(piece);
                 bb = pos.piece_bitboard[piece];
-                while (bb)
+                if (pt == BISHOP)
                 {
-                    sq = get_lsb_index(bb);
-                    score[side] += score_table[piece][sq];
-                    pop_bit(bb, sq);
+                    while (bb)
+                    {
+                        sq = get_lsb_index(bb);
+                        score[side] += score_table[piece][sq];
+                        if (count_bits(bb) == 2)
+                            score[side] += bishop_pair_bonus;
+                        pop_bit(bb, sq);
+                    }
+                }
+                else
+                {
+                    while (bb)
+                    {
+                        sq = get_lsb_index(bb);
+                        score[side] += score_table[piece][sq];
+                        pop_bit(bb, sq);
+                    }
                 }
                 if (side == WHITE) {
                     piece = make_piece(pt, BLACK);
