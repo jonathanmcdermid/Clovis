@@ -2,8 +2,7 @@
 
 My second chess engine. Clovis utilizes magic bitboards and follows standard convention more closely. The goal is to make something stronger than Hopper. Should be easy right? 
 
-
-##Credits
+## Credits
 
 This engine uses ideas and resources from various sources
 
