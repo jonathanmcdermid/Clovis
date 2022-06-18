@@ -333,7 +333,7 @@ namespace Clovis {
             if (tt.get_pawn_key(pos.get_pawn_key()) != pos.get_key())
                 tt.new_pawn_entry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
 
-            score += (pos.side_to_move() == BLACK) ? -tt.get_pawn_eval(pos.get_pawn_key()) : tt.get_pawn_eval(pos.get_pawn_key());
+            score += tt.get_pawn_eval(pos.get_pawn_key(), pos.get_game_phase(), pos.side_to_move());
 
             if (score >= beta)
                 return beta;

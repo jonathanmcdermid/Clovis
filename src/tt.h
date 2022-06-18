@@ -1,7 +1,9 @@
 #pragma once
 
-#include "types.h"
 #include <vector>
+
+#include "evaluate.h"
+#include "types.h"
 
 namespace Clovis {
 
@@ -29,16 +31,16 @@ namespace Clovis {
 	};
 
     struct PTEntry {
-        PTEntry(Key k = 0ULL, int e = 0) {
+        PTEntry(Key k = 0ULL, Score s = Score(0,0)) {
             key = k;
-            eval = e;
+            eval = s;
         }
         void operator=(const PTEntry& rhs) {
             key = rhs.key;
             eval = rhs.eval;
         }
         Key key;
-        int eval;
+        Score eval;
     };
 
 	class TTable {
@@ -54,8 +56,8 @@ namespace Clovis {
         int get_eval(Key key) const { return ht[key % ht.size()].eval; }
         int get_flags(Key key) const { return ht[key % ht.size()].flags; }
         TTEntry* probe(Key key, bool& found);
-        void new_pawn_entry(Key key, int e) { pt[key % pt.size()] = PTEntry(key, e); }
-        int get_pawn_eval(Key key)    const { return pt[key % pt.size()].eval; }
+        void new_pawn_entry(Key key, Score s) { pt[key % pt.size()] = PTEntry(key, s); }
+        int get_pawn_eval(Key key, int gp, Colour s) const { return pt[key % pt.size()].eval.get_score(gp, s); }
         Key get_pawn_key(Key key) const { return pt[key % pt.size()].key; }
     private:
         std::vector<TTEntry> ht;

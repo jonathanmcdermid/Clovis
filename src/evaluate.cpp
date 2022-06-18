@@ -4,185 +4,103 @@ namespace Clovis {
 
     namespace Eval {
 
-        // using blunder tuned psqts until I make my own
-
-        int mg_value[7] = { 0, 83, 328, 365, 473, 968, 10000, };
-
-        int eg_value[7] = { 0, 98, 273, 303, 522, 976, 10000, };
-
-        int mg_pawn_table[SQ_N] = {
-            0, 0, 0, 0, 0, 0, 0, 0,
-        13, 36, -13, 9, -2, 33, -64, -65,
-        1, -7, 12, -2, 35, 48, 20, -5,
-        -13, 3, 4, 25, 23, 17, 6, -19,
-        -22, -19, -1, 14, 19, 4, -10, -22,
-        -14, -20, -3, -4, 6, 5, 13, -5,
-        -20, -16, -22, -12, -8, 20, 18, -11,
-        0, 0, 0, 0, 0, 0, 0, 0,
+        enum GamePhase : int {
+            MG, EG,
+            PHASE_N = 2
         };
 
-        int eg_pawn_table[SQ_N] = {
-           0, 0, 0, 0, 0, 0, 0, 0,
-        52, 40, 22, -4, 7, -1, 41, 62,
-        34, 34, 11, -18, -30, -7, 14, 20,
-        15, 6, -6, -24, -17, -11, 1, 4,
-        3, 2, -12, -20, -18, -13, -6, -9,
-        -8, -2, -14, -11, -8, -10, -15, -17,
-        -2, -4, 0, -10, 1, -8, -12, -19,
-        0, 0, 0, 0, 0, 0, 0, 0,
+        Score piece_value[7] = { Score(0,0), Score(83,98), Score(328,273), Score(365,303), Score(473,522), Score(968,976), Score(10000,10000) };
+
+        Score pawn_table[SQ_N] = {
+            Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),
+            Score(13,52),   Score(36,40),   Score(-13,22),  Score(9,-4),    Score(-2,7),    Score(33,-1),   Score(-64,41),  Score(-65,62),
+            Score(1,34),    Score(-7,34),   Score(12,11),   Score(-2,-18),  Score(35,-30),  Score(48,-7),   Score(20,14),   Score(-5,20),
+            Score(-13,15),  Score(3,6),     Score(4,-6),    Score(25,-24),  Score(23,-17),  Score(17,-11),  Score(6,1),     Score(-19,4),
+            Score(-22,3),   Score(-19,2),   Score(-1,-12),  Score(14,-20),  Score(19,-18),  Score(4,-13),   Score(-10,-6),  Score(-22,-9),
+            Score(-14,-8),  Score(-20,-2),  Score(-3,-14),  Score(-4,-11),  Score(6,-8),    Score(5,-10),   Score(13,-15),  Score(-5,-17),
+            Score(-20,-2),  Score(-16,-4),  Score(-22,0),   Score(-12,-10), Score(-8,1),    Score(20,-8),   Score(18,-12),  Score(-11,-19),
+            Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),     Score(0,0),
         };
 
-        int mg_knight_table[SQ_N] = {
-            -153, -52, -33, -26, 23, -85, -36, -96,
-        -88, -41, 43, 12, 4, 34, -6, -27,
-        -44, 30, 17, 30, 40, 59, 40, 23,
-        -18, 7, -11, 30, 12, 44, 5, 16,
-        -8, 5, 13, 5, 21, 11, 12, -8,
-        -18, -3, 13, 17, 27, 23, 26, -9,
-        -15, -33, -5, 12, 15, 23, -5, -2,
-        -70, -6, -33, -17, 6, -6, -4, -15,
+        Score knight_table[SQ_N] = {
+            Score(-153,-35),Score(-52,-26), Score(-33,5),   Score(-26,-17),  Score(23,-10),  Score(-85,-15), Score(-36,-40), Score(-96,-73),
+            Score(-88,1),   Score(-41,10),  Score(43,-11),  Score(12,13),    Score(4,3),     Score(34,-13),  Score(-6,-7),   Score(-27,-28),  
+            Score(-44,-6),  Score(30,-6),   Score(17,15),   Score(30,12),    Score(40,7),    Score(59,5),    Score(40,-6),   Score(23,-22),   
+            Score(-18,6),   Score(7,13),    Score(-11,27),  Score(30,24),    Score(12,25),   Score(44,17),   Score(5,15),    Score(16,0),     
+            Score(-8,5),    Score(5,7),     Score(13,24),   Score(5,32),     Score(21,23),   Score(11,24),   Score(12,21),   Score(-8,3),  
+            Score(-18,0),   Score(-3,9),    Score(13,1),    Score(17,20),    Score(27,14),   Score(23,-3),   Score(26,-12),  Score(-9,-3), 
+            Score(-15,-12), Score(-33,1),   Score(-5,6),    Score(12,4),     Score(15,8),    Score(23,-8),   Score(-5,-2),   Score(-2,-23),  
+            Score(-70,-6),  Score(-6,-23),  Score(-33,-2),  Score(-17,9),    Score(6,-2),    Score(-6,-2),   Score(-4,-26),  Score(-15,-38),    
         };
 
-        int eg_knight_table[SQ_N] = {
-            -35, -26, 5, -17, -10, -15, -40, -73,
-        1, 10, -11, 13, 3, -13, -7, -28,
-        -6, -6, 15, 12, 7, 5, -6, -22,
-        6, 13, 27, 24, 25, 17, 15, 0,
-        5, 7, 24, 32, 23, 24, 21, 3,
-        0, 9, 1, 20, 14, -3, -12, -3,
-        -12, 1, 6, 4, 8, -8, -2, -23,
-        -6, -23, -2, 9, -2, -2, -26, -38,
+        Score bishop_table[SQ_N] = {
+            Score(-31,-3),  Score(-8,-9),   Score(-88,7),   Score(-41,0),   Score(-33,7),    Score(-33,-2),  Score(-7,-3),   Score(-1,-15),
+            Score(-34,7),   Score(-1,4),    Score(-27,14),  Score(-34,-1),  Score(10,2),     Score(10,-2),   Score(26,-2),   Score(-58,-3),
+            Score(-23,13),  Score(22,-1),   Score(30,-1),   Score(18,0),    Score(17,-3),    Score(30,2),    Score(19,6),    Score(-8,12),
+            Score(-7,8),    Score(-2,14),   Score(2,14),    Score(30,7),    Score(20,8),     Score(18,6),    Score(2,4),     Score(-10,12),
+            Score(-4,7),    Score(11,5),    Score(2,14),    Score(21,13),   Score(24,0),     Score(2,7),     Score(4,0),     Score(10,2),
+            Score(3,2),     Score(19,4),    Score(19,8),    Score(7,10),    Score(16,11),    Score(31,-2),   Score(20,3),    Score(5,4),
+            Score(13,-1),   Score(25,-8),   Score(17,-1),   Score(12,1),    Score(17,6),     Score(27,-1),   Score(38,-3),   Score(11,-15),
+            Score(-20,-4),  Score(12,2),    Score(7,-3),    Score(4,5),     Score(11,3),     Score(3,1),     Score(-13,6),   Score(-16,1),
         };
 
-        int mg_bishop_table[SQ_N] = {
-           -31, -8, -88, -41, -33, -33, -7, -1,
-        -34, -1, -27, -34, 10, 26, 7, -58,
-        -23, 22, 30, 18, 17, 30, 19, -8,
-        -7, -2, 2, 30, 20, 18, 2, -10,
-        -4, 11, 2, 21, 24, 2, 4, 10,
-        3, 19, 19, 7, 16, 31, 20, 5,
-        13, 25, 17, 12, 17, 27, 38, 11,
-        -20, 12, 7, 4, 11, 3, -13, -16,
+        Score rook_table[SQ_N] = {
+            Score(10,15),   Score(13,11),   Score(-9,20),   Score(14,15),   Score(13,17),    Score(-14,18),  Score(0,15),    Score(0,13),
+            Score(10,14),   Score(8,17),    Score(25,16),   Score(29,13),   Score(32,5),     Score(31,10),   Score(0,15),    Score(8,13),
+            Score(-14,13),  Score(6,10),    Score(1,10),    Score(5,10),    Score(-11,8),    Score(13,3),    Score(34,-1),   Score(-5,-2),
+            Score(-26,12),  Score(-19,9),   Score(0,14),    Score(2,6),     Score(-2,6),     Score(10,8),    Score(-23,6),   Score(-26,13),
+            Score(-33,12),  Score(-24,12),  Score(-13,13),  Score(-10,7),   Score(-3,2),     Score(-17,4),   Score(-9,2),    Score(-31,4),
+            Score(-32,5),   Score(-20,8),   Score(-6,-1),   Score(-9,3),    Score(-3,0),     Score(-2,-3),   Score(-13,1),   Score(-27,-4),
+            Score(-30,4),   Score(-9,0),    Score(-6,2),    Score(3,5),     Score(9,-5),     Score(6,-3),    Score(-5,-5),   Score(-54,7),
+            Score(-6,-5),   Score(1,1),     Score(12,2),    Score(22,-1),   Score(22,-4),    Score(18,-6),   Score(-23,3),   Score(-8,-18),
         };
 
-        int eg_bishop_table[SQ_N] = {
-         -3, -9, 7, 0, 7, -2, -3, -15,
-        7, 4, 14, -1, 2, -2, -2, -3,
-        13, -1, -1, 0, -3, 2, 6, 12,
-        8, 14, 14, 7, 8, 6, 4, 12,
-        7, 5, 14, 13, 0, 7, 0, 2,
-        2, 4, 8, 10, 11, -2, 3, 4,
-        -1, -8, -1, 1, 6, -1, -3, -15,
-        -4, 2, -3, 5, 3, 1, 6, 1,
+        Score queen_table[SQ_N] = {
+            Score(-22,-13), Score(-16,17),  Score(-6,16),   Score(-8,14),   Score(33,14),   Score(23,13),    Score(10,8),    Score(25,22),
+            Score(-26,-10), Score(-46,3),   Score(-16,19),  Score(5,21),    Score(-27,35),  Score(4,25),     Score(3,18),    Score(22,12),
+            Score(-15,-9),  Score(-16,-12), Score(-5,-12),  Score(-19,28),  Score(8,29),    Score(32,21),    Score(11,27),   Score(26,20),
+            Score(-28,14),  Score(-31,17),  Score(-26,8),   Score(-26,16),  Score(-16,30),  Score(-9,25),    Score(-12,44),  Score(-18,41),
+            Score(-11,-6),  Score(-28,17),  Score(-14,8),   Score(-18,27),  Score(-10,14),  Score(-10,21),   Score(-11,34),  Score(-11,33),
+            Score(-19,12),  Score(4,-20),   Score(-5,10),   Score(-1,-2),   Score(-2,5),    Score(1,16),     Score(6,22),    Score(1,17),
+            Score(-21,1),   Score(-3,-12),  Score(13,-14),  Score(14,-12),  Score(19,-8),   Score(22,-15),   Score(2,-24),   Score(14,-18),
+            Score(4,-17),   Score(2,-24),   Score(13,-19),  Score(24,-13),  Score(6,1),     Score(-8,-12),   Score(-6,-9),   Score(-31,-30),
         };
 
-        int mg_rook_table[SQ_N] = {
-             10, 13, -9, 14, 13, -14, 0, 0,
-        10, 8, 25, 29, 32, 31, 0, 8,
-        -14, 6, 1, 5, -11, 13, 34, -5,
-        -26, -19, 0, 2, -2, 10, -23, -26,
-        -33, -24, -13, -10, -3, -17, -9, -31,
-        -32, -20, -6, -9, -3, -2, -13, -27,
-        -30, -9, -6, 3, 9, 6, -5, -54,
-        -6, 1, 12, 22, 22, 18, -23, -8,
+        Score king_table[SQ_N] = {
+            Score(-54,-71),     Score(30,-40),     Score(48,-23),     Score(29,-22),     Score(-21,-8),     Score(2,15),     Score(17,2),     Score(15,-17),
+            Score(36,-14),     Score(33,16),     Score(20,14),     Score(54,12),     Score(34,15),     Score(30,33),     Score(-1,23),     Score(-15,10),
+            Score(31,5),     Score(35,17),     Score(48,19),     Score(26,16),     Score(32,17),     Score(46,44),     Score(50,40),     Score(9,9),
+            Score(20,-13),     Score(28,19),     Score(28,24),     Score(22,28),     Score(24,25),     Score(26,31),     Score(30,23),     Score(-2,1),
+            Score(-14,-19),     Score(34,-3),     Score(12,23),     Score(7,27),     Score(9,27),     Score(7,24),     Score(4,10),     Score(-20,-10),
+            Score(0,-18),     Score(10,0),     Score(8,14),     Score(9,20),     Score(9,23),     Score(8,17),     Score(17,6),     Score(-16,-4),
+            Score(0,-24),     Score(16,-7),     Score(-1,10),     Score(-35,17),     Score(-14,17),     Score(-5,11),     Score(12,0),     Score(3,-12),
+            Score(-38,-45),     Score(24,-29),     Score(13,-17),     Score(-61,1),     Score(-3,-15),     Score(-29,-4),     Score(19,-21),     Score(-6,-39),
         };
 
-        int eg_rook_table[SQ_N] = {
-         15, 11, 20, 15, 17, 18, 15, 13,
-        14, 17, 16, 13, 5, 10, 15, 13,
-        13, 10, 10, 10, 8, 3, -1, 2,
-        12, 9, 14, 6, 6, 8, 6, 13,
-        12, 12, 13, 7, 2, 4, 2, 4,
-        5, 8, -1, 3, 0, -3, 1, -4,
-        4, 0, 2, 5, -5, -3, -5, 7,
-        -5, 1, 2, -1, -4, -6, 3, -18,
-        };
-
-        int mg_queen_table[SQ_N] = {
-          -22, -16, -6, -8, 33, 23, 10, 25,
-        -26, -46, -16, 5, -27, 4, 3, 22,
-        -15, -16, -5, -19, 8, 32, 11, 26,
-        -28, -31, -26, -26, -16, -9, -12, -18,
-        -11, -28, -14, -18, -10, -10, -11, -11,
-        -19, 4, -5, -1, -2, 1, 6, 1,
-        -21, -3, 13, 14, 19, 22, 2, 14,
-        4, 2, 13, 24, 6, -8, -6, -31,
-        };
-
-        int eg_queen_table[SQ_N] = {
-           -13, 17, 16, 14, 14, 13, 8, 22,
-        -10, 3, 19, 21, 35, 25, 18, 12,
-        -9, -12, -12, 28, 29, 21, 27, 20,
-        14, 17, 8, 16, 30, 25, 44, 41,
-        -6, 17, 8, 27, 14, 21, 34, 33,
-        12, -20, 10, -2, 5, 16, 22, 17,
-        1, -12, -14, -12, -8, -15, -24, -18,
-        -17, -24, -19, -13, 1, -12, -9, -30,
-        };
-
-        int mg_king_table[SQ_N] = {
-           -54, 30, 48, 29, -21, 2, 17, 15,
-        36, 33, 20, 54, 34, 30, -1, -15,
-        31, 35, 48, 26, 32, 46, 50, 9,
-        20, 28, 28, 22, 24, 26, 30, -2,
-        -14, 34, 12, 7, 9, 7, 4, -20,
-        0, 10, 8, 9, 9, 8, 17, -16,
-        0, 16, -1, -35, -14, -5, 12, 3,
-        -38, 24, 13, -61, -3, -29, 19, -6,
-        };
-
-        int eg_king_table[SQ_N] = {
-           -71, -40, -23, -22, -8, 15, 2, -17,
-        -14, 16, 14, 12, 15, 33, 23, 10,
-        5, 17, 19, 16, 17, 44, 40, 9,
-        -13, 19, 24, 28, 25, 31, 23, 1,
-        -19, -3, 23, 27, 27, 24, 10, -10,
-        -18, 0, 14, 20, 23, 17, 6, -4,
-        -24, -7, 10, 17, 17, 11, 0, -12,
-        -45, -29, -17, 1, -15, -4, -21, -39,
-        };
-
-        int* mg_piece_table[7] =
+        Score* piece_table[7] =
         {
             NULL,
-            mg_pawn_table,
-            mg_knight_table,
-            mg_bishop_table,
-            mg_rook_table,
-            mg_queen_table,
-            mg_king_table
+            pawn_table,
+            knight_table,
+            bishop_table,
+            rook_table,
+            queen_table,
+            king_table
         };
 
-        int* eg_piece_table[7] =
-        {
-            NULL,
-            eg_pawn_table,
-            eg_knight_table,
-            eg_bishop_table,
-            eg_rook_table,
-            eg_queen_table,
-            eg_king_table
-        };
+        Score score_table[15][SQ_N];
 
-        int mg_table[15][SQ_N];
-        int eg_table[15][SQ_N];
+        Score double_pawn_penalty = Score(-1,-17);
 
-        int game_phase_inc[PIECETYPE_N + PAWN] = { 0, 0, 1, 1, 2, 4, 0};
+        Score isolated_pawn_penalty = Score(-19,-5);
 
-        int mg_double_pawn_penalty = -1;
-        int eg_double_pawn_penalty = -17;
+        Score passed_pawn_bonus[RANK_N] = { Score(0,0), Score(3,1), Score(4,5), Score(8,25), Score(13,50), Score(48,103), Score(109,149), Score(0,0) };
 
-        int mg_isolated_pawn_penalty = -19;
-        int eg_isolated_pawn_penalty = -5;
-
-        int mg_passed_pawn_bonus[RANK_N] = { 0, 9, 4, 1, 13, 48, 109, 0 };
-        int eg_passed_pawn_bonus[RANK_N] = { 0, 1, 5, 25, 50, 103, 149, 0 };
-
-        int semi_open_file_score = 10;
-
-        int open_file_score = 15;
-
-        int king_shield_bonus = 2;
+        //int semi_open_file_score = 10;
+        //
+        //int open_file_score = 15;
+        //
+        //int king_shield_bonus = 2;
 
         Bitboard file_masks[SQ_N];
 
@@ -193,12 +111,14 @@ namespace Clovis {
         Bitboard passed_masks[COLOUR_N][SQ_N];
 
         void init_eval() {
-            for (PieceType pt = PAWN; pt <= KING; ++pt) {
-                for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-                    mg_table[make_piece(pt, WHITE)][sq] = mg_value[pt] + mg_piece_table[pt][flip_square(sq)];
-                    eg_table[make_piece(pt, WHITE)][sq] = eg_value[pt] + eg_piece_table[pt][flip_square(sq)];
-                    mg_table[make_piece(pt, BLACK)][sq] = mg_value[pt] + mg_piece_table[pt][sq];
-                    eg_table[make_piece(pt, BLACK)][sq] = eg_value[pt] + eg_piece_table[pt][sq];
+            for (PieceType pt = PAWN; pt <= KING; ++pt) 
+            {
+                for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) 
+                {
+                    score_table[make_piece(pt, WHITE)][sq].mg = piece_value[pt].mg + piece_table[pt][flip_square(sq)].mg;
+                    score_table[make_piece(pt, WHITE)][sq].eg = piece_value[pt].eg + piece_table[pt][flip_square(sq)].eg;
+                    score_table[make_piece(pt, BLACK)][sq].mg = piece_value[pt].mg + piece_table[pt][sq].mg;
+                    score_table[make_piece(pt, BLACK)][sq].eg = piece_value[pt].eg + piece_table[pt][sq].eg;
                 }
             }
             init_masks();
@@ -274,6 +194,7 @@ namespace Clovis {
         {
             int max_score = POS_INF;
             int min_score = NEG_INF;
+
             if (pos.is_insufficient(pos.side))
             {
                 max_score = 0;
@@ -283,15 +204,13 @@ namespace Clovis {
             else if (pos.is_insufficient(Colour(!pos.side)))
                 min_score = 0;
 
-            int mg_score[COLOUR_N] = { 0 };
-            int eg_score[COLOUR_N] = { 0 };
+            Score score[COLOUR_N];
 
             Piece piece; 
             Square sq;
             Bitboard bb;
             Colour side;
 
-            int game_phase = 0;
             int mobility;
 
             for (PieceType pt = PAWN; pt <= KING; ++pt)
@@ -317,9 +236,7 @@ namespace Clovis {
                 while (bb)
                 {
                     sq = get_lsb_index(bb);
-                    mg_score[side] += mg_table[piece][sq];
-                    eg_score[side] += eg_table[piece][sq];
-                    game_phase += game_phase_inc[pt];
+                    score[side] += score_table[piece][sq];
                     pop_bit(bb, sq);
                 }
                 if (side == WHITE) {
@@ -328,24 +245,24 @@ namespace Clovis {
                 }
             }
 
-            game_phase = std::max(game_phase, MAX_GAMEPHASE);
+            int game_phase = pos.get_game_phase();
 
-            int mg_score_comb = mg_score[pos.side] - mg_score[!pos.side];
-            int eg_score_comb = eg_score[pos.side] - eg_score[!pos.side];
+            Score score_comb = score[pos.side];
+            score_comb -= score[!pos.side];
 
-            int total_score = (mg_score_comb * game_phase + eg_score_comb * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
+            int total_score = (score_comb.mg * game_phase + score_comb.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
 
             return std::max(min_score, std::min(max_score, total_score));
         }
 
-        int evaluate_pawns(const Position& pos)
+        Score evaluate_pawns(const Position& pos)
         {
             Piece piece;
             Square sq;
             Bitboard bb;
             Colour side;
 
-            int mg_score[COLOUR_N] = { 0 };
+            Score score[COLOUR_N];
 
             piece = make_piece(PAWN, WHITE);
 
@@ -368,11 +285,11 @@ namespace Clovis {
 
                 if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
                 {
-                    mg_score[side] += mg_isolated_pawn_penalty;
+                    score[side] += isolated_pawn_penalty;
                 }
 
                 if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, Colour(!side))]) == 0) {
-                    mg_score[side] += mg_passed_pawn_bonus[relative_rank(side, sq)];
+                    score[side] += passed_pawn_bonus[relative_rank(side, sq)];
                 }
 
                 pop_bit(bb, sq);
@@ -383,9 +300,10 @@ namespace Clovis {
                 goto repeat;
             }
 
-            int mg_score_comb = mg_score[WHITE] - mg_score[BLACK];
+            Score score_comb = score[WHITE];
+            score_comb -= score[BLACK];
 
-            return mg_score_comb;
+            return score_comb;
         }
 
     } // namespace Eval

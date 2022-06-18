@@ -5,6 +5,8 @@ namespace Clovis {
 
     const extern std::string piece_str = " PNBRQK  pnbrqk";
 
+    constexpr int game_phase_inc[15] = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
+
     constexpr int position_size = sizeof(Position);
 
     // castling rights lookup table
@@ -62,6 +64,7 @@ namespace Clovis {
                 sq = sq + 2 * SOUTH;
             else if ((index = piece_str.find(token)) != piece_str.size()) {
                 put_piece(Piece(index), sq);
+                bs->game_phase += game_phase_inc[Piece(index)];
                 ++sq;
             }
         }
@@ -187,6 +190,7 @@ namespace Clovis {
             bs_new->ply_null = bs->ply_null + 1;
             bs_new->key = bs->key;
             bs_new->pkey = bs->pkey;
+            bs_new->game_phase = bs->game_phase;
             bs_new->prev = bs;
             // position now refers to new boardstate
             bs = bs_new;
@@ -259,6 +263,7 @@ namespace Clovis {
                     bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                     remove_piece(tar);
                 }
+                bs->game_phase -= game_phase_inc[bs->captured_piece];
                 bs->hmc = 0;
             }
 
@@ -287,6 +292,9 @@ namespace Clovis {
                     remove_piece(tar);
                     put_piece(move_promotion_type(m), tar);
                     bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    bs->game_phase -= game_phase_inc[W_PAWN];
+                    bs->game_phase += game_phase_inc[move_promotion_type(m)];
+                    bs->game_phase = std::min(MAX_GAMEPHASE, bs->game_phase);
                 }
                 bs->pkey ^= Zobrist::piece_square[piece][src]; 
                 bs->pkey ^= Zobrist::piece_square[piece][tar];

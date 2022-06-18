@@ -17,11 +17,12 @@ namespace Clovis {
 	class Position;
 
 	struct ScoredMove;
+	struct Score;
 
 	namespace Eval {
 
 		int evaluate(const Position& pos);
-		int evaluate_pawns(const Position& pos);
+		Score evaluate_pawns(const Position& pos);
 
 	} // namespace Eval
 
@@ -42,6 +43,7 @@ namespace Clovis {
 		int hmc = 0;
 		int fmc = 0;
 		int ply_null = 0;
+		int game_phase = 0;
 	};
 
 	class Position {
@@ -68,6 +70,7 @@ namespace Clovis {
 		bool is_material_draw() const;
 		bool is_insufficient(Colour c) const;
 		bool is_draw_50() const;
+		int get_game_phase() const { return bs->game_phase; }
 	private:
 		Key make_key();
 		Key make_pawn_key();
@@ -82,7 +85,7 @@ namespace Clovis {
 		friend ScoredMove* gen_cap_moves(const Position& pos, ScoredMove* ml);
 		friend ScoredMove* gen_quiet_moves(const Position& pos, ScoredMove* ml);
 		friend int Eval::evaluate(const Position& pos);
-		friend int Eval::evaluate_pawns(const Position& pos);
+		friend Score Eval::evaluate_pawns(const Position& pos);
 	};
 
 	inline Colour Position::side_to_move() const {
