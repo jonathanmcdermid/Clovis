@@ -275,13 +275,12 @@ namespace Clovis {
             {
                 sq = get_lsb_index(bb);
 
-                //int double_pawns = count_bits(pos.piece_bitboard[piece] & file_masks[sq]);
-                //
-                //if (double_pawns > 1)
-                //{ 
-                //    mg_score[side] += double_pawns * mg_double_pawn_penalty;
-                //    eg_score[side] += double_pawns * eg_double_pawn_penalty;
-                //}
+                int double_pawns = count_bits(pos.piece_bitboard[piece] & file_masks[sq]);
+                
+                if (double_pawns > 1)
+                { 
+                    score[side] += double_pawn_penalty;
+                }
 
                 if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
                 {
