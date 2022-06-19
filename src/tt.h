@@ -59,6 +59,7 @@ namespace Clovis {
         void new_pawn_entry(Key key, Score s) { pt[key % pt.size()] = PTEntry(key, s); }
         int get_pawn_eval(Key key, int gp, Colour s) const { return pt[key % pt.size()].eval.get_score(gp, s); }
         Key get_pawn_key(Key key) const { return pt[key % pt.size()].key; }
+        PTEntry* probe_pawn(Key key, bool& found);
     private:
         std::vector<TTEntry> ht;
         std::vector<PTEntry> pt;

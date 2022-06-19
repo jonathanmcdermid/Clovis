@@ -181,7 +181,7 @@ namespace Clovis {
         if (only_captures == false || move_capture(m))
         {
             BoardState* bs_new = new BoardState;
-            assert(bs_new != bs);
+            //assert(bs_new != bs);
             // copy old boardstate info to new boardstate and update clocks
             bs_new->enpassant = bs->enpassant;
             bs_new->castle = bs->castle;
@@ -212,10 +212,10 @@ namespace Clovis {
             Square tar = move_to_sq(m);
             Piece piece = move_piece_type(m);
 
-            assert(get_side(move_piece_type(m)) == side);
-            assert(get_side(piece_board[src]) == side);
-            assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
-            assert(piece_type(piece_board[tar]) != KING);
+            //assert(get_side(move_piece_type(m)) == side);
+            //assert(get_side(piece_board[src]) == side);
+            //assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
+            //assert(piece_type(piece_board[tar]) != KING);
 
             // move piece
             bs->captured_piece = piece_board[tar];
@@ -387,7 +387,7 @@ namespace Clovis {
 
     nullmove:
 
-        assert(bs->prev != NULL);
+        //assert(bs->prev != NULL);
         BoardState* temp = bs;
         bs = bs->prev;
         delete temp;

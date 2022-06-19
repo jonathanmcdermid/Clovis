@@ -223,12 +223,13 @@ namespace Clovis {
                 bb = pos.piece_bitboard[piece];
                 if (pt == BISHOP)
                 {
+                    if (count_bits(bb) >= 2)
+                        score[side] += bishop_pair_bonus;
+
                     while (bb)
                     {
                         sq = get_lsb_index(bb);
                         score[side] += score_table[piece][sq];
-                        if (count_bits(bb) == 2)
-                            score[side] += bishop_pair_bonus;
                         pop_bit(bb, sq);
                     }
                 }

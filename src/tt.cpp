@@ -30,4 +30,11 @@ namespace Clovis {
         return &ht[key % ht.size()];
     }
 
+    // probe the pawn table to see if an entry exists
+    PTEntry* TTable::probe_pawn(Key key, bool& found)
+    {
+        found = (pt[key % pt.size()].key == key);
+        return &pt[key % pt.size()];
+    }
+
 } // namespace Clovis

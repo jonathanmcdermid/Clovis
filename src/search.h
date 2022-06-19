@@ -29,8 +29,15 @@ namespace Clovis {
             U32 nodes;
         };
 
+        struct Line {
+            Line() : last(moves) {}
+            const Move* begin() const { return moves; }
+            const Move* end() const { return last; }
+            Move moves[MAX_PLY] = { MOVE_NONE }, *last;
+        };
+
         Move start_search(Position& pos, SearchLimits& lim);
-        int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null);
+        int negamax(Position& pos, Line& pline, int alpha, int beta, int depth, int ply, bool is_null);
         int quiescent(Position& pos, int alpha, int beta, int ply);
         void init_search();
         void init_lmr_tables();
