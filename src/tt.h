@@ -57,6 +57,7 @@ namespace Clovis {
         int get_flags(Key key) const { return ht[key % ht.size()].flags; }
         TTEntry* probe(Key key, bool& found);
         void new_pawn_entry(Key key, Score s) { pt[key % pt.size()] = PTEntry(key, s); }
+        void new_pawn_entry(Key key, PTEntry& p) { pt[key % pt.size()] = p; }
         int get_pawn_eval(Key key, int gp, Colour s) const { return pt[key % pt.size()].eval.get_score(gp, s); }
         Key get_pawn_key(Key key) const { return pt[key % pt.size()].key; }
         PTEntry* probe_pawn(Key key, bool& found);

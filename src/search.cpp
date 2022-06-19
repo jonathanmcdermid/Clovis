@@ -308,14 +308,15 @@ namespace Clovis {
 
             int score = Eval::evaluate(pos);
 
-            if (tt.get_pawn_key(pos.get_pawn_key()) != pos.get_pawn_key())
-                tt.new_pawn_entry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
+            bool pt_hit;
+            PTEntry* pte = tt.probe_pawn(pos.get_pawn_key(), pt_hit);
+            if (pt_hit == false)
+                *pte = PTEntry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
 
-            score += tt.get_pawn_eval(pos.get_pawn_key(), pos.get_game_phase(), pos.side_to_move());
+            score += pte->eval.get_score(pos.get_game_phase(), pos.side_to_move());
+
             
             // do pawn key regen test here
-
-            // SWAP TRIANGLE TABLE FOR LINE
 
             if (score >= beta)
                 return beta;
