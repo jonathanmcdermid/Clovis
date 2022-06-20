@@ -15,10 +15,9 @@ namespace Clovis {
     void TTable::set_size(int bytes) 
     {
         unsigned i;
-        for (i = 31; i > 0; --i) {
+        for (i = 31; i > 0; --i) 
             if (bytes & 1 << i)
                 break;
-        }
         ht.resize(1 << (i - 5));
         pt.resize(1 << (i - 6));
     }

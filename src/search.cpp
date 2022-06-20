@@ -91,7 +91,8 @@ namespace Clovis {
                 else 
                 {
                     if (score >= CHECKMATE_SCORE - MAX_PLY 
-                        || score <= -CHECKMATE_SCORE + MAX_PLY) 
+                        || score <= -CHECKMATE_SCORE + MAX_PLY
+                        || score == DRAW_SCORE && pline.move_count() < depth) 
                     {
                         break;
                     }
@@ -314,7 +315,6 @@ namespace Clovis {
                 *pte = PTEntry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
 
             score += pte->eval.get_score(pos.get_game_phase(), pos.side_to_move());
-
             
             // do pawn key regen test here
 

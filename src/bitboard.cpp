@@ -469,7 +469,8 @@ namespace Clovis {
 					}
 				}
 			}
-			if (is_bishop) {
+			if (is_bishop) 
+			{
 				is_bishop = false;
 				goto start;
 			}

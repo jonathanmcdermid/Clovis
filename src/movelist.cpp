@@ -106,14 +106,16 @@ namespace Clovis {
             }
         }
 
-        for (PieceType pt = KNIGHT; pt <= KING; ++pt) {
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt) 
+        {
             bb = pos.piece_bitboard[make_piece(pt, pos.side)];
             while (bb)
             {
                 src = get_lsb_index(bb);
                 att = ~pos.occ_bitboard[pos.side];
 
-                switch (pt) {
+                switch (pt) 
+                {
                 case KNIGHT: att &= Bitboards::knight_attacks[src]; break;
                 case BISHOP: att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
                 case ROOK: att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); break;
@@ -198,14 +200,16 @@ namespace Clovis {
             pop_bit(bb, src);
         }
 
-        for (PieceType pt = KNIGHT; pt <= KING; ++pt) {
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt) 
+        {
             bb = pos.piece_bitboard[make_piece(pt, pos.side)];
             while (bb)
             {
                 src = get_lsb_index(bb);
                 att = ~pos.occ_bitboard[pos.side];
 
-                switch (pt) {
+                switch (pt) 
+                {
                 case KNIGHT: att &= Bitboards::knight_attacks[src]; break;
                 case BISHOP: att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
                 case ROOK: att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); break;
@@ -303,14 +307,16 @@ namespace Clovis {
             }
         }
 
-        for (PieceType pt = KNIGHT; pt <= KING; ++pt) {
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt) 
+        {
             bb = pos.piece_bitboard[make_piece(pt, pos.side)];
             while (bb)
             {
                 src = get_lsb_index(bb);
                 att = ~pos.occ_bitboard[pos.side];
 
-                switch (pt) {
+                switch (pt) 
+                {
                 case KNIGHT: att &= Bitboards::knight_attacks[src]; break;
                 case BISHOP: att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
                 case ROOK: att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); break;

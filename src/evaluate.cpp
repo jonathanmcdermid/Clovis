@@ -112,7 +112,8 @@ namespace Clovis {
 
         Bitboard passed_masks[COLOUR_N][SQ_N];
 
-        void init_eval() {
+        void init_eval() 
+        {
             for (PieceType pt = PAWN; pt <= KING; ++pt) 
             {
                 for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) 
@@ -242,7 +243,8 @@ namespace Clovis {
                         pop_bit(bb, sq);
                     }
                 }
-                if (side == WHITE) {
+                if (side == WHITE) 
+                {
                     piece = make_piece(pt, BLACK);
                     goto repeat;
                 }
@@ -289,14 +291,16 @@ namespace Clovis {
                     score[side] += isolated_pawn_penalty;
                 }
 
-                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, Colour(!side))]) == 0) {
+                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, Colour(!side))]) == 0) 
+                {
                     score[side] += passed_pawn_bonus[relative_rank(side, sq)];
                 }
 
                 pop_bit(bb, sq);
             }
 
-            if (side == WHITE) {
+            if (side == WHITE) 
+            {
                 piece = make_piece(PAWN, BLACK);
                 goto repeat;
             }

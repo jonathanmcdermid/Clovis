@@ -20,13 +20,16 @@ namespace Clovis {
 
 		unsigned long long nodes;
 
-		void perft(int depth) {
-			if (depth == 0) {
+		void perft(int depth) 
+		{
+			if (depth == 0) 
+			{
 				++nodes;
 				return;
 			}
 
-			for (const auto& sm : MoveGen::MoveList(pos)) {
+			for (const auto& sm : MoveGen::MoveList(pos)) 
+			{
 				if (!pos.do_move(sm.m))
 					continue;
 				perft(depth - 1);
@@ -34,12 +37,15 @@ namespace Clovis {
 			}
 		}
 
-		void perft_control() {
-			for (int i = 0; i < 3; ++i) {
+		void perft_control() 
+		{
+			for (int i = 0; i < 3; ++i) 
+			{
 				pos.set(perftFen[i].c_str());
 				TimeManager tm;
 				tm.set();
-				for (int depth = 1; depth < 7; ++depth) {
+				for (int depth = 1; depth < 7; ++depth) 
+				{
 					nodes = 0;
 					perft(depth);
 					std::cout << "info depth " << depth << " nodes " << nodes << " time " << tm.get_time_elapsed() << std::endl;

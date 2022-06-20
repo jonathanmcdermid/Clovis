@@ -10,7 +10,7 @@ namespace Clovis {
 
 	namespace UCI {
 
-		const char* version_no = "Clovis v0.6";
+		const char* version_no = "Clovis v0.7";
 		const char* authors = "Jonathan McDermid";
 		const char* start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		const char* promo_str = " pnbrqk  pnbrqk";
@@ -48,7 +48,8 @@ namespace Clovis {
 			Search::SearchLimits limits;
 			string token;
 
-			while (is >> token) {
+			while (is >> token) 
+			{
 				if (token == "wtime")			is >> limits.time[WHITE];
 				else if (token == "btime")		is >> limits.time[BLACK];
 				else if (token == "winc")		is >> limits.inc[WHITE];
@@ -70,7 +71,8 @@ namespace Clovis {
 			Move m;
 			string token, fen;
 			is >> token;
-			if (token == "startpos") {
+			if (token == "startpos") 
+			{
 				fen = start_pos;
 				is >> token;
 			}
@@ -82,7 +84,8 @@ namespace Clovis {
 
 			pos.set(fen.c_str());
 
-			while (is >> token && (m = UCI::to_move(pos, token)) != MOVE_NONE) {
+			while (is >> token && (m = UCI::to_move(pos, token)) != MOVE_NONE) 
+			{
 				pos.do_move(m);
 			}
 		}
@@ -94,7 +97,8 @@ namespace Clovis {
 
 			string user_move;
 
-			while (1) {
+			while (1) 
+			{
 				//pos.print_position();
 				//do {
 				//	cin >> user_move;
