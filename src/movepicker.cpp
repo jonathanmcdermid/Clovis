@@ -52,7 +52,8 @@ namespace Clovis {
                     }
                     if (pos.see(curr->m, 0))
                         return *curr++;
-                    else {
+                    else 
+                    {
                         *end_bad_caps = *curr++;
                         ++end_bad_caps;
                         goto start;
@@ -80,11 +81,10 @@ namespace Clovis {
                     return *curr++;
                 }
                 curr = moves;
-                last = end_bad_caps;
                 ++stage;
                 goto start;
             case LOSING_CAPTURES:
-                if (curr < last)
+                if (curr < end_bad_caps)
                 {
                     if (curr->m == tt_move.m)
                     {
@@ -100,6 +100,36 @@ namespace Clovis {
 
 	        return ScoredMove();
 		}
+
+        void MovePicker::set_quiet_boundaries()
+        {
+            switch (stage)
+            {
+            case QUIETS:
+                memory_index = end_bad_caps;
+                last_searched_quiet = curr;
+                break;
+            case LOSING_CAPTURES:
+                memory_index = end_bad_caps;
+                last_searched_quiet = last;
+                break;
+            default:
+                memory_index = last_searched_quiet = moves;
+                break;
+            }
+        }
+
+        bool MovePicker::remember_quiets(Move& m)
+        {
+            if (memory_index == last_searched_quiet) 
+                return false;
+            else 
+            {
+                m = memory_index->m;
+                memory_index++;
+                return true;
+            }
+        }
 
         void MovePicker::score_captures()
         {
@@ -130,13 +160,13 @@ namespace Clovis {
             ScoredMove sm;
             sm.m = m;
             if (killers[ply] == m)
-                sm.score = 9999;
+                sm.score = 22000;
             else if (killers[MAX_PLY + ply] == m)
-                sm.score = 8888;
+                sm.score = 21000;
             else if (move_promotion_type(m) || move_castling(m))
-                sm.score = 5000 + move_promotion_type(m);
+                sm.score = 20000 + move_promotion_type(m);
             else
-                sm.score = history[move_piece_type(m) * SQ_N + move_to_sq(m)];
+                sm.score = history[pos.side_to_move() * 4096 + move_from_sq(sm.m) * 64 + move_to_sq(sm.m)];
             return sm;
         }
 

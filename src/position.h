@@ -122,7 +122,7 @@ namespace Clovis {
 			count_bits(piece_bitboard[make_piece(QUEEN, c)]) == 0 &&
 			count_bits(piece_bitboard[make_piece(ROOK, c)]) == 0 &&
 			(count_bits(piece_bitboard[make_piece(KNIGHT, c)]) < 3) &&
-			(count_bits(piece_bitboard[make_piece(BISHOP, c)]) + count_bits(piece_bitboard[make_piece(KNIGHT, c)]) / 2 < 2));
+			(count_bits(piece_bitboard[make_piece(BISHOP, c)]) + count_bits(piece_bitboard[make_piece(KNIGHT, c)]) < 2));
 	}
 
 	inline bool Position::is_draw_50() const {

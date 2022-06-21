@@ -21,13 +21,16 @@ namespace Clovis {
 		public:
 			MovePicker(const Position& p, const Move* k, const int* h, int pl, Move ttm = MOVE_NONE) : pos(p) {
 				ply = pl;
-				curr = last = end_bad_caps = moves;
+				curr = last = end_bad_caps = memory_index = last_searched_quiet = moves;
 				killers = k;
 				history = h;
 				tt_move = ttm;
 				stage = TT_MOVE;
 			}
 			ScoredMove get_next(bool skip_quiets);
+			void set_quiet_boundaries();
+			bool remember_quiets(Move& m);
+			int get_stage() const { return stage; }
 			void print();
 		private:
 			void score_captures();
@@ -35,7 +38,7 @@ namespace Clovis {
 			ScoredMove score_capture_move(const Move m);
 			ScoredMove score_quiet_move(const Move m);
 			void sm_sort();
-			ScoredMove* curr, *last, *end_bad_caps;
+			ScoredMove* curr, *last, *end_bad_caps, *memory_index, *last_searched_quiet;
 			ScoredMove moves[MAX_MOVES];
 			const Position& pos;
 			const Move* killers;
