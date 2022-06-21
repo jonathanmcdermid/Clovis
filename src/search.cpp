@@ -318,7 +318,7 @@ namespace Clovis {
                 }
             }
 
-            if (tte->depth <= depth)
+            if (tte->depth <= depth && eval_type == HASH_EXACT)
                 *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
 
             return alpha;
