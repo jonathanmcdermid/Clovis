@@ -14,7 +14,7 @@ namespace Clovis {
 
         int null_pruning_depth = 2;
 
-        int asp_window = 25;
+        int asp_window = 50;
 
         int asp_threshold_depth = 5;
 
@@ -320,7 +320,6 @@ namespace Clovis {
 
             if (tte->depth <= depth && eval_type == HASH_EXACT)
                 *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
-
             return alpha;
         }
 
