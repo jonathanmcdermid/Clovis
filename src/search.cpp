@@ -124,6 +124,13 @@ namespace Clovis {
 
             ++nodes;
 
+            // mate distance pruning
+            // if me have found a mate, no point in finding a longer mate
+            alpha = std::max(alpha, - CHECKMATE_SCORE + ply - 1);
+            beta = std::min(beta, CHECKMATE_SCORE - ply);
+            if (alpha >= beta)
+                return alpha;
+
             bool tt_hit;
             TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
             if (tt_hit) 
@@ -193,7 +200,7 @@ namespace Clovis {
 
             int moves_searched = 0;
 
-            int* history_entry = NULL;
+            int* history_entry = history_table;
 
             HashFlag eval_type = HASH_ALPHA;
 
@@ -202,9 +209,7 @@ namespace Clovis {
                 // illegal move
                 if (pos.do_move(curr_move.m) == false) 
                     continue;
-                if (move_capture(curr_move.m) == NO_PIECE)
-                    history_entry = &history_table[pos.side_to_move() * 4096 + move_from_sq(curr_move.m) * 64 + move_to_sq(curr_move.m)];
-                if (pos.is_repeat() || pos.is_draw_50())
+                if (pos.is_repeat() || pos.is_draw_50()) //|| pos.is_material_draw())
                     score = DRAW_SCORE;
                 else if (moves_searched == 0)
                 {
@@ -217,11 +222,12 @@ namespace Clovis {
                         && move_capture(curr_move.m) == NO_PIECE 
                         && move_promotion_type(curr_move.m) == 0)
                     {
+                        history_entry = &history_table[other_side(pos.side_to_move()) * 4096 + move_from_sq(curr_move.m) * 64 + move_to_sq(curr_move.m)];
                         // reduction factor
-                        int R = lmr_table[depth][moves_searched % 64];
-                        // increase for non pv nodes
+                        int R = lmr_table[depth][std::min(moves_searched, MAX_PLY - 1)];
+                        // reduce for pv nodes
                         R -= (pv_node);
-                        // increase for moves ordered after winning captures that arent killers
+                        // reduce for killers
                         R -= (curr_move == killers[MAX_PLY + ply] || curr_move == killers[ply]);
                         // reduce based on history heuristic
                         R -= std::max(-2, std::min(2, *history_entry / 5000));
@@ -265,7 +271,7 @@ namespace Clovis {
 
                                 history_entry = &history_table[pos.side_to_move() * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
                                 if(m == curr_move.m)
-                                    *history_entry += 32 * bonus - *history_entry * bonus / 512; // abs(bonus) not needed
+                                    *history_entry += 32 * bonus - *history_entry * bonus / 512; 
                                 else
                                     *history_entry += 32 * (-bonus) - *history_entry * bonus / 512;
                             }
@@ -312,7 +318,7 @@ namespace Clovis {
 
                     history_entry = &history_table[pos.side_to_move() * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
                     if (m == best_move)
-                        *history_entry += 32 * bonus - *history_entry * bonus / 512; // abs(bonus) not needed
+                        *history_entry += 32 * bonus - *history_entry * bonus / 512; 
                     else
                         *history_entry += 32 * (-bonus) - *history_entry * bonus / 512;
                 }
@@ -320,6 +326,7 @@ namespace Clovis {
 
             if (tte->depth <= depth && eval_type == HASH_EXACT)
                 *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
+
             return alpha;
         }
 
