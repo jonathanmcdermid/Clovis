@@ -17,16 +17,30 @@ namespace Clovis {
 
 	namespace MovePick {
 
+		extern int history_table[2 * 64 * 64];
+
+		static int get_history_entry(Colour s, Move m) {
+			return history_table[s * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
+		}
+
+		static int* get_history_entry_ptr(Colour s, Move m) {
+			return &history_table[s * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
+		}
+
+		static void clear() {
+			memset(history_table, 0, sizeof(history_table));
+		}
+
 		class MovePicker {
 		public:
-			MovePicker(const Position& p, const Move* k, const int* h, int pl, Move ttm = MOVE_NONE) : pos(p) {
+			MovePicker(const Position& p, const Move* k, int pl, Move ttm = MOVE_NONE) : pos(p) {
 				ply = pl;
 				curr = last = end_bad_caps = memory_index = last_searched_quiet = moves;
 				killers = k;
-				history = h;
 				tt_move = ttm;
 				stage = TT_MOVE;
 			}
+			void update_history(Move best_move, int depth);
 			ScoredMove get_next(bool skip_quiets);
 			void set_quiet_boundaries();
 			bool remember_quiets(Move& m);
@@ -42,7 +56,6 @@ namespace Clovis {
 			ScoredMove moves[MAX_MOVES];
 			const Position& pos;
 			const Move* killers;
-			const int* history;
 			ScoredMove tt_move;
 			int stage;
 			int ply;

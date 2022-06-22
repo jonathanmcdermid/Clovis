@@ -6,9 +6,11 @@ namespace Clovis {
 
         Move killers[2 * MAX_PLY];
 
-        int history_table[2 * 64 * 64];
+        U64 nodes;
 
-        int nodes;
+        double tt_hits;
+
+        double total_moves;
 
         int lmr_table[MAX_PLY + 1][64];
 
@@ -17,6 +19,7 @@ namespace Clovis {
         int asp_window = 50;
 
         int asp_threshold_depth = 5;
+
 
         TTable tt;
 
@@ -39,7 +42,7 @@ namespace Clovis {
         void clear()
         {
             memset(killers, 0, sizeof(killers));
-            memset(history_table, 0, sizeof(history_table));
+            MovePick::clear();
             tt.clear();
         }
 
@@ -60,9 +63,11 @@ namespace Clovis {
             }
 
             memset(killers, 0, sizeof(killers));
-            memset(history_table, 0, sizeof(history_table));
+            MovePick::clear();
 
             nodes = 0;
+            tt_hits = 0;
+            total_moves = 0;
 
             int alpha = NEG_INF;
             int beta = POS_INF;
@@ -74,6 +79,8 @@ namespace Clovis {
                 std::cout << "info depth " << depth
                     << " score cp " << score
                     << " nodes " << nodes
+                    << " hit% " << (tt_hits / nodes * 100.0) 
+                    << " mpn " << (total_moves / nodes)
                     << " pv ";
                 for(const auto& m : pline)
                     std::cout << UCI::move2str(m) << " ";
@@ -135,6 +142,7 @@ namespace Clovis {
             TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
             if (tt_hit) 
             {
+                ++tt_hits;
                 pline.last = pline.moves;
                 *pline.last++ = tte->move;
                 if (pv_node == false 
@@ -189,7 +197,7 @@ namespace Clovis {
 
             Move tt_move = (tt_hit) ? tte->move : MOVE_NONE; 
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history_table, ply, tt_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, ply, tt_move);
 
             ScoredMove curr_move;
 
@@ -200,29 +208,25 @@ namespace Clovis {
 
             int moves_searched = 0;
 
-            int* history_entry = history_table;
-
             HashFlag eval_type = HASH_ALPHA;
 
             while ((curr_move = mp.get_next(false)) != MOVE_NONE)
             {
                 // illegal move
-                if (pos.do_move(curr_move.m) == false) 
+                if (pos.do_move(curr_move.m) == false)
                     continue;
                 if (pos.is_repeat() || pos.is_draw_50()) //|| pos.is_material_draw())
                     score = DRAW_SCORE;
                 else if (moves_searched == 0)
-                {
                     score = -negamax(pos, local_line, -beta, -alpha, depth - 1, ply + 1, false);
-                }
                 // late move reductions
                 else
                 {
-                    if (depth > 2 
-                        && move_capture(curr_move.m) == NO_PIECE 
-                        && move_promotion_type(curr_move.m) == 0)
+                    if (depth > 2
+                        && move_capture(curr_move.m) == NO_PIECE
+                        && move_promotion_type(curr_move.m) == NO_PIECE)
                     {
-                        history_entry = &history_table[other_side(pos.side_to_move()) * 4096 + move_from_sq(curr_move.m) * 64 + move_to_sq(curr_move.m)];
+                        int history_entry = MovePick::get_history_entry(other_side(pos.side_to_move()), curr_move.m);
                         // reduction factor
                         int R = lmr_table[depth][std::min(moves_searched, MAX_PLY - 1)];
                         // reduce for pv nodes
@@ -230,7 +234,7 @@ namespace Clovis {
                         // reduce for killers
                         R -= (curr_move == killers[MAX_PLY + ply] || curr_move == killers[ply]);
                         // reduce based on history heuristic
-                        R -= std::max(-2, std::min(2, *history_entry / 5000));
+                        R -= std::max(-2, std::min(2, history_entry / 4000));
 
                         R = std::max(0, std::min(R, depth - 2));
 
@@ -255,38 +259,31 @@ namespace Clovis {
 
                 pos.undo_move(curr_move.m);
 
-                if (score > alpha)
-                {
-                    // fail high
-                    if (score >= beta)
-                    {
-                        if (move_capture(curr_move.m) == NO_PIECE)
-                        {
-                            int bonus = std::min(depth * depth, 400);
-                            Move m;
-                            mp.set_quiet_boundaries();
-                            while (mp.remember_quiets(m))
-                            {
-                                assert(move_capture(m) == false); 
+                ++total_moves;
 
-                                history_entry = &history_table[pos.side_to_move() * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
-                                if(m == curr_move.m)
-                                    *history_entry += 32 * bonus - *history_entry * bonus / 512; 
-                                else
-                                    *history_entry += 32 * (-bonus) - *history_entry * bonus / 512;
-                            }
-                        }
+                // fail high
+                if (score >= beta)
+                {
+                    if (move_capture(curr_move.m) == NO_PIECE)
+                    {
+                        mp.update_history(curr_move.m, depth);
                         // update killers
-                        if (move_capture(curr_move.m) == false && killers[ply] != curr_move.m)
+                        if (killers[ply] != curr_move.m)
                         {
                             killers[MAX_PLY + ply] = killers[ply];
                             killers[ply] = curr_move.m;
                         }
-                        if (tte->depth <= depth)
-                            *tte = TTEntry(pos.get_key(), depth, score, HASH_BETA, curr_move.m);
-                        return beta;
                     }
 
+                    if (tte->depth <= depth)
+                        *tte = TTEntry(pos.get_key(), depth, score, HASH_BETA, curr_move.m);
+
+                    return beta;
+
+                }
+
+                if (score > alpha)
+                {
                     pline.last = pline.moves;
                     *pline.last++ = curr_move.m;
                     for (const auto& m : local_line)
@@ -307,32 +304,20 @@ namespace Clovis {
             if (moves_searched == 0)
                 return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
-            if (eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
+            if (eval_type == HASH_EXACT)
             {
-                int bonus = std::min(depth * depth, 400);
-                Move m;
-                mp.set_quiet_boundaries();
-                while (mp.remember_quiets(m))
-                {
-                    assert(move_capture(m) == false);
+                if(depth >= tte->depth)
+                    *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
 
-                    history_entry = &history_table[pos.side_to_move() * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
-                    if (m == best_move)
-                        *history_entry += 32 * bonus - *history_entry * bonus / 512; 
-                    else
-                        *history_entry += 32 * (-bonus) - *history_entry * bonus / 512;
-                }
+                if (move_capture(best_move) == NO_PIECE)
+                    mp.update_history(best_move, depth);
             }
-
-            if (tte->depth <= depth && eval_type == HASH_EXACT)
-                *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
 
             return alpha;
         }
 
         int quiescent(Position& pos, int alpha, int beta, int ply)
         {
-            ++nodes;
 
             bool tt_hit;
             TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
@@ -366,7 +351,7 @@ namespace Clovis {
                 alpha = score;
 
             Move tt_move = (tt_hit) ? tte->move : MOVE_NONE;
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, history_table, ply, tt_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, ply, tt_move);
             ScoredMove curr_move;
             ScoredMove best_move;
             best_move.score = NEG_INF;

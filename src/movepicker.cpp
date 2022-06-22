@@ -4,6 +4,8 @@ namespace Clovis {
 
 	namespace MovePick {
 
+        int history_table[2 * 64 * 64];
+
         // MVV-LVA lookup table [attacker][victim]
         constexpr int mvv_lva[15][15] = {
               0,   0,   0,   0,   0,   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
@@ -22,6 +24,22 @@ namespace Clovis {
               0, 101, 201, 301, 401, 501, 601,    0,   0, 101, 201, 301, 401, 501, 601,
               0, 100, 200, 300, 400, 500, 600,    0,   0, 100, 200, 300, 400, 500, 600
         };
+
+        void MovePicker::update_history(Move best_move, int depth) {
+            int bonus = std::min(depth * depth, 400);
+            int* history_entry;
+            Move m;
+            set_quiet_boundaries();
+            while (remember_quiets(m))
+            {
+                assert(move_capture(m) == false);
+                history_entry = get_history_entry_ptr(pos.side_to_move(), m);
+                if (m == best_move)
+                    *history_entry += 32 * bonus - *history_entry * bonus / 512;
+                else
+                    *history_entry += 32 * (-bonus) - *history_entry * bonus / 512;
+            }
+        }
 
 		// return the next ordered move
 		ScoredMove MovePicker::get_next(bool skip_quiets)
@@ -166,7 +184,7 @@ namespace Clovis {
             else if (move_promotion_type(m) || move_castling(m))
                 sm.score = 20000 + move_promotion_type(m);
             else
-                sm.score = history[pos.side_to_move() * 4096 + move_from_sq(sm.m) * 64 + move_to_sq(sm.m)];
+                sm.score = get_history_entry(pos.side_to_move(), sm.m);
             return sm;
         }
 

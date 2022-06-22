@@ -45,6 +45,11 @@ namespace Clovis {
 
 	class TTable {
     public:
+        //void erode() {
+        //    for (int i = master; i < ht.size(); i += 2)
+        //        ht[i].depth = 0;
+        //    master = !master;
+        //}
         void set_size(int bytes);
         void clear();
         void new_entry(Key key, int d, int e, HashFlag f, Move m) { ht[key % ht.size()] = TTEntry(key, d, e, f, m); }
@@ -62,6 +67,7 @@ namespace Clovis {
         Key get_pawn_key(Key key) const { return pt[key % pt.size()].key; }
         PTEntry* probe_pawn(Key key, bool& found);
     private:
+        //bool master = true;
         std::vector<TTEntry> ht;
         std::vector<PTEntry> pt;
 	};
