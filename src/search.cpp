@@ -4,8 +4,6 @@ namespace Clovis {
 
     namespace Search {
 
-        Move killers[2 * MAX_PLY];
-
         U64 nodes;
 
         double tt_hits;
@@ -41,7 +39,6 @@ namespace Clovis {
         // reset transposition table, set search to standard conditions
         void clear()
         {
-            memset(killers, 0, sizeof(killers));
             MovePick::clear();
             tt.clear();
         }
@@ -62,7 +59,6 @@ namespace Clovis {
                 goto end;
             }
 
-            memset(killers, 0, sizeof(killers));
             MovePick::clear();
 
             nodes = 0;
@@ -197,7 +193,7 @@ namespace Clovis {
 
             Move tt_move = (tt_hit) ? tte->move : MOVE_NONE; 
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, ply, tt_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
 
             ScoredMove curr_move;
 
@@ -232,7 +228,7 @@ namespace Clovis {
                         // reduce for pv nodes
                         R -= (pv_node);
                         // reduce for killers
-                        R -= (curr_move == killers[MAX_PLY + ply] || curr_move == killers[ply]);
+                        R -= MovePick::is_killer(curr_move.m, ply);
                         // reduce based on history heuristic
                         R -= std::max(-2, std::min(2, history_entry / 4000));
 
@@ -267,12 +263,7 @@ namespace Clovis {
                     if (move_capture(curr_move.m) == NO_PIECE)
                     {
                         mp.update_history(curr_move.m, depth);
-                        // update killers
-                        if (killers[ply] != curr_move.m)
-                        {
-                            killers[MAX_PLY + ply] = killers[ply];
-                            killers[ply] = curr_move.m;
-                        }
+                        MovePick::update_killers(curr_move.m, ply);
                     }
 
                     if (tte->depth <= depth)
@@ -351,7 +342,7 @@ namespace Clovis {
                 alpha = score;
 
             Move tt_move = (tt_hit) ? tte->move : MOVE_NONE;
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, killers, ply, tt_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
             ScoredMove curr_move;
             ScoredMove best_move;
             best_move.score = NEG_INF;

@@ -18,6 +18,7 @@ namespace Clovis {
 	namespace MovePick {
 
 		extern int history_table[2 * 64 * 64];
+		extern Move killers[2 * MAX_PLY];
 
 		static int get_history_entry(Colour s, Move m) {
 			return history_table[s * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
@@ -29,14 +30,26 @@ namespace Clovis {
 
 		static void clear() {
 			memset(history_table, 0, sizeof(history_table));
+			memset(killers, 0, sizeof(killers));
+		}
+
+		static void update_killers(Move m, int ply) {
+			if (killers[ply] != m)
+			{
+				killers[MAX_PLY + ply] = killers[ply];
+				killers[ply] = m;
+			}
+		}
+
+		static bool is_killer(Move m, int ply) {
+			return (m == killers[MAX_PLY + ply] || m == killers[ply]);
 		}
 
 		class MovePicker {
 		public:
-			MovePicker(const Position& p, const Move* k, int pl, Move ttm = MOVE_NONE) : pos(p) {
+			MovePicker(const Position& p, int pl, Move ttm = MOVE_NONE) : pos(p) {
 				ply = pl;
 				curr = last = end_bad_caps = memory_index = last_searched_quiet = moves;
-				killers = k;
 				tt_move = ttm;
 				stage = TT_MOVE;
 			}
@@ -55,7 +68,6 @@ namespace Clovis {
 			ScoredMove* curr, *last, *end_bad_caps, *memory_index, *last_searched_quiet;
 			ScoredMove moves[MAX_MOVES];
 			const Position& pos;
-			const Move* killers;
 			ScoredMove tt_move;
 			int stage;
 			int ply;

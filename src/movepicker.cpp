@@ -5,6 +5,7 @@ namespace Clovis {
 	namespace MovePick {
 
         int history_table[2 * 64 * 64];
+        Move killers[2 * MAX_PLY];
 
         // MVV-LVA lookup table [attacker][victim]
         constexpr int mvv_lva[15][15] = {
