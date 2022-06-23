@@ -1,8 +1,10 @@
 #pragma once
 
+#include <algorithm>
+#include <cstring>
+
 #include "position.h"
 #include "movelist.h"
-#include <algorithm>
 
 namespace Clovis {
 

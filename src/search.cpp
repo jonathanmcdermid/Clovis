@@ -52,6 +52,10 @@ namespace Clovis {
             tm.set();
             Line pline;
 
+            int alpha = NEG_INF;
+            int beta = POS_INF;
+            int score;
+
             MoveGen::MoveList ml = MoveGen::MoveList(pos);
             if (ml.size() == 1)
             {
@@ -64,10 +68,6 @@ namespace Clovis {
             nodes = 0;
             tt_hits = 0;
             total_moves = 0;
-
-            int alpha = NEG_INF;
-            int beta = POS_INF;
-            int score;
 
             for (int depth = 1; depth <= MAX_PLY; ++depth) 
             {
@@ -266,8 +266,7 @@ namespace Clovis {
                         MovePick::update_killers(curr_move.m, ply);
                     }
 
-                    if (tte->depth <= depth)
-                        *tte = TTEntry(pos.get_key(), depth, score, HASH_BETA, curr_move.m);
+                    *tte = TTEntry(pos.get_key(), depth, score, HASH_BETA, curr_move.m);
 
                     return beta;
 
@@ -295,11 +294,10 @@ namespace Clovis {
             if (moves_searched == 0)
                 return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
+            *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
+
             if (eval_type == HASH_EXACT)
             {
-                if(depth >= tte->depth)
-                    *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
-
                 if (move_capture(best_move) == NO_PIECE)
                     mp.update_history(best_move, depth);
             }
@@ -312,72 +310,69 @@ namespace Clovis {
 
             bool tt_hit;
             TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
-            if (tt_hit) 
+
+            if (tt_hit)
             {
                 if (tte->flags == HASH_EXACT
                     || (tte->flags == HASH_BETA && tte->eval >= beta)
-                    || (tte->flags == HASH_ALPHA && tte->eval <= alpha)) 
+                    || (tte->flags == HASH_ALPHA && tte->eval <= alpha))
                 {
                     return tte->eval;
                 }
             }
-
-            int score = Eval::evaluate(pos);
+            
+            int eval = Eval::evaluate(pos);
 
             bool pt_hit;
             PTEntry* pte = tt.probe_pawn(pos.get_pawn_key(), pt_hit);
             if (pt_hit == false)
                 *pte = PTEntry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
 
-            score += pte->eval.get_score(pos.get_game_phase(), pos.side_to_move());
+            eval += pte->eval.get_score(pos.get_game_phase(), pos.side_to_move());
             
             // do pawn key regen test here
 
-            if (score >= beta)
+            if (eval >= beta)
                 return beta;
 
             int old_alpha = alpha;
 
-            if (score > alpha)
-                alpha = score;
+            if (eval > alpha)
+                alpha = eval;
 
             Move tt_move = (tt_hit) ? tte->move : MOVE_NONE;
             MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
             ScoredMove curr_move;
-            ScoredMove best_move;
-            best_move.score = NEG_INF;
+            Move best_move;
+            int best_eval = NEG_INF;
 
-            while ((curr_move = mp.get_next(true)) != MOVE_NONE) 
+            while ((curr_move = mp.get_next(true)) != MOVE_NONE) // only do winning caps once see is fixed
             {
                 // illegal move or non capture
                 if (pos.do_move(curr_move.m, true) == false)
                     continue;
 
-                score = -quiescent(pos, -beta, -alpha, ply + 1);
+                eval = -quiescent(pos, -beta, -alpha, ply + 1);
 
                 pos.undo_move(curr_move.m);
 
                 // fail high
-                if (score >= beta)
+                if (eval >= beta)
                 {
-                    if (tte->depth == 0)
-                        *tte = TTEntry(pos.get_key(), 0, score, HASH_BETA, curr_move.m);
+                    *tte = TTEntry(pos.get_key(), 0, eval, HASH_BETA, curr_move.m);
                     return beta;
                 }
-                if (score > best_move.score)
+                if (eval > best_eval)
                 {
-                    best_move.score = score;
-                    best_move.m = curr_move.m;
-                    if (score > alpha)
+                    best_eval = eval;
+                    best_move = curr_move.m;
+                    if (eval > alpha)
                     {
                         // new best move found
-                        alpha = score;
+                        alpha = eval;
                     }
                 }
             }
-
-            if (best_move.score != NEG_INF && tte->depth == 0)
-                *tte = TTEntry(pos.get_key(), 0, best_move.score, best_move.score > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move.m);
 
             return alpha;
         }

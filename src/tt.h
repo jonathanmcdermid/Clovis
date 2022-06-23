@@ -45,31 +45,31 @@ namespace Clovis {
 
 	class TTable {
     public:
-        //void erode() {
-        //    for (int i = master; i < ht.size(); i += 2)
-        //        ht[i].depth = 0;
-        //    master = !master;
-        //}
+        void age() {
+            for (int i = 0; i < n_entries; ++i)
+                if (ht[i].depth != 0)
+                    --ht[i].depth;
+        }
         void set_size(int bytes);
         void clear();
-        void new_entry(Key key, int d, int e, HashFlag f, Move m) { ht[key % ht.size()] = TTEntry(key, d, e, f, m); }
-        void new_entry(Key key, TTEntry& h) { ht[key % ht.size()] = h; }
-        TTEntry get_entry(Key key) const { return ht[key % ht.size()]; }
-        Key get_key(Key key) const { return ht[key % ht.size()].key; }
-        Move get_move(Key key) const { return ht[key % ht.size()].move; }
-        int get_depth(Key key) const { return ht[key % ht.size()].depth; }
-        int get_eval(Key key) const { return ht[key % ht.size()].eval; }
-        int get_flags(Key key) const { return ht[key % ht.size()].flags; }
+        void new_entry(Key key, int d, int e, HashFlag f, Move m) { ht[key % n_entries] = TTEntry(key, d, e, f, m); }
+        void new_entry(Key key, TTEntry& h) { ht[key % n_entries] = h; }
+        TTEntry get_entry(Key key) const { return ht[key % n_entries]; }
+        Key get_key(Key key) const { return ht[key % n_entries].key; }
+        Move get_move(Key key) const { return ht[key % n_entries].move; }
+        int get_depth(Key key) const { return ht[key % n_entries].depth; }
+        int get_eval(Key key) const { return ht[key % n_entries].eval; }
+        int get_flags(Key key) const { return ht[key % n_entries].flags; }
         TTEntry* probe(Key key, bool& found);
-        void new_pawn_entry(Key key, Score s) { pt[key % pt.size()] = PTEntry(key, s); }
-        void new_pawn_entry(Key key, PTEntry& p) { pt[key % pt.size()] = p; }
-        int get_pawn_eval(Key key, int gp, Colour s) const { return pt[key % pt.size()].eval.get_score(gp, s); }
-        Key get_pawn_key(Key key) const { return pt[key % pt.size()].key; }
+        void new_pawn_entry(Key key, Score s) { pt[key % n_p_entries] = PTEntry(key, s); }
+        void new_pawn_entry(Key key, PTEntry& p) { pt[key % n_p_entries] = p; }
+        int get_pawn_eval(Key key, int gp, Colour s) const { return pt[key % n_p_entries].eval.get_score(gp, s); }
+        Key get_pawn_key(Key key) const { return pt[key % n_p_entries].key; }
         PTEntry* probe_pawn(Key key, bool& found);
     private:
-        //bool master = true;
         std::vector<TTEntry> ht;
         std::vector<PTEntry> pt;
+        int n_entries, n_p_entries;
 	};
 
 } // Clovis

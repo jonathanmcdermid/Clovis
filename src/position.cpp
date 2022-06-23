@@ -152,7 +152,7 @@ namespace Clovis {
     }
 
     bool Position::see(Move m, int threshold) const
-    {
+    { 
         return true;
     }
 
@@ -195,6 +195,10 @@ namespace Clovis {
             // position now refers to new boardstate
             bs = bs_new;
 
+            Square src = move_from_sq(m);
+            Square tar = move_to_sq(m);
+            Piece piece = move_piece_type(m);
+
             // null moves
             if (m == MOVE_NULL)
             {
@@ -207,10 +211,6 @@ namespace Clovis {
                 bs->ply_null = 0;
                 goto nullmove;
             }
-
-            Square src = move_from_sq(m);
-            Square tar = move_to_sq(m);
-            Piece piece = move_piece_type(m);
 
             //assert(get_side(move_piece_type(m)) == side);
             //assert(get_side(piece_board[src]) == side);
@@ -345,12 +345,12 @@ namespace Clovis {
     {
         side = other_side(side);
 
+        Square src = move_from_sq(m);
+        Square tar = move_to_sq(m);
+
         // null moves
         if (m == MOVE_NULL)
             goto nullmove;
-
-        Square src = move_from_sq(m);
-        Square tar = move_to_sq(m);
 
         put_piece(move_piece_type(m), src);
         remove_piece(tar);

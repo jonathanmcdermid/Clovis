@@ -1,6 +1,7 @@
 #pragma once
 
 #include <intrin.h>
+#include <cstring>
 
 #include "random.h"
 #include "types.h"
