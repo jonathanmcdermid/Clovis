@@ -2,40 +2,47 @@
 
 namespace Clovis {
 
+    TTable::TTable()
+    {
+        ht = new Bucket[tt_size];
+        pt = new PTEntry[n_p_entries];
+    }
+
     // empty transposition table
     void TTable::clear()
     {
-        for (int i = 0; i < n_entries; ++i)
-            ht[i] = TTEntry();
-        for (int i = 0; i < n_p_entries; ++i)
-            pt[i] = PTEntry();
-    }
-
-    // set the size of the table
-    void TTable::set_size(int bytes) 
-    {
-        unsigned i;
-        for (i = 31; i > 0; --i) 
-            if (bytes & 1 << i)
-                break;
-        n_entries = (1 << (i - 5));
-        n_p_entries = (1 << (i - 6));
-        ht.resize(n_entries);
-        pt.resize(n_p_entries);
+        std::memset(static_cast<void*>(ht), 0, tt_size * sizeof(Bucket));
+        std::memset(static_cast<void*>(pt), 0, n_p_entries * sizeof(PTEntry));
     }
 
     // probe the table to see if an entry exists
     TTEntry* TTable::probe(Key key, bool& found) 
     {
-        found = (ht[key % n_entries].key == key);
-        return &ht[key % n_entries];
+        Bucket* b = ht + hash_index(key);
+        found = (b->e1.key == key);
+        if (found)
+            return &b->e1;
+        if(b->e1.depth > 0)
+            --b->e1.depth;
+        found = (b->e2.key == key);
+        return &b->e2;
+    }
+
+    void TTable::new_entry(Key key, int d, int e, HashFlag f, Move m)
+    {
+        Bucket* b = ht + hash_index(key);
+        if(b->e1.depth <= d)
+            b->e1 = TTEntry(key, d, e, f, m);
+        else
+            b->e2 = TTEntry(key, d, e, f, m);
     }
 
     // probe the pawn table to see if an entry exists
     PTEntry* TTable::probe_pawn(Key key, bool& found)
     {
-        found = (pt[key % n_p_entries].key == key);
-        return &pt[key % n_p_entries];
+        PTEntry* p = pt + pawn_hash_index(key);
+        found = (p->key == key);
+        return p;
     }
 
 } // namespace Clovis

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 #include "evaluate.h"
@@ -7,7 +8,10 @@
 
 namespace Clovis {
 
-    enum HashFlag : int {
+    constexpr size_t tt_size = 2097152;
+    constexpr size_t n_p_entries = 2097152;
+
+    enum HashFlag : uint8_t {
         HASH_NONE,
         HASH_ALPHA,
         HASH_BETA,
@@ -23,12 +27,18 @@ namespace Clovis {
             flags = rhs.flags;
             move = rhs.move;
         };
-        Key key;
-        int depth;
-        HashFlag flags;
-        int eval;
-        Move move;
+        Key key;        // 8 bytes
+        uint8_t depth;  // 1 byte
+        uint8_t flags;  // 1 byte
+        short eval;     // 2 bytes
+        Move move;      // 4 bytes
 	};
+
+    struct Bucket {
+    public:
+        TTEntry e1;
+        TTEntry e2;
+    };
 
     struct PTEntry {
         PTEntry(Key k = 0ULL, Score s = Score(0,0)) {
@@ -45,31 +55,25 @@ namespace Clovis {
 
 	class TTable {
     public:
-        void age() {
-            for (int i = 0; i < n_entries; ++i)
-                if (ht[i].depth != 0)
-                    --ht[i].depth;
-        }
-        void set_size(int bytes);
+        TTable();
         void clear();
-        void new_entry(Key key, int d, int e, HashFlag f, Move m) { ht[key % n_entries] = TTEntry(key, d, e, f, m); }
-        void new_entry(Key key, TTEntry& h) { ht[key % n_entries] = h; }
-        TTEntry get_entry(Key key) const { return ht[key % n_entries]; }
-        Key get_key(Key key) const { return ht[key % n_entries].key; }
-        Move get_move(Key key) const { return ht[key % n_entries].move; }
-        int get_depth(Key key) const { return ht[key % n_entries].depth; }
-        int get_eval(Key key) const { return ht[key % n_entries].eval; }
-        int get_flags(Key key) const { return ht[key % n_entries].flags; }
+        void new_entry(Key key, int d, int e, HashFlag f, Move m);
         TTEntry* probe(Key key, bool& found);
-        void new_pawn_entry(Key key, Score s) { pt[key % n_p_entries] = PTEntry(key, s); }
-        void new_pawn_entry(Key key, PTEntry& p) { pt[key % n_p_entries] = p; }
-        int get_pawn_eval(Key key, int gp, Colour s) const { return pt[key % n_p_entries].eval.get_score(gp, s); }
-        Key get_pawn_key(Key key) const { return pt[key % n_p_entries].key; }
+        void new_pawn_entry(Key key, Score s) { pt[pawn_hash_index(key)] = PTEntry(key, s); }
         PTEntry* probe_pawn(Key key, bool& found);
     private:
-        std::vector<TTEntry> ht;
-        std::vector<PTEntry> pt;
-        int n_entries, n_p_entries;
-	};
+        int hash_index(Key key) const;
+        int pawn_hash_index(Key key) const;
+        Bucket* ht;
+        PTEntry* pt;
+    };
+
+    inline int TTable::hash_index(Key key) const {
+        return key & (tt_size - 1ULL);
+    }
+
+    inline int TTable::pawn_hash_index(Key key) const {
+        return key & (n_p_entries - 1ULL);
+    }
 
 } // Clovis

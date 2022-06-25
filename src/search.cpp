@@ -6,10 +6,6 @@ namespace Clovis {
 
         U64 nodes;
 
-        double tt_hits;
-
-        double total_moves;
-
         int lmr_table[MAX_PLY + 1][64];
 
         int null_pruning_depth = 2;
@@ -18,13 +14,11 @@ namespace Clovis {
 
         int asp_threshold_depth = 5;
 
-
         TTable tt;
 
         // initialize LMR lookup table values
         void init_search()
         {
-            tt.set_size(220000000);
             clear();
             init_lmr_tables();
         }
@@ -66,17 +60,14 @@ namespace Clovis {
             MovePick::clear();
 
             nodes = 0;
-            tt_hits = 0;
-            total_moves = 0;
 
-            for (int depth = 1; depth <= MAX_PLY; ++depth) 
+            for (int depth = 1; depth <= lim.depth; ++depth) 
             {
                 score = negamax(pos, pline, alpha, beta, depth, 0, false);
                 std::cout << "info depth " << depth
                     << " score cp " << score
                     << " nodes " << nodes
-                    << " hit% " << (tt_hits / nodes * 100.0) 
-                    << " mpn " << (total_moves / nodes)
+                    << " time " << tm.get_time_elapsed()
                     << " pv ";
                 for(const auto& m : pline)
                     std::cout << UCI::move2str(m) << " ";
@@ -106,9 +97,7 @@ namespace Clovis {
 
         end:
 
-            std::cout << "time " << tm.get_time_elapsed() << std::endl
-                << "bestmove " << UCI::move2str(*pline.begin()) 
-                << std::endl;
+            std::cout << "bestmove " << UCI::move2str(*pline.begin()) << std::endl;
 
             return *pline.begin();
         }
@@ -118,12 +107,12 @@ namespace Clovis {
             bool pv_node = beta - alpha != 1;
             bool root_node = ply == 0;
 
-            if (depth <= 0)
-                return quiescent(pos, alpha, beta, ply);
-
             // avoid overflow
             if (ply >= MAX_PLY)
                 return Eval::evaluate(pos);
+
+            if (depth <= 0)
+                return quiescent(pos, alpha, beta, ply);
 
             ++nodes;
 
@@ -138,7 +127,6 @@ namespace Clovis {
             TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
             if (tt_hit) 
             {
-                ++tt_hits;
                 pline.last = pline.moves;
                 *pline.last++ = tte->move;
                 if (pv_node == false 
@@ -199,6 +187,8 @@ namespace Clovis {
 
             Move best_move = MOVE_NONE;
 
+            int best_score = NEG_INF;
+
             if (king_in_check) 
                 ++depth;
 
@@ -255,7 +245,7 @@ namespace Clovis {
 
                 pos.undo_move(curr_move.m);
 
-                ++total_moves;
+                ++moves_searched;
 
                 // fail high
                 if (score >= beta)
@@ -266,35 +256,36 @@ namespace Clovis {
                         MovePick::update_killers(curr_move.m, ply);
                     }
 
-                    *tte = TTEntry(pos.get_key(), depth, score, HASH_BETA, curr_move.m);
+                    tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move.m);
 
                     return beta;
 
                 }
 
-                if (score > alpha)
+                if (score > best_score)
                 {
-                    pline.last = pline.moves;
-                    *pline.last++ = curr_move.m;
-                    for (const auto& m : local_line)
-                        *pline.last++ = m;
-
-                    eval_type = HASH_EXACT;
-
-                    // new best move found
-                    alpha = score;
-
                     best_move = curr_move.m;
-                }
+                    best_score = score;
+                    if (score > alpha)
+                    {
+                        pline.last = pline.moves;
+                        *pline.last++ = curr_move.m;
+                        for (const auto& m : local_line)
+                            *pline.last++ = m;
 
-                ++moves_searched;
+                        eval_type = HASH_EXACT;
+
+                        // new best move found
+                        alpha = score;
+                    }
+                }
             }
 
             // no legal moves
             if (moves_searched == 0)
                 return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
-            *tte = TTEntry(pos.get_key(), depth, alpha, eval_type, best_move);
+            tt.new_entry(pos.get_key(), depth, alpha, eval_type, best_move);
 
             if (eval_type == HASH_EXACT)
             {
@@ -343,7 +334,7 @@ namespace Clovis {
             Move tt_move = (tt_hit) ? tte->move : MOVE_NONE;
             MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
             ScoredMove curr_move;
-            Move best_move;
+            Move best_move = MOVE_NONE;
             int best_eval = NEG_INF;
 
             while ((curr_move = mp.get_next(true)) != MOVE_NONE) // only do winning caps once see is fixed
@@ -359,7 +350,8 @@ namespace Clovis {
                 // fail high
                 if (eval >= beta)
                 {
-                    *tte = TTEntry(pos.get_key(), 0, eval, HASH_BETA, curr_move.m);
+                    tt.new_entry(pos.get_key(), 0, beta, HASH_BETA, curr_move.m);
+
                     return beta;
                 }
                 if (eval > best_eval)
@@ -373,6 +365,8 @@ namespace Clovis {
                     }
                 }
             }
+
+            tt.new_entry(pos.get_key(), 0, beta, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
             return alpha;
         }
