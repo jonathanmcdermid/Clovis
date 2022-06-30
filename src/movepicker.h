@@ -36,15 +36,17 @@ namespace Clovis {
 		}
 
 		static void update_killers(Move m, int ply) {
-			if (killers[ply] != m)
+			Move* k = &killers[ply * 2];
+			if (*k != m)
 			{
-				killers[MAX_PLY + ply] = killers[ply];
-				killers[ply] = m;
+				k[1] = *k;
+				*k = m;
 			}
 		}
 
 		static bool is_killer(Move m, int ply) {
-			return (m == killers[MAX_PLY + ply] || m == killers[ply]);
+			Move* k = &killers[ply * 2];
+			return (m == *k || m == k[1]);
 		}
 
 		class MovePicker {

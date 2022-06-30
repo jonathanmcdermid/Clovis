@@ -141,18 +141,19 @@ namespace Clovis {
 
     Bitboard Position::attackers_to(Square sq, Bitboard occupied) const 
     {
-        return  (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[W_PAWN]) |
-            (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[B_PAWN]) |
-            (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) |
-            (Bitboards::get_rook_attacks(occupied, sq) & 
-                (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) |
-            (Bitboards::get_bishop_attacks(occupied, sq) & 
-                (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) |
-            (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
+        return  (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[W_PAWN]) 
+            | (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[B_PAWN]) 
+            | (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) 
+            | (Bitboards::get_rook_attacks(occupied, sq) & 
+                (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
+            | (Bitboards::get_bishop_attacks(occupied, sq) & 
+                (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
+            | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
     }
 
     bool Position::see(Move m, int threshold) const
     { 
+        // some day....
         return true;
     }
 
@@ -427,8 +428,10 @@ namespace Clovis {
             std::cout << "|" + std::to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
         }
         std::cout << "  a   b   c   d   e   f   g   h\n"
-            << "Side:\t\t" << (side == WHITE ? "white" : "black") << "\n"
-            << "Enpassant:\t" << ((bs->enpassant != SQ_NONE) ? sq2str(bs->enpassant) : "none") << "\n"
+            << "Side:\t\t" 
+            << (side == WHITE ? "white" : "black") << "\n"
+            << "Enpassant:\t" 
+            << ((bs->enpassant != SQ_NONE) ? sq2str(bs->enpassant) : "none") << "\n"
             << "Castling:\t"
             << ((bs->castle & WHITE_KS) ? 'K' : '-')
             << ((bs->castle & WHITE_QS) ? 'Q' : '-')

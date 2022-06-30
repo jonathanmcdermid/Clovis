@@ -1,11 +1,14 @@
 #pragma once
 
+#include <iostream>
+#include <string>
 #include <sstream>
 
 #include "search.h"
 #include "position.h"
 #include "movelist.h"
 #include "types.h"
+#include "tuner/tuner.h"
 
 namespace Clovis {
 

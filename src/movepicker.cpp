@@ -73,8 +73,7 @@ namespace Clovis {
                         return *curr++;
                     else 
                     {
-                        *end_bad_caps = *curr++;
-                        ++end_bad_caps;
+                        *end_bad_caps++ = *curr++;
                         goto start;
                     }
                 }
@@ -178,9 +177,9 @@ namespace Clovis {
         {
             ScoredMove sm;
             sm.m = m;
-            if (killers[ply] == m)
+            if (killers[ply * 2] == m)
                 sm.score = 22000;
-            else if (killers[MAX_PLY + ply] == m)
+            else if (killers[ply * 2 + 1] == m)
                 sm.score = 21000;
             else if (move_promotion_type(m) || move_castling(m))
                 sm.score = 20000 + move_promotion_type(m);

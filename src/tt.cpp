@@ -5,14 +5,14 @@ namespace Clovis {
     TTable::TTable()
     {
         ht = new Bucket[tt_size];
-        pt = new PTEntry[n_p_entries];
+        pt = new PTEntry[pt_size];
     }
 
     // empty transposition table
     void TTable::clear()
     {
         std::memset(static_cast<void*>(ht), 0, tt_size * sizeof(Bucket));
-        std::memset(static_cast<void*>(pt), 0, n_p_entries * sizeof(PTEntry));
+        std::memset(static_cast<void*>(pt), 0, pt_size * sizeof(PTEntry));
     }
 
     // probe the table to see if an entry exists

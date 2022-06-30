@@ -9,7 +9,7 @@
 namespace Clovis {
 
     constexpr size_t tt_size = 2097152;
-    constexpr size_t n_p_entries = 2097152;
+    constexpr size_t pt_size = 4194304;
 
     enum HashFlag : uint8_t {
         HASH_NONE,
@@ -73,7 +73,7 @@ namespace Clovis {
     }
 
     inline int TTable::pawn_hash_index(Key key) const {
-        return key & (n_p_entries - 1ULL);
+        return key & (pt_size - 1ULL);
     }
 
 } // Clovis

@@ -236,6 +236,7 @@ namespace Clovis {
 			if ((bb >> 10) & not_gh_file)	attacks |= (bb >> 10ULL);
 			if ((bb << 6) & not_gh_file)	attacks |= (bb << 6ULL);
 			if ((bb >> 6) & not_ab_file)	attacks |= (bb >> 6ULL);
+
 			return attacks;
 		}
 
@@ -392,7 +393,8 @@ namespace Clovis {
 			{
 				Bitboard magic = generate_magic();
 
-				if (count_bits((mask * magic) & 0xFF00000000000000) < 6) continue;
+				if (count_bits((mask * magic) & 0xFF00000000000000) < 6) 
+					continue;
 
 				memset(used_attacks, 0ULL, attacks_size);
 

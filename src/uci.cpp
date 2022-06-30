@@ -1,7 +1,3 @@
-#include <iostream>
-#include <sstream>
-#include <string>
-
 #include "uci.h"
 
 using namespace std;
@@ -10,16 +6,15 @@ namespace Clovis {
 
 	namespace UCI {
 
-		const char* version_no = "Clovis v1.2";
+		const char* version_no = "Clovis v1.3";
 		const char* authors = "Jonathan McDermid";
 		const char* start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		const char* promo_str = " pnbrqk  pnbrqk";
 
+		// main loop for UCI communication
 		void loop(int argc, char* argv[])
 		{
-			Position pos;
-
-			pos.set(start_pos);
+			Position pos(start_pos);
 
 			string token;
 			string cmd;
@@ -40,9 +35,12 @@ namespace Clovis {
 				else if (token == "ucinewgame") Search::clear();
 				else if (token == "isready")    cout << "readyok" << endl;
 				else if (token == "local")		local(pos, is);
+				else if (token == "tune")		Tuner::tune();
 			} while (token != "quit" && argc == 1);
 		}
 
+
+		// begin search
 		void go(Position& pos, std::istringstream& is)
 		{
 			Search::SearchLimits limits;
@@ -66,6 +64,7 @@ namespace Clovis {
 			Search::start_search(pos, limits);
 		}
 
+		// set position to input description
 		void position(Position& pos, istringstream& is) 
 		{
 			Move m;
@@ -109,6 +108,7 @@ namespace Clovis {
 			}
 		}
 
+		// convert string to move if it is legal
 		Move to_move(const Position& pos, string& str) 
 		{
 
@@ -122,6 +122,7 @@ namespace Clovis {
 			return MOVE_NONE;
 		}
 
+		// convert move to string
 		string move2str(Move m) 
 		{
 

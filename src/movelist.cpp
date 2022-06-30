@@ -57,7 +57,7 @@ namespace Clovis {
                 }
             }
 
-            att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[!pos.side];
+            att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[other_side(pos.side)];
 
             while (att)
             {
@@ -92,7 +92,7 @@ namespace Clovis {
         {
             if (!get_bit(pos.occ_bitboard[BOTH], kingpos + EAST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * EAST))
             {
-                if (!pos.is_attacked(kingpos, Colour(!pos.side)) && !pos.is_attacked(kingpos + EAST, Colour(!pos.side)))
+                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + EAST, other_side(pos.side)))
                     *ml++ = encode_move(kingpos, kingpos + 2 * EAST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
             }
         }
@@ -101,7 +101,7 @@ namespace Clovis {
         {
             if (!get_bit(pos.occ_bitboard[BOTH], kingpos + WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 3 * WEST))
             {
-                if (!pos.is_attacked(kingpos, Colour(!pos.side)) && !pos.is_attacked(kingpos + WEST, Colour(!pos.side)))
+                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + WEST, other_side(pos.side)))
                     *ml++ = encode_move(kingpos, kingpos + 2 * WEST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
             }
         }
@@ -127,7 +127,7 @@ namespace Clovis {
                 {
                     tar = get_lsb_index(att);
 
-                    if (!get_bit((pos.occ_bitboard[!pos.side]), tar))
+                    if (!get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     else
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
@@ -169,7 +169,7 @@ namespace Clovis {
             src = get_lsb_index(bb);
             tar = src + dir;
 
-            att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[!pos.side];
+            att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[other_side(pos.side)];
 
             while (att)
             {
@@ -221,7 +221,7 @@ namespace Clovis {
                 {
                     tar = get_lsb_index(att);
 
-                    if (get_bit((pos.occ_bitboard[!pos.side]), tar))
+                    if (get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
                     pop_bit(att, tar);
                 }
@@ -293,7 +293,7 @@ namespace Clovis {
         {
             if (!get_bit(pos.occ_bitboard[BOTH], kingpos + EAST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * EAST))
             {
-                if (!pos.is_attacked(kingpos, Colour(!pos.side)) && !pos.is_attacked(kingpos + EAST, Colour(!pos.side)))
+                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + EAST, other_side(pos.side)))
                     *ml++ = encode_move(kingpos, kingpos + 2 * EAST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
             }
         }
@@ -302,7 +302,7 @@ namespace Clovis {
         {
             if (!get_bit(pos.occ_bitboard[BOTH], kingpos + WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 3 * WEST))
             {
-                if (!pos.is_attacked(kingpos, Colour(!pos.side)) && !pos.is_attacked(kingpos + WEST, Colour(!pos.side)))
+                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + WEST, other_side(pos.side)))
                     *ml++ = encode_move(kingpos, kingpos + 2 * WEST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
             }
         }
@@ -328,7 +328,7 @@ namespace Clovis {
                 {
                     tar = get_lsb_index(att);
 
-                    if (!get_bit((pos.occ_bitboard[!pos.side]), tar))
+                    if (!get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     pop_bit(att, tar);
                 }

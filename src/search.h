@@ -20,7 +20,7 @@ namespace Clovis {
             SearchLimits() {
                 time[WHITE] = time[BLACK] = 5000;
                 inc[WHITE] = inc[BLACK] = move_time = start_time = 0;
-                depth = MAX_PLY;
+                depth = 0;
                 mate = perft = 0;
                 moves_left = 20;
                 infinite = false;
@@ -43,7 +43,7 @@ namespace Clovis {
 
         Move start_search(Position& pos, SearchLimits& lim);
         int negamax(Position& pos, Line& pline, int alpha, int beta, int depth, int ply, bool is_null);
-        int quiescent(Position& pos, int alpha, int beta, int ply);
+        int quiescent(Position& pos, int alpha, int beta);
         void init_search();
         void init_lmr_tables();
         void clear();

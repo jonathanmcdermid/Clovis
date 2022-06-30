@@ -16,7 +16,7 @@ namespace Clovis {
 			{48, 2039, 97862, 4085603, 193690690, 8031647685}
 		};
 
-		Position pos;
+		Position pos(perftFen[0].c_str());
 
 		unsigned long long nodes;
 

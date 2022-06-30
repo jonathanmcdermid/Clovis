@@ -47,6 +47,7 @@ namespace Clovis {
 
 	class Position {
 	public:
+		Position(const char* fen) { set(fen); }
 		static void init();
 		void set(const char* fen);
 		Key get_key() const { return bs->key; }
