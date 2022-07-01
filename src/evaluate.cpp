@@ -9,6 +9,7 @@ namespace Clovis {
             PHASE_N = 2
         };
 
+        // pawn, rook failed after tuning
         Score pawn_table[SQ_N] = {
         Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0),
         Score(13,52), Score(36,40), Score(-13,22), Score(9,-4), Score(-2,7), Score(33,-1), Score(-64,41), Score(-65,62),
@@ -20,24 +21,24 @@ namespace Clovis {
         Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0),
         };
         Score knight_table[SQ_N] = {
-                Score(-153,-35), Score(-52,-26), Score(-33,5), Score(-26,-17), Score(23,-10), Score(-85,-15), Score(-36,-40), Score(-96,-73),
-                Score(-88,1), Score(-41,10), Score(43,-11), Score(12,13), Score(4,3), Score(34,-13), Score(-6,-7), Score(-27,-28),
-                Score(-44,-6), Score(30,-6), Score(17,15), Score(30,12), Score(40,7), Score(59,5), Score(40,-6), Score(23,-22),
-                Score(-18,6), Score(7,13), Score(-11,27), Score(30,24), Score(12,25), Score(44,17), Score(5,15), Score(16,0),
-                Score(-8,5), Score(5,7), Score(13,24), Score(5,32), Score(21,23), Score(11,24), Score(12,21), Score(-8,3),
-                Score(-18,0), Score(-3,9), Score(13,1), Score(17,20), Score(27,14), Score(23,-3), Score(26,-12), Score(-9,-3),
-                Score(-15,-12), Score(-33,1), Score(-5,6), Score(12,4), Score(15,8), Score(23,-8), Score(-5,-2), Score(-2,-23),
-                Score(-70,-6), Score(-6,-23), Score(-33,-2), Score(-17,9), Score(6,-2), Score(-6,-2), Score(-4,-26), Score(-15,-38),
+                Score(-185,-52), Score(-83,4), Score(-68,27), Score(3,11), Score(28,5), Score(-58,44), Score(-7,-8), Score(-161,-43),
+                Score(-22,-12), Score(-37,5), Score(30,3), Score(44,31), Score(38,32), Score(72,-6), Score(-19,-1), Score(11,-12),
+                Score(-30,-5), Score(31,16), Score(39,37), Score(64,34), Score(99,21), Score(97,35), Score(78,8), Score(55,-9),
+                Score(13,-2), Score(26,26), Score(48,38), Score(48,53), Score(41,55), Score(60,48), Score(39,37), Score(38,8),
+                Score(1,-13), Score(0,21), Score(24,41), Score(26,46), Score(31,45), Score(23,46), Score(34,32), Score(11,4),
+                Score(-9,-33), Score(6,2), Score(15,12), Score(18,30), Score(21,23), Score(17,11), Score(20,2), Score(4,-31),
+                Score(-27,-19), Score(-24,-2), Score(2,-3), Score(6,5), Score(9,6), Score(8,-17), Score(-19,-8), Score(-4,-28),
+                Score(-103,-41), Score(-9,-58), Score(-33,-14), Score(-17,-10), Score(-9,-17), Score(-10,-20), Score(2,-57), Score(-80,-46),
         };
         Score bishop_table[SQ_N] = {
-                Score(-92,5), Score(-68,14), Score(-123,17), Score(-113,21), Score(-99,9), Score(-135,13), Score(38,-12), Score(-42,22),
-                Score(-53,-3), Score(-19,2), Score(-30,5), Score(-26,7), Score(-15,2), Score(2,8), Score(-24,9), Score(-12,-6),
-                Score(-17,-6), Score(2,0), Score(40,-4), Score(17,6), Score(31,8), Score(54,14), Score(46,3), Score(16,-4),
-                Score(-25,-8), Score(8,5), Score(2,10), Score(38,15), Score(23,19), Score(35,9), Score(8,15), Score(-2,-3),
-                Score(-14,-16), Score(-5,2), Score(-2,18), Score(15,13), Score(24,9), Score(-1,8), Score(-8,2), Score(6,-26),
-                Score(-5,-23), Score(-3,-4), Score(-2,0), Score(4,4), Score(1,0), Score(5,-11), Score(1,-17), Score(10,-23),
-                Score(-9,-19), Score(5,-34), Score(6,-16), Score(-9,-18), Score(-6,-16), Score(-3,-41), Score(16,-27), Score(-2,-54),
-                Score(-12,-34), Score(-7,-36), Score(-19,-47), Score(-32,-26), Score(-43,-29), Score(-17,-35), Score(-17,-31), Score(-16,-40),
+                Score(-91,8), Score(-75,22), Score(-120,21), Score(-108,25), Score(-101,15), Score(-141,20), Score(53,-10), Score(-46,30),
+                Score(-50,0), Score(-19,6), Score(-28,8), Score(-24,9), Score(-13,5), Score(0,12), Score(-9,10), Score(-9,-4),
+                Score(-14,-6), Score(4,4), Score(39,2), Score(17,9), Score(29,12), Score(53,17), Score(49,6), Score(19,-2),
+                Score(-24,-4), Score(12,8), Score(6,13), Score(39,17), Score(24,22), Score(32,13), Score(7,21), Score(-4,0),
+                Score(-13,-13), Score(-5,5), Score(0,19), Score(19,16), Score(28,10), Score(-1,10), Score(-5,5), Score(7,-24),
+                Score(-5,-17), Score(-2,0), Score(-2,3), Score(5,7), Score(-1,4), Score(2,-6), Score(2,-15), Score(9,-17),
+                Score(-10,-19), Score(5,-30), Score(6,-15), Score(-10,-14), Score(-7,-14), Score(-4,-37), Score(15,-22), Score(2,-55),
+                Score(-11,-26), Score(-3,-35), Score(-19,-44), Score(-29,-22), Score(-36,-22), Score(-17,-31), Score(-10,-26), Score(-10,-39),
         };
         Score rook_table[SQ_N] = {
                 Score(10,15), Score(13,11), Score(-9,20), Score(14,15), Score(13,17), Score(-14,18), Score(0,15), Score(0,13),
@@ -73,9 +74,9 @@ namespace Clovis {
         Score passed_pawn_bonus[RANK_N] = { Score(0, 0), Score(8, 18), Score(0, 20), Score(0, 40), Score(20, 56), Score(64, 96), Score(131, 111), Score(0, 0), };
         Score double_pawn_penalty = Score(4, 2);
         Score isolated_pawn_penalty = Score(11, 14);
-        Score bishop_pair_bonus = Score(3, 65);
+        Score bishop_pair_bonus = Score(7, 73);
         Score rook_open_file_bonus = Score(35, 15);
-        Score rook_semi_open_file_bonus = Score(17, 10);
+        Score rook_semi_open_file_bonus = Score(18, 10);
         Score pawn_connected_bonus = Score(3, 5);
         Score king_semi_open_file_penalty = Score(13, 3);
         Score trapped_rook_penalty = Score(13, 13);
