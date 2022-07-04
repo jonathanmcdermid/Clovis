@@ -9,36 +9,36 @@ namespace Clovis {
             PHASE_N = 2
         };
 
-        // pawn, rook failed after tuning
+        // pawn, rook, king, passed pawn failed after tuning
         Score pawn_table[SQ_N] = {
-        Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0),
-        Score(13,52), Score(36,40), Score(-13,22), Score(9,-4), Score(-2,7), Score(33,-1), Score(-64,41), Score(-65,62),
-        Score(1,34), Score(-7,34), Score(12,11), Score(-2,-18), Score(35,-30), Score(48,-7), Score(20,14), Score(-5,20),
-        Score(-13,15), Score(3,6), Score(4,-6), Score(25,-24), Score(23,-17), Score(17,-11), Score(6,1), Score(-19,4),
-        Score(-22,3), Score(-19,2), Score(-1,-12), Score(14,-20), Score(19,-18), Score(4,-13), Score(-10,-6), Score(-22,-9),
-        Score(-14,-8), Score(-20,-2), Score(-3,-14), Score(-4,-11), Score(6,-8), Score(5,-10), Score(13,-15), Score(-5,-17),
-        Score(-20,-2), Score(-16,-4), Score(-22,0), Score(-12,-10), Score(-8,1), Score(20,-8), Score(18,-12), Score(-11,-19),
-        Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0),
+                Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0),
+                Score(13,52), Score(36,40), Score(-13,22), Score(9,-4), Score(-2,7), Score(33,-1), Score(-64,41), Score(-65,62),
+                Score(1,34), Score(-7,34), Score(12,11), Score(-2,-18), Score(35,-30), Score(48,-7), Score(20,14), Score(-5,20),
+                Score(-13,15), Score(3,6), Score(4,-6), Score(25,-24), Score(23,-17), Score(17,-11), Score(6,1), Score(-19,4),
+                Score(-22,3), Score(-19,2), Score(-1,-12), Score(14,-20), Score(19,-18), Score(4,-13), Score(-10,-6), Score(-22,-9),
+                Score(-14,-8), Score(-20,-2), Score(-3,-14), Score(-4,-11), Score(6,-8), Score(5,-10), Score(13,-15), Score(-5,-17),
+                Score(-20,-2), Score(-16,-4), Score(-22,0), Score(-12,-10), Score(-8,1), Score(20,-8), Score(18,-12), Score(-11,-19),
+                Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0), Score(0,0),
         };
         Score knight_table[SQ_N] = {
-                Score(-192,-34), Score(-97,15), Score(-94,35), Score(0,17), Score(35,9), Score(-84,47), Score(-5,-2), Score(-168,-21),
-                Score(2,-25), Score(-24,4), Score(32,11), Score(43,36), Score(44,35), Score(90,-8), Score(-23,10), Score(24,-15),
-                Score(-27,-3), Score(35,17), Score(44,38), Score(68,35), Score(92,26), Score(111,31), Score(80,10), Score(54,-7),
-                Score(17,-1), Score(27,27), Score(44,40), Score(49,56), Score(40,57), Score(61,51), Score(38,39), Score(39,9),
-                Score(2,-9), Score(1,26), Score(27,43), Score(29,48), Score(33,48), Score(26,47), Score(42,27), Score(13,8),
-                Score(-8,-35), Score(9,6), Score(15,12), Score(22,34), Score(23,28), Score(18,12), Score(24,5), Score(3,-28),
-                Score(-25,-17), Score(-15,-2), Score(4,0), Score(8,8), Score(11,10), Score(12,-15), Score(-17,0), Score(0,-23),
-                Score(-101,-47), Score(-9,-59), Score(-27,-13), Score(-15,-10), Score(-8,-9), Score(-4,-19), Score(-2,-53), Score(-126,21),
+                Score(-211,-20), Score(-103,16), Score(-106,44), Score(-4,16), Score(30,12), Score(-97,41), Score(-7,-3), Score(-147,-37),
+                Score(0,-20), Score(-21,7), Score(33,14), Score(51,36), Score(45,35), Score(83,-3), Score(-13,4), Score(26,-17),
+                Score(-22,-1), Score(35,21), Score(47,40), Score(65,38), Score(88,32), Score(110,34), Score(66,23), Score(53,-6),
+                Score(15,0), Score(28,32), Score(44,43), Score(51,58), Score(42,59), Score(63,51), Score(41,45), Score(40,9),
+                Score(5,-3), Score(8,30), Score(30,46), Score(30,50), Score(35,50), Score(25,50), Score(41,31), Score(15,9),
+                Score(-6,-28), Score(12,10), Score(16,20), Score(24,33), Score(27,32), Score(19,19), Score(23,9), Score(3,-25),
+                Score(-21,-16), Score(-8,0), Score(2,-1), Score(10,10), Score(12,10), Score(13,-8), Score(-11,1), Score(0,-18),
+                Score(-104,-39), Score(-8,-55), Score(-29,-13), Score(-11,-7), Score(-6,-7), Score(-4,-15), Score(-4,-43), Score(-94,-5),
         };
         Score bishop_table[SQ_N] = {
-                Score(-87,12), Score(-66,23), Score(-115,22), Score(-108,27), Score(-100,18), Score(-138,25), Score(55,-7), Score(-43,35),
-                Score(-45,4), Score(-14,10), Score(-18,10), Score(-15,10), Score(-9,9), Score(1,16), Score(-7,12), Score(-5,-3),
-                Score(-12,-2), Score(6,8), Score(36,5), Score(17,13), Score(30,14), Score(55,20), Score(47,10), Score(15,5),
-                Score(-17,-5), Score(13,11), Score(7,15), Score(38,20), Score(24,26), Score(33,14), Score(7,24), Score(-6,4),
-                Score(-12,-11), Score(-2,8), Score(0,21), Score(20,19), Score(28,14), Score(-1,11), Score(-1,6), Score(6,-20),
-                Score(-4,-17), Score(0,1), Score(-2,6), Score(5,9), Score(-1,8), Score(4,-5), Score(2,-10), Score(9,-16),
-                Score(-10,-15), Score(5,-26), Score(5,-10), Score(-10,-10), Score(-7,-12), Score(-1,-35), Score(15,-21), Score(2,-54),
-                Score(-9,-25), Score(-4,-30), Score(-22,-39), Score(-29,-21), Score(-34,-20), Score(-20,-27), Score(-8,-23), Score(-14,-31),
+                Score(-67,19), Score(-65,24), Score(-117,28), Score(-103,31), Score(-99,22), Score(-133,31), Score(21,4), Score(-48,24),
+                Score(-51,4), Score(-18,17), Score(-17,13), Score(-30,20), Score(-9,13), Score(-3,14), Score(-11,11), Score(-13,-2),
+                Score(-12,0), Score(4,12), Score(27,12), Score(24,14), Score(25,18), Score(51,20), Score(41,14), Score(14,5),
+                Score(-20,2), Score(12,15), Score(10,15), Score(36,24), Score(22,30), Score(29,15), Score(9,22), Score(-4,7),
+                Score(-18,-5), Score(-1,12), Score(0,22), Score(18,19), Score(23,19), Score(-2,17), Score(3,8), Score(2,-13),
+                Score(-7,-11), Score(-4,8), Score(-2,12), Score(5,12), Score(-2,12), Score(3,3), Score(1,-8), Score(6,-10),
+                Score(-8,-18), Score(5,-20), Score(1,-8), Score(-11,-6), Score(-7,-9), Score(4,-27), Score(14,-16), Score(-1,-54),
+                Score(-5,-28), Score(-5,-17), Score(-23,-35), Score(-31,-17), Score(-34,-14), Score(-22,-23), Score(-10,-24), Score(-9,-17),
         };
         Score rook_table[SQ_N] = {
                 Score(10,15), Score(13,11), Score(-9,20), Score(14,15), Score(13,17), Score(-14,18), Score(0,15), Score(0,13),
@@ -51,14 +51,14 @@ namespace Clovis {
                 Score(-6,-5), Score(1,1), Score(12,2), Score(22,-1), Score(22,-4), Score(18,-6), Score(-23,3), Score(-8,-18),
         };
         Score queen_table[SQ_N] = {
-                Score(-29,62), Score(17,41), Score(35,56), Score(38,56), Score(70,52), Score(91,56), Score(98,64), Score(85,45),
-                Score(-13,20), Score(-56,80), Score(-20,73), Score(-57,121), Score(-16,120), Score(44,86), Score(4,113), Score(51,84),
-                Score(-10,-3), Score(-5,20), Score(-15,60), Score(-7,74), Score(2,103), Score(92,82), Score(87,84), Score(37,120),
-                Score(-12,6), Score(-13,38), Score(-13,50), Score(-5,62), Score(-11,115), Score(19,102), Score(23,98), Score(34,66),
-                Score(-6,-8), Score(1,30), Score(0,23), Score(3,48), Score(-6,67), Score(16,51), Score(22,45), Score(26,41),
-                Score(-8,-12), Score(7,-11), Score(1,23), Score(5,7), Score(6,5), Score(8,14), Score(22,5), Score(14,-4),
-                Score(-12,-14), Score(5,-19), Score(7,-30), Score(6,-15), Score(12,-38), Score(23,-65), Score(27,-66), Score(1,-51),
-                Score(9,-25), Score(-3,-40), Score(5,-49), Score(12,-37), Score(8,-45), Score(-12,-36), Score(11,-72), Score(-15,-36),
+                Score(-34,69), Score(3,58), Score(16,69), Score(40,59), Score(34,77), Score(92,59), Score(98,59), Score(98,50),
+                Score(-23,42), Score(-60,88), Score(-20,78), Score(-45,119), Score(-14,125), Score(42,96), Score(-3,129), Score(47,86),
+                Score(-21,21), Score(-10,31), Score(-25,67), Score(-4,74), Score(3,109), Score(81,87), Score(86,80), Score(42,111),
+                Score(-5,3), Score(-10,42), Score(-15,49), Score(-11,75), Score(-9,108), Score(17,105), Score(29,98), Score(34,70),
+                Score(-4,-5), Score(0,30), Score(-2,33), Score(4,57), Score(-4,65), Score(14,54), Score(23,34), Score(26,46),
+                Score(-5,-13), Score(4,4), Score(1,26), Score(4,7), Score(6,5), Score(10,17), Score(27,-10), Score(15,-11),
+                Score(-10,-16), Score(6,-16), Score(7,-30), Score(6,-14), Score(13,-34), Score(27,-70), Score(33,-73), Score(16,-55),
+                Score(10,-27), Score(-3,-32), Score(5,-48), Score(12,-38), Score(13,-46), Score(-9,-40), Score(11,-70), Score(-7,-40),
         };
         Score king_table[SQ_N] = {
                 Score(-54,-71), Score(30,-40), Score(48,-23), Score(29,-22), Score(-21,-8), Score(2,15), Score(17,2), Score(15,-17),
@@ -74,12 +74,9 @@ namespace Clovis {
         Score passed_pawn_bonus[RANK_N] = { Score(0, 0), Score(8, 18), Score(0, 20), Score(0, 40), Score(20, 56), Score(64, 96), Score(131, 111), Score(0, 0), };
         Score double_pawn_penalty = Score(4, 2);
         Score isolated_pawn_penalty = Score(11, 14);
-        Score bishop_pair_bonus = Score(9, 71);
-        Score rook_open_file_bonus = Score(35, 16);
+        Score bishop_pair_bonus = Score(10, 68);
+        Score rook_open_file_bonus = Score(34, 17);
         Score rook_semi_open_file_bonus = Score(18, 11);
-        Score pawn_connected_bonus = Score(3, 5);
-        Score king_semi_open_file_penalty = Score(13, 3);
-        Score trapped_rook_penalty = Score(13, 13);
 
         Score* piece_table[7] =
         {
@@ -195,12 +192,12 @@ namespace Clovis {
 
             if (pos.is_insufficient(pos.side))
             {
-                max_score = 0;
-                if (pos.is_insufficient(Colour(!pos.side)))
-                    return 0;
+                max_score = DRAW_SCORE;
+                if (pos.is_insufficient(other_side(pos.side)))
+                    return DRAW_SCORE;
             }
-            else if (pos.is_insufficient(Colour(!pos.side)))
-                min_score = 0;
+            else if (pos.is_insufficient(other_side(pos.side)))
+                min_score = - DRAW_SCORE;
 
             Score score[COLOUR_N];
 
@@ -208,8 +205,6 @@ namespace Clovis {
             Square sq;
             Bitboard bb;
             Colour side;
-
-            int mobility;
 
             for (PieceType pt = PAWN; pt <= KING; ++pt)
             {
@@ -219,17 +214,24 @@ namespace Clovis {
 
                 side = get_side(piece);
                 bb = pos.piece_bitboard[piece];
-                if (pt == KNIGHT)
-                {
+                switch (pt) {
+                case PAWN:
                     while (bb)
                     {
                         sq = get_lsb_index(bb);
                         score[side] += score_table[piece][sq];
                         pop_bit(bb, sq);
                     }
-                }
-                else if (pt == BISHOP)
-                {
+                    break;
+                case KNIGHT:
+                    while (bb)
+                    {
+                        sq = get_lsb_index(bb);
+                        score[side] += score_table[piece][sq];
+                        pop_bit(bb, sq);
+                    }
+                    break;
+                case BISHOP:
                     if (count_bits(bb) >= 2)
                         score[side] += bishop_pair_bonus;
 
@@ -239,9 +241,8 @@ namespace Clovis {
                         score[side] += score_table[piece][sq];
                         pop_bit(bb, sq);
                     }
-                }
-                else if (pt == ROOK)
-                {
+                    break;
+                case ROOK:
                     while (bb)
                     {
                         sq = get_lsb_index(bb);
@@ -249,42 +250,28 @@ namespace Clovis {
                             score[side] += rook_open_file_bonus;
                         else if ((file_masks[sq] & pos.piece_bitboard[make_piece(PAWN, side)]) == 0)
                             score[side] += rook_semi_open_file_bonus;
-                        //else
-                        //{
-                        //    if (count_bits(Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], sq)) <= 3)
-                        //    {
-                        //        File king_file = file_of(get_lsb_index(pos.piece_bitboard[make_piece(KING, side)]));
-                        //        if ((file_of(sq) < king_file) == (king_file < FILE_E))
-                        //            score[side] -= trapped_rook_penalty * (1 + !(pos.bs->castle & (1 << (side * 2) | 1 << (side * 2 + 1))));
-                        //    }
-                        //}
                         score[side] += score_table[piece][sq];
                         pop_bit(bb, sq);
                     }
-                }
-                else if (pt == KING)
-                {
-                    while (bb)
-                    {
-                        sq = get_lsb_index(bb);
-                        //if ((file_masks[sq] & pos.piece_bitboard[make_piece(PAWN, side)]) == 0)
-                        //    score[side] -= king_semi_open_file_penalty;
-                        //if (file_of(sq) != FILE_A && (file_masks[sq + WEST] & pos.piece_bitboard[make_piece(PAWN, side)]) == 0)
-                        //    score[side] -= king_semi_open_file_penalty;
-                        //if (file_of(sq) != FILE_H && (file_masks[sq + EAST] & pos.piece_bitboard[make_piece(PAWN, side)]) == 0)
-                        //    score[side] -= king_semi_open_file_penalty;
-                        score[side] += score_table[piece][sq];
-                        pop_bit(bb, sq);
-                    }
-                }
-                else
-                {
+                    break;
+                case QUEEN:
                     while (bb)
                     {
                         sq = get_lsb_index(bb);
                         score[side] += score_table[piece][sq];
                         pop_bit(bb, sq);
                     }
+                    break;
+                case KING:
+                    while (bb)
+                    {
+                        sq = get_lsb_index(bb);
+                        score[side] += score_table[piece][sq];
+                        pop_bit(bb, sq);
+                    }
+                    break;
+                default:
+                    break;
                 }
                 if (side == WHITE) 
                 {
@@ -334,14 +321,10 @@ namespace Clovis {
                     score[side] -= isolated_pawn_penalty;
                 }
 
-                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, Colour(!side))]) == 0) 
+                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))]) == 0) 
                 {
                     score[side] += passed_pawn_bonus[relative_rank(side, sq)];
                 }
-
-                //int connected_pawns = count_bits(pos.piece_bitboard[piece] & Bitboards::pawn_attacks[side][sq]);
-                //
-                //score[side] += pawn_connected_bonus * connected_pawns;
                 
                 pop_bit(bb, sq);
             }

@@ -12,14 +12,14 @@ namespace Clovis {
 		constexpr int n_cores = 4;
 		long double answers = 0;
 
-		void Tuner::tune()
+		void tune()
 		{
 			// load positions and results from file
 			std::string file_name = "src/tuner/E12.33-1M-D12-Resolved.book";
 			std::ifstream log_file;
 			log_file.open(file_name.c_str(), std::ifstream::in);
 			std::string line;
-			for (int i = 0; i < 2000000; ++i)
+			for (int i = 0; i < 7500000; ++i)
 			{
 				//while (true) {
 				if (log_file.eof())
@@ -60,6 +60,8 @@ namespace Clovis {
 				{
 					if (weights[index].skip)
 						continue;
+
+				reset:
 					// increase weight
 					*weights[index].val += direction[index];
 
@@ -80,8 +82,14 @@ namespace Clovis {
 						for (int i = 0; i < weights.size(); ++i)
 							best_vals[i] = *weights[i].val;
 					}
+					else if (std::abs(direction[index]) > 1)
+					{
+						direction[index] /= 2;
+						goto reset;
+					}
 					else
 					{
+
 						*weights[index].val -= direction[index];
 
 						direction[index] = direction[index] / std::abs(direction[index]);
@@ -123,7 +131,7 @@ namespace Clovis {
 			std::cout << "\ndone!\n";
 		}
 
-		long double Tuner::mean_squared_error(long double K)
+		long double mean_squared_error(long double K)
 		{
 			// compute mean squared error for all positions in the set
 			// multithreading solution
@@ -149,7 +157,7 @@ namespace Clovis {
 			return answers / positions.size();
 		}
 
-		void Tuner::processor(int start, int end, long double K)
+		void processor(int start, int end, long double K)
 		{
 			// thread process for calculating the mse of the divided set
 			long double error_sum = 0;
@@ -166,7 +174,7 @@ namespace Clovis {
 			answers += error_sum;
 		}
 
-		long double Tuner::find_k()
+		long double find_k()
 		{
 			// compute scaling constant k
 			int k_precision = 10;
@@ -203,30 +211,29 @@ namespace Clovis {
 			return start;
 		}
 
-		void Tuner::map_weights_to_params()
+		void map_weights_to_params()
 		{
 			// point weights to the variables in the evaluation function
-			unsigned i = 0;
 			// psqts 6*64*2 - 16*2
 			for (Square k = SQ_ZERO; k < SQ_N; ++k) {
 				weights.push_back(Weight(&Eval::pawn_table[k].mg, true, false));//(rank_of(k) == RANK_1 || rank_of(k) == RANK_8), false));
 				weights.push_back(Weight(&Eval::pawn_table[k].eg, true, false));//(rank_of(k) == RANK_1 || rank_of(k) == RANK_8), false));
 			}
 			for (Square k = SQ_ZERO; k < SQ_N; ++k) {
-				weights.push_back(Weight(&Eval::knight_table[k].mg, true, false));
-				weights.push_back(Weight(&Eval::knight_table[k].eg, true, false));
+				weights.push_back(Weight(&Eval::knight_table[k].mg, false, false));
+				weights.push_back(Weight(&Eval::knight_table[k].eg, false, false));
 			}
 			for (Square k = SQ_ZERO; k < SQ_N; ++k) {
 				weights.push_back(Weight(&Eval::bishop_table[k].mg, false, false));
 				weights.push_back(Weight(&Eval::bishop_table[k].eg, false, false));
 			}
 			for (Square k = SQ_ZERO; k < SQ_N; ++k) {
-				weights.push_back(Weight(&Eval::rook_table[k].mg, false, false));
-				weights.push_back(Weight(&Eval::rook_table[k].eg, false, false));
+				weights.push_back(Weight(&Eval::rook_table[k].mg, true, false));
+				weights.push_back(Weight(&Eval::rook_table[k].eg, true, false));
 			}
 			for (Square k = SQ_ZERO; k < SQ_N; ++k) {
-				weights.push_back(Weight(&Eval::queen_table[k].mg, true, false));
-				weights.push_back(Weight(&Eval::queen_table[k].eg, true, false));
+				weights.push_back(Weight(&Eval::queen_table[k].mg, false, false));
+				weights.push_back(Weight(&Eval::queen_table[k].eg, false, false));
 			}
 			for (Square k = SQ_ZERO; k < SQ_N; ++k) {
 				weights.push_back(Weight(&Eval::king_table[k].mg, true, false));
@@ -257,18 +264,9 @@ namespace Clovis {
 			// rook semi open file 2
 			weights.push_back(Weight(&Eval::rook_semi_open_file_bonus.mg, false, true));
 			weights.push_back(Weight(&Eval::rook_semi_open_file_bonus.eg, false, true));
-			// pawn connected 2
-			weights.push_back(Weight(&Eval::pawn_connected_bonus.mg, true, true));
-			weights.push_back(Weight(&Eval::pawn_connected_bonus.eg, true, true));
-			// king semi open file 2
-			weights.push_back(Weight(&Eval::king_semi_open_file_penalty.mg, true, true));
-			weights.push_back(Weight(&Eval::king_semi_open_file_penalty.eg, true, true));
-			// trapped rook 2
-			weights.push_back(Weight(&Eval::trapped_rook_penalty.mg, true, true));
-			weights.push_back(Weight(&Eval::trapped_rook_penalty.eg, true, true));
 		}
 
-		void Tuner::print_params()
+		void print_params()
 		{
 			// print the tuned weights so they can be copy pasted into evaluation file
 			// psqts 6*64*2
@@ -356,18 +354,6 @@ namespace Clovis {
 			std::cout << "Score rook_semi_open_file_bonus = Score("
 				<< Eval::rook_semi_open_file_bonus.mg << ", "
 				<< Eval::rook_semi_open_file_bonus.eg << ");\n";
-			// pawn connected 2
-			std::cout << "Score pawn_connected_bonus = Score("
-				<< Eval::pawn_connected_bonus.mg << ", "
-				<< Eval::pawn_connected_bonus.eg << ");\n";
-			// king semi open file 2
-			std::cout << "Score king_semi_open_file_penalty = Score("
-				<< Eval::king_semi_open_file_penalty.mg << ", "
-				<< Eval::king_semi_open_file_penalty.eg << ");\n";
-			// trapped rook 2
-			std::cout << "Score trapped_rook_penalty = Score("
-				<< Eval::trapped_rook_penalty.mg << ", "
-				<< Eval::trapped_rook_penalty.eg << ");\n";
 		}
 
 	} // Tuner

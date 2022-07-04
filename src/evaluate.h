@@ -56,9 +56,6 @@ namespace Clovis {
 		extern Score bishop_pair_bonus;
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
-		extern Score pawn_connected_bonus;
-		extern Score king_semi_open_file_penalty;
-		extern Score trapped_rook_penalty;
 
 		void init_eval();
 		void init_values();
