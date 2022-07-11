@@ -43,25 +43,27 @@ namespace Clovis {
 
 	namespace Eval {
 
-		extern Score pawn_table[SQ_N];
-		extern Score knight_table[SQ_N];
-		extern Score bishop_table[SQ_N];
-		extern Score rook_table[SQ_N];
-		extern Score queen_table[SQ_N];
-        extern Score king_table[SQ_N];
+		extern Score pawn_table[32];
+		extern Score knight_table[32];
+		extern Score bishop_table[32];
+		extern Score rook_table[32];
+		extern Score queen_table[32];
+        extern Score king_table[32];
 		extern Score piece_value[7];
 		extern Score double_pawn_penalty;
 		extern Score isolated_pawn_penalty;
-		extern Score passed_pawn_bonus[RANK_N];
+		extern Score passed_pawn_bonus[32];
 		extern Score bishop_pair_bonus;
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
+		extern Score mobility[7];
+		extern short mobility_reduction[7];
 
 		void init_eval();
 		void init_values();
 		void init_masks();
 		Bitboard set_file_rank_mask(File file_number, Rank rank_number);
-		int evaluate(const Position& pos);
+		Score evaluate(const Position& pos);
 		Score evaluate_pawns(const Position& pos);
 
 	} // namespace Eval

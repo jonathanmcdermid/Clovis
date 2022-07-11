@@ -1,5 +1,8 @@
 #pragma once
 
+#include <random>
+#include <ctime>
+
 #include "types.h"
 
 namespace Clovis {

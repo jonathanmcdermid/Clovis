@@ -13,6 +13,9 @@ namespace Clovis {
 
         TTable tt;
 
+        TimePoint allocated_time;
+        TimeManager tm;
+
         // initialize LMR lookup table values
         void init_search()
         {
@@ -38,8 +41,7 @@ namespace Clovis {
         Move start_search(Position& pos, SearchLimits& lim)
         {
 
-            TimePoint allocated_time = lim.time[pos.side_to_move()] / 20;
-            TimeManager tm;
+            allocated_time = lim.time[pos.side_to_move()] / 20;
             tm.set();
             Line pline;
 
@@ -106,7 +108,7 @@ namespace Clovis {
 
             // avoid overflow
             if (ply >= MAX_PLY)
-                return Eval::evaluate(pos);
+                return (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
 
             ++nodes;
 
@@ -303,14 +305,22 @@ namespace Clovis {
                 }
             }
             
-            int eval = Eval::evaluate(pos);
-
             bool pt_hit;
             PTEntry* pte = tt.probe_pawn(pos.get_pawn_key(), pt_hit);
             if (pt_hit == false)
                 *pte = PTEntry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
 
-            eval += pte->eval.get_score(pos.get_game_phase(), pos.side_to_move());
+            int eval = (Eval::evaluate(pos) + pte->eval).get_score(pos.get_game_phase(), pos.side_to_move());
+
+            if (pos.is_insufficient(pos.side_to_move()))
+            {
+                if (pos.is_insufficient(other_side(pos.side_to_move())))
+                    return DRAW_SCORE;
+                else
+                    eval = std::min(DRAW_SCORE, eval);
+            }
+            else if (pos.is_insufficient(other_side(pos.side_to_move())))
+                eval = std::max(DRAW_SCORE, eval);
 
             if (eval >= beta)
                 return beta;
