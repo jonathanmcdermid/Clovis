@@ -5,42 +5,20 @@ namespace Clovis {
     // gen all pseudo-legal moves for a position
     ScoredMove* gen_moves(const Position& pos, ScoredMove* ml)
     {
-        Square src, tar, kingpos;
+        Square src, tar, king_origin;
         Bitboard bb, att;
-        Direction dir;
-        Rank promorank, dprank;
-        CastleRights crk, crq; // this can be improved
-
-        if (pos.side == WHITE)
-        {
-            dir = NORTH;
-            promorank = RANK_7;
-            dprank = RANK_2;
-            bb = pos.piece_bitboard[W_PAWN];
-            kingpos = E1;
-            crk = WHITE_KS;
-            crq = WHITE_QS;
-        }
-        else
-        {
-            dir = SOUTH;
-            promorank = RANK_2;
-            dprank = RANK_7;
-            bb = pos.piece_bitboard[B_PAWN];
-            kingpos = E8;
-            crk = BLACK_KS;
-            crq = BLACK_QS;
-        }
+        bb = pos.piece_bitboard[make_piece(PAWN, pos.side)];
+        king_origin = pos.side == WHITE ? E1 : E8;
 
         // repeat until all friendly pawns are popped
         while (bb)
         {
             src = get_lsb_index(bb);
-            tar = src + dir;
+            tar = src + pawn_push(pos.side);
             if (is_valid(tar) && !get_bit(pos.occ_bitboard[BOTH], tar))
             {
                 // promotion
-                if (rank_of(src) == promorank)
+                if (relative_rank(pos.side, src) == RANK_7)
                 {
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 0, 0, 0, 0);
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 0, 0, 0, 0);
@@ -52,8 +30,8 @@ namespace Clovis {
                     // single push
                     *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     // double push
-                    if ((rank_of(src)) == dprank && !get_bit(pos.occ_bitboard[BOTH], tar + dir))
-                        *ml++ = encode_move(src, tar + dir, pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
+                    if (relative_rank(pos.side, src) == RANK_2 && !get_bit(pos.occ_bitboard[BOTH], tar + pawn_push(pos.side)))
+                        *ml++ = encode_move(src, tar + pawn_push(pos.side), pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
                 }
             }
 
@@ -63,7 +41,7 @@ namespace Clovis {
             {
                 tar = get_lsb_index(att);
 
-                if (rank_of(src) == promorank)
+                if (relative_rank(pos.side, src) == RANK_7)
                 {
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 1, 0, 0, 0);
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 1, 0, 0, 0);
@@ -88,25 +66,25 @@ namespace Clovis {
             pop_bit(bb, src);
         }
 
-        if (pos.bs->castle & crk)
+        if (pos.bs->castle & (1 << (pos.side * 2)))
         {
-            if (!get_bit(pos.occ_bitboard[BOTH], kingpos + EAST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * EAST))
+            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + EAST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * EAST))
             {
-                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + EAST, other_side(pos.side)))
-                    *ml++ = encode_move(kingpos, kingpos + 2 * EAST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
+                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + EAST, other_side(pos.side)))
+                    *ml++ = encode_move(king_origin, king_origin + 2 * EAST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
             }
         }
 
-        if (pos.bs->castle & crq)
+        if (pos.bs->castle & (1 << (pos.side * 2 + 1)))
         {
-            if (!get_bit(pos.occ_bitboard[BOTH], kingpos + WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 3 * WEST))
+            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 3 * WEST))
             {
-                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + WEST, other_side(pos.side)))
-                    *ml++ = encode_move(kingpos, kingpos + 2 * WEST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
+                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + WEST, other_side(pos.side)))
+                    *ml++ = encode_move(king_origin, king_origin + 2 * WEST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
             }
         }
 
-        for (PieceType pt = KNIGHT; pt <= KING; ++pt) 
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt)
         {
             bb = pos.piece_bitboard[make_piece(pt, pos.side)];
             while (bb)
@@ -114,13 +92,22 @@ namespace Clovis {
                 src = get_lsb_index(bb);
                 att = ~pos.occ_bitboard[pos.side];
 
-                switch (pt) 
+                switch (pt)
                 {
-                case KNIGHT: att &= Bitboards::knight_attacks[src]; break;
-                case BISHOP: att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
-                case ROOK: att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); break;
-                case QUEEN: att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src); break;
-                default: att &= Bitboards::king_attacks[src];
+                case KNIGHT: 
+                    att &= Bitboards::knight_attacks[src]; 
+                    break;
+                case BISHOP: 
+                    att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                case ROOK: 
+                    att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                case QUEEN: 
+                    att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                default: 
+                    att &= Bitboards::king_attacks[src];
                 }
 
                 while (att)
@@ -131,6 +118,7 @@ namespace Clovis {
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     else
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
+
                     pop_bit(att, tar);
                 }
                 pop_bit(bb, src);
@@ -143,31 +131,15 @@ namespace Clovis {
     // gen all pseudo-legal capture moves for a position
     ScoredMove* gen_cap_moves(const Position& pos, ScoredMove* ml)
     {
-        Square src, tar, kingpos;
+        Square src, tar;
         Bitboard bb, att;
-        Direction dir;
-        Rank promorank;
-
-        if (pos.side == WHITE)
-        {
-            dir = NORTH;
-            promorank = RANK_7;
-            bb = pos.piece_bitboard[W_PAWN];
-            kingpos = E1;
-        }
-        else
-        {
-            dir = SOUTH;
-            promorank = RANK_2;
-            bb = pos.piece_bitboard[B_PAWN];
-            kingpos = E8;
-        }
+        bb = pos.piece_bitboard[make_piece(PAWN, pos.side)];
 
         // repeat until all friendly pawns are popped
         while (bb)
         {
             src = get_lsb_index(bb);
-            tar = src + dir;
+            tar = src + pawn_push(pos.side);
 
             att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[other_side(pos.side)];
 
@@ -175,7 +147,7 @@ namespace Clovis {
             {
                 tar = get_lsb_index(att);
 
-                if (rank_of(src) == promorank)
+                if (relative_rank(pos.side, src) == RANK_7)
                 {
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 1, 0, 0, 0);
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 1, 0, 0, 0);
@@ -200,7 +172,7 @@ namespace Clovis {
             pop_bit(bb, src);
         }
 
-        for (PieceType pt = KNIGHT; pt <= KING; ++pt) 
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt)
         {
             bb = pos.piece_bitboard[make_piece(pt, pos.side)];
             while (bb)
@@ -208,13 +180,22 @@ namespace Clovis {
                 src = get_lsb_index(bb);
                 att = ~pos.occ_bitboard[pos.side];
 
-                switch (pt) 
+                switch (pt)
                 {
-                case KNIGHT: att &= Bitboards::knight_attacks[src]; break;
-                case BISHOP: att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
-                case ROOK: att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); break;
-                case QUEEN: att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src); break;
-                default: att &= Bitboards::king_attacks[src];
+                case KNIGHT: 
+                    att &= Bitboards::knight_attacks[src]; 
+                    break;
+                case BISHOP: 
+                    att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                case ROOK: 
+                    att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                case QUEEN: 
+                    att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                default: 
+                    att &= Bitboards::king_attacks[src];
                 }
 
                 while (att)
@@ -223,6 +204,7 @@ namespace Clovis {
 
                     if (get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
+
                     pop_bit(att, tar);
                 }
                 pop_bit(bb, src);
@@ -235,42 +217,20 @@ namespace Clovis {
     // gen all pseudo-legal quiet moves for a position
     ScoredMove* gen_quiet_moves(const Position& pos, ScoredMove* ml)
     {
-        Square src, tar, kingpos;
+        Square src, tar, king_origin;
         Bitboard bb, att;
-        Direction dir;
-        Rank promorank, dprank;
-        CastleRights crk, crq; 
-
-        if (pos.side == WHITE)
-        {
-            dir = NORTH;
-            promorank = RANK_7;
-            dprank = RANK_2;
-            bb = pos.piece_bitboard[W_PAWN];
-            kingpos = E1;
-            crk = WHITE_KS;
-            crq = WHITE_QS;
-        }
-        else
-        {
-            dir = SOUTH;
-            promorank = RANK_2;
-            dprank = RANK_7;
-            bb = pos.piece_bitboard[B_PAWN];
-            kingpos = E8;
-            crk = BLACK_KS;
-            crq = BLACK_QS;
-        }
+        bb = pos.piece_bitboard[make_piece(PAWN, pos.side)];
+        king_origin = pos.side == WHITE ? E1 : E8;
 
         // repeat until all friendly pawns are popped
         while (bb)
         {
             src = get_lsb_index(bb);
-            tar = src + dir;
+            tar = src + pawn_push(pos.side);
             if (is_valid(tar) && !get_bit(pos.occ_bitboard[BOTH], tar))
             {
                 // promotion
-                if (rank_of(src) == promorank)
+                if (relative_rank(pos.side, src) == RANK_7)
                 {
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 0, 0, 0, 0);
                     *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 0, 0, 0, 0);
@@ -282,32 +242,32 @@ namespace Clovis {
                     // single push
                     *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     // double push
-                    if ((rank_of(src)) == dprank && !get_bit(pos.occ_bitboard[BOTH], tar + dir))
-                        *ml++ = encode_move(src, tar + dir, pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
+                    if (relative_rank(pos.side, src) == RANK_2 && !get_bit(pos.occ_bitboard[BOTH], tar + pawn_push(pos.side)))
+                        *ml++ = encode_move(src, tar + pawn_push(pos.side), pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
                 }
             }
             pop_bit(bb, src);
         }
 
-        if (pos.bs->castle & crk)
+        if (pos.bs->castle & (1 << (pos.side * 2)))
         {
-            if (!get_bit(pos.occ_bitboard[BOTH], kingpos + EAST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * EAST))
+            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + EAST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * EAST))
             {
-                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + EAST, other_side(pos.side)))
-                    *ml++ = encode_move(kingpos, kingpos + 2 * EAST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
+                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + EAST, other_side(pos.side)))
+                    *ml++ = encode_move(king_origin, king_origin + 2 * EAST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
             }
         }
 
-        if (pos.bs->castle & crq)
+        if (pos.bs->castle & (1 << (pos.side * 2 + 1)))
         {
-            if (!get_bit(pos.occ_bitboard[BOTH], kingpos + WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], kingpos + 3 * WEST))
+            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 3 * WEST))
             {
-                if (!pos.is_attacked(kingpos, other_side(pos.side)) && !pos.is_attacked(kingpos + WEST, other_side(pos.side)))
-                    *ml++ = encode_move(kingpos, kingpos + 2 * WEST, pos.piece_board[kingpos], NO_PIECE, 0, 0, 0, 1);
+                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + WEST, other_side(pos.side)))
+                    *ml++ = encode_move(king_origin, king_origin + 2 * WEST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
             }
         }
 
-        for (PieceType pt = KNIGHT; pt <= KING; ++pt) 
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt)
         {
             bb = pos.piece_bitboard[make_piece(pt, pos.side)];
             while (bb)
@@ -315,13 +275,22 @@ namespace Clovis {
                 src = get_lsb_index(bb);
                 att = ~pos.occ_bitboard[pos.side];
 
-                switch (pt) 
+                switch (pt)
                 {
-                case KNIGHT: att &= Bitboards::knight_attacks[src]; break;
-                case BISHOP: att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); break;
-                case ROOK: att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); break;
-                case QUEEN: att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src); break;
-                default: att &= Bitboards::king_attacks[src];
+                case KNIGHT: 
+                    att &= Bitboards::knight_attacks[src]; 
+                    break;
+                case BISHOP: 
+                    att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                case ROOK: 
+                    att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                case QUEEN: 
+                    att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src); 
+                    break;
+                default: 
+                    att &= Bitboards::king_attacks[src];
                 }
 
                 while (att)
@@ -330,6 +299,7 @@ namespace Clovis {
 
                     if (!get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
                         *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
+
                     pop_bit(att, tar);
                 }
                 pop_bit(bb, src);

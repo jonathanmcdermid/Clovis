@@ -144,7 +144,7 @@ namespace Clovis {
 
 			int batch_size = positions.size() / n_cores;
 
-			std::vector<std::thread> myThreads;
+			std::vector<std::thread> thread_pool;
 			int start = 0;
 			int end = 0;
 
@@ -152,11 +152,11 @@ namespace Clovis {
 			{
 				start = end;
 				end = start + batch_size;
-				myThreads.push_back(std::thread(processor, start, end, K));
+				thread_pool.push_back(std::thread(processor, start, end, K));
 			}
 
 			for (int i = 0; i < n_cores; ++i)
-				myThreads[i].join();
+				thread_pool[i].join();
 
 			return answers / positions.size();
 		}
