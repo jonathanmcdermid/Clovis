@@ -50,7 +50,7 @@ namespace Clovis {
             {
             case TT_MOVE:
                 ++stage;
-                if (tt_move != MOVE_NONE)
+                if (tt_move != MOVE_NONE && (skip_quiets == false || move_capture(tt_move.m) != NO_PIECE))
                     return tt_move;
                 else
                     goto start;

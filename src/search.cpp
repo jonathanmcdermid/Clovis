@@ -283,7 +283,7 @@ namespace Clovis {
 
             tt.new_entry(pos.get_key(), depth, alpha, eval_type, best_move);
 
-            if(eval_type ==HASH_EXACT && move_capture(best_move) == NO_PIECE)
+            if(eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
                 mp.update_history(best_move, depth);
 
             return alpha;
@@ -338,7 +338,7 @@ namespace Clovis {
             while ((curr_move = mp.get_next(true)) != MOVE_NONE) // only do winning caps once see is fixed
             {
                 // illegal move or non capture
-                if (pos.do_move(curr_move.m, true) == false)
+                if (pos.do_move(curr_move.m) == false)
                     continue;
 
                 eval = -quiescent(pos, -beta, -alpha);
