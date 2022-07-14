@@ -119,9 +119,8 @@ namespace Clovis {
             if (alpha >= beta)
                 return alpha;
 
-            bool tt_hit;
-            TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
-            if (tt_hit) 
+            TTEntry* tte = tt.probe(pos.get_key());
+            if (tte != nullptr) 
             {
                 pline.last = pline.moves;
                 *pline.last++ = tte->move;
@@ -159,14 +158,14 @@ namespace Clovis {
             }
 
             // internal iterative deepening
-            if (tt_hit == false
+            if (tte == nullptr
                 && ((pv_node && depth >= 6)
                     || (pv_node == false && depth >= 8))) 
             {
                 int iid_depth = pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2;
                 negamax(pos, local_line, alpha, beta, iid_depth, ply, false);
-                tte = tt.probe(pos.get_key(), tt_hit);
-                if (tt_hit) 
+                tte = tt.probe(pos.get_key());
+                if (tte != nullptr) 
                 {
                     pline.last = pline.moves;
                     *pline.last++ = tte->move;
@@ -175,7 +174,7 @@ namespace Clovis {
 
         loop:
 
-            Move tt_move = (tt_hit) ? tte->move : MOVE_NONE; 
+            Move tt_move = (tte != nullptr) ? tte->move : MOVE_NONE; 
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
 
@@ -292,10 +291,9 @@ namespace Clovis {
         int quiescent(Position& pos, int alpha, int beta)
         {
 
-            bool tt_hit;
-            TTEntry* tte = tt.probe(pos.get_key(), tt_hit);
+            TTEntry* tte = tt.probe(pos.get_key());
 
-            if (tt_hit)
+            if (tte != nullptr)
             {
                 if (tte->flags == HASH_EXACT
                     || (tte->flags == HASH_BETA && tte->eval >= beta)
@@ -305,10 +303,14 @@ namespace Clovis {
                 }
             }
             
-            bool pt_hit;
-            PTEntry* pte = tt.probe_pawn(pos.get_pawn_key(), pt_hit);
-            if (pt_hit == false)
-                *pte = PTEntry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
+            PTEntry* pte = tt.probe_pawn(pos.get_pawn_key());
+
+            if (pte == nullptr)
+            {
+                tt.new_pawn_entry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
+                pte = tt.probe_pawn(pos.get_pawn_key());
+                assert(pte != nullptr);
+            }
 
             int eval = (Eval::evaluate(pos) + pte->eval).get_score(pos.get_game_phase(), pos.side_to_move());
 
@@ -330,7 +332,7 @@ namespace Clovis {
             if (eval > alpha)
                 alpha = eval;
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, (tt_hit) ? tte->move : MOVE_NONE);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, (tte != nullptr) ? tte->move : MOVE_NONE);
             ScoredMove curr_move;
             Move best_move = MOVE_NONE;
             int best_eval = NEG_INF;

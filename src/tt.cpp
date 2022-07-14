@@ -16,16 +16,18 @@ namespace Clovis {
     }
 
     // probe the table to see if an entry exists
-    TTEntry* TTable::probe(Key key, bool& found) 
+    TTEntry* TTable::probe(Key key) 
     {
         Bucket* b = ht + hash_index(key);
-        found = (b->e1.key == key);
-        if (found)
+
+        if (b->e1.key == key)
             return &b->e1;
-        if(b->e1.depth > 0)
+        if (b->e1.depth > 0)
             --b->e1.depth;
-        found = (b->e2.key == key);
-        return &b->e2;
+        if (b->e2.key == key)
+            return &b->e2;
+
+        return nullptr;
     }
 
     void TTable::new_entry(Key key, int d, int e, HashFlag f, Move m)
@@ -38,11 +40,14 @@ namespace Clovis {
     }
 
     // probe the pawn table to see if an entry exists
-    PTEntry* TTable::probe_pawn(Key key, bool& found)
+    PTEntry* TTable::probe_pawn(Key key)
     {
         PTEntry* p = pt + pawn_hash_index(key);
-        found = (p->key == key);
-        return p;
+
+        if(p->key == key)
+            return p;
+
+        return nullptr;
     }
 
 } // namespace Clovis

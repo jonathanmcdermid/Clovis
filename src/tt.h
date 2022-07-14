@@ -58,9 +58,9 @@ namespace Clovis {
         TTable();
         void clear();
         void new_entry(Key key, int d, int e, HashFlag f, Move m);
-        TTEntry* probe(Key key, bool& found);
+        TTEntry* probe(Key key);
         void new_pawn_entry(Key key, Score s) { pt[pawn_hash_index(key)] = PTEntry(key, s); }
-        PTEntry* probe_pawn(Key key, bool& found);
+        PTEntry* probe_pawn(Key key);
     private:
         int hash_index(Key key) const;
         int pawn_hash_index(Key key) const;
