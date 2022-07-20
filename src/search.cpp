@@ -11,6 +11,8 @@ namespace Clovis {
         int asp_window = 50;
         int asp_threshold_depth = 3;
 
+        bool stop;
+
         TTable tt;
 
         TimePoint allocated_time;
@@ -40,8 +42,8 @@ namespace Clovis {
         // begin search
         Move start_search(Position& pos, SearchLimits& lim)
         {
-
-            allocated_time = lim.time[pos.side_to_move()] / 20;
+            stop = false;
+            allocated_time = 5 * lim.time[pos.side_to_move()] / (lim.moves_left + 5);
             tm.set();
             Line pline;
 
@@ -63,6 +65,10 @@ namespace Clovis {
             for (int depth = 1; depth <= MAX_PLY  && (lim.depth == 0 || depth <= lim.depth); ++depth)
             {
                 score = negamax(pos, pline, alpha, beta, depth, 0, false);
+
+                if (stop)
+                    break;
+
                 std::cout << "info depth " << depth
                     << " score cp " << score
                     << " nodes " << nodes
@@ -72,7 +78,7 @@ namespace Clovis {
                     std::cout << UCI::move2str(m) << " ";
                 std::cout << std::endl;
 
-                if ((tm.get_time_elapsed() > allocated_time && depth >= lim.depth)
+                if ((tm.get_time_elapsed() > allocated_time / 3 && depth >= lim.depth)
                     || score >= CHECKMATE_SCORE - MAX_PLY
                     || score <= -CHECKMATE_SCORE + MAX_PLY
                     || score == DRAW_SCORE && pline.move_count() < depth)
@@ -100,6 +106,12 @@ namespace Clovis {
 
         int negamax(Position& pos, Line& pline, int alpha, int beta, int depth, int ply, bool is_null)
         {
+            if (nodes & 2047 && tm.get_time_elapsed() > allocated_time)
+            {
+                stop = true;
+                return 0;
+            }
+
             bool pv_node = beta - alpha != 1;
             bool root_node = ply == 0;
 
@@ -238,6 +250,9 @@ namespace Clovis {
                 }
 
                 pos.undo_move(curr_move.m);
+
+                if (stop)
+                    return 0;
 
                 ++moves_searched;
 
