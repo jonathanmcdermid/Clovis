@@ -57,7 +57,6 @@ namespace Clovis {
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
 		extern Score mobility[7];
-		extern short mobility_reduction[7];
 
 		void init_eval();
 		void init_values();

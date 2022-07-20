@@ -355,11 +355,6 @@ namespace Clovis {
 					<< Eval::mobility[j].eg << "),";
 			}
 			std::cout << "};\n";
-			std::cout << "short mobility_reduction[7] = {";
-			for (int j = NO_PIECE; j <= KING; ++j) {
-				std::cout << Eval::mobility_reduction[j] << ", ";
-			}
-			std::cout << "};\n";
 		}
 
 	} // Tuner

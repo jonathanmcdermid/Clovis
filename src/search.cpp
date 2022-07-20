@@ -162,8 +162,7 @@ namespace Clovis {
                 && ((pv_node && depth >= 6)
                     || (pv_node == false && depth >= 8))) 
             {
-                int iid_depth = pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2;
-                negamax(pos, local_line, alpha, beta, iid_depth, ply, false);
+                negamax(pos, local_line, alpha, beta, pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2, ply, false);
                 tte = tt.probe(pos.get_key());
                 if (tte != nullptr) 
                 {
