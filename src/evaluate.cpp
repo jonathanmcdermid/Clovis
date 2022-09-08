@@ -10,14 +10,14 @@ namespace Clovis {
         };
         
         Score pawn_table[32] = {
-        Score(0,0), Score(0,0), Score(0,0), Score(0,0),
-        Score(23,162), Score(66,171), Score(50,117), Score(63,99),
-        Score(-13,15), Score(-1,17), Score(29,11), Score(29,15),
-        Score(-27,-3), Score(-7,-6), Score(-5,-5), Score(15,-13),
-        Score(-37,-12), Score(-26,-11), Score(-10,-13), Score(9,-16),
-        Score(-25,-21), Score(-18,-17), Score(-8,-12), Score(-6,-6),
-        Score(-32,-18), Score(-11,-17), Score(-10,-2), Score(-17,1),
-        Score(1,-1), Score(0,0), Score(0,0), Score(0,0),
+                Score(0,0), Score(0,0), Score(0,0), Score(0,0),
+                Score(23,162), Score(66,171), Score(50,117), Score(63,99),
+                Score(-13,15), Score(-1,17), Score(29,11), Score(29,15),
+                Score(-27,-3), Score(-7,-6), Score(-5,-5), Score(15,-13),
+                Score(-37,-12), Score(-26,-11), Score(-10,-13), Score(9,-16),
+                Score(-25,-21), Score(-18,-17), Score(-8,-12), Score(-6,-6),
+                Score(-32,-18), Score(-11,-17), Score(-10,-2), Score(-17,1),
+                Score(1,-1), Score(0,0), Score(0,0), Score(0,0),
         };
         Score knight_table[32] = {
                 Score(-150,-53), Score(-60,-40), Score(-68,-7), Score(26,-26),

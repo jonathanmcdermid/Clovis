@@ -71,7 +71,8 @@ namespace Clovis {
         ss >> token;
         side = (token == 'w' ? WHITE : BLACK);
         ss >> token;
-        while ((ss >> token) && !isspace(token)) {
+        while ((ss >> token) && !isspace(token)) 
+        {
             if (token == 'K') bs->castle |= WHITE_KS;
             else if (token == 'Q') bs->castle |= WHITE_QS;
             else if (token == 'k') bs->castle |= BLACK_KS;
@@ -151,9 +152,8 @@ namespace Clovis {
             | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
     }
 
-    bool Position::see(Move m, int threshold) const
-    { 
-        // some day....
+    bool Position::see(Move m) const
+    {
         return true;
     }
 

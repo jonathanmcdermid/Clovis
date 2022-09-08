@@ -152,8 +152,19 @@ namespace Clovis {
 
             int score;
 
+            int eval = king_in_check ? 0 : tte != nullptr ? tte->eval : (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
+
             if (king_in_check)
                 goto loop;
+
+            // reverse futility pruning
+            // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
+            // should this be allowed at root nodes? 
+            if (pv_node == false
+                && king_in_check == false
+                && depth <= 8
+                && eval - 75 * depth > beta)
+                return eval;
 
             // null move pruning
             if (root_node == false
@@ -207,6 +218,7 @@ namespace Clovis {
                 // illegal move
                 if (pos.do_move(curr_move.m) == false)
                     continue;
+
                 if (pos.is_repeat() || pos.is_draw_50()) //|| pos.is_material_draw())
                     score = DRAW_SCORE;
                 else if (moves_searched == 0)
@@ -294,7 +306,10 @@ namespace Clovis {
             if (moves_searched == 0)
                 return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
-            tt.new_entry(pos.get_key(), depth, alpha, eval_type, best_move);
+            if (eval_type == HASH_EXACT)
+                tt.new_entry(pos.get_key(), depth, alpha, HASH_EXACT, best_move);
+            else
+                tt.new_entry(pos.get_key(), depth, alpha, HASH_ALPHA, pv_node ? MOVE_NONE : best_move);
 
             if(eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
                 mp.update_history(best_move, depth);

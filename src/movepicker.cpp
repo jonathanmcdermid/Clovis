@@ -69,7 +69,7 @@ namespace Clovis {
                         ++curr;
                         goto start;
                     }
-                    if (pos.see(curr->m, 0))
+                    if (pos.see(curr->m))
                         return *curr++;
                     else 
                     {
