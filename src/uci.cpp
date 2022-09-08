@@ -6,7 +6,7 @@ namespace Clovis {
 
 	namespace UCI {
 
-		const char* version_no = "Clovis v1.4";
+		const char* version_no = "Clovis v1.5";
 		const char* authors = "Jonathan McDermid";
 		const char* start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		const char* promo_str = " pnbrqk  pnbrqk";
