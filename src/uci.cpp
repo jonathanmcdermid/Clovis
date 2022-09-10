@@ -19,6 +19,9 @@ namespace Clovis {
 			string token;
 			string cmd;
 
+			//option name Hash type spin default 16 min 1 max 33554432
+			//option name Clear Hash type button
+
 			do {
 				if (argc == 1 && !getline(cin, cmd))
 					cmd = "quit";
@@ -28,6 +31,7 @@ namespace Clovis {
 				if (token == "quit" || token == "stop")	break;
 				else if (token == "uci")
 					cout << "id name " << version_no << endl
+					<< "option name Hash type spin default 16 min 1 max 10000" << endl
 					<< "id author " << authors << endl
 					<< "uciok" << endl;
 				else if (token == "go")         go(pos, is);
@@ -36,9 +40,32 @@ namespace Clovis {
 				else if (token == "isready")    cout << "readyok" << endl;
 				else if (token == "local")		local(pos, is);
 				else if (token == "tune")		Tuner::tune();
+				else if (token == "setoption")	set_option(is);
 			} while (token != "quit" && argc == 1);
 		}
 
+		void set_option(std::istringstream& is)
+		{
+			// format for option setting is setoption name X value Y
+			string token, name, value;
+
+			// ignore "name" token
+			is >> token;
+
+			while (is >> token && token != "value")
+				name = token;
+
+			while (is >> token)
+				value = token;
+
+			if (name == "Hash")
+			{
+				int mb = stoi(value);
+				mb = max(mb, 1);
+				mb = min(mb, 10000);
+				tt.resize(mb);
+			}
+		}
 
 		// begin search
 		void go(Position& pos, std::istringstream& is)

@@ -2,10 +2,27 @@
 
 namespace Clovis {
 
+    TTable tt; // global transpotision table
+
     TTable::TTable()
     {
-        ht = new Bucket[tt_size];
+        resize(132);
         pt = new PTEntry[pt_size];
+    }
+
+    void TTable::resize(size_t mb)
+    {
+        delete ht;
+
+        tt_size = mb * 1024 * 1024 / (sizeof(Bucket));
+
+        ht = new Bucket[tt_size];
+    }
+
+    TTable::~TTable()
+    {
+        delete ht;
+        delete pt;
     }
 
     // empty transposition table
@@ -33,7 +50,7 @@ namespace Clovis {
     void TTable::new_entry(Key key, int d, int e, HashFlag f, Move m)
     {
         Bucket* b = ht + hash_index(key);
-        if(b->e1.depth <= d)
+        if (b->e1.depth <= d)
             b->e1 = TTEntry(key, d, e, f, m);
         else
             b->e2 = TTEntry(key, d, e, f, m);

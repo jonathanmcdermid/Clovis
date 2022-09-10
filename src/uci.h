@@ -8,6 +8,7 @@
 #include "position.h"
 #include "movelist.h"
 #include "types.h"
+#include "tt.h"
 #include "tuner/tuner.h"
 
 namespace Clovis {
@@ -15,6 +16,7 @@ namespace Clovis {
 	namespace UCI {
 
 		void loop(int argc, char* argv[]);
+		void set_option(std::istringstream& is);
 		void go(Position& pos, std::istringstream& is);
 		void position(Position& pos, std::istringstream& is);
 		void local(Position& pos, std::istringstream& is);

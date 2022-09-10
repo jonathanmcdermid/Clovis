@@ -42,13 +42,12 @@ namespace Clovis {
 			for (int i = 0; i < 3; ++i) 
 			{
 				pos.set(perftFen[i].c_str());
-				TimeManager tm;
 				tm.set();
 				for (int depth = 1; depth < 7; ++depth) 
 				{
 					nodes = 0;
 					perft(depth);
-					std::cout << "info depth " << depth << " nodes " << nodes << " time " << tm.get_time_elapsed() << std::endl;
+					//std::cout << "info depth " << depth << " nodes " << nodes << " time " << tm.get_time_elapsed() << std::endl;
 					assert(nodes == pfTable[i][depth - 1]);
 				}
 			}

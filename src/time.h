@@ -8,7 +8,7 @@ namespace Clovis {
 
 	class TimeManager {
 	public:
-		void set() { start_time = now(); }
+		void set();
 		inline TimePoint get_time_elapsed();
 		inline TimePoint now();
 	private:
@@ -22,5 +22,7 @@ namespace Clovis {
 	inline TimePoint TimeManager::now() {
 		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	}
+
+	extern TimeManager tm;
 
 } // namespace Clovis

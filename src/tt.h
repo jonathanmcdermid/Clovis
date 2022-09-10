@@ -8,8 +8,7 @@
 
 namespace Clovis {
 
-    constexpr size_t tt_size = 2097152;
-    constexpr size_t pt_size = 4194304;
+    constexpr size_t pt_size = 131072;
 
     enum HashFlag : uint8_t {
         HASH_NONE,
@@ -19,7 +18,7 @@ namespace Clovis {
     };
 
 	struct TTEntry {
-        TTEntry(Key k = 0ULL, int d = 0, int e = 0, HashFlag f = HASH_NONE, Move m = MOVE_NONE) : key(k), depth(d), eval(e), flags(f), move(m) {};
+        TTEntry(Key k = 0ULL, int d = 0, int e = 0, HashFlag f = HASH_NONE, Move m = MOVE_NONE) : key(k), depth(d), flags(f), eval(e), move(m) {};
         void operator=(const TTEntry& rhs){
             key = rhs.key;
             depth = rhs.depth;
@@ -56,16 +55,19 @@ namespace Clovis {
 	class TTable {
     public:
         TTable();
+        void resize(size_t s);
         void clear();
         void new_entry(Key key, int d, int e, HashFlag f, Move m);
         TTEntry* probe(Key key);
         void new_pawn_entry(Key key, Score s) { pt[pawn_hash_index(key)] = PTEntry(key, s); }
         PTEntry* probe_pawn(Key key);
+        ~TTable();
     private:
         int hash_index(Key key) const;
         int pawn_hash_index(Key key) const;
-        Bucket* ht;
-        PTEntry* pt;
+        Bucket* ht = nullptr;
+        PTEntry* pt = nullptr;
+        size_t tt_size;
     };
 
     inline int TTable::hash_index(Key key) const {
@@ -75,5 +77,7 @@ namespace Clovis {
     inline int TTable::pawn_hash_index(Key key) const {
         return key & (pt_size - 1ULL);
     }
+
+    extern TTable tt;
 
 } // Clovis
