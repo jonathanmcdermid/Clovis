@@ -6,7 +6,7 @@ namespace Clovis {
 
 	namespace UCI {
 
-		const char* version_no = "Clovis v1.5";
+		const char* version_no = "Clovis v1.6";
 		const char* authors = "Jonathan McDermid";
 		const char* start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		const char* promo_str = " pnbrqk  pnbrqk";
@@ -18,9 +18,6 @@ namespace Clovis {
 
 			string token;
 			string cmd;
-
-			//option name Hash type spin default 16 min 1 max 33554432
-			//option name Clear Hash type button
 
 			do {
 				if (argc == 1 && !getline(cin, cmd))

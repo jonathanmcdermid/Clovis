@@ -44,11 +44,11 @@ namespace Clovis {
         Move start_search(Position& pos, SearchLimits& lim)
         {
             stop = false;
-            allocated_time = 5 * lim.time[pos.side_to_move()] / (lim.moves_left + 5);
+            allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side_to_move()] / (lim.moves_left + 5);
             tm.set();
 
-            int alpha = NEG_INF;
-            int beta = POS_INF;
+            int alpha = INT_MIN;
+            int beta = INT_MAX;
             int score;
 
             MoveGen::MoveList ml = MoveGen::MoveList(pos);
@@ -78,18 +78,18 @@ namespace Clovis {
                     std::cout << UCI::move2str(pv_table[0][i]) << " ";
                 std::cout << std::endl;
 
-                if (tm.get_time_elapsed() > allocated_time / 3 && depth >= lim.depth)
+                if (tm.get_time_elapsed() > allocated_time / 3)
                     break;
 
                 if (score <= alpha || score >= beta) 
                 {
-                    alpha = NEG_INF;
-                    beta = POS_INF;
+                    alpha = INT_MIN;
+                    beta = INT_MAX;
                     --depth;
                     continue;
                 }
-                alpha = depth > asp_threshold_depth ? score - asp_window : NEG_INF;
-                beta = depth > asp_threshold_depth ? score + asp_window : POS_INF;
+                alpha = depth > asp_threshold_depth ? score - asp_window : INT_MIN;
+                beta = depth > asp_threshold_depth ? score + asp_window : INT_MAX;
             }
 
         end:
@@ -199,7 +199,7 @@ namespace Clovis {
 
             Move best_move = MOVE_NONE;
 
-            int best_score = NEG_INF;
+            int best_score = INT_MIN;
 
             if (king_in_check) 
                 ++depth;
@@ -360,7 +360,7 @@ namespace Clovis {
             MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, (tte != nullptr) ? tte->move : MOVE_NONE);
             ScoredMove curr_move;
             Move best_move = MOVE_NONE;
-            int best_eval = NEG_INF;
+            int best_eval = INT_MIN;
 
             while ((curr_move = mp.get_next(true)) != MOVE_NONE) // only do winning caps once see is fixed
             {
