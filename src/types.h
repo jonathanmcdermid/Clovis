@@ -11,7 +11,6 @@ namespace Clovis {
     typedef U64 Bitboard;
 
     constexpr int MAX_GAMEPHASE = 24;
-    constexpr int MAX_MAGIC_LOOPS = 50000;
     constexpr int MAX_PLY = 64;
     constexpr int MAX_MOVES = 256;
     constexpr int CHECKMATE_SCORE = 25000;

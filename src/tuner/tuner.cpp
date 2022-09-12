@@ -1,13 +1,14 @@
 #include "tuner.h"
 
+using namespace std;
+
 namespace Clovis {
 
 	namespace Tuner {
 
-		std::vector<Position> positions;
-		std::vector<double> results;
-		std::vector<int> direction;
-		std::vector<Weight> weights;
+		vector<Position> positions;
+		vector<double> results;
+		vector<Weight> weights;
 
 		constexpr int n_cores = 4;
 		long double answers = 0;
@@ -15,10 +16,10 @@ namespace Clovis {
 		void tune()
 		{
 			// load positions and results from file
-			std::string file_name = "src/tuner/quiet-labeled.epd";
-			std::ifstream log_file;
-			log_file.open(file_name.c_str(), std::ifstream::in);
-			std::string line;
+			string file_name = "src/tuner/quiet-labeled.epd";
+			ifstream log_file;
+			log_file.open(file_name.c_str(), ifstream::in);
+			string line;
 			while (true)
 			{
 				if (log_file.eof())
@@ -28,7 +29,7 @@ namespace Clovis {
 				{
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
-					std::string res = line.substr(idx + 1, idx_end - idx - 1);
+					string res = line.substr(idx + 1, idx_end - idx - 1);
 					if (res == "1-0")
 						results.push_back(1.0);
 					else if (res == "0-1")
@@ -41,7 +42,7 @@ namespace Clovis {
 			}
 			log_file.close();
 
-			std::cout << "positions done loading " << positions.size() << "\n";
+			cout << "positions done loading " << positions.size() << "\n";
 
 			map_weights_to_params();
 
@@ -50,14 +51,8 @@ namespace Clovis {
 			long double k = find_k();
 			long double best_mse = mean_squared_error(k);
 
-			std::vector<short> best_vals;
-			best_vals.resize(weights.size());
-			direction.resize(0);
-			for (int i = 0; i < weights.size(); ++i)
-			{
-				best_vals[i] = *weights[i].val;
-				direction.push_back(1);
-			}
+			vector<Weight> best_weights;
+			vector<int> direction(weights.size(), 1);
 
 			bool improved = true;
 
@@ -75,7 +70,7 @@ namespace Clovis {
 					*weights[index].val += direction[index];
 
 					if (weights[index].positive)
-						*weights[index].val = std::max(short(0), *weights[index].val);
+						*weights[index].val = max(short(0), *weights[index].val);
 
 					mse = mean_squared_error(k);
 
@@ -88,20 +83,19 @@ namespace Clovis {
 						direction[index] += direction[index];
 						best_mse = mse;
 						improved = true;
-						for (int i = 0; i < weights.size(); ++i)
-							best_vals[i] = *weights[i].val;
+						best_weights = weights;
 					}
 					else
 					{
 
 						*weights[index].val = old_val;
 
-						direction[index] = direction[index] / std::abs(direction[index]);
+						direction[index] = direction[index] / abs(direction[index]);
 						// decrease weight
 						*weights[index].val -= direction[index];
 
 						if (weights[index].positive)
-							*weights[index].val = std::max(short(0), *weights[index].val);
+							*weights[index].val = max(short(0), *weights[index].val);
 
 						mse = mean_squared_error(k);
 
@@ -115,36 +109,33 @@ namespace Clovis {
 							best_mse = mse;
 							improved = true;
 
-							for (int i = 0; i < weights.size(); ++i)
-								best_vals[i] = *weights[i].val;
+							best_weights = weights;
 						}
 						else
 							// reset weight, no improvements
 							*weights[index].val = old_val;
 					}
-					std::cout << "weight " << index << " mse: " << best_mse << " adjustment: " << direction[index] << "\n";
+					cout << "weight " << index << " mse: " << best_mse << " adjustment: " << direction[index] << "\n";
 				}
 
 				// this probably doesnt need to be done
-				for (int i = 0; i < weights.size(); ++i)
-					*weights[i].val = best_vals[i];
+				weights = best_weights;
 
-				std::cout << "iteration " << iterations << " complete" << std::endl;
+				cout << "iteration " << iterations << " complete" << endl;
 				print_params();
 			}
-			std::cout << "\ndone!\n";
+			cout << "\ndone!\n";
 		}
 
 		long double mean_squared_error(long double K)
 		{
 			// compute mean squared error for all positions in the set
 			// multithreading solution
-			Eval::init_values();
 			answers = 0;
 
 			int batch_size = positions.size() / n_cores;
 
-			std::vector<std::thread> thread_pool;
+			vector<thread> thread_pool;
 			int start = 0;
 			int end = 0;
 
@@ -152,7 +143,7 @@ namespace Clovis {
 			{
 				start = end;
 				end = start + batch_size;
-				thread_pool.push_back(std::thread(processor, start, end, K));
+				thread_pool.push_back(thread(processor, start, end, K));
 			}
 
 			for (int i = 0; i < n_cores; ++i)
@@ -204,8 +195,8 @@ namespace Clovis {
 					}
 				}
 
-				std::cout.precision(17);
-				std::cout << "Best K of " << start << " on iteration " << i << "\n";
+				cout.precision(17);
+				cout << "Best K of " << start << " on iteration " << i << "\n";
 
 				end = start + step;
 				start = start - step;
@@ -241,10 +232,6 @@ namespace Clovis {
 				weights.push_back(Weight(&Eval::king_table[k].mg, false, false));
 				weights.push_back(Weight(&Eval::king_table[k].eg, false, false));
 			}
-			for (int j = PAWN; j < KING; ++j) {
-				weights.push_back(Weight(&Eval::piece_value[j].mg, true, true));
-				weights.push_back(Weight(&Eval::piece_value[j].eg, true, true));
-			}
 			for (Square k = SQ_ZERO; k < 32; ++k) {
 				weights.push_back(Weight(&Eval::passed_pawn_bonus[k].mg, (k / 4 == RANK_1 || k / 4 == RANK_8), true));
 				weights.push_back(Weight(&Eval::passed_pawn_bonus[k].eg, (k / 4 == RANK_1 || k / 4 == RANK_8), true));
@@ -270,91 +257,84 @@ namespace Clovis {
 		void print_params()
 		{
 			// print the tuned weights so they can be copy pasted into evaluation file
-			std::cout << "Score pawn_table[32] = {\n\t";
+			cout << "Score pawn_table[32] = {\n\t";
 			for (Square j = SQ_ZERO; j < 32; ++j) {
-				std::cout << "Score("
+				cout << "Score("
 					<< Eval::pawn_table[j].mg << ","
 					<< Eval::pawn_table[j].eg << "),";
-				(j % 4 == 3) ? std::cout << "\n\t" : std::cout << " ";
+				(j % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
-			std::cout << "};\n";
-			std::cout << "Score knight_table[32] = {\n\t";
+			cout << "};\n";
+			cout << "Score knight_table[32] = {\n\t";
 			for (Square j = SQ_ZERO; j < 32; ++j) {
-				std::cout << "Score("
+				cout << "Score("
 					<< Eval::knight_table[j].mg << ","
 					<< Eval::knight_table[j].eg << "),";
-				(j % 4 == 3) ? std::cout << "\n\t" : std::cout << " ";
+				(j % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
-			std::cout << "};\n";
-			std::cout << "Score bishop_table[32] = {\n\t";
+			cout << "};\n";
+			cout << "Score bishop_table[32] = {\n\t";
 			for (Square j = SQ_ZERO; j < 32; ++j) {
-				std::cout << "Score("
+				cout << "Score("
 					<< Eval::bishop_table[j].mg << ","
 					<< Eval::bishop_table[j].eg << "),";
-				(j % 4 == 3) ? std::cout << "\n\t" : std::cout << " ";
+				(j % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
-			std::cout << "};\n";
-			std::cout << "Score rook_table[32] = {\n\t";
+			cout << "};\n";
+			cout << "Score rook_table[32] = {\n\t";
 			for (Square j = SQ_ZERO; j < 32; ++j) {
-				std::cout << "Score("
+				cout << "Score("
 					<< Eval::rook_table[j].mg << ","
 					<< Eval::rook_table[j].eg << "),";
-				(j % 4 == 3) ? std::cout << "\n\t" : std::cout << " ";
+				(j % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
-			std::cout << "};\n";
-			std::cout << "Score queen_table[32] = {\n\t";
+			cout << "};\n";
+			cout << "Score queen_table[32] = {\n\t";
 			for (Square j = SQ_ZERO; j < 32; ++j) {
-				std::cout << "Score("
+				cout << "Score("
 					<< Eval::queen_table[j].mg << ","
 					<< Eval::queen_table[j].eg << "),";
-				(j % 4 == 3) ? std::cout << "\n\t" : std::cout << " ";
+				(j % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
-			std::cout << "};\n";
-			std::cout << "Score king_table[32] = {\n\t";
+			cout << "};\n";
+			cout << "Score king_table[32] = {\n\t";
 			for (Square j = SQ_ZERO; j < 32; ++j) {
-				std::cout << "Score("
+				cout << "Score("
 					<< Eval::king_table[j].mg << ","
 					<< Eval::king_table[j].eg << "),";
-				(j % 4 == 3) ? std::cout << "\n\t" : std::cout << " ";
+				(j % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
-			std::cout << "};\n";
-			std::cout << "Score passed_pawn_bonus[32] = {\n\t";
+			cout << "};\n";
+			cout << "Score passed_pawn_bonus[32] = {\n\t";
 			for (Square j = SQ_ZERO; j < 32; ++j) {
-				std::cout << " Score("
+				cout << " Score("
 					<< Eval::passed_pawn_bonus[j].mg << ", "
 					<< Eval::passed_pawn_bonus[j].eg << "),";
-				(j % 4 == 3) ? std::cout << "\n\t" : std::cout << " ";
+				(j % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
-			std::cout << " };\n";
-			std::cout << "Score piece_value[7] = {";
-			for (int j = NO_PIECE; j <= KING; ++j) {
-				std::cout << " Score("
-					<< Eval::piece_value[j].mg << ", "
-					<< Eval::piece_value[j].eg << "),";
-			}
-			std::cout << "};\n";
-			std::cout << "Score double_pawn_penalty = Score("
+			cout << "};\n";
+			cout << "Score double_pawn_penalty = Score("
 				<< Eval::double_pawn_penalty.mg << ", "
 				<< Eval::double_pawn_penalty.eg << ");\n";
-			std::cout << "Score isolated_pawn_penalty = Score("
+			cout << "Score isolated_pawn_penalty = Score("
 				<< Eval::isolated_pawn_penalty.mg << ", "
 				<< Eval::isolated_pawn_penalty.eg << ");\n";
-			std::cout << "Score bishop_pair_bonus = Score("
+			cout << "Score bishop_pair_bonus = Score("
 				<< Eval::bishop_pair_bonus.mg << ", "
 				<< Eval::bishop_pair_bonus.eg << ");\n";
-			std::cout << "Score rook_open_file_bonus = Score("
+			cout << "Score rook_open_file_bonus = Score("
 				<< Eval::rook_open_file_bonus.mg << ", "
 				<< Eval::rook_open_file_bonus.eg << ");\n";
-			std::cout << "Score rook_semi_open_file_bonus = Score("
+			cout << "Score rook_semi_open_file_bonus = Score("
 				<< Eval::rook_semi_open_file_bonus.mg << ", "
 				<< Eval::rook_semi_open_file_bonus.eg << ");\n";
-			std::cout << "Score mobility[7] = {";
+			cout << "Score mobility[7] = {";
 			for (int j = NO_PIECE; j <= KING; ++j) {
-				std::cout << " Score("
+				cout << " Score("
 					<< Eval::mobility[j].mg << ", "
 					<< Eval::mobility[j].eg << "),";
 			}
-			std::cout << "};\n";
+			cout << "};\n";
 		}
 
 	} // Tuner

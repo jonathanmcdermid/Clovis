@@ -19,13 +19,14 @@ namespace Clovis {
 
         TimePoint allocated_time;
 
-        // initialize LMR lookup table values
+        // initialize starting search conditions
         void init_search()
         {
             clear();
             init_lmr_tables();
         }
 
+        // initialize LMR lookup table values
         void init_lmr_tables()
         {
             for (int depth = 1; depth <= MAX_PLY; ++depth)

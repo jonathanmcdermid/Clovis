@@ -389,7 +389,7 @@ namespace Clovis {
 				attacks[i] = is_bishop ? bishop_otf(sq, occ[i]) : rook_otf(sq, occ[i]);
 			}
 
-			for (int i = 0; i < MAX_MAGIC_LOOPS; ++i)
+			for (int i = 0; i < INT_MAX; ++i)
 			{
 				Bitboard magic = generate_magic();
 
