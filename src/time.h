@@ -2,9 +2,11 @@
 
 #include <chrono>
 
+using namespace std::chrono;
+
 namespace Clovis {
 
-	typedef std::chrono::milliseconds::rep TimePoint;
+	typedef milliseconds::rep TimePoint;
 
 	class TimeManager {
 	public:
@@ -20,7 +22,7 @@ namespace Clovis {
 	}
 
 	inline TimePoint TimeManager::now() {
-		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+		return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 	}
 
 	extern TimeManager tm;

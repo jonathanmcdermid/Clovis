@@ -140,9 +140,9 @@ namespace Clovis {
 			if (str.length() == 5)
 				str[4] = char(tolower(str[4]));
 
-			for (const auto& sm : MoveGen::MoveList(pos))
-				if (str == UCI::move2str(sm.m))
-					return sm.m;
+			for (const auto& m : MoveGen::MoveList(pos))
+				if (str == UCI::move2str(m))
+					return m;
 
 			return MOVE_NONE;
 		}

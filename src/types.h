@@ -14,6 +14,7 @@ namespace Clovis {
     constexpr int MAX_PLY = 64;
     constexpr int MAX_MOVES = 256;
     constexpr int CHECKMATE_SCORE = 25000;
+    constexpr int MIN_CHECKMATE_SCORE = CHECKMATE_SCORE - MAX_PLY;
     constexpr int DRAW_SCORE = 0;
 
     /*
@@ -35,6 +36,8 @@ namespace Clovis {
         MOVE_NONE,
         MOVE_NULL = 65
     };
+
+    
 
     enum Colour {
         WHITE, BLACK, 

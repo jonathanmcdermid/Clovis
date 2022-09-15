@@ -10,14 +10,14 @@ namespace Clovis {
         };
         
         Score pawn_table[32] = {
-                Score(0,0), Score(0,0), Score(0,100), Score(0,0),
+                Score(0,0), Score(0,0), Score(0,0), Score(0,0),
                 Score(123,262), Score(166,271), Score(150,217), Score(163,199),
                 Score(87,115), Score(99,117), Score(129,111), Score(129,115),
                 Score(73,97), Score(93,94), Score(95,95), Score(115,87),
                 Score(63,88), Score(74,89), Score(90,87), Score(109,84),
                 Score(75,79), Score(82,83), Score(92,88), Score(94,94),
                 Score(68,82), Score(89,83), Score(90,98), Score(83,101),
-                Score(0,0), Score(0,0), Score(0,100), Score(0,0),
+                Score(0,0), Score(0,0), Score(0,0), Score(0,0),
         };
         Score knight_table[32] = {
                 Score(150,247), Score(240,260), Score(232,293), Score(326,274),
@@ -108,8 +108,6 @@ namespace Clovis {
         Bitboard isolated_masks[SQ_N];
 
         Bitboard passed_masks[COLOUR_N][SQ_N];
-
-        Bitboard knight_outpost_masks[COLOUR_N][SQ_N];
 
         void init_eval() 
         {
@@ -323,9 +321,9 @@ namespace Clovis {
                 sq = get_lsb_index(bb);
 
                 int double_pawns = count_bits(pos.piece_bitboard[piece] & file_masks[sq]);
-                
+
                 if (double_pawns > 1)
-                { 
+                {
                     score[side] -= double_pawn_penalty * double_pawns;
                 }
 
@@ -334,11 +332,11 @@ namespace Clovis {
                     score[side] -= isolated_pawn_penalty;
                 }
 
-                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))]) == 0) 
+                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))]) == 0)
                 {
                     score[side] += *passed_table[make_square(file_of(sq), relative_rank(side, sq))];
                 }
-                
+
                 pop_bit(bb, sq);
             }
 

@@ -25,7 +25,7 @@ namespace Clovis {
 
 	} // namespace Eval
 
-	ScoredMove* gen_moves(const Position& pos, ScoredMove* ml);
+	template <typename T> T* gen_moves(const Position& pos, T* p);
 
 	std::string sq2str(Square s);
 
@@ -33,11 +33,11 @@ namespace Clovis {
 
 	// linked list implementation for board state info
 	struct BoardState {
-		BoardState* prev = NULL;
+		BoardState* prev = nullptr;
 		Piece captured_piece = NO_PIECE;
 		Square enpassant = SQ_NONE;
-		Key key;
-		Key pkey;
+		Key key = 0ULL;
+		Key pkey = 0ULL;
 		int castle = 0;
 		int hmc = 0;
 		int fmc = 0;
@@ -82,9 +82,9 @@ namespace Clovis {
 		Bitboard occ_bitboard[COLOUR_N + 1];
 		BoardState* bs;
 		Colour side;
-		friend ScoredMove* gen_moves(const Position& pos, ScoredMove* ml);
-		friend ScoredMove* gen_cap_moves(const Position& pos, ScoredMove* ml);
-		friend ScoredMove* gen_quiet_moves(const Position& pos, ScoredMove* ml);
+		template <typename T> friend T* gen_moves(const Position& pos, T* p);
+		template <typename T> friend T* gen_cap_moves(const Position& pos, T* p);
+		template <typename T> friend T* gen_quiet_moves(const Position& pos, T* p);
 		friend Score Eval::evaluate(const Position& pos);
 		friend Score Eval::evaluate_pawns(const Position& pos);
 	};

@@ -11,17 +11,19 @@
 #include "tt.h"
 #include "tuner/tuner.h"
 
+using namespace std;
+
 namespace Clovis {
 
 	namespace UCI {
 
 		void loop(int argc, char* argv[]);
-		void set_option(std::istringstream& is);
-		void go(Position& pos, std::istringstream& is);
-		void position(Position& pos, std::istringstream& is);
-		void local(Position& pos, std::istringstream& is);
-		Move to_move(const Position& pos, std::string& str);
-		std::string move2str(Move m);
+		void set_option(istringstream& is);
+		void go(Position& pos, istringstream& is);
+		void position(Position& pos, istringstream& is);
+		void local(Position& pos, istringstream& is);
+		Move to_move(const Position& pos, string& str);
+		string move2str(Move m);
 
 	} // namespace UCI
 	

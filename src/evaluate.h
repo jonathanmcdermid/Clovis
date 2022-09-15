@@ -41,14 +41,6 @@ namespace Clovis {
 		return Score(s1.mg * i, s1.eg * i);
 	}
 
-	// evaluation function utilizes two primary types of parameters
-	// type 1: signed
-	// type 2: unsigned
-
-	class EvalParam {
-		EvalParam(short m, short d);
-	};
-
 	namespace Eval {
 
 		extern Score pawn_table[32];
