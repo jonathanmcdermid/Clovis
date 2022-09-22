@@ -37,8 +37,6 @@ namespace Clovis {
         MOVE_NULL = 65
     };
 
-    
-
     enum Colour {
         WHITE, BLACK, 
         BOTH, 
@@ -89,17 +87,14 @@ namespace Clovis {
         sq = static_cast<Square>(static_cast<int>(sq) + 1);
     }
 
-    inline Square operator+(Square& sq, Direction d) {
-        return static_cast<Square>(static_cast<int>(sq) + static_cast<int>(d));
-    }
-
-    inline Square operator-(Square& sq, Direction d) {
-        return static_cast<Square>(static_cast<int>(sq) - static_cast<int>(d));
-    }
-
     inline Square operator+(Square& sq, int i) {
         return static_cast<Square>(static_cast<int>(sq) + i);
     }
+
+    constexpr Square operator+(Square s, Direction d) { return Square(int(s) + int(d)); }
+    constexpr Square operator-(Square s, Direction d) { return Square(int(s) - int(d)); }
+    inline Square& operator+=(Square& s, Direction d) { return s = s + d; }
+    inline Square& operator-=(Square& s, Direction d) { return s = s - d; }
 
     enum File : int {
         FILE_NONE = -1,

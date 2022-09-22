@@ -2,6 +2,7 @@
 
 #include <intrin.h>
 #include <cstring>
+#include <cassert>
 
 #include "random.h"
 #include "types.h"
@@ -10,11 +11,44 @@
 
 namespace Clovis {
 
-    constexpr U64 get_bit(const Bitboard& bb, Square sq) { return bb & (1ULL << sq); }
-    constexpr void set_bit(Bitboard& bb, Square sq) { bb |= (1ULL << sq); }
-    constexpr void pop_bit(Bitboard& bb, Square sq) { bb = (get_bit(bb, sq) ? bb ^= (1ULL << sq) : bb); }
-    constexpr Square get_lsb_index(Bitboard bb) { return (bb) ? Square(count_bits((bb & -bb) - 1)) : SQ_NONE; }
-    constexpr Bitboard get_lsb_bb(Bitboard bb) { return bb & -bb; }
+    // precalculated bitboards for each square
+    extern Bitboard sqbb[SQ_N];
+
+    inline Bitboard sq_bb(Square sq) { return sqbb[sq]; }
+
+    inline Bitboard operator&(Bitboard bb, Square sq) { return bb & sq_bb(sq); }
+    inline Bitboard operator|(Bitboard bb, Square sq) { return bb | sq_bb(sq); }
+    inline Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sq_bb(sq); }
+    inline Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sq_bb(sq); }
+    inline Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sq_bb(sq); }
+
+    inline Bitboard operator|(Square s1, Square s2) { return sq_bb(s1) | sq_bb(s2); }
+
+    inline Square lsb(Bitboard bb) {
+        assert(bb);
+        unsigned long i;
+        _BitScanForward64(&i, bb);
+        return (Square) i;
+    }
+
+    inline Square msb(Bitboard bb) {
+        assert(bb);
+        unsigned long i;
+        _BitScanReverse64(&i, bb);
+        return (Square) i;
+    }
+
+    inline Bitboard lsb_bb(Bitboard bb) {
+        assert(bb);
+        return bb & -bb;
+    }
+
+    inline Square pop_lsb(Bitboard& bb) {
+        assert(bb);
+        Square sq = lsb(bb);
+        bb &= bb - 1;
+        return sq;
+    }
 
     namespace Bitboards {
 
@@ -51,6 +85,8 @@ namespace Clovis {
         Bitboard get_bishop_attacks(Bitboard occ, Square sq);
         Bitboard get_rook_attacks(Bitboard occ, Square sq);
         Bitboard get_queen_attacks(Bitboard occ, Square sq);
+
+        Bitboard get_attacks(Bitboard occ, Square sq, PieceType pt);
 
         void init_bitboards(bool calc_magic = false);
 

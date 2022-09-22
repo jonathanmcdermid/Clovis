@@ -27,19 +27,9 @@ namespace Clovis {
 		short eg;
 	};
 
-	inline Score operator+(Score s1, Score s2) {
-		s1 += s2;
-		return s1;
-	}
-
-	inline Score operator-(Score s1, Score s2) {
-		s1 -= s2;
-		return s1;
-	}
-
-	inline Score operator*(Score s1, int i) {
-		return Score(s1.mg * i, s1.eg * i);
-	}
+	inline Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+	inline Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+	inline Score operator*(Score s1, int i) { return Score(s1.mg * i, s1.eg * i); }
 
 	namespace Eval {
 

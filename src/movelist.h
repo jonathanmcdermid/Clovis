@@ -8,330 +8,271 @@
 
 namespace Clovis {
 
+    constexpr Bitboard castle_occ_ks[COLOUR_N] = { 96ULL, 6917529027641081856ULL };
+    constexpr Bitboard castle_occ_qs[COLOUR_N] = { 14ULL, 1008806316530991104ULL };
+
 	class Position;
 
+	struct ScoredMove {
+		Move m = MOVE_NONE;
+		int score = 0;
+		void operator=(Move m) { this->m = m; }
+		bool operator==(Move m) { return this->m == m; }
+		bool operator!=(Move m) { return this->m != m; }
+		operator Move() const { return m; }
+	};
+
+	inline static bool sm_score_comp(ScoredMove const& lhs, ScoredMove const& rhs) {
+		return lhs.score > rhs.score;
+	}
+
+	template<typename T> T* gen_moves(const Position& pos, T* ml);
+	template<typename T> T* gen_cap_moves(const Position& pos, T* ml);
+	template<typename T> T* gen_quiet_moves(const Position& pos, T* ml);
+
+	namespace MoveGen {
+
+		struct MoveList {
+			MoveList(const Position& pos) : last(gen_moves<Move>(pos, moves)) {}
+			int size() const { return (last - moves); }
+			void print();
+			const Move* begin() const { return moves; }
+			const Move* end() const { return last; }
+		private:
+			Move moves[MAX_MOVES], *last;
+		};
+
+	} // namespace MoveGen
+
     // gen all pseudo-legal moves for a position
-    template <typename T>
-    T* gen_moves(const Position& pos, T* p)
+    template<typename T> 
+    T* gen_moves(const Position& pos, T* ml)
     {
-        Square src, tar, king_origin;
-        Bitboard bb, att;
-        bb = pos.piece_bitboard[make_piece(PAWN, pos.side)];
-        king_origin = pos.side == WHITE ? E1 : E8;
+        Colour us = pos.side, them = other_side(pos.side);
+        Bitboard bb = pos.piece_bitboard[make_piece(PAWN, us)];
+        Square king_origin = us == WHITE ? E1 : E8;
+        Rank promo_rank = relative_rank(us, RANK_7);
+        Rank spawn_rank = relative_rank(us, RANK_2);
+        Direction push = pawn_push(us);
 
         // repeat until all friendly pawns are popped
         while (bb)
         {
-            src = get_lsb_index(bb);
-            tar = src + pawn_push(pos.side);
-            if (is_valid(tar) && !get_bit(pos.occ_bitboard[BOTH], tar))
+            Square src = pop_lsb(bb);
+            Square tar = src + push;
+
+            if (is_valid(tar) && !(pos.occ_bitboard[BOTH] & tar))
             {
                 // promotion
-                if (relative_rank(pos.side, src) == RANK_7)
+                if (rank_of(src) == promo_rank)
                 {
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 0, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 0, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 0, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, us), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, us), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, us), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, us), 0, 0, 0, 0);
                 }
                 else
                 {
                     // single push
-                    *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     // double push
-                    if (relative_rank(pos.side, src) == RANK_2 && !get_bit(pos.occ_bitboard[BOTH], tar + pawn_push(pos.side)))
-                        *p++ = encode_move(src, tar + pawn_push(pos.side), pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
+                    if (rank_of(src) == spawn_rank && !(pos.occ_bitboard[BOTH] & (tar + push)))
+                        *ml++ = encode_move(src, tar + push, pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
                 }
             }
 
-            att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[other_side(pos.side)];
+            Bitboard att = Bitboards::pawn_attacks[us][src] & pos.occ_bitboard[them];
 
             while (att)
             {
-                tar = get_lsb_index(att);
+                tar = pop_lsb(att);
 
-                if (relative_rank(pos.side, src) == RANK_7)
+                if (rank_of(src) == promo_rank)
                 {
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 1, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 1, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 1, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, us), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, us), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, us), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, us), 1, 0, 0, 0);
                 }
                 else
-                    *p++ = encode_move(src, tar, make_piece(PAWN, pos.side), NO_PIECE, 1, 0, 0, 0);
-                pop_bit(att, tar);
+                    *ml++ = encode_move(src, tar, make_piece(PAWN, us), NO_PIECE, 1, 0, 0, 0);
             }
 
             if (pos.bs->enpassant != SQ_NONE)
             {
-                Bitboard enpassant_attacks = Bitboards::pawn_attacks[pos.side][src] & (1ULL << pos.bs->enpassant);
+                Bitboard enpassant_attacks = Bitboards::pawn_attacks[us][src] & pos.bs->enpassant;
 
                 if (enpassant_attacks)
-                {
-                    tar = get_lsb_index(enpassant_attacks);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 1, 0);
-                }
-            }
-            pop_bit(bb, src);
-        }
-
-        if (pos.bs->castle & (1 << (pos.side * 2)))
-        {
-            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + EAST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * EAST))
-            {
-                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + EAST, other_side(pos.side)))
-                    *p++ = encode_move(king_origin, king_origin + 2 * EAST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
+                    *ml++ = encode_move(src, pop_lsb(enpassant_attacks), pos.piece_board[src], NO_PIECE, 1, 0, 1, 0);
             }
         }
 
-        if (pos.bs->castle & (1 << (pos.side * 2 + 1)))
+        if (!pos.is_attacked(king_origin, them))
         {
-            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 3 * WEST))
-            {
-                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + WEST, other_side(pos.side)))
-                    *p++ = encode_move(king_origin, king_origin + 2 * WEST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
-            }
+            if (pos.bs->castle & (1 << (us * 2))
+                && !(pos.occ_bitboard[BOTH] & castle_occ_ks[us])
+                && !pos.is_attacked(king_origin + EAST, them))
+                *ml++ = encode_move(king_origin, king_origin + 2 * EAST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
+
+            if (pos.bs->castle & (1 << (us * 2 + 1))
+                && !(pos.occ_bitboard[BOTH] & castle_occ_qs[us])
+                && !pos.is_attacked(king_origin + WEST, them))
+                *ml++ = encode_move(king_origin, king_origin + 2 * WEST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
         }
 
         for (PieceType pt = KNIGHT; pt <= KING; ++pt)
         {
-            bb = pos.piece_bitboard[make_piece(pt, pos.side)];
+            bb = pos.piece_bitboard[make_piece(pt, us)];
             while (bb)
             {
-                src = get_lsb_index(bb);
-                att = ~pos.occ_bitboard[pos.side];
-
-                switch (pt)
-                {
-                case KNIGHT:
-                    att &= Bitboards::knight_attacks[src];
-                    break;
-                case BISHOP:
-                    att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                case ROOK:
-                    att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                case QUEEN:
-                    att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                default:
-                    att &= Bitboards::king_attacks[src];
-                }
+                Square src = pop_lsb(bb);
+                Bitboard att = ~pos.occ_bitboard[us] & Bitboards::get_attacks(pos.occ_bitboard[BOTH], src, pt);
 
                 while (att)
                 {
-                    tar = get_lsb_index(att);
+                    Square tar = pop_lsb(att);
 
-                    if (!get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
-                        *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
+                    if (!(pos.occ_bitboard[them] & tar))
+                        *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     else
-                        *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
-
-                    pop_bit(att, tar);
+                        *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
                 }
-                pop_bit(bb, src);
             }
         }
 
-        return p;
+        return ml;
     }
 
     // gen all pseudo-legal capture moves for a position
-    template <typename T>
-    T* gen_cap_moves(const Position& pos, T* p)
+    template<typename T>
+    T* gen_cap_moves(const Position& pos, T* ml)
     {
-        Square src, tar;
-        Bitboard bb, att;
-        bb = pos.piece_bitboard[make_piece(PAWN, pos.side)];
+        Colour us = pos.side, them = other_side(pos.side);
+        Bitboard bb = pos.piece_bitboard[make_piece(PAWN, us)];
+        Direction push = pawn_push(us);
+        Rank promo_rank = relative_rank(us, RANK_7);
 
         // repeat until all friendly pawns are popped
         while (bb)
         {
-            src = get_lsb_index(bb);
-            tar = src + pawn_push(pos.side);
-
-            att = Bitboards::pawn_attacks[pos.side][src] & pos.occ_bitboard[other_side(pos.side)];
+            Square src = pop_lsb(bb);
+            Bitboard att = Bitboards::pawn_attacks[us][src] & pos.occ_bitboard[them];
 
             while (att)
             {
-                tar = get_lsb_index(att);
+                Square tar = pop_lsb(att);
 
-                if (relative_rank(pos.side, src) == RANK_7)
+                if (rank_of(src) == promo_rank)
                 {
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 1, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 1, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 1, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, us), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, us), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, us), 1, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, us), 1, 0, 0, 0);
                 }
                 else
-                    *p++ = encode_move(src, tar, make_piece(PAWN, pos.side), NO_PIECE, 1, 0, 0, 0);
-                pop_bit(att, tar);
+                    *ml++ = encode_move(src, tar, make_piece(PAWN, us), NO_PIECE, 1, 0, 0, 0);
             }
 
             if (pos.bs->enpassant != SQ_NONE)
             {
-                Bitboard enpassant_attacks = Bitboards::pawn_attacks[pos.side][src] & (1ULL << pos.bs->enpassant);
+                Bitboard enpassant_attacks = Bitboards::pawn_attacks[us][src] & pos.bs->enpassant;
 
                 if (enpassant_attacks)
-                {
-                    tar = get_lsb_index(enpassant_attacks);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 1, 0);
-                }
+                    *ml++ = encode_move(src, pop_lsb(enpassant_attacks), pos.piece_board[src], NO_PIECE, 1, 0, 1, 0);
             }
-            pop_bit(bb, src);
         }
 
         for (PieceType pt = KNIGHT; pt <= KING; ++pt)
         {
-            bb = pos.piece_bitboard[make_piece(pt, pos.side)];
+            bb = pos.piece_bitboard[make_piece(pt, us)];
             while (bb)
             {
-                src = get_lsb_index(bb);
-                att = ~pos.occ_bitboard[pos.side];
-
-                switch (pt)
-                {
-                case KNIGHT:
-                    att &= Bitboards::knight_attacks[src];
-                    break;
-                case BISHOP:
-                    att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                case ROOK:
-                    att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                case QUEEN:
-                    att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                default:
-                    att &= Bitboards::king_attacks[src];
-                }
+                Square src = pop_lsb(bb);
+                Bitboard att = ~pos.occ_bitboard[us] & Bitboards::get_attacks(pos.occ_bitboard[BOTH], src, pt);
 
                 while (att)
                 {
-                    tar = get_lsb_index(att);
+                    Square tar = pop_lsb(att);
 
-                    if (get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
-                        *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
-
-                    pop_bit(att, tar);
+                    if (pos.occ_bitboard[them] & tar)
+                        *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
                 }
-                pop_bit(bb, src);
             }
         }
 
-        return p;
+        return ml;
     }
 
     // gen all pseudo-legal quiet moves for a position
-    template <typename T>
-    T* gen_quiet_moves(const Position& pos, T* p)
+    template<typename T>
+    T* gen_quiet_moves(const Position& pos, T* ml)
     {
-        Square src, tar, king_origin;
-        Bitboard bb, att;
-        bb = pos.piece_bitboard[make_piece(PAWN, pos.side)];
-        king_origin = pos.side == WHITE ? E1 : E8;
+        Colour us = pos.side, them = other_side(pos.side);
+        Bitboard bb = pos.piece_bitboard[make_piece(PAWN, us)];
+        Square king_origin = us == WHITE ? E1 : E8;
+        Direction push = pawn_push(us);
+        Rank promo_rank = relative_rank(us, RANK_7);
+        Rank spawn_rank = relative_rank(us, RANK_2);
 
         // repeat until all friendly pawns are popped
         while (bb)
         {
-            src = get_lsb_index(bb);
-            tar = src + pawn_push(pos.side);
-            if (is_valid(tar) && !get_bit(pos.occ_bitboard[BOTH], tar))
+            Square src = pop_lsb(bb);
+            Square tar = src + push;
+
+            if (is_valid(tar) && !(pos.occ_bitboard[BOTH] & tar))
             {
                 // promotion
-                if (relative_rank(pos.side, src) == RANK_7)
+                if (rank_of(src) == promo_rank)
                 {
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, pos.side), 0, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, pos.side), 0, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, pos.side), 0, 0, 0, 0);
-                    *p++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, pos.side), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(KNIGHT, us), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(BISHOP, us), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(ROOK, us), 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], make_piece(QUEEN, us), 0, 0, 0, 0);
                 }
                 else
                 {
                     // single push
-                    *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
+                    *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                     // double push
-                    if (relative_rank(pos.side, src) == RANK_2 && !get_bit(pos.occ_bitboard[BOTH], tar + pawn_push(pos.side)))
-                        *p++ = encode_move(src, tar + pawn_push(pos.side), pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
+                    if (rank_of(src) == spawn_rank && !(pos.occ_bitboard[BOTH] & tar + push))
+                        *ml++ = encode_move(src, tar + push, pos.piece_board[src], NO_PIECE, 0, 1, 0, 0);
                 }
             }
-            pop_bit(bb, src);
         }
 
-        if (pos.bs->castle & (1 << (pos.side * 2)))
+        if (!pos.is_attacked(king_origin, them))
         {
-            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + EAST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * EAST))
-            {
-                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + EAST, other_side(pos.side)))
-                    *p++ = encode_move(king_origin, king_origin + 2 * EAST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
-            }
-        }
+            if (pos.bs->castle & (1 << (us * 2))
+                && !(pos.occ_bitboard[BOTH] & castle_occ_ks[us])
+                && !pos.is_attacked(king_origin + EAST, them))
+                *ml++ = encode_move(king_origin, king_origin + 2 * EAST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
 
-        if (pos.bs->castle & (1 << (pos.side * 2 + 1)))
-        {
-            if (!get_bit(pos.occ_bitboard[BOTH], king_origin + WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 2 * WEST) && !get_bit(pos.occ_bitboard[BOTH], king_origin + 3 * WEST))
-            {
-                if (!pos.is_attacked(king_origin, other_side(pos.side)) && !pos.is_attacked(king_origin + WEST, other_side(pos.side)))
-                    *p++ = encode_move(king_origin, king_origin + 2 * WEST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
-            }
+            if (pos.bs->castle & (1 << (us * 2 + 1))
+                && !(pos.occ_bitboard[BOTH] & castle_occ_qs[us])
+                && !pos.is_attacked(king_origin + WEST, them))
+                *ml++ = encode_move(king_origin, king_origin + 2 * WEST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
         }
 
         for (PieceType pt = KNIGHT; pt <= KING; ++pt)
         {
-            bb = pos.piece_bitboard[make_piece(pt, pos.side)];
+            bb = pos.piece_bitboard[make_piece(pt, us)];
             while (bb)
             {
-                src = get_lsb_index(bb);
-                att = ~pos.occ_bitboard[pos.side];
-
-                switch (pt)
-                {
-                case KNIGHT:
-                    att &= Bitboards::knight_attacks[src];
-                    break;
-                case BISHOP:
-                    att &= Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                case ROOK:
-                    att &= Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                case QUEEN:
-                    att &= Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], src);
-                    break;
-                default:
-                    att &= Bitboards::king_attacks[src];
-                }
+                Square src = pop_lsb(bb);
+                Bitboard att = ~pos.occ_bitboard[us] & Bitboards::get_attacks(pos.occ_bitboard[BOTH], src, pt);
 
                 while (att)
                 {
-                    tar = get_lsb_index(att);
+                    Square tar = pop_lsb(att);
 
-                    if (!get_bit((pos.occ_bitboard[other_side(pos.side)]), tar))
-                        *p++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
-
-                    pop_bit(att, tar);
+                    if (!(pos.occ_bitboard[them] & tar))
+                        *ml++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
                 }
-                pop_bit(bb, src);
             }
         }
 
-        return p;
+        return ml;
     }
-
-    namespace MoveGen {
-
-        struct MoveList {
-            MoveList(const Position& pos) : last(gen_moves<Move>(pos, moves)) {}
-            int size() const { return (last - moves); }
-            void print();
-            const Move* begin() const { return moves; }
-            const Move* end() const { return last; }
-        private:
-            Move moves[MAX_MOVES], *last;
-        };
-
-    } // namespace MoveGen
 
 } // namsepace Clovis

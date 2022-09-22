@@ -1,5 +1,7 @@
 #include "movepicker.h"
 
+using namespace std;
+
 namespace Clovis {
 
 	namespace MovePick {
@@ -30,26 +32,20 @@ namespace Clovis {
             return lhs.score > rhs.score;
         }
 
-        void MovePicker::update_history(Move best_move, int depth) 
+        void MovePicker::update_history(Move best_move, int depth)
         {
-            ScoredMove* last_searched_quiet;
-            switch (stage)
-            {
-            case QUIETS:
-                last_searched_quiet = curr;
-                break;
-            case LOSING_CAPTURES:
-                last_searched_quiet = last;
-                break;
-            default:
-                return;
-            }
-            int bonus = std::min(depth * depth, 400);
-            int* history_entry;
-            for(ScoredMove* m = end_bad_caps; m < last_searched_quiet; ++m)
+            // when stage = init captures, it means the quiet TT move caused a beta cutoff
+            // when this happens, the tt move history entry is not updated
+            assert(stage >= QUIETS || stage == INIT_CAPTURES);
+            assert(move_capture(best_move) == NO_PIECE);
+
+            ScoredMove* last_searched_quiet = (stage == FINISHED) ? last : curr;
+
+            int bonus = min(depth * depth, 400);
+            for (ScoredMove* m = end_bad_caps; m < last_searched_quiet; ++m)
             {
                 assert(move_capture(m->m) == false);
-                history_entry = get_history_entry_ptr(pos.side_to_move(), m->m);
+                int* history_entry = get_history_entry_ptr(pos.side_to_move(), m->m);
                 if (m->m == best_move)
                     *history_entry += 32 * bonus - *history_entry * bonus / 512;
                 else
@@ -64,22 +60,23 @@ namespace Clovis {
             {
             case TT_MOVE:
                 ++stage;
-                if (tt_move != MOVE_NONE && (skip_quiets == false || move_capture(tt_move) != NO_PIECE))
+                if (tt_move != MOVE_NONE && (skip_quiets == false || move_capture(tt_move) != NO_PIECE) && pos.move_is_ok(tt_move))
                     return tt_move;
             case INIT_CAPTURES:
                 curr = end_bad_caps = moves;
                 last = gen_cap_moves<ScoredMove>(pos, moves);
                 score_captures();
-                std::sort(curr, last, sm_score_comp);
+                sort(moves, last, sm_score_comp);
                 ++stage;
             case WINNING_CAPTURES:
                 while (curr < last)
                 {
+                    assert(move_capture(*curr));
                     if (curr->m == tt_move)
                         ++curr;
                     else if (pos.see(curr->m))
                         return *curr++;
-                    else 
+                    else
                         *end_bad_caps++ = *curr++;
                 }
                 ++stage;
@@ -89,12 +86,13 @@ namespace Clovis {
                     curr = end_bad_caps;
                     last = gen_quiet_moves<ScoredMove>(pos, moves);
                     score_quiets();
-                    std::sort(curr, last, sm_score_comp);
+                    sort(end_bad_caps, last, sm_score_comp);
                 }
                 ++stage;
             case QUIETS:
                 while (skip_quiets == false && curr < last)
                 {
+                    assert(!move_capture(*curr));
                     if (curr->m != tt_move)
                         return *curr++;
                     ++curr;
@@ -104,10 +102,12 @@ namespace Clovis {
             case LOSING_CAPTURES:
                 while (curr < end_bad_caps)
                 {
+                    assert(move_capture(*curr));
                     if (curr->m != tt_move)
                         return *curr++;
                     ++curr;
                 }
+                ++stage;
                 break;
             default:
                 break;
@@ -118,13 +118,13 @@ namespace Clovis {
 
         void MovePicker::score_captures()
         {
-            for (ScoredMove* sm = moves; sm != last; ++sm) 
+            for (ScoredMove* sm = moves; sm < last; ++sm)
                 sm->score = mvv_lva[move_piece_type(sm->m)][pos.piece_on(move_to_sq(sm->m))] + move_promotion_type(sm->m);
         }
 
         void MovePicker::score_quiets()
         {
-            for (ScoredMove* sm = end_bad_caps; sm != last; ++sm)
+            for (ScoredMove* sm = end_bad_caps; sm < last; ++sm)
             {
                 if (killers[ply * 2] == sm->m)
                     sm->score = 22000;
@@ -139,23 +139,23 @@ namespace Clovis {
 
         void MovePicker::print()
         {
-            std::cout << "\nmove\tpiece\tcapture\tdouble\tenpass\tcastling\tscore\n\n";
+            cout << "\nmove\tpiece\tcapture\tdouble\tenpass\tcastling\tscore\n\n";
 
             int move_count = 0;
             for (ScoredMove* m = moves; m != last; ++m, ++move_count)
             {
-                std::cout << sq2str(move_from_sq(m->m))
+                cout << sq2str(move_from_sq(m->m))
                     << sq2str(move_to_sq(m->m))
                     << piece_str[move_promotion_type(m->m)] << '\t'
                     << piece_str[move_piece_type(m->m)] << '\t'
-                    << int(move_capture(m->m)) << '\t'
-                    << int(move_double(m->m)) << '\t'
-                    << int(move_enpassant(m->m)) << '\t'
-                    << int(move_castling(m->m)) << '\t'
+                    << (int) move_capture(m->m) << '\t'
+                    << (int) move_double(m->m) << '\t'
+                    << (int) move_enpassant(m->m) << '\t'
+                    << (int) move_castling(m->m) << '\t'
                     << m->score << '\n';
 
             }
-            std::cout << "\n\nTotal move count:" << move_count;
+            cout << "\n\nTotal move count:" << move_count;
         }
 
 	} // namespace MovePick

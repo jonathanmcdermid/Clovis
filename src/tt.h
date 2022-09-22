@@ -22,8 +22,8 @@ namespace Clovis {
         void operator=(const TTEntry& rhs){
             key = rhs.key;
             depth = rhs.depth;
-            flags = rhs.flags;
             eval = rhs.eval;
+            flags = rhs.flags;
             move = rhs.move;
         };
         Key key;        // 8 bytes

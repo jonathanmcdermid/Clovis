@@ -7,6 +7,73 @@ using namespace std;
 
 namespace Clovis {
 
+	Bitboard sqbb[SQ_N] = {
+		0x1ULL,
+		0x2ULL,
+		0x4ULL,
+		0x8ULL,
+		0x10ULL,
+		0x20ULL,
+		0x40ULL,
+		0x80ULL,
+		0x100ULL,
+		0x200ULL,
+		0x400ULL,
+		0x800ULL,
+		0x1000ULL,
+		0x2000ULL,
+		0x4000ULL,
+		0x8000ULL,
+		0x10000ULL,
+		0x20000ULL,
+		0x40000ULL,
+		0x80000ULL,
+		0x100000ULL,
+		0x200000ULL,
+		0x400000ULL,
+		0x800000ULL,
+		0x1000000ULL,
+		0x2000000ULL,
+		0x4000000ULL,
+		0x8000000ULL,
+		0x10000000ULL,
+		0x20000000ULL,
+		0x40000000ULL,
+		0x80000000ULL,
+		0x100000000ULL,
+		0x200000000ULL,
+		0x400000000ULL,
+		0x800000000ULL,
+		0x1000000000ULL,
+		0x2000000000ULL,
+		0x4000000000ULL,
+		0x8000000000ULL,
+		0x10000000000ULL,
+		0x20000000000ULL,
+		0x40000000000ULL,
+		0x80000000000ULL,
+		0x100000000000ULL,
+		0x200000000000ULL,
+		0x400000000000ULL,
+		0x800000000000ULL,
+		0x1000000000000ULL,
+		0x2000000000000ULL,
+		0x4000000000000ULL,
+		0x8000000000000ULL,
+		0x10000000000000ULL,
+		0x20000000000000ULL,
+		0x40000000000000ULL,
+		0x80000000000000ULL,
+		0x100000000000000ULL,
+		0x200000000000000ULL,
+		0x400000000000000ULL,
+		0x800000000000000ULL,
+		0x1000000000000000ULL,
+		0x2000000000000000ULL,
+		0x4000000000000000ULL,
+		0x8000000000000000ULL,
+	};
+
 	namespace Bitboards {
 
 		constexpr Bitboard not_a_file = 18374403900871474942ULL;
@@ -195,9 +262,9 @@ namespace Clovis {
 			{
 				for (File f = FILE_A; f <= FILE_H; ++f)
 				{
-					cout << (get_bit(bb, make_square(f, r)) ? "| X " : "|   ");
+					cout << ((bb & make_square(f, r)) ? "| X " : "|   ");
 				}
-				cout << "|" + std::to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
+				cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
 			}
 			cout << "  a   b   c   d   e   f   g   h\n" << "  Bitboard: " << bb << endl;
 		}
@@ -206,8 +273,7 @@ namespace Clovis {
 		Bitboard mask_pawn_attacks(Square sq, Colour side)
 		{
 			Bitboard attacks = 0ULL;
-			Bitboard bb = 0ULL;
-			set_bit(bb, sq);
+			Bitboard bb = sq_bb(sq);
 
 			if (side == WHITE) {
 				if ((bb << 7) & not_h_file) attacks |= (bb << 7ULL);
@@ -225,8 +291,7 @@ namespace Clovis {
 		Bitboard mask_knight_attacks(Square sq)
 		{
 			Bitboard attacks = 0ULL;
-			Bitboard bb = 0ULL;
-			set_bit(bb, sq);
+			Bitboard bb = sq_bb(sq);
 
 			if ((bb << 17) & not_a_file)	attacks |= (bb << 17ULL);
 			if ((bb >> 17) & not_h_file)	attacks |= (bb >> 17ULL);
@@ -282,8 +347,7 @@ namespace Clovis {
 		Bitboard mask_king_attacks(Square sq)
 		{
 			Bitboard attacks = 0ULL;
-			Bitboard bb = 0ULL;
-			set_bit(bb, sq);
+			Bitboard bb = sq_bb(sq);
 
 			if ((bb << 1) & not_a_file) attacks |= (bb << 1ULL);
 			if ((bb >> 1) & not_h_file) attacks |= (bb >> 1ULL);
@@ -358,10 +422,9 @@ namespace Clovis {
 			Bitboard occ = 0ULL;
 
 			for (int i = 0; i < bits; ++i) {
-				Square sq = get_lsb_index(attack_mask);
-				pop_bit(attack_mask, sq);
+				Square sq = pop_lsb(attack_mask);
 				if (index & (1 << i))
-					occ |= (1ULL << sq);
+					occ |= sq;
 			}
 
 			return occ;
@@ -414,7 +477,7 @@ namespace Clovis {
 					return magic;
 			}
 
-			std::cout << "find_magic failed\n";
+			cout << "find_magic failed\n";
 			return 0ULL;
 		}
 
@@ -423,11 +486,11 @@ namespace Clovis {
 		{
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
 				//r_magic[sq] = find_magic(sq, r_rbits[sq], false);
-				std::cout << "0x" << std::hex << r_magic[sq] << "ULL, \n";
+				cout << "0x" << hex << r_magic[sq] << "ULL, \n";
 			}
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
 				//b_magic[sq] = find_magic(sq, b_rbits[sq], true);
-				std::cout << "0x" << std::hex << b_magic[sq] << "ULL, \n";
+				cout << "0x" << hex << b_magic[sq] << "ULL, \n";
 			}
 		}
 
@@ -462,13 +525,9 @@ namespace Clovis {
 				{
 					Bitboard occ = set_occupancy(attack_mask, index, relevant_bits_count);
 					if (is_bishop)
-					{
 						bishop_attacks[sq][(occ * b_magic[sq]) >> (SQ_N - b_rbits[sq])] = bishop_otf(sq, occ);
-					}
 					else
-					{
 						rook_attacks[sq][(occ * r_magic[sq]) >> (SQ_N - r_rbits[sq])] = rook_otf(sq, occ);
-					}
 				}
 			}
 			if (is_bishop) 
@@ -507,23 +566,19 @@ namespace Clovis {
 
 		Bitboard get_queen_attacks(Bitboard occ, Square sq)
 		{
-			Bitboard queen_attacks = 0ULL;
-			Bitboard bishop_occ = occ;
-			Bitboard rook_occ = occ;
+			return get_bishop_attacks(occ, sq) | get_rook_attacks(occ, sq);
+		}
 
-			bishop_occ &= bishop_masks[sq];
-			bishop_occ *= b_magic[sq];
-			bishop_occ >>= SQ_N - b_rbits[sq];
-
-			queen_attacks = bishop_attacks[sq][bishop_occ];
-
-			rook_occ &= rook_masks[sq];
-			rook_occ *= r_magic[sq];
-			rook_occ >>= SQ_N - r_rbits[sq];
-
-			queen_attacks |= rook_attacks[sq][rook_occ];
-
-			return queen_attacks;
+		Bitboard get_attacks(Bitboard occ, Square sq, PieceType pt) 
+		{
+			switch (pt)
+			{
+			case KNIGHT: return knight_attacks[sq];
+			case BISHOP: return get_bishop_attacks(occ, sq);
+			case ROOK: return get_rook_attacks(occ, sq);
+			case QUEEN: return get_queen_attacks(occ, sq);
+			default: return king_attacks[sq];
+			}
 		}
 
 	} // namespace Bitboards

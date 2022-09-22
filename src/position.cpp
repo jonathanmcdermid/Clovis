@@ -132,12 +132,12 @@ namespace Clovis {
     // returns whether or not a square is attacked by a particular side
     bool Position::is_attacked (Square sq, Colour s) const
     {
-        return ((piece_bitboard[make_piece(PAWN, s)] & Bitboards::pawn_attacks[!s][sq]) ||
-            (piece_bitboard[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) ||
-            (piece_bitboard[make_piece(BISHOP, s)] & Bitboards::get_bishop_attacks(occ_bitboard[BOTH], sq)) ||
-            (piece_bitboard[make_piece(ROOK, s)] & Bitboards::get_rook_attacks(occ_bitboard[BOTH], sq)) ||
-            (piece_bitboard[make_piece(QUEEN, s)] & Bitboards::get_queen_attacks(occ_bitboard[BOTH], sq)) ||
-            (piece_bitboard[make_piece(KING, s)] & Bitboards::king_attacks[sq]));
+        return ((piece_bitboard[make_piece(PAWN, s)] & Bitboards::pawn_attacks[!s][sq]) 
+            || (piece_bitboard[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) 
+            || (piece_bitboard[make_piece(BISHOP, s)] & Bitboards::get_bishop_attacks(occ_bitboard[BOTH], sq)) 
+            || (piece_bitboard[make_piece(ROOK, s)] & Bitboards::get_rook_attacks(occ_bitboard[BOTH], sq)) 
+            || (piece_bitboard[make_piece(QUEEN, s)] & Bitboards::get_queen_attacks(occ_bitboard[BOTH], sq)) 
+            || (piece_bitboard[make_piece(KING, s)] & Bitboards::king_attacks[sq]));
     }
 
     Bitboard Position::attackers_to(Square sq, Bitboard occupied) const 
@@ -145,10 +145,10 @@ namespace Clovis {
         return  (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[W_PAWN]) 
             | (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[B_PAWN]) 
             | (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) 
-            | (Bitboards::get_rook_attacks(occupied, sq) & 
-                (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
-            | (Bitboards::get_bishop_attacks(occupied, sq) & 
-                (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
+            | (Bitboards::get_rook_attacks(occupied, sq) 
+                & (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
+            | (Bitboards::get_bishop_attacks(occupied, sq) 
+                & (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
             | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
     }
 
@@ -161,26 +161,35 @@ namespace Clovis {
     // does not remove info if a piece was already on that square
 	void Position::put_piece(Piece pc, Square sq) 
 	{
-		set_bit(piece_bitboard[pc], sq);
-		set_bit(occ_bitboard[get_side(pc)], sq);
-        set_bit(occ_bitboard[BOTH], sq);
+        piece_bitboard[pc] |= sq;
+        occ_bitboard[get_side(pc)] |= sq;
+        occ_bitboard[BOTH] |= sq;
         piece_board[sq] = pc;
 	}
 
     // updates bitboards to represent a piece being removed from a square
     void Position::remove_piece(Square sq)
     {
-        pop_bit(piece_bitboard[piece_board[sq]], sq);
-        pop_bit(occ_bitboard[get_side(piece_board[sq])], sq);
-        pop_bit(occ_bitboard[BOTH], sq);
+        Piece pc = piece_board[sq];
+        piece_bitboard[pc] ^= sq;
+        occ_bitboard[get_side(pc)] ^= sq;
+        occ_bitboard[BOTH] ^= sq;
         piece_board[sq] = NO_PIECE;
+    }
+
+    bool Position::move_is_ok(Move m) const
+    {
+        return get_side(move_piece_type(m)) == side
+            && get_side(piece_board[move_from_sq(m)]) == side
+            && (piece_board[move_to_sq(m)] == NO_PIECE || get_side(piece_board[move_to_sq(m)]) != side)
+            && piece_type(piece_board[move_to_sq(m)]) != KING;
     }
 
     // executes a move and updates the position
     bool Position::do_move(Move m)
     {
         BoardState* bs_new = new BoardState;
-        //assert(bs_new != bs);
+        assert(bs_new != bs);
         // copy old boardstate info to new boardstate and update clocks
         bs_new->enpassant = bs->enpassant;
         bs_new->castle = bs->castle;
@@ -211,10 +220,10 @@ namespace Clovis {
             goto nullmove;
         }
 
-        //assert(get_side(move_piece_type(m)) == side);
-        //assert(get_side(piece_board[src]) == side);
-        //assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
-        //assert(piece_type(piece_board[tar]) != KING);
+        assert(get_side(move_piece_type(m)) == side);
+        assert(get_side(piece_board[src]) == side);
+        assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
+        assert(piece_type(piece_board[tar]) != KING);
 
         // move piece
         bs->captured_piece = piece_board[tar];
@@ -384,7 +393,7 @@ namespace Clovis {
 
     nullmove:
 
-        //assert(bs->prev != NULL);
+        assert(bs->prev);
         BoardState* temp = bs;
         bs = bs->prev;
         delete temp;
@@ -416,7 +425,7 @@ namespace Clovis {
 
                 int bb_piece;
                 for (bb_piece = W_PAWN; bb_piece <= B_KING; ++bb_piece)
-                    if (get_bit(piece_bitboard[bb_piece], sq))
+                    if (piece_bitboard[bb_piece] & sq)
                         break;
 
                 std::cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";

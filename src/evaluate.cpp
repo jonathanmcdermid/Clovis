@@ -10,14 +10,14 @@ namespace Clovis {
         };
         
         Score pawn_table[32] = {
-                Score(0,0), Score(0,0), Score(0,0), Score(0,0),
-                Score(123,262), Score(166,271), Score(150,217), Score(163,199),
-                Score(87,115), Score(99,117), Score(129,111), Score(129,115),
-                Score(73,97), Score(93,94), Score(95,95), Score(115,87),
-                Score(63,88), Score(74,89), Score(90,87), Score(109,84),
-                Score(75,79), Score(82,83), Score(92,88), Score(94,94),
-                Score(68,82), Score(89,83), Score(90,98), Score(83,101),
-                Score(0,0), Score(0,0), Score(0,0), Score(0,0),
+               Score(0,0), Score(0,0), Score(0,0), Score(0,0),
+               Score(123,262), Score(166,271), Score(150,217), Score(163,199),
+               Score(87,115), Score(99,117), Score(129,111), Score(129,115),
+               Score(73,97), Score(93,94), Score(95,95), Score(115,87),
+               Score(63,88), Score(74,89), Score(90,87), Score(109,84),
+               Score(75,79), Score(82,83), Score(92,88), Score(94,94),
+               Score(68,82), Score(89,83), Score(90,98), Score(83,101),
+               Score(0,0), Score(0,0), Score(0,0), Score(0,0),
         };
         Score knight_table[32] = {
                 Score(150,247), Score(240,260), Score(232,293), Score(326,274),
@@ -193,13 +193,13 @@ namespace Clovis {
                     if (file_number != FILE_NONE)
                     {
                         if (f == file_number)
-                            set_bit(mask, sq);
+                            mask |= sq;
                     }
 
                     else if (rank_number != RANK_NONE)
                     {
                         if (r == rank_number)
-                            set_bit(mask, sq);
+                            mask |= sq;
                     }
                 }
             }
@@ -212,86 +212,78 @@ namespace Clovis {
 
             Score score[COLOUR_N];
 
-            Piece piece; 
-            Square sq;
-            Bitboard bb;
-            Colour side;
-
             for (PieceType pt = PAWN; pt <= KING; ++pt)
             {
-                side = WHITE;
+                Square sq;
+                Colour us = WHITE, them;
+                Piece piece;
 
             repeat:
 
-                piece = make_piece(pt, side);
+                them = other_side(us);
+                piece = make_piece(pt, us);
 
-                bb = pos.piece_bitboard[piece];
+                Bitboard bb = pos.piece_bitboard[piece];
                 switch (pt) {
                 case PAWN:
                     while (bb)
                     {
-                        sq = get_lsb_index(bb);
-                        score[side] += *score_table[piece][sq];
-                        pop_bit(bb, sq);
+                        sq = pop_lsb(bb);
+                        score[us] += *score_table[piece][sq];
                     }
                     break;
                 case KNIGHT:
                     while (bb)
                     {
-                        sq = get_lsb_index(bb);
-                        score[side] += mobility[KNIGHT] * (count_bits(Bitboards::knight_attacks[sq] & ~pos.occ_bitboard[side] & ~(Bitboards::pawn_attacks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))])));
-                        score[side] += *score_table[piece][sq];
-                        pop_bit(bb, sq);
+                        sq = pop_lsb(bb);
+                        score[us] += mobility[KNIGHT] * (count_bits(Bitboards::knight_attacks[sq] & ~pos.occ_bitboard[us] & ~(Bitboards::pawn_attacks[us][sq] & pos.piece_bitboard[make_piece(PAWN, them)])));
+                        score[us] += *score_table[piece][sq];
                     }
                     break;
                 case BISHOP:
                     if (count_bits(bb) >= 2)
-                        score[side] += bishop_pair_bonus;
+                        score[us] += bishop_pair_bonus;
 
                     while (bb)
                     {
-                        sq = get_lsb_index(bb);
-                        score[side] += mobility[BISHOP] * (count_bits(Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], sq) & ~pos.occ_bitboard[side] & ~(Bitboards::pawn_attacks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))])));
-                        score[side] += *score_table[piece][sq];
-                        pop_bit(bb, sq);
+                        sq = pop_lsb(bb);
+                        score[us] += mobility[BISHOP] * (count_bits(Bitboards::get_bishop_attacks(pos.occ_bitboard[BOTH], sq) & ~pos.occ_bitboard[us] & ~(Bitboards::pawn_attacks[us][sq] & pos.piece_bitboard[make_piece(PAWN, them)])));
+                        score[us] += *score_table[piece][sq];
                     }
                     break;
                 case ROOK:
                     while (bb)
                     {
-                        sq = get_lsb_index(bb);
-                        score[side] += mobility[ROOK] * (count_bits(Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], sq) & ~pos.occ_bitboard[side] & ~(Bitboards::pawn_attacks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))])));
-                        if ((file_masks[sq] & (pos.piece_bitboard[W_PAWN] | pos.piece_bitboard[B_PAWN])) == 0)
-                            score[side] += rook_open_file_bonus;
-                        else if ((file_masks[sq] & pos.piece_bitboard[make_piece(PAWN, side)]) == 0)
-                            score[side] += rook_semi_open_file_bonus;
-                        score[side] += *score_table[piece][sq];
-                        pop_bit(bb, sq);
+                        sq = pop_lsb(bb);
+                        score[us] += mobility[ROOK] * (count_bits(Bitboards::get_rook_attacks(pos.occ_bitboard[BOTH], sq) & ~pos.occ_bitboard[us] & ~(Bitboards::pawn_attacks[us][sq] & pos.piece_bitboard[make_piece(PAWN, them)])));
+                        if (!(file_masks[sq] & (pos.piece_bitboard[W_PAWN] | pos.piece_bitboard[B_PAWN])))
+                            score[us] += rook_open_file_bonus;
+                        else if (!(file_masks[sq] & pos.piece_bitboard[make_piece(PAWN, us)]))
+                            score[us] += rook_semi_open_file_bonus;
+                        score[us] += *score_table[piece][sq];
                     }
                     break;
                 case QUEEN:
                     while (bb)
                     {
-                        sq = get_lsb_index(bb);
-                        score[side] += mobility[QUEEN] * (count_bits(Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], sq) & ~pos.occ_bitboard[side] & ~(Bitboards::pawn_attacks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))])));
-                        score[side] += *score_table[piece][sq];
-                        pop_bit(bb, sq);
+                        sq = pop_lsb(bb);
+                        score[us] += mobility[QUEEN] * (count_bits(Bitboards::get_queen_attacks(pos.occ_bitboard[BOTH], sq) & ~pos.occ_bitboard[us] & ~(Bitboards::pawn_attacks[us][sq] & pos.piece_bitboard[make_piece(PAWN, them)])));
+                        score[us] += *score_table[piece][sq];
                     }
                     break;
                 case KING:
                     while (bb)
                     {
-                        sq = get_lsb_index(bb);
-                        score[side] += *score_table[piece][sq];
-                        pop_bit(bb, sq);
+                        sq = pop_lsb(bb);
+                        score[us] += *score_table[piece][sq];
                     }
                     break;
                 default:
                     break;
                 }
-                if (side == WHITE) 
+                if (us == WHITE) 
                 {
-                    side = BLACK;
+                    us = BLACK;
                     goto repeat;
                 }
             }
@@ -302,47 +294,36 @@ namespace Clovis {
         Score evaluate_pawns(const Position& pos)
         {
             Piece piece;
-            Square sq;
             Bitboard bb;
-            Colour side;
+            Colour us = WHITE, them;
 
             Score score[COLOUR_N];
 
-            side = WHITE;
-
         repeat:
 
-            piece = make_piece(PAWN, side);
-
+            them = other_side(us);
+            piece = make_piece(PAWN, us);
             bb = pos.piece_bitboard[piece];
 
             while (bb)
             {
-                sq = get_lsb_index(bb);
+                Square sq = pop_lsb(bb);
 
                 int double_pawns = count_bits(pos.piece_bitboard[piece] & file_masks[sq]);
-
+                
                 if (double_pawns > 1)
-                {
-                    score[side] -= double_pawn_penalty * double_pawns;
-                }
+                    score[us] -= double_pawn_penalty * double_pawns;
 
-                if ((pos.piece_bitboard[piece] & isolated_masks[sq]) == 0)
-                {
-                    score[side] -= isolated_pawn_penalty;
-                }
+                if (!(pos.piece_bitboard[piece] & isolated_masks[sq]))
+                    score[us] -= isolated_pawn_penalty;
 
-                if ((passed_masks[side][sq] & pos.piece_bitboard[make_piece(PAWN, other_side(side))]) == 0)
-                {
-                    score[side] += *passed_table[make_square(file_of(sq), relative_rank(side, sq))];
-                }
-
-                pop_bit(bb, sq);
+                if (!(passed_masks[us][sq] & pos.piece_bitboard[make_piece(PAWN, them)])) 
+                    score[us] += *passed_table[make_square(file_of(sq), relative_rank(us, sq))];
             }
 
-            if (side == WHITE)
+            if (us == WHITE)
             {
-                side = BLACK;
+                us = BLACK;
                 goto repeat;
             }
 

@@ -25,7 +25,9 @@ namespace Clovis {
 
 	} // namespace Eval
 
-	template <typename T> T* gen_moves(const Position& pos, T* p);
+	template<typename T> T* gen_moves(const Position& pos, T* ml);
+	template<typename T> T* gen_cap_moves(const Position& pos, T* ml);
+	template<typename T> T* gen_quiet_moves(const Position& pos, T* ml);
 
 	std::string sq2str(Square s);
 
@@ -33,11 +35,11 @@ namespace Clovis {
 
 	// linked list implementation for board state info
 	struct BoardState {
-		BoardState* prev = nullptr;
+		BoardState* prev = NULL;
 		Piece captured_piece = NO_PIECE;
 		Square enpassant = SQ_NONE;
-		Key key = 0ULL;
-		Key pkey = 0ULL;
+		Key key;
+		Key pkey;
 		int castle = 0;
 		int hmc = 0;
 		int fmc = 0;
@@ -71,6 +73,7 @@ namespace Clovis {
 		bool is_material_draw() const;
 		bool is_insufficient(Colour c) const;
 		bool is_draw_50() const;
+		bool move_is_ok(Move m) const;
 		int get_game_phase() const { return std::min(bs->game_phase, MAX_GAMEPHASE); }
 	private:
 		Key make_key();
@@ -82,9 +85,9 @@ namespace Clovis {
 		Bitboard occ_bitboard[COLOUR_N + 1];
 		BoardState* bs;
 		Colour side;
-		template <typename T> friend T* gen_moves(const Position& pos, T* p);
-		template <typename T> friend T* gen_cap_moves(const Position& pos, T* p);
-		template <typename T> friend T* gen_quiet_moves(const Position& pos, T* p);
+		template<typename T> friend T* gen_moves(const Position& pos, T* ml);
+		template<typename T> friend T* gen_cap_moves(const Position& pos, T* ml);
+		template<typename T> friend T* gen_quiet_moves(const Position& pos, T* ml);
 		friend Score Eval::evaluate(const Position& pos);
 		friend Score Eval::evaluate_pawns(const Position& pos);
 	};
@@ -103,7 +106,7 @@ namespace Clovis {
 	}
 
 	inline bool Position::is_king_in_check(Colour c) const {
-		return is_attacked(get_lsb_index(piece_bitboard[make_piece(KING, c)]), other_side(c));
+		return is_attacked(lsb(piece_bitboard[make_piece(KING, c)]), other_side(c));
 	}
 
 	inline bool Position::has_promoted(Colour c) const {

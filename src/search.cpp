@@ -1,5 +1,7 @@
 #include "search.h"
 
+using namespace std;
+
 namespace Clovis {
 
     namespace Search {
@@ -70,14 +72,14 @@ namespace Clovis {
                 if (stop)
                     break;
 
-                std::cout << "info depth " << depth
+                cout << "info depth " << depth
                     << " score cp " << score
                     << " nodes " << nodes
                     << " time " << tm.get_time_elapsed()
                     << " pv ";
                 for (int i = 0; i < pv_length[0]; ++i)
-                    std::cout << UCI::move2str(pv_table[0][i]) << " ";
-                std::cout << std::endl;
+                    cout << UCI::move2str(pv_table[0][i]) << " ";
+                cout << endl;
 
                 if (tm.get_time_elapsed() > allocated_time / 3)
                     break;
@@ -95,7 +97,7 @@ namespace Clovis {
 
         end:
 
-            std::cout << "bestmove " << UCI::move2str(pv_table[0][0]) << std::endl;
+            cout << "bestmove " << UCI::move2str(pv_table[0][0]) << endl;
 
             return pv_table[0][0];
         }
@@ -114,7 +116,7 @@ namespace Clovis {
             pv_length[ply] = ply;
 
             if (depth <= 0)
-                return quiescent(pos, alpha, beta, ply);
+                return quiescent(pos, alpha, beta);
 
             // avoid overflow
             if (ply >= MAX_PLY)
@@ -124,25 +126,23 @@ namespace Clovis {
 
             // mate distance pruning
             // if me have found a mate, no point in finding a longer mate
-            alpha = std::max(alpha, - CHECKMATE_SCORE + ply);
-            beta = std::min(beta, CHECKMATE_SCORE - ply + 1);
+            alpha = max(alpha, - CHECKMATE_SCORE + ply);
+            beta = min(beta, CHECKMATE_SCORE - ply + 1);
             if (alpha >= beta)
                 return alpha;
 
-            int tt_score;
             TTEntry* tte = tt.probe(pos.get_key());
-            if (tte != nullptr)
+            if (tte) 
             {
-                tt_score = adjusted_score(tte->eval, ply);
                 pv_table[ply][ply] = tte->move;
                 pv_length[ply] = 1;
-                if (pv_node == false
-                    && tte->depth >= depth
-                    && (tte->flags == HASH_EXACT
-                        || (tte->flags == HASH_BETA && tt_score >= beta)
-                        || (tte->flags == HASH_ALPHA && tt_score <= alpha)))
+                if (pv_node == false 
+                    && tte->depth >= depth 
+                    && (tte->flags == HASH_EXACT 
+                        || (tte->flags == HASH_BETA && tte->eval >= beta) 
+                        || (tte->flags == HASH_ALPHA && tte->eval <= alpha))) 
                 {
-                    return tt_score;
+                    return tte->eval;
                 }
             }
 
@@ -150,7 +150,7 @@ namespace Clovis {
 
             int score;
 
-            int eval = king_in_check ? 0 : tte != nullptr ? tt_score : (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
+            int eval = king_in_check ? 0 : tte ? tte->eval : (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
 
             if (king_in_check)
                 goto loop;
@@ -185,7 +185,7 @@ namespace Clovis {
             {
                 negamax(pos, alpha, beta, pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2, ply, false);
                 tte = tt.probe(pos.get_key());
-                if (tte != nullptr) 
+                if (tte) 
                 {
                     pv_table[ply][ply] = tte->move;
                     pv_length[ply] = 1;
@@ -194,12 +194,9 @@ namespace Clovis {
 
         loop:
 
-            Move tt_move = (tte != nullptr) ? tte->move : MOVE_NONE; 
-
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, (tte != nullptr) ? tte->move : MOVE_NONE);
 
             Move curr_move;
-
             Move best_move = MOVE_NONE;
 
             int best_score = INT_MIN;
@@ -230,15 +227,15 @@ namespace Clovis {
                     {
                         int history_entry = MovePick::get_history_entry(other_side(pos.side_to_move()), curr_move);
                         // reduction factor
-                        int R = lmr_table[depth][std::min(moves_searched, MAX_PLY - 1)];
+                        int R = lmr_table[depth][min(moves_searched, MAX_PLY - 1)];
                         // reduce for pv nodes
                         R -= (pv_node);
                         // reduce for killers
                         R -= MovePick::is_killer(curr_move, ply);
                         // reduce based on history heuristic
-                        R -= std::max(-2, std::min(2, history_entry / 4000));
+                        R -= max(-2, min(2, history_entry / 4000));
 
-                        R = std::max(0, std::min(R, depth - 2));
+                        R = max(0, min(R, depth - 2));
 
                         // search current move with reduced depth:
                         score = -negamax(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false);
@@ -278,7 +275,6 @@ namespace Clovis {
                     tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move);
 
                     return beta;
-
                 }
 
                 if (score > best_score)
@@ -316,33 +312,28 @@ namespace Clovis {
             return alpha;
         }
 
-        int quiescent(Position& pos, int alpha, int beta, int ply)
+        int quiescent(Position& pos, int alpha, int beta)
         {
-            // avoid overflow
-            if (ply >= MAX_PLY)
-                return (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
 
-            int tt_score;
             TTEntry* tte = tt.probe(pos.get_key());
 
-            if (tte != nullptr)
+            if (tte)
             {
-                tt_score = adjusted_score(tte->eval, ply);
                 if (tte->flags == HASH_EXACT
-                    || (tte->flags == HASH_BETA && tt_score >= beta)
-                    || (tte->flags == HASH_ALPHA && tt_score <= alpha))
+                    || (tte->flags == HASH_BETA && tte->eval >= beta)
+                    || (tte->flags == HASH_ALPHA && tte->eval <= alpha))
                 {
-                    return tt_score;
+                    return tte->eval;
                 }
             }
             
             PTEntry* pte = tt.probe_pawn(pos.get_pawn_key());
 
-            if (pte == nullptr)
+            if (!pte)
             {
                 tt.new_pawn_entry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
                 pte = tt.probe_pawn(pos.get_pawn_key());
-                assert(pte != nullptr);
+                assert(pte);
             }
 
             int eval = (Eval::evaluate(pos) + pte->eval).get_score(pos.get_game_phase(), pos.side_to_move());
@@ -351,11 +342,10 @@ namespace Clovis {
             {
                 if (pos.is_insufficient(other_side(pos.side_to_move())))
                     return DRAW_SCORE;
-                else
-                    eval = std::min(DRAW_SCORE, eval);
+                eval = min(DRAW_SCORE, eval);
             }
             else if (pos.is_insufficient(other_side(pos.side_to_move())))
-                eval = std::max(DRAW_SCORE, eval);
+                eval = max(DRAW_SCORE, eval);
 
             if (eval >= beta)
                 return beta;
@@ -365,7 +355,7 @@ namespace Clovis {
             if (eval > alpha)
                 alpha = eval;
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, (tte != nullptr) ? tte->move : MOVE_NONE);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, (tte) ? tte->move : MOVE_NONE);
             Move curr_move;
             Move best_move = MOVE_NONE;
             int best_eval = INT_MIN;
@@ -376,7 +366,7 @@ namespace Clovis {
                 if (pos.do_move(curr_move) == false)
                     continue;
 
-                eval = -quiescent(pos, -beta, -alpha, ply + 1);
+                eval = -quiescent(pos, -beta, -alpha);
 
                 pos.undo_move(curr_move);
 
@@ -402,19 +392,6 @@ namespace Clovis {
             tt.new_entry(pos.get_key(), 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
             return alpha;
-        }
-
-        int adjusted_score(int i, int ply)
-        {
-            if (i >= MIN_CHECKMATE_SCORE)
-            {
-                return i - ply;
-            }
-            if (i <= -MIN_CHECKMATE_SCORE)
-            {
-                return i + ply;
-            }
-            return i;
         }
 
     } // namespace Search

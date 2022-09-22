@@ -2,9 +2,11 @@
 
 #include <algorithm>
 #include <cstring>
+#include <cassert>
 
 #include "position.h"
 #include "movelist.h"
+#include "tt.h"
 
 namespace Clovis {
 
@@ -14,17 +16,8 @@ namespace Clovis {
 		WINNING_CAPTURES,
 		INIT_QUIETS,
 		QUIETS,
-		LOSING_CAPTURES
-	};
-
-	struct ScoredMove {
-		Move m = MOVE_NONE;
-		int score = 0;
-		void operator=(Move m) { this->m = m; }
-		bool operator==(Move m) const { return this->m == m; }
-		bool operator!=(Move m) const { return this->m != m; }
-		bool operator<(ScoredMove m) const { return this->score < m.score; }
-		operator Move() const { return m; }
+		LOSING_CAPTURES,
+		FINISHED
 	};
 
 	namespace MovePick {
@@ -75,7 +68,7 @@ namespace Clovis {
 			void score_captures();
 			void score_quiets();
 			const Position& pos;
-			ScoredMove* curr, *last, *end_bad_caps;
+			ScoredMove *curr, *last, *end_bad_caps;
 			ScoredMove moves[MAX_MOVES];
 			Move tt_move;
 			int stage;
