@@ -76,11 +76,6 @@ namespace Clovis {
 
 	namespace Bitboards {
 
-		constexpr Bitboard not_a_file = 18374403900871474942ULL;
-		constexpr Bitboard not_h_file = 9187201950435737471ULL;
-		constexpr Bitboard not_gh_file = 4557430888798830399ULL;
-		constexpr Bitboard not_ab_file = 18229723555195321596ULL;
-
 		// number of relevant occupancy bits for every bishop square
 		constexpr int b_rbits[SQ_N] = {
 			6, 5, 5, 5, 5, 5, 5, 6,

@@ -132,8 +132,10 @@ namespace Clovis {
                 return alpha;
 
             TTEntry* tte = tt.probe(pos.get_key());
+            Move tt_move = MOVE_NONE;
             if (tte) 
             {
+                tt_move = tte->move;
                 pv_table[ply][ply] = tte->move;
                 pv_length[ply] = 1;
                 if (pv_node == false 
@@ -185,8 +187,9 @@ namespace Clovis {
             {
                 negamax(pos, alpha, beta, pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2, ply, false);
                 tte = tt.probe(pos.get_key());
-                if (tte) 
+                if (tte)
                 {
+                    tt_move = tte->move;
                     pv_table[ply][ply] = tte->move;
                     pv_length[ply] = 1;
                 }
@@ -194,7 +197,7 @@ namespace Clovis {
 
         loop:
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, (tte != nullptr) ? tte->move : MOVE_NONE);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
 
             Move curr_move;
             Move best_move = MOVE_NONE;
@@ -214,9 +217,11 @@ namespace Clovis {
                 if (pos.do_move(curr_move) == false)
                     continue;
 
+                ++moves_searched;
+
                 if (pos.is_repeat() || pos.is_draw_50()) //|| pos.is_material_draw())
                     score = DRAW_SCORE;
-                else if (moves_searched == 0)
+                else if (moves_searched == 1)
                     score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
                 // late move reductions
                 else
@@ -261,14 +266,13 @@ namespace Clovis {
                 if (stop)
                     return 0;
 
-                ++moves_searched;
-
                 // fail high
                 if (score >= beta)
                 {
                     if (move_capture(curr_move) == NO_PIECE)
                     {
-                        mp.update_history(curr_move, depth);
+                        if(mp.get_stage() != INIT_CAPTURES)
+                            mp.update_history(curr_move, depth);
                         MovePick::update_killers(curr_move, ply);
                     }
 

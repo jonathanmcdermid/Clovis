@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cassert>
 
 #include "search.h"
 #include "position.h"

@@ -36,7 +36,7 @@ namespace Clovis {
         {
             // when stage = init captures, it means the quiet TT move caused a beta cutoff
             // when this happens, the tt move history entry is not updated
-            assert(stage >= QUIETS || stage == INIT_CAPTURES);
+            assert(stage >= QUIETS);
             assert(move_capture(best_move) == NO_PIECE);
 
             ScoredMove* last_searched_quiet = (stage == FINISHED) ? last : curr;
@@ -46,10 +46,9 @@ namespace Clovis {
             {
                 assert(move_capture(m->m) == false);
                 int* history_entry = get_history_entry_ptr(pos.side_to_move(), m->m);
-                if (m->m == best_move)
-                    *history_entry += 32 * bonus - *history_entry * bonus / 512;
-                else
-                    *history_entry += -32 * bonus - *history_entry * bonus / 512;
+                *history_entry += (m->m == best_move)
+                    ? 32 * bonus - *history_entry * bonus / 512
+                    :-32 * bonus - *history_entry * bonus / 512;
             }
         }
 
@@ -60,7 +59,7 @@ namespace Clovis {
             {
             case TT_MOVE:
                 ++stage;
-                if (tt_move != MOVE_NONE && (skip_quiets == false || move_capture(tt_move) != NO_PIECE) && pos.move_is_ok(tt_move))
+                if (tt_move != MOVE_NONE && (skip_quiets == false || move_capture(tt_move) != NO_PIECE))// && pos.move_is_ok(tt_move))
                     return tt_move;
             case INIT_CAPTURES:
                 curr = end_bad_caps = moves;
