@@ -7,8 +7,6 @@
 #include "random.h"
 #include "types.h"
 
-#define count_bits(bitboard) __popcnt64(bitboard)
-
 namespace Clovis {
 
     // precalculated bitboards for each square
@@ -24,24 +22,60 @@ namespace Clovis {
 
     inline Bitboard operator|(Square s1, Square s2) { return sq_bb(s1) | sq_bb(s2); }
 
+#if defined(__GNUC__)
+
+    inline int count_bits(Bitboard bb) {
+        return __builtin_popcountll(bb);
+    }
+
     inline Square lsb(Bitboard bb) {
         assert(bb);
-        unsigned long i;
-        _BitScanForward64(&i, bb);
-        return (Square) i;
+        return Square(__builtin_ctzll(bb));
     }
 
-    inline Square msb(Bitboard bb) {
-        assert(bb);
-        unsigned long i;
-        _BitScanReverse64(&i, bb);
-        return (Square) i;
+#elif defined(_MSC_VER)
+
+#ifdef _WIN64
+
+    inline int count_bits(Bitboard bb) {
+        return __popcnt64(bb);
     }
 
-    inline Bitboard lsb_bb(Bitboard bb) {
+    inline Square lsb(Bitboard bb) {
         assert(bb);
-        return bb & -bb;
+        unsigned long pos;
+        _BitScanForward64(&pos, bb);
+        return Square(pos);
     }
+
+#else
+
+    inline int count_bits(Bitboard bb) {
+        return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
+    }
+    inline Square lsb(Bitboard bb) {
+        assert(bb);
+        unsigned long pos;
+
+        if (bb & 0xffffffff)
+        {
+            _BitScanForward(&pos, int32_t(bb));
+            return Square(pos);
+        }
+        else
+        {
+            _BitScanForward(&pos, int32_t(bb >> 32));
+            return Square(pos + 32);
+        }
+    }
+
+#endif
+
+#else  // Cant use GCC or MSVC 
+
+#error "Invalid Compiler"
+
+#endif
 
     inline Square pop_lsb(Bitboard& bb) {
         assert(bb);

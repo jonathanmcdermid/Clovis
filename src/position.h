@@ -8,7 +8,6 @@
 
 #include "types.h"
 #include "bitboard.h"
-#include "movelist.h"
 #include "random.h"
 
 namespace Clovis {

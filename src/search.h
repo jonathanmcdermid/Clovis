@@ -27,8 +27,8 @@ namespace Clovis {
                 nodes = 0;
             }
 
-            unsigned time[COLOUR_N], inc[COLOUR_N], move_time, start_time;
-            unsigned moves_left, depth, mate, perft;
+            int time[COLOUR_N], inc[COLOUR_N], move_time, start_time;
+            int moves_left, depth, mate, perft;
             bool infinite;
             U32 nodes;
         };
