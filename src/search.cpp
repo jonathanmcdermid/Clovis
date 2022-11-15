@@ -57,7 +57,7 @@ namespace Clovis {
             MoveGen::MoveList ml = MoveGen::MoveList(pos);
             if (ml.size() == 1)
             {
-                pv_table[0][0] = *ml.begin();
+                **pv_table = *ml.begin();
                 goto end;
             }
 
@@ -77,8 +77,8 @@ namespace Clovis {
                     << " nodes " << nodes
                     << " time " << tm.get_time_elapsed()
                     << " pv ";
-                for (int i = 0; i < pv_length[0]; ++i)
-                    cout << UCI::move2str(pv_table[0][i]) << " ";
+                for (int i = 0; i < *pv_length; ++i)
+                    cout << move2str(pv_table[0][i]) << " ";
                 cout << endl;
 
                 if (tm.get_time_elapsed() > allocated_time / 3)
@@ -97,9 +97,9 @@ namespace Clovis {
 
         end:
 
-            cout << "bestmove " << UCI::move2str(pv_table[0][0]) << endl;
+            cout << "bestmove " << move2str(**pv_table) << endl;
 
-            return pv_table[0][0];
+            return **pv_table;
         }
 
         int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null)
@@ -111,7 +111,6 @@ namespace Clovis {
             }
 
             bool pv_node = beta - alpha != 1;
-            bool root_node = ply == 0;
 
             pv_length[ply] = ply;
 
@@ -132,44 +131,43 @@ namespace Clovis {
                 return alpha;
 
             TTEntry* tte = tt.probe(pos.get_key());
-            Move tt_move = MOVE_NONE;
-            if (tte) 
+            Move tt_move;
+            if (tte)
             {
-                tt_move = tte->move;
                 pv_table[ply][ply] = tte->move;
                 pv_length[ply] = 1;
-                if (pv_node == false 
-                    && tte->depth >= depth 
-                    && (tte->flags == HASH_EXACT 
-                        || (tte->flags == HASH_BETA && tte->eval >= beta) 
-                        || (tte->flags == HASH_ALPHA && tte->eval <= alpha))) 
+                if (!pv_node
+                    && tte->depth >= depth
+                    && (tte->flags == HASH_EXACT
+                        || (tte->flags == HASH_BETA && tte->eval >= beta)
+                        || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
                 {
                     return tte->eval;
                 }
+                tt_move = tte->move;
             }
+            else
+                tt_move = MOVE_NONE;
 
             bool king_in_check = pos.is_king_in_check(pos.side_to_move());
 
             int score;
 
-            int eval = king_in_check ? 0 : tte ? tte->eval : (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
-
             if (king_in_check)
                 goto loop;
 
+            score = tte ? tte->eval : (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
+
             // reverse futility pruning
             // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
-            // should this be allowed at root nodes? 
-            if (pv_node == false
-                && king_in_check == false
+            if (!pv_node
                 && depth <= 8
-                && eval - 75 * depth > beta)
-                return eval;
+                && score - 75 * depth > beta)
+                return score;
 
             // null move pruning
-            if (root_node == false
-                && pv_node == false
-                && is_null == false
+            if (!pv_node
+                && !is_null
                 && depth >= null_pruning_depth
                 && pos.has_promoted(pos.side_to_move())) 
             {
@@ -181,9 +179,9 @@ namespace Clovis {
             }
 
             // internal iterative deepening
-            if (tte == nullptr
+            if (!tte
                 && ((pv_node && depth >= 6)
-                    || (pv_node == false && depth >= 8))) 
+                    || (!pv_node && depth >= 8))) 
             {
                 negamax(pos, alpha, beta, pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2, ply, false);
                 tte = tt.probe(pos.get_key());
@@ -214,12 +212,12 @@ namespace Clovis {
             while ((curr_move = mp.get_next(false)) != MOVE_NONE)
             {
                 // illegal move
-                if (pos.do_move(curr_move) == false)
+                if (!pos.do_move(curr_move))
                     continue;
 
                 ++moves_searched;
 
-                if (pos.is_repeat() || pos.is_draw_50()) //|| pos.is_material_draw())
+                if (pos.is_repeat() || pos.is_draw_50() || pos.is_material_draw())
                     score = DRAW_SCORE;
                 else if (moves_searched == 1)
                     score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
@@ -290,10 +288,9 @@ namespace Clovis {
                         pv_table[ply][ply] = curr_move;
 
                         // record pv line
-                        for (int i = ply + 1; i < pv_length[ply + 1]; ++i) {
+                        for (int i = ply + 1; i < pv_length[ply + 1]; ++i)
                             pv_table[ply][i] = pv_table[ply + 1][i];
-                        }
-
+                        
                         pv_length[ply] = pv_length[ply + 1];
 
                         eval_type = HASH_EXACT;
@@ -318,19 +315,14 @@ namespace Clovis {
 
         int quiescent(Position& pos, int alpha, int beta)
         {
-
             TTEntry* tte = tt.probe(pos.get_key());
 
-            if (tte)
-            {
-                if (tte->flags == HASH_EXACT
+            if (tte &&
+                (tte->flags == HASH_EXACT
                     || (tte->flags == HASH_BETA && tte->eval >= beta)
-                    || (tte->flags == HASH_ALPHA && tte->eval <= alpha))
-                {
-                    return tte->eval;
-                }
-            }
-            
+                    || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
+                return tte->eval;
+
             PTEntry* pte = tt.probe_pawn(pos.get_pawn_key());
 
             if (!pte)
@@ -340,6 +332,7 @@ namespace Clovis {
                 assert(pte);
             }
 
+            // this should maybe take place in evaluation function instead of here
             int eval = (Eval::evaluate(pos) + pte->eval).get_score(pos.get_game_phase(), pos.side_to_move());
 
             if (pos.is_insufficient(pos.side_to_move()))
@@ -350,6 +343,13 @@ namespace Clovis {
             }
             else if (pos.is_insufficient(other_side(pos.side_to_move())))
                 eval = max(DRAW_SCORE, eval);
+
+            // use TT score instead of static eval if conditions are right
+            // conditions: valid TTE and either 
+            // 1. alpha flag + lower hash score than static eval
+            // 2. beta flag + higher hash score than static eval
+            if(tte && ((tte->flags == HASH_ALPHA) == tte->eval < eval))
+                eval = tte->eval;
 
             if (eval >= beta)
                 return beta;
@@ -367,7 +367,7 @@ namespace Clovis {
             while ((curr_move = mp.get_next(true)) != MOVE_NONE) // only do winning caps once see is fixed
             {
                 // illegal move or non capture
-                if (pos.do_move(curr_move) == false)
+                if (!pos.do_move(curr_move))
                     continue;
 
                 eval = -quiescent(pos, -beta, -alpha);

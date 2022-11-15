@@ -30,7 +30,7 @@ namespace Clovis {
 
     } // namespace Zobrist
 
-    void Position::init()
+    void Position::init_position()
     {
         for (int i = NO_PIECE; i <= B_KING; ++i)
             for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -62,7 +62,7 @@ namespace Clovis {
                 sq = sq + (token - '0') * EAST;
             else if (token == '/')
                 sq = sq + 2 * SOUTH;
-            else if ((index = piece_str.find(token)) != piece_str.size()) {
+            else if ((index = piece_str.find(token)) != -1) {
                 put_piece(Piece(index), sq);
                 bs->game_phase += game_phase_inc[Piece(index)];
                 ++sq;
@@ -80,7 +80,8 @@ namespace Clovis {
             else continue;
         }
         ss >> token;
-        if (token != '-') {
+        if (token != '-') 
+        {
             File f = File(token - 'a');
             ss >> token;
             Rank r = Rank(token - '1');
@@ -152,7 +153,7 @@ namespace Clovis {
             | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
     }
 
-    bool Position::see(Move m) const
+    bool Position::see(Move move) const
     {
         return true;
     }
@@ -161,6 +162,10 @@ namespace Clovis {
     // does not remove info if a piece was already on that square
 	void Position::put_piece(Piece pc, Square sq) 
 	{
+        assert(!(piece_bitboard[pc] & sq));
+        assert(!(occ_bitboard[get_side(pc)] & sq));
+        assert(!(occ_bitboard[BOTH] & sq));
+
         piece_bitboard[pc] |= sq;
         occ_bitboard[get_side(pc)] |= sq;
         occ_bitboard[BOTH] |= sq;
@@ -171,22 +176,27 @@ namespace Clovis {
     void Position::remove_piece(Square sq)
     {
         Piece pc = piece_board[sq];
+
+        assert(piece_bitboard[pc] & sq);
+        assert(occ_bitboard[get_side(pc)] & sq);
+        assert(occ_bitboard[BOTH] & sq);
+
         piece_bitboard[pc] ^= sq;
         occ_bitboard[get_side(pc)] ^= sq;
         occ_bitboard[BOTH] ^= sq;
         piece_board[sq] = NO_PIECE;
     }
 
-    bool Position::move_is_ok(Move m) const
+    bool Position::move_is_ok(Move move) const
     {
-        return get_side(move_piece_type(m)) == side
-            && get_side(piece_board[move_from_sq(m)]) == side
-            && (piece_board[move_to_sq(m)] == NO_PIECE || get_side(piece_board[move_to_sq(m)]) != side)
-            && piece_type(piece_board[move_to_sq(m)]) != KING;
+        return get_side(move_piece_type(move)) == side
+            && get_side(piece_board[move_from_sq(move)]) == side
+            && (piece_board[move_to_sq(move)] == NO_PIECE || get_side(piece_board[move_to_sq(move)]) != side)
+            && piece_type(piece_board[move_to_sq(move)]) != KING;
     }
 
     // executes a move and updates the position
-    bool Position::do_move(Move m)
+    bool Position::do_move(Move move)
     {
         BoardState* bs_new = new BoardState;
         assert(bs_new != bs);
@@ -203,12 +213,12 @@ namespace Clovis {
         // position now refers to new boardstate
         bs = bs_new;
 
-        Square src = move_from_sq(m);
-        Square tar = move_to_sq(m);
-        Piece piece = move_piece_type(m);
+        Square src = move_from_sq(move);
+        Square tar = move_to_sq(move);
+        Piece piece = move_piece_type(move);
 
         // null moves
-        if (m == MOVE_NULL)
+        if (move == MOVE_NULL)
         {
             if (bs->enpassant != SQ_NONE)
             {
@@ -220,7 +230,7 @@ namespace Clovis {
             goto nullmove;
         }
 
-        assert(get_side(move_piece_type(m)) == side);
+        assert(get_side(move_piece_type(move)) == side);
         assert(get_side(piece_board[src]) == side);
         assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
         assert(piece_type(piece_board[tar]) != KING);
@@ -228,20 +238,10 @@ namespace Clovis {
         // move piece
         bs->captured_piece = piece_board[tar];
 
-        if (move_castling(m))
+        if (move_castling(move))
         {
-            Square rt;
-            Square rf;
-            if (king_side_castle(src, tar))
-            {
-                rt = make_square(FILE_F, rank_of(src));
-                rf = rt + 2 * EAST;
-            }
-            else
-            {
-                rt = make_square(FILE_D, rank_of(src));
-                rf = rt + 3 * WEST;
-            }
+            Square rt = castle_rook_to(tar);
+            Square rf = castle_rook_from(tar);
             bs->key ^= Zobrist::piece_square[piece_board[rf]][rf];
             bs->key ^= Zobrist::piece_square[piece_board[rf]][rt];
             remove_piece(rf);
@@ -254,9 +254,9 @@ namespace Clovis {
         bs->castle &= castling_rights[tar];
         bs->key ^= Zobrist::castling[bs->castle];
 
-        if (move_capture(m))
+        if (move_capture(move))
         {
-            if (move_enpassant(m))
+            if (move_enpassant(move))
             {
                 Square victim_sq = tar - pawn_push(side);
                 bs->captured_piece = make_piece(PAWN, other_side(side));
@@ -288,20 +288,20 @@ namespace Clovis {
 
         if (piece_type(piece) == PAWN)
         {
-            if (move_double(m))
+            if (move_double(move))
             {
                 bs->enpassant = tar - pawn_push(side);
                 bs->key ^= Zobrist::enpassant[bs->enpassant];
             }
-            else if (move_promotion_type(m))
+            else if (move_promotion_type(move))
             {
                 bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                 bs->pkey ^= Zobrist::piece_square[piece][tar];
                 remove_piece(tar);
-                put_piece(move_promotion_type(m), tar);
+                put_piece(move_promotion_type(move), tar);
                 bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
                 bs->game_phase -= game_phase_inc[W_PAWN];
-                bs->game_phase += game_phase_inc[move_promotion_type(m)];
+                bs->game_phase += game_phase_inc[move_promotion_type(move)];
             }
             bs->pkey ^= Zobrist::piece_square[piece][src];
             bs->pkey ^= Zobrist::piece_square[piece][tar];
@@ -340,55 +340,41 @@ namespace Clovis {
         // move gen doesnt check for suicidal king, so we check here
         if (is_king_in_check(other_side(side)))
         {
-            undo_move(m);
+            undo_move(move);
             return false;
         }
         return true;
     }
 
     // reverts a move and rolls back the position
-    void Position::undo_move(Move m)
+    void Position::undo_move(Move move)
     {
         side = other_side(side);
 
-        Square src = move_from_sq(m);
-        Square tar = move_to_sq(m);
+        Square src = move_from_sq(move);
+        Square tar = move_to_sq(move);
 
         // null moves
-        if (m == MOVE_NULL)
+        if (move == MOVE_NULL)
             goto nullmove;
 
-        put_piece(move_piece_type(m), src);
+        put_piece(move_piece_type(move), src);
         remove_piece(tar);
 
-        if (move_castling(m))
+        if (move_castling(move))
         {
-            Square rt;
-            Square rf;
-            if (king_side_castle(src, tar))
-            {
-                rt = make_square(FILE_F, rank_of(src));
-                rf = rt + 2 * EAST;
-            }
-            else
-            {
-                rt = make_square(FILE_D, rank_of(src));
-                rf = rt + 3 * WEST;
-            }
+            Square rt = castle_rook_to(tar);
+            Square rf = castle_rook_from(tar);
             remove_piece(rt);
             put_piece(make_piece(ROOK, side), rf);
         }
 
-        if (move_capture(m))
+        if (move_capture(move))
         {
-            if (move_enpassant(m))
-            {
+            if (move_enpassant(move))
                 put_piece(bs->captured_piece, tar - pawn_push(side));
-            }
             else
-            {
                 put_piece(bs->captured_piece, tar);
-            }
         }
 
     nullmove:
@@ -405,6 +391,8 @@ namespace Clovis {
        
         for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4)
         {
+            assert(temp->prev->prev->prev->prev);
+
             temp = temp->prev->prev->prev->prev;
 
             if (temp->key == bs->key)
@@ -459,21 +447,17 @@ namespace Clovis {
     }
 
     // prints the attacked squares for a given side
-    void Position::print_attacked_squares(Colour s)
+    void Position::print_attacked_squares(Colour side)
     {
         std::cout << "+---+---+---+---+---+---+---+---+\n";
         for (Rank r = RANK_8; r >= RANK_1; --r)
         {
             for (File f = FILE_A; f <= FILE_H; ++f)
             {
-                std::cout << (is_attacked(make_square(f, r), s) ? "| X " : "|   ");
+                std::cout << (is_attacked(make_square(f, r), side) ? "| X " : "|   ");
             }
             std::cout << "|" + std::to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
         }
-    }
-
-    std::string sq2str(Square s) {
-        return std::string{ char('a' + file_of(s)), char('1' + rank_of(s)) };
     }
 
 } // namespace Clovis

@@ -91,7 +91,7 @@ namespace Clovis {
 		// set position to input description
 		void position(Position& pos, istringstream& is) 
 		{
-			Move m;
+			Move move;
 			string token, fen;
 			is >> token;
 			if (token == "startpos") 
@@ -107,11 +107,10 @@ namespace Clovis {
 
 			pos.set(fen.c_str());
 
-			while (is >> token && (m = UCI::to_move(pos, token)) != MOVE_NONE) 
-			{
-				pos.do_move(m);
-				//pos.print_position();
-			}
+			while (is >> token && (move = UCI::to_move(pos, token)) != MOVE_NONE) 
+				pos.do_move(move);
+
+			pos.print_position();
 		}
 
 		// for self play and debugging
@@ -121,7 +120,7 @@ namespace Clovis {
 
 			string user_move;
 
-			while (1) 
+			while (true) 
 			{
 				//pos.print_position();
 				//do {
@@ -136,30 +135,14 @@ namespace Clovis {
 		// convert string to move if it is legal
 		Move to_move(const Position& pos, string& str) 
 		{
-
 			if (str.length() == 5)
 				str[4] = char(tolower(str[4]));
 
-			for (const auto& m : MoveGen::MoveList(pos))
-				if (str == UCI::move2str(m))
-					return m;
+			for (const auto& move : MoveGen::MoveList(pos))
+				if (str == move2str(move))
+					return move;
 
 			return MOVE_NONE;
-		}
-
-		// convert move to string
-		string move2str(Move m) 
-		{
-
-			Square from = move_from_sq(m);
-			Square to = move_to_sq(m);
-
-			string move = sq2str(from) + sq2str(to);
-
-			if (move_promotion_type(m))
-				move += " pnbrqk  pnbrqk"[move_promotion_type(m)];
-
-			return move;
 		}
 
 	} // namespace UCI

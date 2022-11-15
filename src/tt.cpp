@@ -41,19 +41,16 @@ namespace Clovis {
             return &b->e1;
         if (b->e1.depth > 0)
             --b->e1.depth;
-        if (b->e2.key == key)
-            return &b->e2;
 
-        return nullptr;
+        return (b->e2.key == key) ? &b->e2 : nullptr;
     }
 
-    void TTable::new_entry(Key key, int d, int e, HashFlag f, Move m)
+    void TTable::new_entry(Key key, int depth, int eval, HashFlag flags, Move move)
     {
         Bucket* b = ht + hash_index(key);
-        if (b->e1.depth <= d)
-            b->e1 = TTEntry(key, d, e, f, m);
-        else
-            b->e2 = TTEntry(key, d, e, f, m);
+        (b->e1.depth <= depth) 
+            ? b->e1 = TTEntry(key, depth, eval, flags, move) 
+            : b->e2 = TTEntry(key, depth, eval, flags, move);
     }
 
     // probe the pawn table to see if an entry exists
@@ -61,10 +58,7 @@ namespace Clovis {
     {
         PTEntry* p = pt + pawn_hash_index(key);
 
-        if(p->key == key)
-            return p;
-
-        return nullptr;
+        return (p->key == key) ? p : nullptr;
     }
 
 } // namespace Clovis

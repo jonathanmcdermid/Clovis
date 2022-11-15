@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
 #include "../position.h"
 #include "../evaluate.h"
 #include "../types.h"
@@ -16,10 +17,10 @@ namespace Clovis {
 	namespace Tuner {
 
 		struct Weight {
-			Weight(short* v, bool s, bool p) : val(v), skip(s), positive(p){};
-			short* val;
+			Weight(short* value, bool skip, bool natural) : value(value), skip(skip), natural(natural){};
+			short* value;
 			bool skip;
-			bool positive;
+			bool natural;
 		};
 
 		void tune();

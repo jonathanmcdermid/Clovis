@@ -18,7 +18,7 @@ namespace Clovis {
     };
 
 	struct TTEntry {
-        TTEntry(Key k = 0ULL, int d = 0, int e = 0, HashFlag f = HASH_NONE, Move m = MOVE_NONE) : key(k), depth(d), flags(f), eval(e), move(m) {};
+        TTEntry(Key key = 0ULL, int depth = 0, int eval = 0, HashFlag flags = HASH_NONE, Move move = MOVE_NONE) : key(key), depth(depth), flags(flags), eval(eval), move(move) {};
         void operator=(const TTEntry& rhs){
             key = rhs.key;
             depth = rhs.depth;
@@ -55,11 +55,11 @@ namespace Clovis {
 	class TTable {
     public:
         TTable();
-        void resize(size_t s);
+        void resize(size_t mb);
         void clear();
-        void new_entry(Key key, int d, int e, HashFlag f, Move m);
+        void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
         TTEntry* probe(Key key);
-        void new_pawn_entry(Key key, Score s) { pt[pawn_hash_index(key)] = PTEntry(key, s); }
+        void new_pawn_entry(Key key, Score score) { pt[pawn_hash_index(key)] = PTEntry(key, score); }
         PTEntry* probe_pawn(Key key);
         ~TTable();
     private:

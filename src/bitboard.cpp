@@ -76,28 +76,28 @@ namespace Clovis {
 
 	namespace Bitboards {
 
-		// number of relevant occupancy bits for every bishop square
+		// 64 - number of relevant occupancy bits for every bishop square
 		constexpr int b_rbits[SQ_N] = {
-			6, 5, 5, 5, 5, 5, 5, 6,
-			5, 5, 5, 5, 5, 5, 5, 5,
-			5, 5, 7, 7, 7, 7, 5, 5,
-			5, 5, 7, 9, 9, 7, 5, 5,
-			5, 5, 7, 9, 9, 7, 5, 5,
-			5, 5, 7, 7, 7, 7, 5, 5,
-			5, 5, 5, 5, 5, 5, 5, 5,
-			6, 5, 5, 5, 5, 5, 5, 6
+			58, 59, 59, 59, 59, 59, 59, 58,
+			59, 59, 59, 59, 59, 59, 59, 59,
+			59, 59, 57, 57, 57, 57, 59, 59,
+			59, 59, 57, 55, 55, 57, 59, 59,
+			59, 59, 57, 55, 55, 57, 59, 59,
+			59, 59, 57, 57, 57, 57, 59, 59,
+			59, 59, 59, 59, 59, 59, 59, 59,
+			58, 59, 59, 59, 59, 59, 59, 58,
 		};
 
-		// number of relevant occupancy bits for every rook square
+		// 64 - number of relevant occupancy bits for every rook square
 		constexpr int r_rbits[SQ_N] = {
-			12, 11, 11, 11, 11, 11, 11, 12,
-			11, 10, 10, 10, 10, 10, 10, 11,
-			11, 10, 10, 10, 10, 10, 10, 11,
-			11, 10, 10, 10, 10, 10, 10, 11,
-			11, 10, 10, 10, 10, 10, 10, 11,
-			11, 10, 10, 10, 10, 10, 10, 11,
-			11, 10, 10, 10, 10, 10, 10, 11,
-			12, 11, 11, 11, 11, 11, 11, 12
+			52, 53, 53, 53, 53, 53, 53, 52,
+			53, 54, 54, 54, 54, 54, 54, 53,
+			53, 54, 54, 54, 54, 54, 54, 53,
+			53, 54, 54, 54, 54, 54, 54, 53,
+			53, 54, 54, 54, 54, 54, 54, 53,
+			53, 54, 54, 54, 54, 54, 54, 53,
+			53, 54, 54, 54, 54, 54, 54, 53,
+			52, 53, 53, 53, 53, 53, 53, 52,
 		};
 
 		constexpr int attacks_size = 8 * rook_attack_indices;
@@ -268,7 +268,7 @@ namespace Clovis {
 		Bitboard mask_pawn_attacks(Square sq, Colour side)
 		{
 			Bitboard attacks = 0ULL;
-			Bitboard bb = sq_bb(sq);
+			Bitboard bb = sqbb[sq];
 
 			if (side == WHITE) {
 				if ((bb << 7) & not_h_file) attacks |= (bb << 7ULL);
@@ -286,7 +286,7 @@ namespace Clovis {
 		Bitboard mask_knight_attacks(Square sq)
 		{
 			Bitboard attacks = 0ULL;
-			Bitboard bb = sq_bb(sq);
+			Bitboard bb = sqbb[sq];
 
 			if ((bb << 17) & not_a_file)	attacks |= (bb << 17ULL);
 			if ((bb >> 17) & not_h_file)	attacks |= (bb >> 17ULL);
@@ -342,7 +342,7 @@ namespace Clovis {
 		Bitboard mask_king_attacks(Square sq)
 		{
 			Bitboard attacks = 0ULL;
-			Bitboard bb = sq_bb(sq);
+			Bitboard bb = sqbb[sq];
 
 			if ((bb << 1) & not_a_file) attacks |= (bb << 1ULL);
 			if ((bb >> 1) & not_h_file) attacks |= (bb >> 1ULL);
@@ -451,7 +451,7 @@ namespace Clovis {
 			{
 				Bitboard magic = generate_magic();
 
-				if (count_bits((mask * magic) & 0xFF00000000000000) < 6) 
+				if (popcnt((mask * magic) & 0xFF00000000000000) < 6) 
 					continue;
 
 				memset(used_attacks, 0ULL, attacks_size);
@@ -513,16 +513,16 @@ namespace Clovis {
 
 				Bitboard attack_mask = is_bishop ? bishop_masks[sq] : rook_masks[sq];
 
-				int relevant_bits_count = count_bits(attack_mask);
+				int relevant_bits_count = popcnt(attack_mask);
 				int occupancy_indicies = (1 << relevant_bits_count);
 
 				for (int index = 0; index < occupancy_indicies; ++index)
 				{
 					Bitboard occ = set_occupancy(attack_mask, index, relevant_bits_count);
 					if (is_bishop)
-						bishop_attacks[sq][(occ * b_magic[sq]) >> (SQ_N - b_rbits[sq])] = bishop_otf(sq, occ);
+						bishop_attacks[sq][(occ * b_magic[sq]) >> b_rbits[sq]] = bishop_otf(sq, occ);
 					else
-						rook_attacks[sq][(occ * r_magic[sq]) >> (SQ_N - r_rbits[sq])] = rook_otf(sq, occ);
+						rook_attacks[sq][(occ * r_magic[sq]) >> r_rbits[sq]] = rook_otf(sq, occ);
 				}
 			}
 			if (is_bishop) 
@@ -545,7 +545,7 @@ namespace Clovis {
 		{
 			occ &= bishop_masks[sq];
 			occ *= b_magic[sq];
-			occ >>= SQ_N - b_rbits[sq];
+			occ >>= b_rbits[sq];
 
 			return bishop_attacks[sq][occ];
 		}
@@ -554,7 +554,7 @@ namespace Clovis {
 		{
 			occ &= rook_masks[sq];
 			occ *= r_magic[sq];
-			occ >>= SQ_N - r_rbits[sq];
+			occ >>= r_rbits[sq];
 
 			return rook_attacks[sq][occ];
 		}

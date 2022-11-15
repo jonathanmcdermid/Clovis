@@ -25,12 +25,12 @@ namespace Clovis {
 		extern int history_table[2 * 64 * 64];
 		extern Move killers[2 * MAX_PLY];
 
-		static int get_history_entry(Colour s, Move m) {
-			return history_table[s * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
+		static int get_history_entry(Colour side, Move move) {
+			return history_table[side * 4096 + move_from_sq(move) * 64 + move_to_sq(move)];
 		}
 
-		static int* get_history_entry_ptr(Colour s, Move m) {
-			return &history_table[s * 4096 + move_from_sq(m) * 64 + move_to_sq(m)];
+		static int* get_history_entry_ptr(Colour side, Move move) {
+			return &history_table[side * 4096 + move_from_sq(move) * 64 + move_to_sq(move)];
 		}
 
 		static void clear() {
@@ -38,26 +38,28 @@ namespace Clovis {
 			memset(killers, 0, sizeof(killers));
 		}
 
-		static void update_killers(Move m, int ply) {
+		static void update_killers(Move move, int ply) {
 			Move* k = &killers[ply * 2];
-			if (*k != m)
+			if (k[0] != move)
 			{
-				k[1] = *k;
-				*k = m;
+				k[1] = k[0];
+				k[0] = move;
 			}
 		}
 
-		static bool is_killer(Move m, int ply) {
+		static bool is_killer(Move move, int ply) {
 			Move* k = &killers[ply * 2];
-			return (m == *k || m == k[1]);
+			return (move == k[0] || move == k[1]);
 		}
+
+		void init_movepicker();
+
+		void test_movepicker();
 
 		class MovePicker {
 		public:
-			MovePicker(const Position& p, int pl, Move ttm = MOVE_NONE) : pos(p) {
-				ply = pl;
+			MovePicker(const Position& pos, int ply, Move tt_move = MOVE_NONE) : pos(pos), ply(ply), tt_move(tt_move) {
 				curr = last = end_bad_caps = moves;
-				tt_move = ttm;
 				stage = TT_MOVE;
 			}
 			void update_history(Move best_move, int depth);

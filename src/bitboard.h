@@ -12,19 +12,16 @@ namespace Clovis {
     // precalculated bitboards for each square
     extern Bitboard sqbb[SQ_N];
 
-    inline Bitboard sq_bb(Square sq) { return sqbb[sq]; }
-
-    inline Bitboard operator&(Bitboard bb, Square sq) { return bb & sq_bb(sq); }
-    inline Bitboard operator|(Bitboard bb, Square sq) { return bb | sq_bb(sq); }
-    inline Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sq_bb(sq); }
-    inline Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sq_bb(sq); }
-    inline Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sq_bb(sq); }
-
-    inline Bitboard operator|(Square s1, Square s2) { return sq_bb(s1) | sq_bb(s2); }
+    inline Bitboard operator&(Bitboard bb, Square sq) { return bb & sqbb[sq]; }
+    inline Bitboard operator|(Bitboard bb, Square sq) { return bb | sqbb[sq]; }
+    inline Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sqbb[sq]; }
+    inline Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb[sq]; }
+    inline Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb[sq]; }
+    inline Bitboard operator|(Square s1, Square s2) { return sqbb[s1] | sqbb[s2]; }
 
 #if defined(__GNUC__)
 
-    inline int count_bits(Bitboard bb) {
+    inline int popcnt(Bitboard bb) {
         return __builtin_popcountll(bb);
     }
 
@@ -37,7 +34,7 @@ namespace Clovis {
 
 #ifdef _WIN64
 
-    inline int count_bits(Bitboard bb) {
+    inline int popcnt(Bitboard bb) {
         return __popcnt64(bb);
     }
 
@@ -50,7 +47,7 @@ namespace Clovis {
 
 #else
 
-    inline int count_bits(Bitboard bb) {
+    inline int popcnt(Bitboard bb) {
         return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
     }
     inline Square lsb(Bitboard bb) {

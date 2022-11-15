@@ -9,7 +9,7 @@ namespace Clovis {
 	struct Score {
 	public:
 		Score() : mg(0), eg(0) {}
-		Score(int m, int e) : mg(m), eg(e) {}
+		Score(int mg, int eg) : mg(mg), eg(eg) {}
 		void operator+=(const Score& rhs) { 
 			this->mg += rhs.mg; 
 			this->eg += rhs.eg;
@@ -17,6 +17,9 @@ namespace Clovis {
 		void operator-=(const Score& rhs) {
 			this->mg -= rhs.mg;
 			this->eg -= rhs.eg;
+		}
+		bool operator==(const Score& rhs) {
+			return this->mg == rhs.mg && this->eg == rhs.eg;
 		}
 		int get_score(int game_phase, Colour side) const { 
 			return (side == WHITE) 
@@ -50,6 +53,9 @@ namespace Clovis {
 		void init_eval();
 		void init_values();
 		void init_masks();
+
+		void test_eval();
+
 		Bitboard set_file_rank_mask(File file_number, Rank rank_number);
 		Score evaluate(const Position& pos);
 		Score evaluate_pawns(const Position& pos);

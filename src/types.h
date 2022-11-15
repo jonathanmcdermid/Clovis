@@ -2,6 +2,8 @@
 
 #include <climits>
 
+using namespace std;
+
 namespace Clovis {
 
     typedef unsigned int U32;
@@ -91,10 +93,10 @@ namespace Clovis {
         return static_cast<Square>(static_cast<int>(sq) + i);
     }
 
-    constexpr Square operator+(Square s, Direction d) { return Square(int(s) + int(d)); }
-    constexpr Square operator-(Square s, Direction d) { return Square(int(s) - int(d)); }
-    inline Square& operator+=(Square& s, Direction d) { return s = s + d; }
-    inline Square& operator-=(Square& s, Direction d) { return s = s - d; }
+    constexpr Square operator+(Square sq, Direction dir) { return Square(int(sq) + int(dir)); }
+    constexpr Square operator-(Square sq, Direction dir) { return Square(int(sq) - int(dir)); }
+    inline Square& operator+=(Square& sq, Direction dir) { return sq = sq + dir; }
+    inline Square& operator-=(Square& sq, Direction dir) { return sq = sq - dir; }
 
     enum File : int {
         FILE_NONE = -1,
@@ -150,40 +152,40 @@ namespace Clovis {
         return Move(from | (to << 6) | (piece << 12) | (promo << 16) | (cap << 20) | (dpush << 21) | (enpassant << 22) | (castling << 23));
     }
 
-    constexpr Square move_from_sq(Move m) {
-        return Square(m & 0x3f);
+    constexpr Square move_from_sq(Move move) {
+        return Square(move & 0x3f);
     }
 
-    constexpr Square move_to_sq(Move m) {
-        return Square((m & 0xfc0) >> 6);
+    constexpr Square move_to_sq(Move move) {
+        return Square((move & 0xfc0) >> 6);
     }
 
-    constexpr Piece move_piece_type(Move m) {
-        return Piece((m & 0xf000) >> 12);
+    constexpr Piece move_piece_type(Move move) {
+        return Piece((move & 0xf000) >> 12);
     }
 
-    constexpr Piece move_promotion_type(Move m) {
-        return Piece((m & 0xf0000) >> 16);
+    constexpr Piece move_promotion_type(Move move) {
+        return Piece((move & 0xf0000) >> 16);
     }
 
-    constexpr bool move_capture(Move m) {
-        return m & 0x100000;
+    constexpr bool move_capture(Move move) {
+        return move & 0x100000;
     }
 
-    constexpr bool move_double(Move m) {
-        return m & 0x200000;
+    constexpr bool move_double(Move move) {
+        return move & 0x200000;
     }
 
-    constexpr bool move_enpassant(Move m) {
-        return m & 0x400000;
+    constexpr bool move_enpassant(Move move) {
+        return move & 0x400000;
     }
 
-    constexpr bool move_castling(Move m) {
-        return m & 0x800000;
+    constexpr bool move_castling(Move move) {
+        return move & 0x800000;
     }
 
-    constexpr Direction pawn_push(Colour c) {
-        return c == WHITE ? NORTH : SOUTH;
+    constexpr Direction pawn_push(Colour side) {
+        return side == WHITE ? NORTH : SOUTH;
     }
 
     constexpr File file_of(Square sq) {
@@ -194,12 +196,12 @@ namespace Clovis {
         return Rank(sq >> 3);
     }
 
-    constexpr Rank relative_rank(Colour c, Rank r) {
-        return Rank(r ^ (c * 7));
+    constexpr Rank relative_rank(Colour side, Rank r) {
+        return Rank(r ^ (side * 7));
     }
 
-    constexpr Rank relative_rank(Colour c, Square s) {
-        return relative_rank(c, rank_of(s));
+    constexpr Square relative_square(Colour c, Square sq) {
+        return Square(sq ^ (c * 56));
     }
 
     constexpr Square make_square(File f, Rank r) {
@@ -214,24 +216,45 @@ namespace Clovis {
         return sq >= A1 && sq <= H8;
     }
 
-    constexpr Colour get_side(Piece p) {
-        return p < B_PAWN ? WHITE : BLACK;
+    constexpr Colour get_side(Piece piece) {
+        return piece < B_PAWN ? WHITE : BLACK;
     }
 
-    constexpr Colour other_side(Colour c) {
-        return c == WHITE ? BLACK : WHITE;
+    constexpr Colour other_side(Colour side) {
+        return side == WHITE ? BLACK : WHITE;
     }
 
-    constexpr Piece make_piece(PieceType pt, Colour c) {
-        return Piece((c << 3) + pt);
+    constexpr Piece make_piece(PieceType pt, Colour side) {
+        return Piece((side << 3) + pt);
     }
 
-    constexpr PieceType piece_type(Piece p) {
-        return PieceType(p & ~(1 << 3));
+    constexpr PieceType piece_type(Piece piece) {
+        return PieceType(piece & ~(1 << 3));
     }
 
-    constexpr bool king_side_castle(Square from, Square to) {
-        return to > from;
+    constexpr bool king_side_castle(Square to) {
+        return file_of(to) == FILE_G;
+    }
+
+    constexpr Square castle_rook_from(Square king_tar) {
+        return king_side_castle(king_tar) ? king_tar + EAST : king_tar + 2 * WEST;
+    }
+
+    constexpr Square castle_rook_to(Square king_tar) {
+        return king_side_castle(king_tar) ? king_tar + WEST : king_tar + EAST;
+    }
+
+    // convert square to string
+    inline string sq2str(Square sq) {
+        return string{ char('a' + file_of(sq)), char('1' + rank_of(sq)) };
+    }
+
+    // convert move to string
+    inline string move2str(Move move)
+    {
+        return (move_promotion_type(move)) 
+            ? sq2str(move_from_sq(move)) + sq2str(move_to_sq(move)) + " pnbrqk  pnbrqk"[move_promotion_type(move)]
+            : sq2str(move_from_sq(move)) + sq2str(move_to_sq(move));
     }
 
 } // namespace Clovis

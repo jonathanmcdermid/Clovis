@@ -19,16 +19,15 @@ namespace Clovis {
 
 	namespace Eval {
 
+		void test_eval();
 		Score evaluate(const Position& pos);
 		Score evaluate_pawns(const Position& pos);
 
 	} // namespace Eval
 
-	template<typename T> T* gen_moves(const Position& pos, T* ml);
-	template<typename T> T* gen_cap_moves(const Position& pos, T* ml);
-	template<typename T> T* gen_quiet_moves(const Position& pos, T* ml);
-
-	std::string sq2str(Square s);
+	template<typename T> T* gen_moves(const Position& pos, T* moves);
+	template<typename T> T* gen_cap_moves(const Position& pos, T* moves);
+	template<typename T> T* gen_quiet_moves(const Position& pos, T* moves);
 
 	const extern std::string piece_str;
 
@@ -49,30 +48,29 @@ namespace Clovis {
 	class Position {
 	public:
 		Position(const char* fen) { set(fen); }
-		static void init();
+		static void init_position();
 		void set(const char* fen);
 		Key get_key() const { return bs->key; }
 		Key get_pawn_key() const { return bs->pkey; }
-		bool is_attacked(Square sq, Colour s) const;
+		bool is_attacked(Square sq, Colour side) const;
 		Bitboard attackers_to(Square sq, Bitboard occupied) const;
-		Square get_minimum_attacker(Bitboard att_occ, Colour s, PieceType& p) const;
-		bool see(Move m) const;
-		bool do_move(Move m);
-		void undo_move(Move m);
+		bool see(Move move) const;
+		bool do_move(Move move);
+		void undo_move(Move move);
 		bool is_repeat() const;
 		void print_position() const;
 		void print_bitboards();
-		void print_attacked_squares(Colour s);
+		void print_attacked_squares(Colour side);
 		Colour side_to_move() const;
-		Piece piece_on(Square s) const;
-		bool empty(Square s) const;
-		bool is_king_in_check(Colour c) const;
+		Piece piece_on(Square sq) const;
+		bool empty(Square sq) const;
+		bool is_king_in_check(Colour side) const;
 		void change() { side = other_side(side); }
-		bool has_promoted(Colour c) const;
+		bool has_promoted(Colour side) const;
 		bool is_material_draw() const;
-		bool is_insufficient(Colour c) const;
+		bool is_insufficient(Colour side) const;
 		bool is_draw_50() const;
-		bool move_is_ok(Move m) const;
+		bool move_is_ok(Move move) const;
 		int get_game_phase() const { return std::min(bs->game_phase, MAX_GAMEPHASE); }
 	private:
 		Key make_key();
@@ -84,9 +82,10 @@ namespace Clovis {
 		Bitboard occ_bitboard[COLOUR_N + 1];
 		BoardState* bs;
 		Colour side;
-		template<typename T> friend T* gen_moves(const Position& pos, T* ml);
-		template<typename T> friend T* gen_cap_moves(const Position& pos, T* ml);
-		template<typename T> friend T* gen_quiet_moves(const Position& pos, T* ml);
+		template<typename T> friend T* gen_moves(const Position& pos, T* moves);
+		template<typename T> friend T* gen_cap_moves(const Position& pos, T* moves);
+		template<typename T> friend T* gen_quiet_moves(const Position& pos, T* moves);
+		friend void Eval::test_eval();
 		friend Score Eval::evaluate(const Position& pos);
 		friend Score Eval::evaluate_pawns(const Position& pos);
 	};
@@ -104,29 +103,27 @@ namespace Clovis {
 		return piece_on(sq) == NO_PIECE;
 	}
 
-	inline bool Position::is_king_in_check(Colour c) const {
-		return is_attacked(lsb(piece_bitboard[make_piece(KING, c)]), other_side(c));
+	inline bool Position::is_king_in_check(Colour side) const {
+		return is_attacked(lsb(piece_bitboard[make_piece(KING, side)]), other_side(side));
 	}
 
-	inline bool Position::has_promoted(Colour c) const {
-		return bool(
-			piece_bitboard[make_piece(KNIGHT, c)] |
-			piece_bitboard[make_piece(BISHOP, c)] |
-			piece_bitboard[make_piece(ROOK, c)] |
-			piece_bitboard[make_piece(QUEEN, c)]);
+	inline bool Position::has_promoted(Colour side) const {
+		return bool(piece_bitboard[make_piece(KNIGHT, side)] 
+			| piece_bitboard[make_piece(BISHOP, side)] 
+			| piece_bitboard[make_piece(ROOK, side)] 
+			| piece_bitboard[make_piece(QUEEN, side)]);
 	}
 
 	inline bool Position::is_material_draw() const {
 		return is_insufficient(WHITE) && is_insufficient(BLACK);
 	}
 
-	inline bool Position::is_insufficient(Colour c) const {
-		return 
-			(count_bits(piece_bitboard[make_piece(PAWN, c)]) == 0 &&
-			count_bits(piece_bitboard[make_piece(QUEEN, c)]) == 0 &&
-			count_bits(piece_bitboard[make_piece(ROOK, c)]) == 0 &&
-			(count_bits(piece_bitboard[make_piece(KNIGHT, c)]) < 3) &&
-			(count_bits(piece_bitboard[make_piece(BISHOP, c)]) + count_bits(piece_bitboard[make_piece(KNIGHT, c)]) < 2));
+	inline bool Position::is_insufficient(Colour side) const {
+		return (popcnt(piece_bitboard[make_piece(PAWN, side)]) == 0 
+				&& popcnt(piece_bitboard[make_piece(QUEEN, side)]) == 0 
+				&& popcnt(piece_bitboard[make_piece(ROOK, side)]) == 0 
+				&& (popcnt(piece_bitboard[make_piece(KNIGHT, side)]) < 3) 
+				&& (popcnt(piece_bitboard[make_piece(BISHOP, side)]) + popcnt(piece_bitboard[make_piece(KNIGHT, side)]) < 2));
 	}
 
 	inline bool Position::is_draw_50() const {
