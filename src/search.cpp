@@ -39,7 +39,8 @@ namespace Clovis {
         // reset transposition table, set search to standard conditions
         void clear()
         {
-            MovePick::clear();
+            MovePick::reset_killers();
+            MovePick::reset_history();
             tt.clear();
         }
 
@@ -61,7 +62,8 @@ namespace Clovis {
                 goto end;
             }
 
-            MovePick::clear();
+            MovePick::reset_killers();
+            MovePick::age_history();
 
             nodes = 0;
 
@@ -269,8 +271,7 @@ namespace Clovis {
                 {
                     if (move_capture(curr_move) == NO_PIECE)
                     {
-                        if(mp.get_stage() != INIT_CAPTURES)
-                            mp.update_history(curr_move, depth);
+                        mp.update_history(curr_move, depth);
                         MovePick::update_killers(curr_move, ply);
                     }
 

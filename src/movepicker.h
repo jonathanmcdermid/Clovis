@@ -33,9 +33,19 @@ namespace Clovis {
 			return &history_table[side * 4096 + move_from_sq(move) * 64 + move_to_sq(move)];
 		}
 
-		static void clear() {
-			memset(history_table, 0, sizeof(history_table));
+		static void age_history()
+		{
+			for (int i = 0; i < 2 * 64 * 64; ++i)
+				history_table[i] /= 16;
+		}
+
+		static void reset_killers()
+		{
 			memset(killers, 0, sizeof(killers));
+		}
+
+		static void reset_history() {
+			memset(history_table, 0, sizeof(history_table));
 		}
 
 		static void update_killers(Move move, int ply) {
@@ -45,6 +55,11 @@ namespace Clovis {
 				k[1] = k[0];
 				k[0] = move;
 			}
+		}
+
+		static void update_history_entry(Move move, Colour side, int bonus) {
+			int* history_entry = get_history_entry_ptr(side, move);
+			*history_entry += 32 * bonus - *history_entry * abs(bonus) / 512;
 		}
 
 		static bool is_killer(Move move, int ply) {

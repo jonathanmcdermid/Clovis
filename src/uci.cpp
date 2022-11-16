@@ -38,6 +38,7 @@ namespace Clovis {
 				else if (token == "local")		local(pos, is);
 				else if (token == "tune")		Tuner::tune();
 				else if (token == "setoption")	set_option(is);
+				else if (token == "perft")		Perft::test_perft();
 			} while (token != "quit" && argc == 1);
 		}
 

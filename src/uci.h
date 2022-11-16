@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cassert>
 
+#include "perft.h"
 #include "search.h"
 #include "position.h"
 #include "movelist.h"

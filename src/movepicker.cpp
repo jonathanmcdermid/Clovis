@@ -8,7 +8,7 @@ namespace Clovis {
 
         int history_table[2 * 64 * 64];
         Move killers[2 * MAX_PLY];
-        int killer_bonus[MAX_PLY + 1];
+        int history_bonus[MAX_PLY + 1];
 
         // MVV-LVA lookup table [attacker][victim]
         int mvv_lva[15][15];
@@ -21,7 +21,7 @@ namespace Clovis {
         void init_movepicker()
         {
             for (int i = 0; i <= MAX_PLY; ++i)
-                killer_bonus[i] = min(i * i, 400);
+                history_bonus[i] = min(i * i, 400);
 
             for (PieceType att = PAWN; att <= KING; ++att)
             {
@@ -35,20 +35,24 @@ namespace Clovis {
 
         void MovePicker::update_history(Move best_move, int depth)
         {
-            // when stage = init captures, it means the quiet TT move caused a beta cutoff
-            // when this happens, the tt move history entry is not updated
-            assert(stage >= QUIETS);
             assert(!move_capture(best_move));
+
+            update_history_entry(best_move, pos.side_to_move(), history_bonus[depth]);
+
+            // when stage = init captures, it means the quiet TT move caused a beta cutoff
+            if (stage == INIT_CAPTURES)
+            {
+                assert(best_move == tt_move);
+                return;
+            }
 
             ScoredMove* last_searched_quiet = (stage == FINISHED) ? last : curr;
 
             for (ScoredMove* sm = end_bad_caps; sm < last_searched_quiet; ++sm)
             {
                 assert(!move_capture(*sm));
-                int* history_entry = get_history_entry_ptr(pos.side_to_move(), *sm);
-                *history_entry += (*sm == best_move)
-                    ? 32 * killer_bonus[depth] - *history_entry * killer_bonus[depth] / 512
-                    :-32 * killer_bonus[depth] - *history_entry * killer_bonus[depth] / 512;
+                if(*sm != best_move)
+                    update_history_entry(*sm, pos.side_to_move(), -history_bonus[depth]);
             }
         }
 

@@ -11,8 +11,14 @@ namespace Clovis {
 
     namespace Perft {
 
-		void perft(int depth);
-		void perft_control();
+		struct perft_position {
+			perft_position(string s, vector<U64> nodes) : s(s), nodes(nodes) { ; }
+			string s;
+			vector<U64> nodes;
+		};
+
+		void perft(Position& pos, int depth, U64& nodes);
+		void test_perft();
 
     } // namespace Perft
 
