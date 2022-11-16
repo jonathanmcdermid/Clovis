@@ -25,6 +25,8 @@ namespace Clovis {
 
 		void test_perft() 
 		{
+			cout << "Running perft tests..." << endl;
+
 			vector<perft_position> pp;
 
 			pp.push_back(perft_position(
@@ -42,13 +44,18 @@ namespace Clovis {
 			for (auto& it : pp) 
 			{
 				Position pos(it.s.c_str());
-				for (int depth = 1; depth < it.nodes.size(); ++depth) 
+				cout << "testing position " << it.s << endl;
+				for (int depth = 1; depth < it.nodes.size() + 1; ++depth) 
 				{
 					nodes = 0;
 					perft(pos, depth, nodes);
-					assert(nodes == it.nodes[depth - 1]);
+					cout << "depth " << depth
+						<< ": perft test " << ((nodes == it.nodes[depth - 1]) ? "PASS! " : "FAIL! ") 
+						<< "expected: " << it.nodes[depth - 1] << " result : " << nodes << endl;
 				}
 			}
+
+			cout << "Perft tests complete!" << endl;
 		}
 
 	} // namespace Perft

@@ -24,6 +24,7 @@ namespace Clovis {
 		void go(Position& pos, istringstream& is);
 		void position(Position& pos, istringstream& is);
 		void local(Position& pos, istringstream& is);
+		void test();
 		Move to_move(const Position& pos, string& str);
 
 	} // namespace UCI

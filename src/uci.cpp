@@ -39,6 +39,7 @@ namespace Clovis {
 				else if (token == "tune")		Tuner::tune();
 				else if (token == "setoption")	set_option(is);
 				else if (token == "perft")		Perft::test_perft();
+				else if (token == "test")		test();
 			} while (token != "quit" && argc == 1);
 		}
 
@@ -131,6 +132,13 @@ namespace Clovis {
 				pos.print_position();
 				pos.do_move(Search::start_search(pos, limits));
 			}
+		}
+
+		void test()
+		{
+			cout << "Tests will only work if NDEBUG line is commented out in main.cpp!" << endl;
+			MovePick::test_movepicker(); 
+			Eval::test_eval();
 		}
 
 		// convert string to move if it is legal

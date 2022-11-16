@@ -219,6 +219,8 @@ namespace Clovis {
             // 1 white double pawns
             // 2 black isolated pawns
 
+            cout << "Running evaluate tests..." << endl;
+
             Position pos("8/2P5/2Pp4/KP5r/1R3p1k/5P2/4P1P1/8 w - - ");
 
             assert(!doubled_pawn(pos.piece_bitboard[W_PAWN], B5));
@@ -246,6 +248,8 @@ namespace Clovis {
             expected_result += *passed_table[relative_square(WHITE, C7)];
 
             assert(evaluate_pawns(pos) == expected_result);
+
+            cout << "Evaluate tests complete!" << endl;
         }
 
         Bitboard set_file_rank_mask(File file_number, Rank rank_number)
