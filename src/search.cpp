@@ -39,8 +39,7 @@ namespace Clovis {
         // reset transposition table, set search to standard conditions
         void clear()
         {
-            MovePick::reset_killers();
-            MovePick::reset_history();
+            MovePick::clear();
             tt.clear();
         }
 
@@ -69,7 +68,7 @@ namespace Clovis {
 
             for (int depth = 1; depth <= MAX_PLY  && (lim.depth == 0 || depth <= lim.depth); ++depth)
             {
-                score = negamax(pos, alpha, beta, depth, 0, false);
+                score = negamax(pos, alpha, beta, depth, 0, false, MOVE_NONE);
 
                 if (stop)
                     break;
@@ -79,6 +78,7 @@ namespace Clovis {
                     << " nodes " << nodes
                     << " time " << tm.get_time_elapsed()
                     << " pv ";
+
                 for (int i = 0; i < *pv_length; ++i)
                     cout << move2str(pv_table[0][i]) << " ";
                 cout << endl;
@@ -104,7 +104,7 @@ namespace Clovis {
             return **pv_table;
         }
 
-        int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null)
+        int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move)
         {
             if (nodes & 2047 && tm.get_time_elapsed() > allocated_time)
             {
@@ -174,7 +174,7 @@ namespace Clovis {
                 && pos.has_promoted(pos.side_to_move())) 
             {
                 pos.do_move(MOVE_NULL);
-                score = -negamax(pos, -beta, -beta + 1, depth - 3, ply + 1, true);
+                score = -negamax(pos, -beta, -beta + 1, depth - 3, ply + 1, true, MOVE_NULL);
                 pos.undo_move(MOVE_NULL);
                 if (score >= beta)
                     return beta;
@@ -185,7 +185,7 @@ namespace Clovis {
                 && ((pv_node && depth >= 6)
                     || (!pv_node && depth >= 8))) 
             {
-                negamax(pos, alpha, beta, pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2, ply, false);
+                negamax(pos, alpha, beta, pv_node ? depth - depth / 4 - 1 : (depth - 5) / 2, ply, false, prev_move);
                 tte = tt.probe(pos.get_key());
                 if (tte)
                 {
@@ -197,7 +197,7 @@ namespace Clovis {
 
         loop:
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, tt_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move);
 
             Move curr_move;
             Move best_move = MOVE_NONE;
@@ -222,7 +222,7 @@ namespace Clovis {
                 if (pos.is_repeat() || pos.is_draw_50() || pos.is_material_draw())
                     score = DRAW_SCORE;
                 else if (moves_searched == 1)
-                    score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
+                    score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move);
                 // late move reductions
                 else
                 {
@@ -243,7 +243,7 @@ namespace Clovis {
                         R = max(0, min(R, depth - 2));
 
                         // search current move with reduced depth:
-                        score = -negamax(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false);
+                        score = -negamax(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move);
 
                     }
 
@@ -253,11 +253,11 @@ namespace Clovis {
                     if (score > alpha)
                     {
                         // re-search at full depth but with narrowed alpha beta window
-                        score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false);
+                        score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move);
 
                         // if previous search doesnt fail, re-search at full depth and full alpha beta window
                         if ((score > alpha) && (score < beta))
-                            score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false);
+                            score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move);
                     }
                 }
 
@@ -273,6 +273,7 @@ namespace Clovis {
                     {
                         mp.update_history(curr_move, depth);
                         MovePick::update_killers(curr_move, ply);
+                        MovePick::update_counter_entry(pos.side_to_move(), prev_move, curr_move);
                     }
 
                     tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move);
@@ -360,7 +361,7 @@ namespace Clovis {
             if (eval > alpha)
                 alpha = eval;
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, (tte) ? tte->move : MOVE_NONE);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
             Move curr_move;
             Move best_move = MOVE_NONE;
             int best_eval = INT_MIN;

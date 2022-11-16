@@ -7,6 +7,7 @@ namespace Clovis {
 	namespace MovePick {
 
         int history_table[2 * 64 * 64];
+        Move counter_table[2 * 64 * 64];
         Move killers[2 * MAX_PLY];
         int history_bonus[MAX_PLY + 1];
 
@@ -128,14 +129,18 @@ namespace Clovis {
 
         void MovePicker::score_quiets()
         {
+            Move counter_move = get_counter_entry(pos.side_to_move(), prev_move);
+
             for (ScoredMove* sm = end_bad_caps; sm < last; ++sm)
             {
-                if (killers[ply * 2] == *sm)
+                if (*sm == killers[ply * 2])
                     sm->score = 22000;
-                else if (killers[ply * 2 + 1] == *sm)
+                else if (*sm == killers[ply * 2 + 1])
                     sm->score = 21000;
-                else if (move_promotion_type(*sm) || move_castling(*sm))
+                else if (move_promotion_type(*sm))
                     sm->score = 20000 + move_promotion_type(*sm);
+                else if (*sm == counter_move)
+                    sm->score = 20000;
                 else
                     sm->score = get_history_entry(pos.side_to_move(), *sm);
             }
@@ -167,7 +172,7 @@ namespace Clovis {
             Position pos("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
 
             Move tt_move = encode_move(E2, A6, W_BISHOP, NO_PIECE, 0, 0, 0, 0);
-            MovePick::MovePicker mp(pos, 0, tt_move);
+            MovePick::MovePicker mp(pos, 0, MOVE_NONE, tt_move);
 
             Move curr_move;
 
