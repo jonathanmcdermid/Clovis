@@ -43,3 +43,6 @@
 *.log
 *.vcxproj.filters
 *.vcxproj.user
+
+# Folders
+x64/

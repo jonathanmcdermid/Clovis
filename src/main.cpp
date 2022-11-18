@@ -1,6 +1,6 @@
 #define NDEBUG
 
-#include "UCI.h"
+#include "uci.h"
 
 using namespace Clovis;
 

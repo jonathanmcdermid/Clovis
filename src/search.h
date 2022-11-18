@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-#include "UCI.h"
+#include "uci.h"
 #include "position.h"
 #include "evaluate.h"
 #include "movelist.h"

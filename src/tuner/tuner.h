@@ -17,9 +17,8 @@ namespace Clovis {
 	namespace Tuner {
 
 		struct Weight {
-			Weight(short* value, bool skip, bool natural) : value(value), skip(skip), natural(natural){};
+			Weight(short* value, bool natural) : value(value), natural(natural){};
 			short* value;
-			bool skip;
 			bool natural;
 		};
 

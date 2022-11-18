@@ -6,6 +6,11 @@ namespace Clovis {
 
 	class Position;
 
+	enum GamePhase : int {
+		MG, EG,
+		PHASE_N = 2
+	};
+
 	struct Score {
 	public:
 		Score() : mg(0), eg(0) {}
@@ -30,9 +35,21 @@ namespace Clovis {
 		short eg;
 	};
 
+	struct KingZone {
+		KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
+		KingZone(Bitboard outer_ring, Bitboard inner_ring) : outer_ring(outer_ring), inner_ring(inner_ring) { ; }
+		Bitboard outer_ring;
+		Bitboard inner_ring;
+	};
+
 	inline Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+	inline Score operator+(Score s1, int i) { return Score(s1.mg + i, s1.eg + i); }
 	inline Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+	inline Score operator-(Score s1, int i) { return Score(s1.mg - i, s1.eg - i); }
 	inline Score operator*(Score s1, int i) { return Score(s1.mg * i, s1.eg * i); }
+	inline Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
+	inline Score operator/(Score s1, int i) { return Score(s1.mg / i, s1.eg / i); }
+	inline Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
 
 	namespace Eval {
 
@@ -49,6 +66,9 @@ namespace Clovis {
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
 		extern Score mobility[7];
+		extern Score outer_ring_attack[7];
+		extern Score inner_ring_attack[7];
+		extern Score king_safety_reduction_factor;
 
 		void init_eval();
 		void init_values();

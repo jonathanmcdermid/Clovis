@@ -566,6 +566,7 @@ namespace Clovis {
 
 		Bitboard get_attacks(Bitboard occ, Square sq, PieceType pt) 
 		{
+			assert(pt != PAWN);
 			switch (pt)
 			{
 			case KNIGHT: return knight_attacks[sq];

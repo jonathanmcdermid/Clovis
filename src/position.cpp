@@ -1,5 +1,4 @@
 #include "position.h"
-#include "UCI.h"
 
 namespace Clovis {
 
