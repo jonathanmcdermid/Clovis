@@ -366,7 +366,7 @@ namespace Clovis {
             Move best_move = MOVE_NONE;
             int best_eval = INT_MIN;
 
-            while ((curr_move = mp.get_next(true)) != MOVE_NONE) // only do winning caps once see is fixed
+            while ((curr_move = mp.get_next(true)) != MOVE_NONE && mp.get_stage() != LOSING_CAPTURES)
             {
                 // illegal move or non capture
                 if (!pos.do_move(curr_move))

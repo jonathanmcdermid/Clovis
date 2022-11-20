@@ -13,10 +13,6 @@ namespace Clovis {
 		constexpr int n_cores = 4;
 		long double answers = 0;
 
-		inline long double sigmoid(long double K, long double E) {
-			return 1.0 / (1.0 + exp(-K * E / 400.0));
-		}
-
 		void tune()
 		{
 			// load positions and results from file
@@ -211,7 +207,8 @@ namespace Clovis {
 		{
 			// point weights to the variables in the evaluation function
 
-			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
+			for (Square sq = SQ_ZERO; sq < 32; ++sq) 
+			{
 				if ((sq / 4 != RANK_1 && sq / 4 != RANK_8))
 				{
 					weights.push_back(Weight(&Eval::pawn_table[sq].mg, false));
@@ -249,7 +246,8 @@ namespace Clovis {
 			weights.push_back(Weight(&Eval::king_safety_reduction_factor.mg, true));
 			weights.push_back(Weight(&Eval::king_safety_reduction_factor.eg, true));
 
-			for (int j = KNIGHT; j < KING; ++j) {
+			for (int j = KNIGHT; j < KING; ++j) 
+			{
 				weights.push_back(Weight(&Eval::mobility[j].mg, true));
 				weights.push_back(Weight(&Eval::mobility[j].eg, true));
 

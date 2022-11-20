@@ -1,5 +1,3 @@
-#define NDEBUG
-
 #include "uci.h"
 
 using namespace Clovis;

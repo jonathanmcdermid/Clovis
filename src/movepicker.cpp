@@ -88,7 +88,7 @@ namespace Clovis {
                 if (!skip_quiets)
                 {
                     curr = end_bad_caps;
-                    last = gen_quiet_moves<ScoredMove>(pos, moves);
+                    last = gen_quiet_moves<ScoredMove>(pos, curr);
                     score_quiets();
                     sort(end_bad_caps, last, sm_score_comp);
                 }
@@ -172,7 +172,7 @@ namespace Clovis {
             cout << "Running movepicker tests..." << endl;
             Position pos("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
 
-            Move tt_move = encode_move(E2, A6, W_BISHOP, NO_PIECE, 0, 0, 0, 0);
+            Move tt_move = encode_move(E2, A6, W_BISHOP, NO_PIECE, 1, 0, 0, 0);
             MovePick::MovePicker mp(pos, 0, MOVE_NONE, tt_move);
 
             Move curr_move;
@@ -190,8 +190,12 @@ namespace Clovis {
             MovePick::update_killers(primary, 0);
             MovePick::update_killers(secondary, 0);
 
+            int count = 0;
+
             while ((curr_move = mp.get_next(false)) != MOVE_NONE)
             {
+                ++count;
+
                 switch (mp.get_stage())
                 {
                 case INIT_CAPTURES:
@@ -231,8 +235,15 @@ namespace Clovis {
                     assert(curr_move != tt_move);
                     lose_caps.push_back(curr_move);
                     break;
+                default:
+                    assert(0);
                 }
             }
+
+            MoveGen::MoveList ml(pos);
+
+            assert(ml.size() == count);
+
             cout << "Movepicker tests complete!" << endl;
         }
 

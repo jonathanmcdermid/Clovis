@@ -1,5 +1,13 @@
 #pragma once
 
+#ifdef NDEBUG 
+#undef NDEBUG
+#endif
+
+#define NDEBUG
+
+#include <assert.h>
+
 #include <climits>
 
 using namespace std;
@@ -46,7 +54,7 @@ namespace Clovis {
     };
 
     enum PieceType {
-        PAWN = 1, KNIGHT, BISHOP, ROOK, QUEEN, KING,
+        PIECETYPE_NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,
         PIECETYPE_N = 6
     };
 

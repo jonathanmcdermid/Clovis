@@ -136,7 +136,7 @@ namespace Clovis {
 
 		void test()
 		{
-			cout << "Tests will only work if NDEBUG line is commented out in main.cpp!" << endl;
+			cout << "Tests will only work if NDEBUG line is commented out in types.h!" << endl;
 			MovePick::test_movepicker(); 
 			Eval::test_eval();
 		}

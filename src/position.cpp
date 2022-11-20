@@ -6,6 +6,8 @@ namespace Clovis {
 
     constexpr int game_phase_inc[15] = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
 
+    constexpr int piece_value[7] = { 0,100,300,300,500,900,20000 };
+
     constexpr int position_size = sizeof(Position);
 
     // castling rights lookup table
@@ -152,9 +154,95 @@ namespace Clovis {
             | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
     }
 
+    // returns the piece type of the least valuable piece on a bitboard of attackers
+    PieceType Position::get_smallest_attacker(Bitboard attackers, Colour stm) const
+    {
+        for (PieceType pt = PAWN; pt <= KING; ++pt)
+            if (attackers & piece_bitboard[make_piece(pt, stm)])
+                return pt;
+
+        return PIECETYPE_N;
+    }
+
+    // updates a bitboard of attackers after a piece has moved to include possible x ray attackers
+    Bitboard Position::update_xray(Bitboard attackers, Bitboard occ, Square to, PieceType pt) const
+    {
+        switch (pt)
+        {
+        case PAWN:
+        case BISHOP:
+            return attackers | (Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]));
+        case ROOK:
+            return attackers | (Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
+        case QUEEN:
+            return attackers | (Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP])
+                | Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
+        default:
+            return attackers;
+        }
+    }
+
     bool Position::see(Move move) const
     {
         return true;
+
+        //the following is an attempt at SEE that did not result in a strength gain
+
+        assert(move_is_ok(move));
+        assert(move_capture(move));
+
+        // this SEE doesnt handle pinned pieces yet so we play it safe
+        if (move_promotion_type(move) || move_enpassant(move))
+            return true;
+
+        Square from = move_from_sq(move);
+        Square to = move_to_sq(move);
+
+        int swap = piece_value[piece_type(piece_on(to))];
+
+        if (swap < 0)
+            return false;
+
+        swap = piece_value[piece_type(piece_on(from))] - swap;
+
+        if (swap <= 0)
+            return true;
+
+        Bitboard occ = occ_bitboard[BOTH] ^ from ^ to;
+        Colour stm = side;
+        Bitboard attackers = attackers_to(to, occ);
+
+        int res = 1;
+
+        while (true)
+        {
+            stm = other_side(stm);
+            attackers &= occ;
+
+            Bitboard stm_attackers = attackers & occ_bitboard[stm];
+
+            // If stm has no more attackers then give up: stm loses
+            if (!stm_attackers)
+                break;
+
+            // TODO: handle pinned pieces here
+
+            res ^= 1;
+
+            PieceType pt = get_smallest_attacker(attackers, stm);
+
+            // if smallest attacker is a king, stm loses if there is an enemy attacker remaining
+            if (pt == KING)
+                return (attackers & ~occ_bitboard[stm]) ? res ^ 1 : res;
+
+            if ((swap = piece_value[pt] - swap) < res)
+                break;
+
+            occ ^= lsb(stm_attackers & piece_bitboard[make_piece(pt, stm)]);
+            attackers = update_xray(attackers, occ, to, pt);
+        }
+
+        return bool(res);
     }
 
     // updates bitboards to represent a new piece on a square

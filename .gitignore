@@ -46,3 +46,5 @@
 
 # Folders
 x64/
+Debug/
+Release/
