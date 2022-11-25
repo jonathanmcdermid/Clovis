@@ -9,7 +9,6 @@ namespace Clovis {
 		const char* version_no = "Clovis v1.7";
 		const char* authors = "Jonathan McDermid";
 		const char* start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-		const char* promo_str = " pnbrqk  pnbrqk";
 
 		// main loop for UCI communication
 		void loop(int argc, char* argv[])

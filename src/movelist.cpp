@@ -10,20 +10,20 @@ namespace Clovis {
         {
             cout << "\nmove\tpiece\tcapture\tdouble\tenpass\tcastling\n\n";
 
-            int move_count = 0;
-            for (Move* move = moves; move != last; ++move, ++move_count)
+            int count = 0;
+            for (Move* m = moves; m != last; ++m, ++count)
             {
-                cout << sq2str(move_from_sq(*move))
-                    << sq2str(move_to_sq(*move))
-                    << piece_str[move_promotion_type(*move)] << '\t'
-                    << piece_str[move_piece_type(*move)] << '\t'
-                    << int(move_capture(*move)) << '\t'
-                    << int(move_double(*move)) << '\t'
-                    << int(move_enpassant(*move)) << '\t'
-                    << int(move_castling(*move)) << '\n';
+                cout << sq2str(move_from_sq(*m))
+                    << sq2str(move_to_sq(*m))
+                    << piece_str[move_promotion_type(*m)] << '\t'
+                    << piece_str[move_piece_type(*m)] << '\t'
+                    << int(move_capture(*m)) << '\t'
+                    << int(move_double(*m)) << '\t'
+                    << int(move_enpassant(*m)) << '\t'
+                    << int(move_castling(*m)) << '\n';
 
             }
-            cout << "\n\nTotal move count:" << move_count;
+            cout << "\n\nTotal move count:" << count;
         }
 
     } // namespace MoveGen

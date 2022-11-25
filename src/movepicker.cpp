@@ -6,10 +6,10 @@ namespace Clovis {
 
 	namespace MovePick {
 
-        int history_table[2 * 64 * 64];
-        Move counter_table[2 * 64 * 64];
-        Move killers[2 * MAX_PLY];
-        int history_bonus[MAX_PLY + 1];
+        int history_table[];
+        Move counter_table[];
+        Move killers[];
+        int history_bonus[];
 
         // MVV-LVA lookup table [attacker][victim]
         int mvv_lva[15][15];
@@ -34,29 +34,6 @@ namespace Clovis {
             }
         }
 
-        void MovePicker::update_history(Move best_move, int depth)
-        {
-            assert(!move_capture(best_move));
-
-            update_history_entry(best_move, pos.side_to_move(), history_bonus[depth]);
-
-            // when stage = init captures, it means the quiet TT move caused a beta cutoff
-            if (stage == INIT_CAPTURES)
-            {
-                assert(best_move == tt_move);
-                return;
-            }
-
-            ScoredMove* last_searched_quiet = (stage == FINISHED) ? last : curr;
-
-            for (ScoredMove* sm = end_bad_caps; sm < last_searched_quiet; ++sm)
-            {
-                assert(!move_capture(*sm));
-                if(*sm != best_move)
-                    update_history_entry(*sm, pos.side_to_move(), -history_bonus[depth]);
-            }
-        }
-
 		// return the next ordered move
 		Move MovePicker::get_next(bool skip_quiets)
 		{
@@ -68,7 +45,7 @@ namespace Clovis {
                     return tt_move;
             case INIT_CAPTURES:
                 curr = end_bad_caps = moves;
-                last = gen_cap_moves<ScoredMove>(pos, moves);
+                last = MoveGen::gen_moves<ScoredMove, CAPTURE_MOVES>(pos, moves);
                 score_captures();
                 sort(moves, last, sm_score_comp);
                 ++stage;
@@ -88,7 +65,7 @@ namespace Clovis {
                 if (!skip_quiets)
                 {
                     curr = end_bad_caps;
-                    last = gen_quiet_moves<ScoredMove>(pos, curr);
+                    last = MoveGen::gen_moves<ScoredMove, QUIET_MOVES>(pos, curr);
                     score_quiets();
                     sort(end_bad_caps, last, sm_score_comp);
                 }
@@ -129,7 +106,7 @@ namespace Clovis {
 
         void MovePicker::score_quiets()
         {
-            Move counter_move = get_counter_entry(pos.side_to_move(), prev_move);
+            Move counter_move = get_counter_entry(pos.stm(), prev_move);
 
             for (ScoredMove* sm = end_bad_caps; sm < last; ++sm)
             {
@@ -142,7 +119,7 @@ namespace Clovis {
                 else if (*sm == counter_move)
                     sm->score = 20000;
                 else
-                    sm->score = get_history_entry(pos.side_to_move(), *sm);
+                    sm->score = get_history_entry(pos.stm(), *sm);
             }
         }
 
@@ -150,8 +127,8 @@ namespace Clovis {
         {
             cout << "\nmove\tpiece\tcapture\tdouble\tenpass\tcastling\tscore\n\n";
 
-            int move_count = 0;
-            for (ScoredMove* sm = moves; sm != last; ++sm, ++move_count)
+            int count = 0;
+            for (ScoredMove* sm = moves; sm != last; ++sm, ++count)
             {
                 cout << sq2str(move_from_sq(*sm))
                     << sq2str(move_to_sq(*sm))
@@ -164,7 +141,7 @@ namespace Clovis {
                     << sm->score << '\n';
 
             }
-            cout << "\n\nTotal move count:" << move_count;
+            cout << "\n\nTotal move count:" << count;
         }
 
         void test_movepicker()

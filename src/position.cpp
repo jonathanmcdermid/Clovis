@@ -1,14 +1,12 @@
 #include "position.h"
 
+using namespace std;
+
 namespace Clovis {
 
-    const extern std::string piece_str = " PNBRQK  pnbrqk";
-
+    const extern string piece_str = " PNBRQK  pnbrqk";
     constexpr int game_phase_inc[15] = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
-
     constexpr int piece_value[7] = { 0,100,300,300,500,900,20000 };
-
-    constexpr int position_size = sizeof(Position);
 
     // castling rights lookup table
     const int castling_rights[SQ_N] = {
@@ -46,16 +44,16 @@ namespace Clovis {
     // sets position to the state specified by FEN string
 	void Position::set(const char* fen)
 	{
-        memset(this, 0, position_size);
+        memset(this, 0, sizeof(Position));
         bs = new BoardState;
 
-        std::istringstream ss(fen);
+        istringstream ss(fen);
         unsigned char token;
 
         int index;
         Square sq = A8;
 
-        ss >> std::noskipws;
+        ss >> noskipws;
 
         while ((ss >> token) && !isspace(token))
         {
@@ -89,7 +87,7 @@ namespace Clovis {
             bs->enpassant = make_square(f, r);
         }
         else bs->enpassant = SQ_NONE;
-        ss >> std::skipws >> bs->hmc >> bs->fmc;
+        ss >> skipws >> bs->hmc >> bs->fmc;
         bs->key = make_key();
         bs->pkey = make_pawn_key();
         bs->ply_null = 0;
@@ -304,7 +302,6 @@ namespace Clovis {
         Square tar = move_to_sq(move);
         Piece piece = move_piece_type(move);
 
-        // null moves
         if (move == MOVE_NULL)
         {
             if (bs->enpassant != SQ_NONE)
@@ -327,8 +324,8 @@ namespace Clovis {
 
         if (move_castling(move))
         {
-            Square rt = castle_rook_to(tar);
-            Square rf = castle_rook_from(tar);
+            Square rt, rf;
+            get_castle_rook_squares(tar, rf, rt);
             bs->key ^= Zobrist::piece_square[piece_board[rf]][rf];
             bs->key ^= Zobrist::piece_square[piece_board[rf]][rt];
             remove_piece(rf);
@@ -404,7 +401,7 @@ namespace Clovis {
         //
         //if (checkhash != bs->pkey)
         //{
-        //    std::cout << UCI::move2str(m) << "\n";
+        //    cout << UCI::move2str(m) << "\n";
         //    print_position();
         //    undo_move(m);
         //    print_position();
@@ -416,7 +413,7 @@ namespace Clovis {
         //
         //if (checkhash != bs->key)
         //{
-        //    std::cout << UCI::move2str(m) << "\n";
+        //    cout << UCI::move2str(m) << "\n";
         //    print_position();
         //    undo_move(m);
         //    print_position();
@@ -441,7 +438,6 @@ namespace Clovis {
         Square src = move_from_sq(move);
         Square tar = move_to_sq(move);
 
-        // null moves
         if (move == MOVE_NULL)
             goto nullmove;
 
@@ -450,8 +446,8 @@ namespace Clovis {
 
         if (move_castling(move))
         {
-            Square rt = castle_rook_to(tar);
-            Square rf = castle_rook_from(tar);
+            Square rt, rf;
+            get_castle_rook_squares(tar, rf, rt);
             remove_piece(rt);
             put_piece(make_piece(ROOK, side), rf);
         }
@@ -476,7 +472,7 @@ namespace Clovis {
 
         BoardState* temp = bs;
        
-        for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4)
+        for (int end = min(bs->hmc, bs->ply_null); end >= 4; end -= 4)
         {
             assert(temp->prev->prev->prev->prev);
 
@@ -491,7 +487,7 @@ namespace Clovis {
     // prints the current position
     void Position::print_position() const
     {
-        std::cout << "+---+---+---+---+---+---+---+---+\n";
+        cout << "+---+---+---+---+---+---+---+---+\n";
         for (Rank r = RANK_8; r >= 0; --r)
         {
             for (File f = FILE_A; f < FILE_N; ++f)
@@ -503,11 +499,11 @@ namespace Clovis {
                     if (piece_bitboard[bb_piece] & sq)
                         break;
 
-                std::cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
+                cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
             }
-            std::cout << "|" + std::to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
+            cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
         }
-        std::cout << "  a   b   c   d   e   f   g   h\n"
+        cout << "  a   b   c   d   e   f   g   h\n"
             << "Side:\t\t" 
             << (side == WHITE ? "white" : "black") << "\n"
             << "Enpassant:\t" 
@@ -526,7 +522,7 @@ namespace Clovis {
     {
         // there is a gap in value between W_KING AND B_PAWN
         // therefore some of the bitboards printed are empty
-        std::cout << "Printing Bitboards\n";
+        cout << "Printing Bitboards\n";
         for (auto it : piece_bitboard)
             Bitboards::print_bitboard(it);
         for (auto it : occ_bitboard)
@@ -536,14 +532,14 @@ namespace Clovis {
     // prints the attacked squares for a given side
     void Position::print_attacked_squares(Colour side)
     {
-        std::cout << "+---+---+---+---+---+---+---+---+\n";
+        cout << "+---+---+---+---+---+---+---+---+\n";
         for (Rank r = RANK_8; r >= RANK_1; --r)
         {
             for (File f = FILE_A; f <= FILE_H; ++f)
             {
-                std::cout << (is_attacked(make_square(f, r), side) ? "| X " : "|   ");
+                cout << (is_attacked(make_square(f, r), side) ? "| X " : "|   ");
             }
-            std::cout << "|" + std::to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
+            cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
         }
     }
 

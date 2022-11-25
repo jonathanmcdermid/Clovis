@@ -1,39 +1,11 @@
 #pragma once
 
 #include "position.h"
+#include "tt.h"
 
 namespace Clovis {
 
 	class Position;
-
-	enum GamePhase : int {
-		MG, EG,
-		PHASE_N = 2
-	};
-
-	struct Score {
-	public:
-		Score() : mg(0), eg(0) {}
-		Score(int mg, int eg) : mg(mg), eg(eg) {}
-		void operator+=(const Score& rhs) { 
-			this->mg += rhs.mg; 
-			this->eg += rhs.eg;
-		}
-		void operator-=(const Score& rhs) {
-			this->mg -= rhs.mg;
-			this->eg -= rhs.eg;
-		}
-		bool operator==(const Score& rhs) {
-			return this->mg == rhs.mg && this->eg == rhs.eg;
-		}
-		int get_score(int game_phase, Colour side) const { 
-			return (side == WHITE) 
-				? (mg * game_phase + eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE
-				:-(mg * game_phase + eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
-		}
-		short mg;
-		short eg;
-	};
 
 	struct KingZone {
 		KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
@@ -41,15 +13,6 @@ namespace Clovis {
 		Bitboard outer_ring;
 		Bitboard inner_ring;
 	};
-
-	inline Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
-	inline Score operator+(Score s1, int i) { return Score(s1.mg + i, s1.eg + i); }
-	inline Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
-	inline Score operator-(Score s1, int i) { return Score(s1.mg - i, s1.eg - i); }
-	inline Score operator*(Score s1, int i) { return Score(s1.mg * i, s1.eg * i); }
-	inline Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
-	inline Score operator/(Score s1, int i) { return Score(s1.mg / i, s1.eg / i); }
-	inline Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
 
 	namespace Eval {
 
@@ -65,6 +28,7 @@ namespace Clovis {
 		extern Score bishop_pair_bonus;
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
+		extern Score tempo_bonus;
 		extern Score mobility[7];
 		extern Score outer_ring_attack[7];
 		extern Score inner_ring_attack[7];
@@ -77,8 +41,50 @@ namespace Clovis {
 		void test_eval();
 
 		Bitboard set_file_rank_mask(File file_number, Rank rank_number);
-		Score evaluate(const Position& pos);
+		Score evaluate_all(const Position& pos);
 		Score evaluate_pawns(const Position& pos);
+
+		template<bool use_tt>
+		int evaluate(const Position& pos)
+		{
+			Colour us = pos.stm();
+			Colour them = other_side(us);
+
+			bool insufficient[COLOUR_N] = { pos.is_insufficient<WHITE>(), pos.is_insufficient<BLACK>() };
+
+			assert(!(insufficient[WHITE] && insufficient[BLACK]));
+
+			int game_phase = pos.get_game_phase();
+
+			Score score = evaluate_all(pos);
+
+			if (use_tt)
+			{
+				PTEntry* pte = tt.probe_pawn(pos.get_pawn_key());
+
+				if (!pte)
+				{
+					tt.new_pawn_entry(pos.get_pawn_key(), evaluate_pawns(pos));
+					pte = tt.probe_pawn(pos.get_pawn_key());
+					assert(pte);
+				}
+
+				score += pte->s;
+			}
+			else score += evaluate_pawns(pos);
+
+			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
+			if (us == BLACK)
+				eval = -eval;
+
+			// we dont have to worry about both sides being out of material
+			if (insufficient[us])
+				return min(DRAW_SCORE, eval);
+			if (insufficient[them])
+				return max(DRAW_SCORE, eval);
+			return eval;
+
+		}
 
 	} // namespace Eval
 

@@ -3,6 +3,8 @@
 #include <immintrin.h>
 #include <cstring>
 #include <cassert>
+#include <iostream>
+#include <string>
 
 #include "random.h"
 #include "types.h"
@@ -99,7 +101,7 @@ namespace Clovis {
 
         void print_bitboard(const Bitboard& bb);
 
-        Bitboard mask_pawn_attacks(Square sq, Colour side);
+        template<Colour c> Bitboard mask_pawn_attacks(Square sq);
         Bitboard mask_knight_attacks(Square sq);
         Bitboard mask_bishop_attacks(Square sq);
         Bitboard mask_rook_attacks(Square sq);

@@ -1,21 +1,42 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <vector>
 
-#include "evaluate.h"
 #include "types.h"
 
 namespace Clovis {
 
     constexpr size_t pt_size = 131072;
 
-    enum HashFlag : uint8_t {
-        HASH_NONE,
-        HASH_ALPHA,
-        HASH_BETA,
-        HASH_EXACT,
+    struct Score {
+    public:
+        Score() : mg(0), eg(0) {}
+        Score(int mg, int eg) : mg(mg), eg(eg) {}
+        void operator+=(const Score& rhs) {
+            this->mg += rhs.mg;
+            this->eg += rhs.eg;
+        }
+        void operator-=(const Score& rhs) {
+            this->mg -= rhs.mg;
+            this->eg -= rhs.eg;
+        }
+        bool operator==(const Score& rhs) {
+            return this->mg == rhs.mg && this->eg == rhs.eg;
+        }
+        short mg;
+        short eg;
     };
+
+    inline Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+    inline Score operator+(Score s1, int i) { return Score(s1.mg + i, s1.eg + i); }
+    inline Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+    inline Score operator-(Score s1, int i) { return Score(s1.mg - i, s1.eg - i); }
+    inline Score operator*(Score s1, int i) { return Score(s1.mg * i, s1.eg * i); }
+    inline Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
+    inline Score operator/(Score s1, int i) { return Score(s1.mg / i, s1.eg / i); }
+    inline Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
 
 	struct TTEntry {
         TTEntry(Key key = 0ULL, int depth = 0, int eval = 0, HashFlag flags = HASH_NONE, Move move = MOVE_NONE) : key(key), depth(depth), flags(flags), eval(eval), move(move) {};
@@ -40,16 +61,14 @@ namespace Clovis {
     };
 
     struct PTEntry {
-        PTEntry(Key k = 0ULL, Score s = Score(0,0)) {
-            key = k;
-            eval = s;
-        }
+        PTEntry() : key(0ULL), s(Score()) { ; }
+        PTEntry(Key k, Score s) : key(k), s(s) { ; }
         void operator=(const PTEntry& rhs) {
-            key = rhs.key;
-            eval = rhs.eval;
+            this->key = rhs.key;
+            this->s = rhs.s;
         }
         Key key;
-        Score eval;
+        Score s;
     };
 
 	class TTable {

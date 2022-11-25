@@ -47,7 +47,7 @@ namespace Clovis {
         Move start_search(Position& pos, SearchLimits& lim)
         {
             stop = false;
-            allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side_to_move()] / (lim.moves_left + 5);
+            allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.stm()] / (lim.moves_left + 5);
             tm.set();
 
             int alpha = INT_MIN;
@@ -93,6 +93,7 @@ namespace Clovis {
                     --depth;
                     continue;
                 }
+
                 alpha = depth > asp_threshold_depth ? score - asp_window : INT_MIN;
                 beta = depth > asp_threshold_depth ? score + asp_window : INT_MAX;
             }
@@ -121,7 +122,7 @@ namespace Clovis {
 
             // avoid overflow
             if (ply >= MAX_PLY)
-                return (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
+                return Eval::evaluate<true>(pos);
 
             ++nodes;
 
@@ -151,14 +152,14 @@ namespace Clovis {
             else
                 tt_move = MOVE_NONE;
 
-            bool king_in_check = pos.is_king_in_check(pos.side_to_move());
+            bool king_in_check = pos.is_king_in_check(pos.stm());
 
             int score;
 
             if (king_in_check)
                 goto loop;
 
-            score = tte ? tte->eval : (Eval::evaluate(pos) + Eval::evaluate_pawns(pos)).get_score(pos.get_game_phase(), pos.side_to_move());
+            score = tte ? tte->eval : Eval::evaluate<true>(pos);
 
             // reverse futility pruning
             // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
@@ -171,7 +172,7 @@ namespace Clovis {
             if (!pv_node
                 && !is_null
                 && depth >= null_pruning_depth
-                && pos.has_promoted(pos.side_to_move())) 
+                && pos.stm_has_promoted()) 
             {
                 pos.do_move(MOVE_NULL);
                 score = -negamax(pos, -beta, -beta + 1, depth - 3, ply + 1, true, MOVE_NULL);
@@ -230,7 +231,7 @@ namespace Clovis {
                         && move_capture(curr_move) == NO_PIECE
                         && move_promotion_type(curr_move) == NO_PIECE)
                     {
-                        int history_entry = MovePick::get_history_entry(other_side(pos.side_to_move()), curr_move);
+                        int history_entry = MovePick::get_history_entry(other_side(pos.stm()), curr_move);
                         // reduction factor
                         int R = lmr_table[depth][min(moves_searched, MAX_PLY - 1)];
                         // reduce for pv nodes
@@ -271,9 +272,9 @@ namespace Clovis {
                 {
                     if (move_capture(curr_move) == NO_PIECE)
                     {
-                        mp.update_history(curr_move, depth);
+                        mp.update_history<HASH_BETA>(curr_move, depth);
                         MovePick::update_killers(curr_move, ply);
-                        MovePick::update_counter_entry(pos.side_to_move(), prev_move, curr_move);
+                        MovePick::update_counter_entry(pos.stm(), prev_move, curr_move);
                     }
 
                     tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move);
@@ -310,7 +311,7 @@ namespace Clovis {
             tt.new_entry(pos.get_key(), depth, best_score, eval_type, best_move);
 
             if(eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
-                mp.update_history(best_move, depth);
+                mp.update_history<HASH_EXACT>(best_move, depth);
 
             return alpha;
         }
@@ -325,26 +326,7 @@ namespace Clovis {
                     || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
                 return tte->eval;
 
-            PTEntry* pte = tt.probe_pawn(pos.get_pawn_key());
-
-            if (!pte)
-            {
-                tt.new_pawn_entry(pos.get_pawn_key(), Eval::evaluate_pawns(pos));
-                pte = tt.probe_pawn(pos.get_pawn_key());
-                assert(pte);
-            }
-
-            // this should maybe take place in evaluation function instead of here
-            int eval = (Eval::evaluate(pos) + pte->eval).get_score(pos.get_game_phase(), pos.side_to_move());
-
-            if (pos.is_insufficient(pos.side_to_move()))
-            {
-                if (pos.is_insufficient(other_side(pos.side_to_move())))
-                    return DRAW_SCORE;
-                eval = min(DRAW_SCORE, eval);
-            }
-            else if (pos.is_insufficient(other_side(pos.side_to_move())))
-                eval = max(DRAW_SCORE, eval);
+            int eval = Eval::evaluate<true>(pos);
 
             // use TT score instead of static eval if conditions are right
             // conditions: valid TTE and either 

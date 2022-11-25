@@ -16,13 +16,8 @@ namespace Clovis {
 
 	namespace Tuner {
 
-		struct Weight {
-			Weight(short* value, bool natural) : value(value), natural(natural){};
-			short* value;
-			bool natural;
-		};
-
 		void tune();
+		long double tune_loop(int exclude_idx = -1);
 		long double find_k();
 		long double mean_squared_error(long double K);
 		void processor(int start, int end, long double K);

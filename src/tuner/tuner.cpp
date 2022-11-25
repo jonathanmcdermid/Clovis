@@ -8,9 +8,11 @@ namespace Clovis {
 
 		vector<Position> positions;
 		vector<double> results;
-		vector<Weight> weights;
+		vector<short*> weights;
+		long double best_mse;
+		long double k;
 
-		constexpr int n_cores = 4;
+		constexpr int n_cores = 6;
 		long double answers = 0;
 
 		void tune()
@@ -42,16 +44,60 @@ namespace Clovis {
 			}
 			log_file.close();
 
-			cout << "positions done loading " << positions.size() << "\n";
+			cout << "positions done loading " << positions.size() << endl;
 
 			map_weights_to_params();
 
 			// compute scaling constant k
-			long double mse;
-			long double k = find_k();
-			long double best_mse = mean_squared_error(k);
+			k = find_k();
 
-			vector<Weight> best_weights;
+			best_mse = mean_squared_error(k);
+
+			long double mse;
+			long double best_mse = tune_loop();
+
+			for (short step = 1; step < 10; ++step)
+			{
+				for (int index = 0; index < weights.size(); ++index)
+				{
+					short best_val = *weights[index];
+
+					print_params();
+			
+					*weights[index] += step;
+			
+					mse = tune_loop(index);
+
+					if (mse < best_mse)
+					{
+						best_val = *weights[index];
+						best_mse = mse;
+					}
+					else
+						*weights[index] = best_val;
+			
+					if (*weights[index] == 0)
+						continue;
+			
+					*weights[index] -= step;
+					*weights[index] = max(short(0), *weights[index]);
+
+					mse = tune_loop(index);
+			
+					if (mse < best_mse)
+						best_mse = mse;
+					else
+						*weights[index] = best_val;
+				}
+			}
+			print_params();
+
+		}
+
+		long double tune_loop(int exclude_idx)
+		{
+			long double mse;
+
 			vector<int> direction(weights.size(), 1);
 
 			bool improved = true;
@@ -61,13 +107,17 @@ namespace Clovis {
 				improved = false;
 				for (int index = 0; index < weights.size(); ++index)
 				{
-					int old_val = *weights[index].value;
+					if (index == exclude_idx)
+						continue;
+
+					int step = (exclude_idx == -1)? 1 : 1 + (rand() % 5);
+
+					int old_val = *weights[index];
 
 					// increase weight
-					*weights[index].value += direction[index];
+					*weights[index] += direction[index] * step;
 
-					if (weights[index].natural)
-						*weights[index].value = max(short(0), *weights[index].value);
+					*weights[index] = max(short(0), *weights[index]);
 
 					mse = mean_squared_error(k);
 
@@ -77,22 +127,17 @@ namespace Clovis {
 
 					if (mse < best_mse)
 					{
-						direction[index] += direction[index];
 						best_mse = mse;
 						improved = true;
-						best_weights = weights;
 					}
 					else
 					{
+						*weights[index] = old_val;
 
-						*weights[index].value = old_val;
-
-						direction[index] = direction[index] / abs(direction[index]);
 						// decrease weight
-						*weights[index].value -= direction[index];
+						*weights[index] -= direction[index] * step;
 
-						if (weights[index].natural)
-							*weights[index].value = max(short(0), *weights[index].value);
+						*weights[index] = max(short(0), *weights[index]);
 
 						mse = mean_squared_error(k);
 
@@ -105,23 +150,19 @@ namespace Clovis {
 							direction[index] = -direction[index];
 							best_mse = mse;
 							improved = true;
-
-							best_weights = weights;
 						}
 						else
 							// reset weight, no improvements
-							*weights[index].value = old_val;
+							*weights[index] = old_val;
 					}
-					cout << "weight " << index << " mse: " << best_mse << " adjustment: " << direction[index] << "\n";
+					cout << "weight " << index << " mse: " << best_mse << " adjustment: " << direction[index] << endl;
 				}
 
-				// this probably doesnt need to be done
-				weights = best_weights;
-
 				cout << "iteration " << iterations << " complete" << endl;
-				print_params();
 			}
 			cout << "\ndone!\n";
+
+			return best_mse;
 		}
 
 		long double mean_squared_error(long double K)
@@ -160,7 +201,10 @@ namespace Clovis {
 
 			for (int i = start; i < end; ++i)
 			{
-				eval = (Eval::evaluate(positions[i]) + Eval::evaluate_pawns(positions[i])).get_score(positions[i].get_game_phase(), WHITE);
+				eval = Eval::evaluate<false>(positions[i]);
+				// all evaluations need to be from white perspective
+				if (positions[i].stm() == BLACK)
+					eval = -eval;
 				sigmoid = 1 / (1 + pow(10, -K * eval / 400));
 				error_sum += pow(results[i] - sigmoid, 2);
 			}
@@ -193,6 +237,7 @@ namespace Clovis {
 					}
 				}
 
+				cout.precision(17);
 				cout << "epoch " << i << " K = " << start << " E = " << best << endl;
 
 				end = start + step;
@@ -207,54 +252,56 @@ namespace Clovis {
 		{
 			// point weights to the variables in the evaluation function
 
-			for (Square sq = SQ_ZERO; sq < 32; ++sq) 
+			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
 				if ((sq / 4 != RANK_1 && sq / 4 != RANK_8))
 				{
-					weights.push_back(Weight(&Eval::pawn_table[sq].mg, false));
-					weights.push_back(Weight(&Eval::pawn_table[sq].eg, false));
+					weights.push_back(&Eval::pawn_table[sq].mg);
+					weights.push_back(&Eval::pawn_table[sq].eg);
 
-					weights.push_back(Weight(&Eval::passed_pawn_bonus[sq].mg, true));
-					weights.push_back(Weight(&Eval::passed_pawn_bonus[sq].eg, true));
+					weights.push_back(&Eval::passed_pawn_bonus[sq].mg);
+					weights.push_back(&Eval::passed_pawn_bonus[sq].eg);
 				}
-				weights.push_back(Weight(&Eval::knight_table[sq].mg, false));
-				weights.push_back(Weight(&Eval::knight_table[sq].eg, false));
+				weights.push_back(&Eval::knight_table[sq].mg);
+				weights.push_back(&Eval::knight_table[sq].eg);
 
-				weights.push_back(Weight(&Eval::bishop_table[sq].mg, false));
-				weights.push_back(Weight(&Eval::bishop_table[sq].eg, false));
+				weights.push_back(&Eval::bishop_table[sq].mg);
+				weights.push_back(&Eval::bishop_table[sq].eg);
 
-				weights.push_back(Weight(&Eval::rook_table[sq].mg, false));
-				weights.push_back(Weight(&Eval::rook_table[sq].eg, false));
+				weights.push_back(&Eval::rook_table[sq].mg);
+				weights.push_back(&Eval::rook_table[sq].eg);
 
-				weights.push_back(Weight(&Eval::queen_table[sq].mg, false));
-				weights.push_back(Weight(&Eval::queen_table[sq].eg, false));
+				weights.push_back(&Eval::queen_table[sq].mg);
+				weights.push_back(&Eval::queen_table[sq].eg);
 
-				weights.push_back(Weight(&Eval::king_table[sq].mg, false));
-				weights.push_back(Weight(&Eval::king_table[sq].eg, false));
+				weights.push_back(&Eval::king_table[sq].mg);
+				weights.push_back(&Eval::king_table[sq].eg);
 			}
 
-			weights.push_back(Weight(&Eval::double_pawn_penalty.mg, true));
-			weights.push_back(Weight(&Eval::double_pawn_penalty.eg, true));
-			weights.push_back(Weight(&Eval::isolated_pawn_penalty.mg, true));
-			weights.push_back(Weight(&Eval::isolated_pawn_penalty.eg, true));
-			weights.push_back(Weight(&Eval::bishop_pair_bonus.mg, true));
-			weights.push_back(Weight(&Eval::bishop_pair_bonus.eg, true));
-			weights.push_back(Weight(&Eval::rook_open_file_bonus.mg, true));
-			weights.push_back(Weight(&Eval::rook_open_file_bonus.eg, true));
-			weights.push_back(Weight(&Eval::rook_semi_open_file_bonus.mg, true));
-			weights.push_back(Weight(&Eval::rook_semi_open_file_bonus.eg, true));
-			weights.push_back(Weight(&Eval::king_safety_reduction_factor.mg, true));
-			weights.push_back(Weight(&Eval::king_safety_reduction_factor.eg, true));
+			weights.push_back(&Eval::tempo_bonus.mg);
+			weights.push_back(&Eval::tempo_bonus.eg);
+			weights.push_back(&Eval::double_pawn_penalty.mg);
+			weights.push_back(&Eval::double_pawn_penalty.eg);
+			weights.push_back(&Eval::isolated_pawn_penalty.mg);
+			weights.push_back(&Eval::isolated_pawn_penalty.eg);
+			weights.push_back(&Eval::bishop_pair_bonus.mg);
+			weights.push_back(&Eval::bishop_pair_bonus.eg);
+			weights.push_back(&Eval::rook_open_file_bonus.mg);
+			weights.push_back(&Eval::rook_open_file_bonus.eg);
+			weights.push_back(&Eval::rook_semi_open_file_bonus.mg);
+			weights.push_back(&Eval::rook_semi_open_file_bonus.eg);
+			weights.push_back(&Eval::king_safety_reduction_factor.mg);
+			weights.push_back(&Eval::king_safety_reduction_factor.eg);
 
-			for (int j = KNIGHT; j < KING; ++j) 
+			for (int j = KNIGHT; j < KING; ++j)
 			{
-				weights.push_back(Weight(&Eval::mobility[j].mg, true));
-				weights.push_back(Weight(&Eval::mobility[j].eg, true));
+				weights.push_back(&Eval::mobility[j].mg);
+				weights.push_back(&Eval::mobility[j].eg);
 
-				weights.push_back(Weight(&Eval::inner_ring_attack[j].mg, true));
-				weights.push_back(Weight(&Eval::inner_ring_attack[j].eg, true));
-				weights.push_back(Weight(&Eval::outer_ring_attack[j].mg, true));
-				weights.push_back(Weight(&Eval::outer_ring_attack[j].eg, true));
+				weights.push_back(&Eval::inner_ring_attack[j].mg);
+				weights.push_back(&Eval::inner_ring_attack[j].eg);
+				weights.push_back(&Eval::outer_ring_attack[j].mg);
+				weights.push_back(&Eval::outer_ring_attack[j].eg);
 			}
 		}
 
@@ -262,7 +309,7 @@ namespace Clovis {
 		{
 			// print the tuned weights so they can be copy pasted into evaluation file
 
-			cout << "Score pawn_table[32] = {\n\t";
+			cout << "Score pawn_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				cout << "Score("
 					<< Eval::pawn_table[sq].mg << ","
@@ -271,7 +318,7 @@ namespace Clovis {
 			}
 			cout << "};\n";
 
-			cout << "Score knight_table[32] = {\n\t";
+			cout << "Score knight_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				cout << "Score("
 					<< Eval::knight_table[sq].mg << ","
@@ -280,7 +327,7 @@ namespace Clovis {
 			}
 			cout << "};\n";
 
-			cout << "Score bishop_table[32] = {\n\t";
+			cout << "Score bishop_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				cout << "Score("
 					<< Eval::bishop_table[sq].mg << ","
@@ -289,7 +336,7 @@ namespace Clovis {
 			}
 			cout << "};\n";
 
-			cout << "Score rook_table[32] = {\n\t";
+			cout << "Score rook_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				cout << "Score("
 					<< Eval::rook_table[sq].mg << ","
@@ -298,7 +345,7 @@ namespace Clovis {
 			}
 			cout << "};\n";
 
-			cout << "Score queen_table[32] = {\n\t";
+			cout << "Score queen_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				cout << "Score("
 					<< Eval::queen_table[sq].mg << ","
@@ -307,7 +354,7 @@ namespace Clovis {
 			}
 			cout << "};\n";
 
-			cout << "Score king_table[32] = {\n\t";
+			cout << "Score king_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				cout << "Score("
 					<< Eval::king_table[sq].mg << ","
@@ -316,7 +363,7 @@ namespace Clovis {
 			}
 			cout << "};\n";
 
-			cout << "Score passed_pawn_bonus[32] = {\n\t";
+			cout << "Score passed_pawn_bonus[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				cout << " Score("
 					<< Eval::passed_pawn_bonus[sq].mg << ", "
@@ -340,6 +387,9 @@ namespace Clovis {
 			cout << "Score rook_semi_open_file_bonus = Score("
 				<< Eval::rook_semi_open_file_bonus.mg << ", "
 				<< Eval::rook_semi_open_file_bonus.eg << ");\n";
+			cout << "Score tempo_bonus = Score("
+				<< Eval::tempo_bonus.mg << ", "
+				<< Eval::tempo_bonus.eg << ");\n";
 			cout << "Score king_safety_reduction_factor = Score("
 				<< Eval::king_safety_reduction_factor.mg << ", "
 				<< Eval::king_safety_reduction_factor.eg << ");\n";
