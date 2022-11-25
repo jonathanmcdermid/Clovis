@@ -20,13 +20,13 @@ namespace Clovis {
                 Score(280,274), Score(309,295), Score(399,279), Score(336,307),
                 Score(329,274), Score(404,283), Score(380,312), Score(399,307),
                 Score(355,286), Score(358,312), Score(369,327), Score(367,332),
-                Score(336,289), Score(355,307), Score(360,325), Score(359,332),
+                Score(336,289), Score(356,307), Score(360,325), Score(359,332),
                 Score(330,285), Score(357,294), Score(363,301), Score(369,317),
                 Score(328,269), Score(324,287), Score(351,294), Score(363,299),
                 Score(295,264), Score(335,255), Score(328,284), Score(337,288),
         };
         Score bishop_table[] = {
-                Score(278,299), Score(289,302), Score(211,314), Score(234,315),
+                Score(278,299), Score(289,301), Score(211,314), Score(234,315),
                 Score(273,309), Score(330,304), Score(312,312), Score(297,310),
                 Score(299,316), Score(340,307), Score(344,309), Score(332,306),
                 Score(319,309), Score(320,315), Score(320,321), Score(342,318),
@@ -56,7 +56,7 @@ namespace Clovis {
                 Score(946,947), Score(930,952), Score(936,956), Score(952,947),
         };
         Score king_table[] = {
-                Score(29,61), Score(218,58), Score(146,88), Score(116,77),
+                Score(28,61), Score(218,58), Score(146,88), Score(116,77),
                 Score(103,92), Score(127,111), Score(134,121), Score(156,106),
                 Score(128,98), Score(202,115), Score(213,118), Score(142,110),
                 Score(60,99), Score(104,124), Score(96,131), Score(74,133),
