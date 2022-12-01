@@ -48,53 +48,95 @@ namespace Clovis {
 
 			map_weights_to_params();
 
+			bool improved;
+
 			// compute scaling constant k
-			k = find_k();
+			k = 1.68;//find_k();
+
+		repeat:
+
+			improved = false;
 
 			best_mse = mean_squared_error(k);
 
-			long double mse;
-			long double best_mse = tune_loop();
+			long double mse = tune_loop();
 
 			for (short step = 1; step < 10; ++step)
 			{
-				for (int index = 0; index < weights.size(); ++index)
+				cout << "step: " << step << endl;
+				for (int index = 0; index + 1 < weights.size(); index += 2)
 				{
-					short best_val = *weights[index];
+					short best_val1 = *weights[index];
+					short best_val2 = *weights[index + 1];
 
-					print_params();
-			
 					*weights[index] += step;
-			
-					mse = tune_loop(index);
+					
+					for (int i = 0; i < 10 && mse >= best_mse && *weights[index + 1] > 0; ++i)
+					{
+						*weights[index + 1] -= 1;
+						*weights[index + 1] = max(short(0), *weights[index + 1]);
+
+						mse = mean_squared_error(k);
+
+						// if a thread fails we catch it here
+						while (best_mse - mse > best_mse / (n_cores + 1))
+							mse = mean_squared_error(k);
+					}
 
 					if (mse < best_mse)
 					{
-						best_val = *weights[index];
+						best_val1 = *weights[index];
+						best_val2 = *weights[index + 1];
 						best_mse = mse;
+						print_params();
+						cout << mse << endl;
+						improved = true;
 					}
 					else
-						*weights[index] = best_val;
-			
+					{
+						*weights[index] = best_val1;
+						*weights[index + 1] = best_val2;
+					}
+
 					if (*weights[index] == 0)
 						continue;
-			
+
 					*weights[index] -= step;
 					*weights[index] = max(short(0), *weights[index]);
 
-					mse = tune_loop(index);
-			
+					for (int i = 0; i < 10 && mse >= best_mse; ++i)
+					{
+						*weights[index + 1] += 1;
+						mse = mean_squared_error(k);
+
+						// if a thread fails we catch it here
+						while (best_mse - mse > best_mse / (n_cores + 1))
+							mse = mean_squared_error(k);
+					}
+
 					if (mse < best_mse)
+					{
 						best_mse = mse;
+						print_params();
+						cout << mse << endl;
+						improved = true;
+					}
 					else
-						*weights[index] = best_val;
+					{
+						*weights[index] = best_val1;
+						*weights[index + 1] = best_val2;
+					}
 				}
 			}
+
+			if (improved)
+				goto repeat;
+
 			print_params();
 
 		}
 
-		long double tune_loop(int exclude_idx)
+		long double tune_loop()
 		{
 			long double mse;
 
@@ -107,15 +149,10 @@ namespace Clovis {
 				improved = false;
 				for (int index = 0; index < weights.size(); ++index)
 				{
-					if (index == exclude_idx)
-						continue;
-
-					int step = (exclude_idx == -1)? 1 : 1 + (rand() % 5);
-
 					int old_val = *weights[index];
 
 					// increase weight
-					*weights[index] += direction[index] * step;
+					*weights[index] += direction[index];
 
 					*weights[index] = max(short(0), *weights[index]);
 
@@ -135,7 +172,7 @@ namespace Clovis {
 						*weights[index] = old_val;
 
 						// decrease weight
-						*weights[index] -= direction[index] * step;
+						*weights[index] -= direction[index];
 
 						*weights[index] = max(short(0), *weights[index]);
 
@@ -252,16 +289,21 @@ namespace Clovis {
 		{
 			// point weights to the variables in the evaluation function
 
+			weights.push_back(&Eval::outpost_bonus[0].mg);
+			weights.push_back(&Eval::outpost_bonus[0].eg);
+			weights.push_back(&Eval::outpost_bonus[1].mg);
+			weights.push_back(&Eval::outpost_bonus[1].eg);
+
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
 				if ((sq / 4 != RANK_1 && sq / 4 != RANK_8))
 				{
 					weights.push_back(&Eval::pawn_table[sq].mg);
 					weights.push_back(&Eval::pawn_table[sq].eg);
-
 					weights.push_back(&Eval::passed_pawn_bonus[sq].mg);
 					weights.push_back(&Eval::passed_pawn_bonus[sq].eg);
 				}
+
 				weights.push_back(&Eval::knight_table[sq].mg);
 				weights.push_back(&Eval::knight_table[sq].eg);
 
@@ -413,6 +455,13 @@ namespace Clovis {
 				cout << " Score("
 					<< Eval::outer_ring_attack[i].mg << ", "
 					<< Eval::outer_ring_attack[i].eg << "),";
+			}
+			cout << "};\n";
+			cout << "Score outpost_bonus[2] = {";
+			for (int i = KNIGHT; i <= BISHOP; ++i) {
+				cout << " Score("
+					<< Eval::outpost_bonus[i % KNIGHT].mg << ", "
+					<< Eval::outpost_bonus[i % KNIGHT].eg << "),";
 			}
 			cout << "};\n";
 		}

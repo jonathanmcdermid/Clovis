@@ -32,6 +32,7 @@ namespace Clovis {
 		extern Score mobility[7];
 		extern Score outer_ring_attack[7];
 		extern Score inner_ring_attack[7];
+		extern Score outpost_bonus[2];
 		extern Score king_safety_reduction_factor;
 
 		void init_eval();
