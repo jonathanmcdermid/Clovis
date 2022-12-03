@@ -16,7 +16,6 @@ namespace Clovis {
 
         struct SearchLimits {
         public:
-
             SearchLimits() {
                 time[WHITE] = time[BLACK] = 5000;
                 inc[WHITE] = inc[BLACK] = move_time = start_time = 0;
@@ -26,14 +25,13 @@ namespace Clovis {
                 infinite = false;
                 nodes = 0;
             }
-
             int time[COLOUR_N], inc[COLOUR_N], move_time, start_time;
             int moves_left, depth, mate, perft;
             bool infinite;
-            U32 nodes;
+            U64 nodes;
         };
 
-        struct Line {
+		struct Line {
             Line() : last(moves) {}
             int move_count() const { return last - moves; }
             const Move* begin() const { return moves; }
@@ -41,8 +39,8 @@ namespace Clovis {
             Move moves[MAX_PLY] = { MOVE_NONE }, *last;
         };
 
-        Move start_search(Position& pos, SearchLimits& lim);
-        int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move);
+        void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes);
+        int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes);
         int quiescent(Position& pos, int alpha, int beta);
         void init_search();
         void init_lmr_tables();

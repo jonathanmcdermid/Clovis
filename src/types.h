@@ -10,6 +10,8 @@
 #include <climits>
 #include <string>
 
+#define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 using namespace std;
 
 namespace Clovis {

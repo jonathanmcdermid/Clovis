@@ -3,17 +3,16 @@
 using namespace std;
 
 namespace Clovis {
-
+	
 	namespace UCI {
 
 		const char* version_no = "Clovis v1.8";
 		const char* authors = "Jonathan McDermid";
-		const char* start_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 		// main loop for UCI communication
 		void loop(int argc, char* argv[])
 		{
-			Position pos(start_pos);
+			Position pos(START_POS);
 
 			string token;
 			string cmd;
@@ -28,13 +27,13 @@ namespace Clovis {
 				else if (token == "uci")
 					cout << "id name " << version_no << endl
 					<< "option name Hash type spin default 16 min 1 max 10000" << endl
+					<< "option name Threads type spin default 1 min 1 max 1" << endl
 					<< "id author " << authors << endl
 					<< "uciok" << endl;
 				else if (token == "go")         go(pos, is);
 				else if (token == "position")   position(pos, is);
 				else if (token == "ucinewgame") Search::clear();
 				else if (token == "isready")    cout << "readyok" << endl;
-				else if (token == "local")		local(pos, is);
 				else if (token == "tune")		Tuner::tune();
 				else if (token == "setoption")	set_option(is);
 				else if (token == "perft")		Perft::test_perft();
@@ -63,6 +62,11 @@ namespace Clovis {
 				mb = min(mb, 10000);
 				tt.resize(mb);
 			}
+
+			if (name == "Threads")
+			{
+				return;
+			}
 		}
 
 		// begin search
@@ -86,7 +90,10 @@ namespace Clovis {
 				else if (token == "infinite")	limits.infinite = 1;
 			}
 
-			Search::start_search(pos, limits);
+			Move best_move, ponder_move;
+			int score;
+			U64 nodes;
+			Search::start_search(pos, limits, best_move, ponder_move, score, nodes);
 		}
 
 		// set position to input description
@@ -97,7 +104,7 @@ namespace Clovis {
 			is >> token;
 			if (token == "startpos") 
 			{
-				fen = start_pos;
+				fen = START_POS;
 				is >> token;
 			}
 			else if (token == "fen")
@@ -112,25 +119,6 @@ namespace Clovis {
 				pos.do_move(move);
 
 			pos.print_position();
-		}
-
-		// for self play and debugging
-		void local(Position& pos, std::istringstream& is)
-		{
-			Search::SearchLimits limits;
-
-			string user_move;
-
-			while (true) 
-			{
-				//pos.print_position();
-				//do {
-				//	cin >> user_move;
-				//} while (to_move(pos, user_move) == MOVE_NONE);
-				//pos.do_move(to_move(pos, user_move));
-				pos.print_position();
-				pos.do_move(Search::start_search(pos, limits));
-			}
 		}
 
 		void test()

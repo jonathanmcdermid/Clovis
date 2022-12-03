@@ -19,14 +19,15 @@ namespace Clovis {
 		{
 			// load positions and results from file
 			string file_name = "src/tuner/quiet-labeled.epd";
-			ifstream log_file;
-			log_file.open(file_name.c_str(), ifstream::in);
+			ifstream ifs;
+			ifs.open(file_name.c_str(), ifstream::in);
 			string line;
+
 			while (true)
 			{
-				if (log_file.eof())
+				if (ifs.eof())
 					break;
-				getline(log_file, line);
+				getline(ifs, line);
 				if (line != "")
 				{
 					size_t idx = line.find("\"");
@@ -42,7 +43,8 @@ namespace Clovis {
 					positions.push_back(Position(line.substr(0, idx).c_str()));
 				}
 			}
-			log_file.close();
+
+			ifs.close();
 
 			cout << "positions done loading " << positions.size() << endl;
 

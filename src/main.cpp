@@ -1,4 +1,4 @@
-#include "uci.h"
+#include "cmdline.h"
 
 using namespace Clovis;
 
@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 	Eval::init_eval();
 	Position::init_position();
 
-	UCI::loop(argc, argv);
+	CMDLine::handle_cmd(argc, argv);
 
 	return 0;
 }
