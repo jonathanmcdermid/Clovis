@@ -5,14 +5,15 @@ using namespace std;
 namespace Clovis {
 
 	namespace Random {
+		
+		static mt19937_64 rng;
+		
+		U64 random_U64() {
+			return rng();	
+		}
 
-		U64 random_U64()
-		{
-			srand(time(0));
-			random_device rd;
-			mt19937_64 gen(rd());
-			uniform_int_distribution<uintmax_t> dis;
-			return dis(gen);
+		void seed_random(U64 seed) {
+			rng.seed(seed);
 		}
 
 	} // namespace Random

@@ -1,4 +1,3 @@
-#include <string>
 #include "cmdline.h"
 
 #define DEFAULT_BENCH_MB 16
@@ -69,10 +68,9 @@ namespace Clovis {
 					<< " nodes: "	<< setw(7) << it.nodes
 					<< " nps: "		<< setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
 		    }
-		
-			cout << "OVERALL: " << total_nodes 
-				<< " nps " << 1000ULL * total_nodes / (total_time + 1) << endl;
 
+			cout << total_nodes << " nodes "
+				<< 1000ULL * total_nodes / (total_time + 1) << " nps" << endl;
 		}
 
 		// handle any start-up command line arguments

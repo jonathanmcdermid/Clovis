@@ -68,6 +68,14 @@ namespace Clovis {
                 if (stop)
                     break;
 
+                if (score <= alpha || score >= beta)
+                {
+                    alpha = INT_MIN;
+                    beta = INT_MAX;
+                    --depth;
+                    continue;
+                }
+
 				auto time = tm.get_time_elapsed();
 
                 cout << "info depth "	<< setw(2) << depth
@@ -81,15 +89,7 @@ namespace Clovis {
 
                 if (tm.get_time_elapsed() > allocated_time / 3)
                     break;
-
-                if (score <= alpha || score >= beta) 
-                {
-                    alpha = INT_MIN;
-                    beta = INT_MAX;
-                    --depth;
-                    continue;
-                }
-
+                
                 alpha = depth > asp_threshold_depth ? score - asp_window : INT_MIN;
                 beta = depth > asp_threshold_depth ? score + asp_window : INT_MAX;
             }
@@ -153,14 +153,14 @@ namespace Clovis {
                 goto loop;
 
             score = tte ? tte->eval : Eval::evaluate<true>(pos);
-
+            
             // reverse futility pruning
             // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
             if (!pv_node
                 && depth <= 8
                 && score - 75 * depth > beta)
                 return score;
-
+            
             // null move pruning
             if (!pv_node
                 && !is_null
@@ -173,7 +173,7 @@ namespace Clovis {
                 if (score >= beta)
                     return beta;
             }
-
+            
             // internal iterative deepening
             if (!tte
                 && ((pv_node && depth >= 6)
@@ -231,22 +231,22 @@ namespace Clovis {
                         R -= MovePick::is_killer(curr_move, ply);
                         // reduce based on history heuristic
                         R -= max(-2, min(2, history_entry / 4000));
-
+                
                         R = max(0, min(R, depth - 2));
-
+                
                         // search current move with reduced depth:
                         score = -negamax(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes);
-
+                
                     }
-
+                
                     // hack to ensure full search
                     else score = alpha + 1;
-
+                
                     if (score > alpha)
                     {
                         // re-search at full depth but with narrowed alpha beta window
                         score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes);
-
+                
                         // if previous search doesnt fail, re-search at full depth and full alpha beta window
                         if ((score > alpha) && (score < beta))
                             score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes);
@@ -267,7 +267,7 @@ namespace Clovis {
                         MovePick::update_killers(curr_move, ply);
                         MovePick::update_counter_entry(pos.stm(), prev_move, curr_move);
                     }
-
+                    
                     tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move);
 
                     return beta;
