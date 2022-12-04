@@ -113,13 +113,13 @@ namespace Clovis {
             bool pv_node = beta - alpha != 1;
 
             if (depth <= 0)
-                return quiescent(pos, alpha, beta);
+                return quiescent(pos, alpha, beta, nodes);
+
+			++nodes;
 
             // avoid overflow
             if (ply >= MAX_PLY)
                 return Eval::evaluate<true>(pos);
-
-            ++nodes;
 
             // mate distance pruning
             // if me have found a mate, no point in finding a longer mate
@@ -299,8 +299,10 @@ namespace Clovis {
             return alpha;
         }
 
-        int quiescent(Position& pos, int alpha, int beta)
+        int quiescent(Position& pos, int alpha, int beta, U64& nodes)
         {
+			++nodes;
+
             TTEntry* tte = tt.probe(pos.get_key());
 
             if (tte &&
@@ -337,7 +339,7 @@ namespace Clovis {
                 if (!pos.do_move(curr_move))
                     continue;
 
-                eval = -quiescent(pos, -beta, -alpha);
+                eval = -quiescent(pos, -beta, -alpha, nodes);
 
                 pos.undo_move(curr_move);
 

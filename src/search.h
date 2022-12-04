@@ -41,7 +41,7 @@ namespace Clovis {
 
         void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes);
         int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes);
-        int quiescent(Position& pos, int alpha, int beta);
+        int quiescent(Position& pos, int alpha, int beta, U64& nodes);
         void init_search();
         void init_lmr_tables();
         void clear();
