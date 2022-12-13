@@ -56,7 +56,7 @@ namespace Clovis {
 		bool is_attacked(Square sq, Colour side) const;
 		Bitboard attackers_to(Square sq, Bitboard occupied) const;
 		PieceType get_smallest_attacker(Bitboard attackers, Colour stm) const;
-		Bitboard update_xray(Bitboard attackers, Bitboard occ, Square to, PieceType pt) const;
+		Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
 		bool see(Move move) const;
 		bool do_move(Move move);
 		void undo_move(Move move);

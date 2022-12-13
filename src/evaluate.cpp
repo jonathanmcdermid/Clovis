@@ -139,7 +139,7 @@ Score passed_pawn_bonus[] = {
                     score_table[make_piece(pt, BLACK)][8 * r + (7 - f)] = &piece_table[pt][sq];
                 }
             }
-	    for (Square sq = SQ_ZERO; sq < 32; ++sq)
+			for (Square sq = SQ_ZERO; sq < 32; ++sq)
             {
                 int r = sq / 4;
                 int f = sq & 0x3;
@@ -147,7 +147,7 @@ Score passed_pawn_bonus[] = {
                 passed_table[8 * (7 - r) + f] = &passed_pawn_bonus[sq];
                 passed_table[8 * (7 - r) + (7 - f)] = &passed_pawn_bonus[sq];
             }
-	}
+		}
 
         void init_masks()
         {

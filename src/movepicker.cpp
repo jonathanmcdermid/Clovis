@@ -80,7 +80,7 @@ namespace Clovis {
                 }
                 curr = moves;
                 ++stage;
-            case LOSING_CAPTURES:
+			case LOSING_CAPTURES:
                 while (curr < end_bad_caps)
                 {
                     assert(move_capture(*curr));
@@ -90,7 +90,7 @@ namespace Clovis {
                 }
                 ++stage;
                 break;
-            default:
+			default:
                 break;
             }
 

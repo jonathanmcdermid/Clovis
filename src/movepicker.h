@@ -24,42 +24,42 @@ namespace Clovis {
 			return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m);
 		}
 
-		static int get_history_entry(Colour c, Move m) {
+		inline int get_history_entry(Colour c, Move m) {
 			return history_table[cft_index(c, m)];
 		}
 
-		static int* get_history_entry_ptr(Colour c, Move m) {
+		inline int* get_history_entry_ptr(Colour c, Move m) {
 			return &history_table[cft_index(c, m)];
 		}
 
-		static Move get_counter_entry(Colour c, Move m) {
+		inline Move get_counter_entry(Colour c, Move m) {
 			return counter_table[cft_index(c, m)];
 		}
 
-		static void age_history() {
-			for (int i = 0; i < cft_size; ++i)
-				history_table[i] /= 16;
+		inline void age_history() {
+			for (auto& it : history_table)
+				it /= 16;
 		}
 
-		static void reset_counter() {
+		inline void reset_counter() {
 			memset(counter_table, 0, sizeof(counter_table));
 		}
 
-		static void reset_killers() {
+		inline void reset_killers() {
 			memset(killers, 0, sizeof(killers));
 		}
 
-		static void reset_history() {
+		inline void reset_history() {
 			memset(history_table, 0, sizeof(history_table));
 		}
 
-		static void clear() {
+		inline void clear() {
 			reset_counter();
 			reset_killers();
 			reset_history();
 		}
 
-		static void update_killers(Move m, int ply) {
+		inline void update_killers(Move m, int ply) {
 			Move* k = &killers[ply * 2];
 			if (k[0] != m)
 			{
@@ -68,16 +68,16 @@ namespace Clovis {
 			}
 		}
 
-		static void update_history_entry(Move move, Colour side, int bonus) {
+		inline void update_history_entry(Move move, Colour side, int bonus) {
 			int* history_entry = get_history_entry_ptr(side, move);
 			*history_entry += 32 * bonus - *history_entry * abs(bonus) / 512;
 		}
 
-		static void update_counter_entry(Colour c, Move prev, Move curr) {
+		inline void update_counter_entry(Colour c, Move prev, Move curr) {
 			counter_table[cft_index(c, prev)] = curr;
 		}
 
-		static bool is_killer(Move m, int ply) {
+		inline bool is_killer(Move m, int ply) {
 			Move* k = &killers[ply * 2];
 			return (m == k[0] || m == k[1]);
 		}
@@ -100,11 +100,11 @@ namespace Clovis {
 			void score_captures();
 			void score_quiets();
 			const Position& pos;
+			int ply;
 			ScoredMove *curr, *last, *end_bad_caps;
 			ScoredMove moves[MAX_MOVES];
 			Move tt_move, prev_move;
 			int stage;
-			int ply;
 		};
 
 		template<HashFlag hf>

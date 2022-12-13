@@ -13,5 +13,5 @@ int main(int argc, char* argv[])
 
 	CMDLine::handle_cmd(argc, argv);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

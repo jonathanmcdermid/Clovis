@@ -28,6 +28,9 @@ namespace Clovis {
     constexpr int CHECKMATE_SCORE = 25000;
     constexpr int MIN_CHECKMATE_SCORE = CHECKMATE_SCORE - MAX_PLY;
     constexpr int DRAW_SCORE = 0;
+	constexpr int DEFAULT_BENCH_MB = 16;
+	constexpr int DEFAULT_BENCH_DEPTH = 13;
+	constexpr int DEFAULT_BENCH_THREADS = 1;
 
     /*
                     MOVE BIT FORMATTING
@@ -70,7 +73,7 @@ namespace Clovis {
         WINNING_CAPTURES,
         INIT_QUIETS,
         QUIETS,
-        LOSING_CAPTURES,
+		LOSING_CAPTURES,
         FINISHED
     };
 

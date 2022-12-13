@@ -52,8 +52,9 @@ namespace Clovis {
 			Colour them = other_side(us);
 
 			bool insufficient[COLOUR_N] = { pos.is_insufficient<WHITE>(), pos.is_insufficient<BLACK>() };
-
-			assert(!(insufficient[WHITE] && insufficient[BLACK]));
+			
+			if (insufficient[WHITE] && insufficient[BLACK])
+				return DRAW_SCORE;
 
 			int game_phase = pos.get_game_phase();
 
@@ -83,6 +84,7 @@ namespace Clovis {
 				return min(DRAW_SCORE, eval);
 			if (insufficient[them])
 				return max(DRAW_SCORE, eval);
+
 			return eval;
 
 		}

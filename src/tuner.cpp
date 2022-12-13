@@ -15,10 +15,15 @@ namespace Clovis {
 		constexpr int n_cores = 6;
 		long double answers = 0;
 
-		void tune()
+		void tune_search()
+		{
+
+		}
+
+		void tune_eval()
 		{
 			// load positions and results from file
-			string file_name = "src/tuner/quiet-labeled.epd";
+			string file_name = "src/tuner.epd";
 			ifstream ifs;
 			ifs.open(file_name.c_str(), ifstream::in);
 			string line;
@@ -28,7 +33,7 @@ namespace Clovis {
 				if (ifs.eof())
 					break;
 				getline(ifs, line);
-				if (line != "")
+				if (line.length())
 				{
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
@@ -66,7 +71,7 @@ namespace Clovis {
 			for (short step = 1; step < 10; ++step)
 			{
 				cout << "step: " << step << endl;
-				for (int index = 0; index + 1 < weights.size(); index += 2)
+				for (size_t index = 0; index < weights.size() - 1; index += 2)
 				{
 					short best_val1 = *weights[index];
 					short best_val2 = *weights[index + 1];
@@ -149,7 +154,7 @@ namespace Clovis {
 			for (unsigned iterations = 0; improved; ++iterations)
 			{
 				improved = false;
-				for (int index = 0; index < weights.size(); ++index)
+				for (size_t index = 0; index < weights.size(); ++index)
 				{
 					int old_val = *weights[index];
 

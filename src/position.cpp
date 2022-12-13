@@ -163,84 +163,72 @@ namespace Clovis {
     }
 
     // updates a bitboard of attackers after a piece has moved to include possible x ray attackers
-    Bitboard Position::update_xray(Bitboard attackers, Bitboard occ, Square to, PieceType pt) const
+    Bitboard Position::consider_xray(Bitboard occ, Square to, PieceType pt) const
     {
         switch (pt)
         {
         case PAWN:
         case BISHOP:
-            return attackers | (Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]));
+            return occ & (Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]));
         case ROOK:
-            return attackers | (Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
+            return occ & (Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
         case QUEEN:
-            return attackers | (Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP])
-                | Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
+            return occ & ((Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]))
+                | (Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK])));
         default:
-            return attackers;
+            return 0ULL;
         }
     }
 
     bool Position::see(Move move) const
     {
-        return true;
+		return true;
 
-        //the following is an attempt at SEE that did not result in a strength gain
+		//the following is an attempt at SEE that did not result in a strength gain
 
         assert(move_is_ok(move));
         assert(move_capture(move));
 
-        // this SEE doesnt handle pinned pieces yet so we play it safe
         if (move_promotion_type(move) || move_enpassant(move))
             return true;
 
         Square from = move_from_sq(move);
         Square to = move_to_sq(move);
 
-        int swap = piece_value[piece_type(piece_on(to))];
+		int gain[32], d = 0;
 
-        if (swap < 0)
-            return false;
+		Bitboard occ = occ_bitboard[BOTH];
+		Bitboard attackers = attackers_to(to, occ);
+		gain[d] = piece_value[piece_type(piece_on(to))];
+		Colour stm = side;
+		PieceType pt = piece_type(piece_on(from));
 
-        swap = piece_value[piece_type(piece_on(from))] - swap;
+   		while(true) {
 
-        if (swap <= 0)
-            return true;
+			++d;
+			gain[d] = piece_value[piece_type(piece_on(from))] - gain[d-1];
 
-        Bitboard occ = occ_bitboard[BOTH] ^ from ^ to;
-        Colour stm = side;
-        Bitboard attackers = attackers_to(to, occ);
+			if (max(-gain[d-1], gain[d]) < 0) 
+			   break; 
 
-        int res = 1;
+			attackers ^= from; 
+			occ ^= from;
 
-        while (true)
-        {
-            stm = other_side(stm);
-            attackers &= occ;
+			attackers |= consider_xray(occ, to, pt);
 
-            Bitboard stm_attackers = attackers & occ_bitboard[stm];
+			stm = other_side(stm);
 
-            // If stm has no more attackers then give up: stm loses
-            if (!stm_attackers)
-                break;
+			if(!(attackers & occ_bitboard[stm]))
+				break;
 
-            // TODO: handle pinned pieces here
-
-            res ^= 1;
-
-            PieceType pt = get_smallest_attacker(attackers, stm);
-
-            // if smallest attacker is a king, stm loses if there is an enemy attacker remaining
-            if (pt == KING)
-                return (attackers & ~occ_bitboard[stm]) ? res ^ 1 : res;
-
-            if ((swap = piece_value[pt] - swap) < res)
-                break;
-
-            occ ^= lsb(stm_attackers & piece_bitboard[make_piece(pt, stm)]);
-            attackers = update_xray(attackers, occ, to, pt);
-        }
-
-        return bool(res);
+			pt = get_smallest_attacker(attackers, stm);
+			from = lsb(attackers & piece_bitboard[make_piece(pt, stm)]);
+		};
+   		
+		while (--d)
+			gain[d-1]= -max(-gain[d-1], gain[d]);
+		
+		return (gain[0] >= 0);
     }
 
     // updates bitboards to represent a new piece on a square

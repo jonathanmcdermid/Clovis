@@ -34,10 +34,7 @@ namespace Clovis {
 				else if (token == "position")   position(pos, is);
 				else if (token == "ucinewgame") Search::clear();
 				else if (token == "isready")    cout << "readyok" << endl;
-				else if (token == "tune")		Tuner::tune();
 				else if (token == "setoption")	set_option(is);
-				else if (token == "perft")		Perft::test_perft();
-				else if (token == "test")		test();
 			} while (token != "quit" && argc == 1);
 		}
 
@@ -115,17 +112,10 @@ namespace Clovis {
 
 			pos.set(fen.c_str());
 
-			while (is >> token && (move = UCI::to_move(pos, token)) != MOVE_NONE) 
+			while (is >> token && (move = to_move(pos, token)) != MOVE_NONE) 
 				pos.do_move(move);
 
 			pos.print_position();
-		}
-
-		void test()
-		{
-			cout << "Tests will only work if NDEBUG line is commented out in types.h!" << endl;
-			MovePick::test_movepicker(); 
-			Eval::test_eval();
 		}
 
 		// convert string to move if it is legal
