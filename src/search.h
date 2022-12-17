@@ -14,14 +14,6 @@ namespace Clovis {
 
     namespace Search {
 
-		extern int iid_depth[2];
-		extern int iid_factor[2];
-		extern int iid_divisor[2];
-		extern int iid_reduction[2];
-
-		extern int asp_depth;
-		extern int delta;
-
         struct SearchLimits {
         public:
             SearchLimits() {
@@ -48,8 +40,8 @@ namespace Clovis {
         };
 
         void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes);
-        int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline);
-        int quiescent(Position& pos, int alpha, int beta, U64& nodes);
+        template<NodeType N> int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline);
+        template<NodeType N> int quiescent(Position& pos, int alpha, int beta, U64& nodes);
         void init_search();
         void init_values();
         void clear();

@@ -9,6 +9,7 @@ namespace Clovis {
 		// handle any start-up command line arguments
 		void handle_cmd(int argc, char* argv[])
 		{
+
 			if (argc < 2)
 			{
 				UCI::loop(argc, argv);
@@ -42,21 +43,14 @@ namespace Clovis {
 				exit(EXIT_SUCCESS);
 			}
 
-			if (!strcmp(argv[1], "evaltune"))
+			if (!strcmp(argv[1], "tune"))
 			{
 				Tuner::tune_eval();
 				exit(EXIT_SUCCESS);
 			}
 
-			if (strcmp(argv[1], "searchtune"))
-			{
-				Tuner::tune_search();
-				exit(EXIT_SUCCESS);
-			}
-
 			exit(EXIT_FAILURE);
 		}
-
 		
 	} // Bench
 

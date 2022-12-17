@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <climits>
 #include <string>
+#include <iostream>
 
 #define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -87,6 +88,10 @@ namespace Clovis {
         HASH_ALPHA,
         HASH_BETA,
         HASH_EXACT,
+    };
+
+    enum NodeType : int {
+        NODE_ROOT, NODE_PV, NODE_NON_PV
     };
 
     inline void operator++(PieceType& pt) {
@@ -300,6 +305,20 @@ namespace Clovis {
         return (move_promotion_type(m))
             ? sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + " pnbrqk  pnbrqk"[move_promotion_type(m)]
             : sq2str(move_from_sq(m)) + sq2str(move_to_sq(m));
+    }
+
+    inline ostream& operator<<(ostream& os, const Square& sq)
+    {
+        os << sq2str(sq);
+        return os;
+    }
+
+    inline ostream& operator<<(ostream& os, const Move& m)
+    {
+        os << move_from_sq(m) << move_to_sq(m); 
+        if (move_promotion_type(m))
+            os << " pnbrqk  pnbrqk"[move_promotion_type(m)];
+        return os;
     }
 
 } // namespace Clovis

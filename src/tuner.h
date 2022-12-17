@@ -11,18 +11,19 @@
 #include "position.h"
 #include "evaluate.h"
 #include "types.h"
+#include "benchmark.h"
+#include "search.h"
 
 namespace Clovis {
 
 	namespace Tuner {
 
 		void tune_eval();
-		void tune_search();
-		long double tune_loop();
+		long double tune_loop(vector<short*> weights);
 		long double find_k();
 		long double mean_squared_error(long double K);
 		void processor(int start, int end, long double K);
-		void map_weights_to_params();
+		vector<short*> map_weights_to_params();
 		void print_params();
 	
 	} // Tuner

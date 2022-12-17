@@ -10,14 +10,14 @@ namespace Clovis {
 		int lmr_depth = 2;
 		int lmr_history_min = 2;
 		int lmr_history_max = 2;
-		int lmr_history_divisor = 4;
+		int lmr_history_divisor = 4000;
 		int lmr_reduction = 2;
 
 		int iid_table[MAX_PLY + 1][2];
-		int iid_depth[2] = { 5, 6 };
+		int iid_depth[2] = { 5, 7 };
+		int iid_reduction[2] = { 5, 4 };
 		int iid_factor[2] = { 1, 4 };
 		int iid_divisor[2] = { 2, 4 };
-		int iid_reduction[2] = { 5, 4 };
 
 		int futility_reduction[MAX_PLY + 1];
 		int futility_factor = 75;
@@ -48,7 +48,7 @@ namespace Clovis {
 				futility_reduction[depth] = depth * futility_factor;
 
 				for (int i = 0; i < 2; ++i)
-					iid_table[depth][i] = (iid_factor[i] * depth - iid_reduction[i]) / iid_divisor[i];
+					iid_table[depth][i] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
 
                 for (int ordered = 1; ordered < 64; ++ordered)
                     lmr_table[depth][ordered] = int(0.75 + log(depth) * log(ordered) / 2.25);
@@ -66,7 +66,7 @@ namespace Clovis {
         void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes)
         {
             stop = false;
-            allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.stm()] / (lim.moves_left + 5);
+            allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side] / (lim.moves_left + 5);
             tm.set();
 
             int alpha = -CHECKMATE_SCORE;
@@ -89,7 +89,7 @@ namespace Clovis {
 
             for (int depth = 1; depth <= MAX_PLY  && (lim.depth == 0 || depth <= lim.depth); ++depth)
             {
-                score = negamax(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
+                score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
 				
                 if (stop)
                     break;
@@ -115,8 +115,8 @@ namespace Clovis {
                     << " score cp "		<< setw(4) << score
                     << " nodes "		<< setw(8) << nodes
                     << " time "			<< setw(6) << tm.get_time_elapsed()
-					<< " nps "			<< setw(6) << 1000ULL * nodes / (time + 1) 
-                    << " pv "			<< move2str(pline.moves[0]);
+					<< " nps "			<< setw(8) << 1000ULL * nodes / (time + 1) 
+                    << " pv "			<< pline.moves[0];
 
 				cout << endl;
 
@@ -140,21 +140,25 @@ namespace Clovis {
 			ponder_move = tte ? tte->move : MOVE_NONE;
 			pos.undo_move(best_move);
 
-            cout << "bestmove " << move2str(best_move) << endl;
+            cout << "bestmove " << best_move << endl;
         }
 
+        template<NodeType N>
         int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline)
         {
+            constexpr bool ROOT_NODE = N == NODE_ROOT;
+            constexpr bool PV_NODE = N != NODE_NON_PV;
+
+            assert(PV_NODE || (alpha == beta - 1));
+
             if (nodes & 2047 && tm.get_time_elapsed() > allocated_time)
             {
                 stop = true;
                 return 0;
             }
 
-            bool pv_node = beta - alpha != 1;
-
             if (depth <= 0)
-                return quiescent(pos, alpha, beta, nodes);
+                return quiescent<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes);
 
 			++nodes;
 
@@ -175,7 +179,7 @@ namespace Clovis {
             {
 				pline.last = pline.moves;
 				*pline.last++ = tte->move;
-                if (!pv_node
+                if (!PV_NODE
                     && tte->depth >= depth
                     && (tte->flags == HASH_EXACT
                         || (tte->flags == HASH_BETA && tte->eval >= beta)
@@ -190,7 +194,7 @@ namespace Clovis {
 
 			Line lline;
 
-            bool king_in_check = pos.is_king_in_check(pos.stm());
+            bool king_in_check = pos.is_king_in_check(pos.side);
 
             int score;
 
@@ -201,28 +205,28 @@ namespace Clovis {
             
             // reverse futility pruning
             // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
-            if (!pv_node
+            if (!PV_NODE
                 && depth <= futility_depth
                 && score - futility_reduction[depth] > beta)
                 return score;
             
             // null move pruning
-            if (!pv_node
+            if (!PV_NODE
                 && !is_null
                 && depth >= null_depth
                 && pos.stm_has_promoted()) 
             {
                 pos.do_move(MOVE_NULL);
-                score = -negamax(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, lline);
+                score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, lline);
                 pos.undo_move(MOVE_NULL);
                 if (score >= beta)
                     return beta;
             }
             
             // internal iterative deepening
-            if (!tte && depth >= iid_depth[pv_node])
+            if (!tte && depth >= iid_depth[PV_NODE])
             {
-                negamax(pos, alpha, beta, iid_table[depth][pv_node], ply, false, prev_move, nodes, lline);
+                negamax<N>(pos, alpha, beta, iid_table[depth][PV_NODE], ply, false, prev_move, nodes, lline);
                 tte = tt.probe(pos.get_key());
                 if (tte)
                 {
@@ -248,7 +252,7 @@ namespace Clovis {
 
             HashFlag eval_type = HASH_ALPHA;
 
-            while ((curr_move = mp.get_next(false)) != MOVE_NONE)
+            while ((curr_move = mp.get_next<true>()) != MOVE_NONE)
             {
                 // illegal move
                 if (!pos.do_move(curr_move))
@@ -258,45 +262,33 @@ namespace Clovis {
 
                 if (pos.is_repeat() || pos.is_draw_50() || pos.is_material_draw())
                     score = DRAW_SCORE;
-                else if (moves_searched == 1)
-                    score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
-                // late move reductions
-                else
+                else if (moves_searched > 1
+                    && depth > lmr_depth
+                    && move_capture(curr_move) == NO_PIECE
+                    && move_promotion_type(curr_move) == NO_PIECE)
                 {
-                    if (depth > lmr_depth
-                        && move_capture(curr_move) == NO_PIECE
-                        && move_promotion_type(curr_move) == NO_PIECE)
-                    {
-                        int history_entry = MovePick::get_history_entry(other_side(pos.stm()), curr_move);
-                        // reduction factor
-                        int R = lmr_table[depth][min(moves_searched, 63)];
-                        // reduce for pv nodes
-                        R -= (pv_node);
-                        // reduce for killers
-                        R -= MovePick::is_killer(curr_move, ply);
-                        // reduce based on history heuristic
-                        R -= max(-lmr_history_min, min(lmr_history_max, history_entry / (1000 * lmr_history_divisor)));
-                
-                        R = max(0, min(R, depth - lmr_reduction));
-                
-                        // search current move with reduced depth:
-                        score = -negamax(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, lline);
-                
-                    }
-                
-                    // hack to ensure full search
-                    else score = alpha + 1;
-                
-                    if (score > alpha)
-                    {
-                        // re-search at full depth but with narrowed alpha beta window
-                        score = -negamax(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
-                
-                        // if previous search doesnt fail, re-search at full depth and full alpha beta window
-                        if ((score > alpha) && (score < beta))
-                            score = -negamax(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
-                    }
+                    int history_entry = MovePick::get_history_entry(other_side(pos.side), curr_move);
+                    // reduction factor
+                    int R = lmr_table[depth][min(moves_searched, 63)];
+                    // reduce for pv nodes
+                    R -= (PV_NODE);
+                    // reduce for killers
+                    R -= MovePick::is_killer(curr_move, ply);
+                    // reduce based on history heuristic
+                    R -= max(-lmr_history_min, min(lmr_history_max, history_entry / lmr_history_divisor));
+
+                    R = max(0, min(R, depth - lmr_reduction));
+
+                    // search current move with reduced depth:
+                    score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, lline);
+
+                    if (R && score > alpha)
+                        score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
                 }
+                else if (!PV_NODE || moves_searched > 1)
+                    score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
+                if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
+                    score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
 
                 pos.undo_move(curr_move);
 
@@ -310,7 +302,7 @@ namespace Clovis {
                     {
                         mp.update_history<HASH_BETA>(curr_move, depth);
                         MovePick::update_killers(curr_move, ply);
-                        MovePick::update_counter_entry(pos.stm(), prev_move, curr_move);
+                        MovePick::update_counter_entry(pos.side, prev_move, curr_move);
                     }
                     
                     tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move);
@@ -349,13 +341,18 @@ namespace Clovis {
             return alpha;
         }
 
+        template<NodeType N>
         int quiescent(Position& pos, int alpha, int beta, U64& nodes)
         {
+            constexpr bool PV_NODE = N != NODE_NON_PV;
+
+            assert(PV_NODE || (alpha == beta - 1));
+
 			++nodes;
 
             TTEntry* tte = tt.probe(pos.get_key());
 
-            if (tte &&
+            if (!PV_NODE && tte &&
                 (tte->flags == HASH_EXACT
                     || (tte->flags == HASH_BETA && tte->eval >= beta)
                     || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
@@ -383,13 +380,13 @@ namespace Clovis {
             Move best_move = MOVE_NONE;
             int best_eval = INT_MIN;
 
-            while ((curr_move = mp.get_next(true)) != MOVE_NONE && mp.get_stage() != LOSING_CAPTURES)
+            while ((curr_move = mp.get_next<false>()) != MOVE_NONE && mp.get_stage() != LOSING_CAPTURES)
             {
                 // illegal move or non capture
                 if (!pos.do_move(curr_move))
                     continue;
 
-                eval = -quiescent(pos, -beta, -alpha, nodes);
+                eval = -quiescent<N>(pos, -beta, -alpha, nodes);
 
                 pos.undo_move(curr_move);
 

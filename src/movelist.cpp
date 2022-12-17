@@ -13,8 +13,8 @@ namespace Clovis {
             int count = 0;
             for (Move* m = moves; m != last; ++m, ++count)
             {
-                cout << sq2str(move_from_sq(*m))
-                    << sq2str(move_to_sq(*m))
+                cout << move_from_sq(*m)
+                    << move_to_sq(*m)
                     << piece_str[move_promotion_type(*m)] << '\t'
                     << piece_str[move_piece_type(*m)] << '\t'
                     << int(move_capture(*m)) << '\t'

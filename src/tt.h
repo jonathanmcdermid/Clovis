@@ -29,14 +29,15 @@ namespace Clovis {
         short eg;
     };
 
-    inline Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
-    inline Score operator+(Score s1, int i) { return Score(s1.mg + i, s1.eg + i); }
-    inline Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
-    inline Score operator-(Score s1, int i) { return Score(s1.mg - i, s1.eg - i); }
-    inline Score operator*(Score s1, int i) { return Score(s1.mg * i, s1.eg * i); }
-    inline Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
-    inline Score operator/(Score s1, int i) { return Score(s1.mg / i, s1.eg / i); }
-    inline Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
+	inline Score operator-(Score s)             { return Score(-s.mg, -s.eg); }
+    inline Score operator+(Score s1, Score s2)  { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+    inline Score operator+(Score s1, int i)     { return Score(s1.mg + i, s1.eg + i); }
+    inline Score operator-(Score s1, Score s2)  { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+    inline Score operator-(Score s1, int i)     { return Score(s1.mg - i, s1.eg - i); }
+    inline Score operator*(Score s1, int i)     { return Score(s1.mg * i, s1.eg * i); }
+    inline Score operator*(Score s1, Score s2)  { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
+    inline Score operator/(Score s1, int i)     { return Score(s1.mg / i, s1.eg / i); }
+    inline Score operator/(Score s1, Score s2)  { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
 
 	struct TTEntry {
         TTEntry(Key key = 0ULL, int depth = 0, int eval = 0, HashFlag flags = HASH_NONE, Move move = MOVE_NONE) : key(key), depth(depth), flags(flags), eval(eval), move(move) {};
@@ -61,7 +62,7 @@ namespace Clovis {
     };
 
     struct PTEntry {
-        PTEntry() : key(0ULL), s(Score()) { ; }
+        PTEntry() : key(0ULL) { ; }
         PTEntry(Key k, Score s) : key(k), s(s) { ; }
         void operator=(const PTEntry& rhs) {
             this->key = rhs.key;

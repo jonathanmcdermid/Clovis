@@ -14,19 +14,11 @@ namespace Clovis {
 				return;
 			}
 
-			//for (const auto& m : MoveGen::MoveList(pos)) 
-			//{
-			//	if (!pos.do_move(m))
-			//		continue;
-			//	perft(pos, depth - 1, nodes);
-			//	pos.undo_move(m);
-			//}
-
 			MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
 
 			Move m;
 
-			while ((m = mp.get_next(false)) != MOVE_NONE)
+			while ((m = mp.get_next<true>()) != MOVE_NONE)
 			{
 				if (!pos.do_move(m))
 					continue;

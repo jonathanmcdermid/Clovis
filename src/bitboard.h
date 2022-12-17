@@ -19,7 +19,6 @@ namespace Clovis {
     inline Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sqbb[sq]; }
     inline Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb[sq]; }
     inline Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb[sq]; }
-    inline Bitboard operator|(Square s1, Square s2) { return sqbb[s1] | sqbb[s2]; }
 
 #if defined(__GNUC__)
 
@@ -124,9 +123,18 @@ namespace Clovis {
         Bitboard get_rook_attacks(Bitboard occ, Square sq);
         Bitboard get_queen_attacks(Bitboard occ, Square sq);
 
-        Bitboard get_attacks(Bitboard occ, Square sq, PieceType pt);
+        void init_bitboards(bool calc_magic);
 
-        void init_bitboards(bool calc_magic = false);
+        template<PieceType P>
+        Bitboard get_attacks(Bitboard occ, Square sq)
+        {
+            assert(P != PAWN);
+            return P == KNIGHT ? knight_attacks[sq] 
+                : P == BISHOP ? get_bishop_attacks(occ, sq)
+                : P == ROOK ? get_rook_attacks(occ, sq)
+                : P == QUEEN ? get_queen_attacks(occ, sq)
+                : king_attacks[sq];
+        }
 
     } // namespace Bitboards
 

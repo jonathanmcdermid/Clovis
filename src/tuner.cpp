@@ -8,18 +8,12 @@ namespace Clovis {
 
 		vector<Position> positions;
 		vector<double> results;
-		vector<short*> weights;
 		long double best_mse;
 		long double k;
 
 		constexpr int n_cores = 6;
 		long double answers = 0;
-
-		void tune_search()
-		{
-
-		}
-
+	
 		void tune_eval()
 		{
 			// load positions and results from file
@@ -53,7 +47,7 @@ namespace Clovis {
 
 			cout << "positions done loading " << positions.size() << endl;
 
-			map_weights_to_params();
+			vector<short*> weights = map_weights_to_params();
 
 			bool improved;
 
@@ -66,7 +60,7 @@ namespace Clovis {
 
 			best_mse = mean_squared_error(k);
 
-			long double mse = tune_loop();
+			long double mse = tune_loop(weights);
 
 			for (short step = 1; step < 10; ++step)
 			{
@@ -143,7 +137,7 @@ namespace Clovis {
 
 		}
 
-		long double tune_loop()
+		long double tune_loop(vector<short*> weights)
 		{
 			long double mse;
 
@@ -156,7 +150,7 @@ namespace Clovis {
 				improved = false;
 				for (size_t index = 0; index < weights.size(); ++index)
 				{
-					int old_val = *weights[index];
+					short old_val = *weights[index];
 
 					// increase weight
 					*weights[index] += direction[index];
@@ -199,9 +193,10 @@ namespace Clovis {
 							// reset weight, no improvements
 							*weights[index] = old_val;
 					}
-					cout << "weight " << index << " mse: " << best_mse << " adjustment: " << direction[index] << endl;
+					cout << "weight " << index << " mse: " << best_mse << endl;
 				}
-
+				
+				print_params();
 				cout << "iteration " << iterations << " complete" << endl;
 			}
 			cout << "\ndone!\n";
@@ -247,7 +242,7 @@ namespace Clovis {
 			{
 				eval = Eval::evaluate<false>(positions[i]);
 				// all evaluations need to be from white perspective
-				if (positions[i].stm() == BLACK)
+				if (positions[i].side == BLACK)
 					eval = -eval;
 				sigmoid = 1 / (1 + pow(10, -K * eval / 400));
 				error_sum += pow(results[i] - sigmoid, 2);
@@ -292,9 +287,21 @@ namespace Clovis {
 			return start;
 		}
 
-		void map_weights_to_params()
+		vector<short*> map_weights_to_params()
 		{
 			// point weights to the variables in the evaluation function
+			
+			vector<short*> weights;
+			
+			weights.push_back(&Eval::king_full_open_penalty.mg);
+			weights.push_back(&Eval::king_full_open_penalty.eg);
+			weights.push_back(&Eval::king_semi_open_penalty.mg);
+			weights.push_back(&Eval::king_semi_open_penalty.eg);
+
+			weights.push_back(&Eval::king_adjacent_full_open_penalty.mg);
+			weights.push_back(&Eval::king_adjacent_full_open_penalty.eg);
+			weights.push_back(&Eval::king_adjacent_semi_open_penalty.mg);
+			weights.push_back(&Eval::king_adjacent_semi_open_penalty.eg);
 
 			weights.push_back(&Eval::outpost_bonus[0].mg);
 			weights.push_back(&Eval::outpost_bonus[0].eg);
@@ -307,8 +314,11 @@ namespace Clovis {
 				{
 					weights.push_back(&Eval::pawn_table[sq].mg);
 					weights.push_back(&Eval::pawn_table[sq].eg);
-					weights.push_back(&Eval::passed_pawn_bonus[sq].mg);
-					weights.push_back(&Eval::passed_pawn_bonus[sq].eg);
+					if(sq / 4 != RANK_7)
+					{
+						weights.push_back(&Eval::passed_pawn_bonus[sq].mg);
+						weights.push_back(&Eval::passed_pawn_bonus[sq].eg);
+					}
 				}
 
 				weights.push_back(&Eval::knight_table[sq].mg);
@@ -352,6 +362,8 @@ namespace Clovis {
 				weights.push_back(&Eval::outer_ring_attack[j].mg);
 				weights.push_back(&Eval::outer_ring_attack[j].eg);
 			}
+
+			return weights;
 		}
 
 		void print_params()
@@ -442,6 +454,18 @@ namespace Clovis {
 			cout << "Score king_safety_reduction_factor = Score("
 				<< Eval::king_safety_reduction_factor.mg << ", "
 				<< Eval::king_safety_reduction_factor.eg << ");\n";
+			cout << "Score king_full_open_penalty = Score("
+				<< Eval::king_full_open_penalty.mg << ", "
+				<< Eval::king_full_open_penalty.eg << ");\n";
+			cout << "Score king_semi_open_penalty = Score("
+				<< Eval::king_semi_open_penalty.mg << ", "
+				<< Eval::king_semi_open_penalty.eg << ");\n";
+			cout << "Score king_adjacent_full_open_penalty = Score("
+				<< Eval::king_adjacent_full_open_penalty.mg << ", "
+				<< Eval::king_adjacent_full_open_penalty.eg << ");\n";
+			cout << "Score king_adjacent_semi_open_penalty = Score("
+				<< Eval::king_adjacent_semi_open_penalty.mg << ", "
+				<< Eval::king_adjacent_semi_open_penalty.eg << ");\n";
 
 			cout << "Score mobility[7] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
@@ -467,8 +491,8 @@ namespace Clovis {
 			cout << "Score outpost_bonus[2] = {";
 			for (int i = KNIGHT; i <= BISHOP; ++i) {
 				cout << " Score("
-					<< Eval::outpost_bonus[i % KNIGHT].mg << ", "
-					<< Eval::outpost_bonus[i % KNIGHT].eg << "),";
+					<< Eval::outpost_bonus[i - KNIGHT].mg << ", "
+					<< Eval::outpost_bonus[i - KNIGHT].eg << "),";
 			}
 			cout << "};\n";
 		}

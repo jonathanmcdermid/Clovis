@@ -8,13 +8,9 @@ namespace Clovis {
 		
 		static mt19937_64 rng;
 		
-		U64 random_U64() {
-			return rng();	
-		}
+		U64 random_U64() { return rng(); }
 
-		void seed_random(U64 seed) {
-			rng.seed(seed);
-		}
+		void seed_random(U64 seed) { rng.seed(seed); }
 
 	} // namespace Random
 

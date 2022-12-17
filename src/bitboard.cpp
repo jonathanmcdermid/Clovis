@@ -488,19 +488,6 @@ namespace Clovis {
 			return get_bishop_attacks(occ, sq) | get_rook_attacks(occ, sq);
 		}
 
-		Bitboard get_attacks(Bitboard occ, Square sq, PieceType pt) 
-		{
-			assert(pt != PAWN);
-			switch (pt)
-			{
-			case KNIGHT: return knight_attacks[sq];
-			case BISHOP: return get_bishop_attacks(occ, sq);
-			case ROOK: return get_rook_attacks(occ, sq);
-			case QUEEN: return get_queen_attacks(occ, sq);
-			default: return king_attacks[sq];
-			}
-		}
-
 	} // namespace Bitboards
 
 } // namespace Clovis

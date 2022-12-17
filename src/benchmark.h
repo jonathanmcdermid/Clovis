@@ -19,7 +19,7 @@ namespace Clovis {
 			Move ponder_move;
 		};
 		
-		void benchmark(int argc, char* argv[]);
+		TimePoint benchmark(int argc, char* argv[]);
 
 	} // Bench
 

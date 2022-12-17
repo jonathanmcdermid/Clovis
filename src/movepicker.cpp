@@ -14,10 +14,6 @@ namespace Clovis {
         // MVV-LVA lookup table [attacker][victim]
         int mvv_lva[15][15];
 
-        inline static bool sm_score_comp(ScoredMove const& lhs, ScoredMove const& rhs) {
-            return lhs.score > rhs.score;
-        }
-
         // initialize lookup tables and precalculated values
         void init_movepicker()
         {
@@ -34,79 +30,16 @@ namespace Clovis {
             }
         }
 
-		// return the next ordered move
-		Move MovePicker::get_next(bool skip_quiets)
-		{
-            switch (stage)
-            {
-            case TT_MOVE:
-                ++stage;
-                if (tt_move != MOVE_NONE && (!skip_quiets || move_capture(tt_move)))
-                    return tt_move;
-            case INIT_CAPTURES:
-                curr = end_bad_caps = moves;
-                last = MoveGen::gen_moves<ScoredMove, CAPTURE_MOVES>(pos, moves);
-                score_captures();
-                sort(moves, last, sm_score_comp);
-                ++stage;
-            case WINNING_CAPTURES:
-                while (curr < last)
-                {
-                    assert(move_capture(*curr));
-                    if (curr->move == tt_move)
-                        ++curr;
-                    else if (pos.see(*curr))
-                        return *curr++;
-                    else
-                        *end_bad_caps++ = *curr++;
-                }
-                ++stage;
-            case INIT_QUIETS:
-                if (!skip_quiets)
-                {
-                    curr = end_bad_caps;
-                    last = MoveGen::gen_moves<ScoredMove, QUIET_MOVES>(pos, curr);
-                    score_quiets();
-                    sort(end_bad_caps, last, sm_score_comp);
-                }
-                ++stage;
-            case QUIETS:
-                while (!skip_quiets && curr < last)
-                {
-                    assert(!move_capture(*curr));
-                    if (*curr != tt_move)
-                        return *curr++;
-                    ++curr;
-                }
-                curr = moves;
-                ++stage;
-			case LOSING_CAPTURES:
-                while (curr < end_bad_caps)
-                {
-                    assert(move_capture(*curr));
-                    if (*curr != tt_move)
-                        return *curr++;
-                    ++curr;
-                }
-                ++stage;
-                break;
-			default:
-                break;
-            }
-
-	        return MOVE_NONE;
-		}
-
         void MovePicker::score_captures()
         {
             for (ScoredMove* sm = moves; sm < last; ++sm)
                 // promotions supercede mvv-lva
-                sm->score = mvv_lva[move_piece_type(*sm)][pos.piece_on(move_to_sq(*sm))] + move_promotion_type(*sm) * (1 << 6);
+                sm->score = mvv_lva[move_piece_type(*sm)][pos.piece_board[move_to_sq(*sm)]] + (move_promotion_type(*sm) << 6);
         }
 
         void MovePicker::score_quiets()
         {
-            Move counter_move = get_counter_entry(pos.stm(), prev_move);
+            Move counter_move = get_counter_entry(pos.side, prev_move);
 
             for (ScoredMove* sm = end_bad_caps; sm < last; ++sm)
             {
@@ -119,7 +52,7 @@ namespace Clovis {
                 else if (*sm == counter_move)
                     sm->score = 20000;
                 else
-                    sm->score = get_history_entry(pos.stm(), *sm);
+                    sm->score = get_history_entry(pos.side, *sm);
             }
         }
 
@@ -130,8 +63,8 @@ namespace Clovis {
             int count = 0;
             for (ScoredMove* sm = moves; sm != last; ++sm, ++count)
             {
-                cout << sq2str(move_from_sq(*sm))
-                    << sq2str(move_to_sq(*sm))
+                cout << move_from_sq(*sm)
+                    << move_to_sq(*sm)
                     << piece_str[move_promotion_type(*sm)] << '\t'
                     << piece_str[move_piece_type(*sm)] << '\t'
                     << int(move_capture(*sm)) << '\t'
@@ -169,7 +102,7 @@ namespace Clovis {
 
             int count = 0;
 
-            while ((curr_move = mp.get_next(false)) != MOVE_NONE)
+            while ((curr_move = mp.get_next<true>()) != MOVE_NONE)
             {
                 ++count;
 

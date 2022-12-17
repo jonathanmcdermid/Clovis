@@ -20,7 +20,19 @@ namespace Clovis {
          7, 15, 15, 15,  3, 15, 15, 11
     };
 
-    namespace Zobrist {
+	namespace Zobrist {
+
+		void init_zobrist()
+    {
+        for (int i = NO_PIECE; i <= B_KING; ++i)
+            for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+                piece_square[i][sq] = Random::random_U64();
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+            enpassant[sq] = Random::random_U64();
+        for (int i = 0; i < 16; ++i)
+            castling[i] = Random::random_U64();
+        side = Random::random_U64();
+    }
 
         Key piece_square[15][SQ_N];
         Key enpassant[SQ_N];
@@ -28,18 +40,6 @@ namespace Clovis {
         Key side;
 
     } // namespace Zobrist
-
-    void Position::init_position()
-    {
-        for (int i = NO_PIECE; i <= B_KING; ++i)
-            for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-                Zobrist::piece_square[i][sq] = Random::random_U64();
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-            Zobrist::enpassant[sq] = Random::random_U64();
-        for (int i = 0; i < 16; ++i)
-            Zobrist::castling[i] = Random::random_U64();
-        Zobrist::side = Random::random_U64();
-    }
 
     // sets position to the state specified by FEN string
 	void Position::set(const char* fen)
@@ -100,7 +100,7 @@ namespace Clovis {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) 
         {
             Piece p = piece_board[sq];
-            if(p != NO_PIECE)
+            if (p != NO_PIECE)
                 k ^= Zobrist::piece_square[p][sq];
         }
 
@@ -122,7 +122,7 @@ namespace Clovis {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
         {
             Piece p = piece_board[sq];
-            if (piece_type(p) == PAWN)
+            if (piece_type(p) == PAWN || piece_type(p) == KING)
                 k ^= Zobrist::piece_square[p][sq];
         }
 
@@ -140,14 +140,14 @@ namespace Clovis {
             || (piece_bitboard[make_piece(KING, s)] & Bitboards::king_attacks[sq]));
     }
 
-    Bitboard Position::attackers_to(Square sq, Bitboard occupied) const 
+    Bitboard Position::attackers_to(Square sq) const 
     {
         return  (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[W_PAWN]) 
             | (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[B_PAWN]) 
             | (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) 
-            | (Bitboards::get_rook_attacks(occupied, sq) 
+            | (Bitboards::get_rook_attacks(occ_bitboard[BOTH], sq) 
                 & (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
-            | (Bitboards::get_bishop_attacks(occupied, sq) 
+            | (Bitboards::get_bishop_attacks(occ_bitboard[BOTH], sq) 
                 & (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
             | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
     }
@@ -169,12 +169,12 @@ namespace Clovis {
         {
         case PAWN:
         case BISHOP:
-            return occ & (Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]));
+            return occ & (Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]));
         case ROOK:
-            return occ & (Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
+            return occ & (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
         case QUEEN:
-            return occ & ((Bitboards::get_attacks(occ, to, BISHOP) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]))
-                | (Bitboards::get_attacks(occ, to, ROOK) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK])));
+            return occ & ((Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]))
+                | (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK])));
         default:
             return 0ULL;
         }
@@ -198,7 +198,7 @@ namespace Clovis {
 		int gain[32], d = 0;
 
 		Bitboard occ = occ_bitboard[BOTH];
-		Bitboard attackers = attackers_to(to, occ);
+		Bitboard attackers = attackers_to(to);
 		gain[d] = piece_value[piece_type(piece_on(to))];
 		Colour stm = side;
 		PieceType pt = piece_type(piece_on(from));
@@ -258,14 +258,6 @@ namespace Clovis {
         occ_bitboard[get_side(pc)] ^= sq;
         occ_bitboard[BOTH] ^= sq;
         piece_board[sq] = NO_PIECE;
-    }
-
-    bool Position::move_is_ok(Move move) const
-    {
-        return get_side(move_piece_type(move)) == side
-            && get_side(piece_board[move_from_sq(move)]) == side
-            && (piece_board[move_to_sq(move)] == NO_PIECE || get_side(piece_board[move_to_sq(move)]) != side)
-            && piece_type(piece_board[move_to_sq(move)]) != KING;
     }
 
     // executes a move and updates the position
@@ -372,42 +364,23 @@ namespace Clovis {
                 remove_piece(tar);
                 put_piece(move_promotion_type(move), tar);
                 bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
-                bs->game_phase -= game_phase_inc[W_PAWN];
+                bs->game_phase -= game_phase_inc[PAWN];
                 bs->game_phase += game_phase_inc[move_promotion_type(move)];
             }
             bs->pkey ^= Zobrist::piece_square[piece][src];
             bs->pkey ^= Zobrist::piece_square[piece][tar];
             bs->hmc = 0;
         }
+		else if (piece_type(piece) == KING)
+		{
+			bs->pkey ^= Zobrist::piece_square[piece][src];
+			bs->pkey ^= Zobrist::piece_square[piece][tar];
+		}
 
     nullmove:
 
         side = other_side(side);
         bs->key ^= Zobrist::side;
-
-        //Key checkhash = make_pawn_key();
-        //
-        //if (checkhash != bs->pkey)
-        //{
-        //    cout << UCI::move2str(m) << "\n";
-        //    print_position();
-        //    undo_move(m);
-        //    print_position();
-        //    U64 sss = bs->pkey ^ checkhash;
-        //    side = side;
-        //}
-        //
-        //checkhash = make_key();
-        //
-        //if (checkhash != bs->key)
-        //{
-        //    cout << UCI::move2str(m) << "\n";
-        //    print_position();
-        //    undo_move(m);
-        //    print_position();
-        //    U64 sss = bs->key ^ checkhash;
-        //    side = side;
-        //}
 
         // move gen doesnt check for suicidal king, so we check here
         if (is_king_in_check(other_side(side)))
@@ -489,20 +462,20 @@ namespace Clovis {
 
                 cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
             }
-            cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
+            cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+" << endl;
         }
-        cout << "  a   b   c   d   e   f   g   h\n"
+        cout << "  a   b   c   d   e   f   g   h" << endl
             << "Side:\t\t" 
-            << (side == WHITE ? "white" : "black") << "\n"
+            << (side == WHITE ? "white" : "black") << endl
             << "Enpassant:\t" 
-            << ((bs->enpassant != SQ_NONE) ? sq2str(bs->enpassant) : "none") << "\n"
+            << bs->enpassant << endl
             << "Castling:\t"
             << ((bs->castle & WHITE_KS) ? 'K' : '-')
             << ((bs->castle & WHITE_QS) ? 'Q' : '-')
             << ((bs->castle & BLACK_KS) ? 'k' : '-')
-            << ((bs->castle & BLACK_QS) ? 'q' : '-') << '\n'
-            << "Halfmove:\t" << bs->hmc << '\n'
-            << "Fullmove:\t" << bs->fmc << '\n';
+            << ((bs->castle & BLACK_QS) ? 'q' : '-') << endl
+            << "Halfmove:\t" << bs->hmc << endl
+            << "Fullmove:\t" << bs->fmc << endl;
     }
 
     // prints the bitboards for this position
@@ -515,20 +488,6 @@ namespace Clovis {
             Bitboards::print_bitboard(it);
         for (auto it : occ_bitboard)
             Bitboards::print_bitboard(it);
-    }
-
-    // prints the attacked squares for a given side
-    void Position::print_attacked_squares(Colour side)
-    {
-        cout << "+---+---+---+---+---+---+---+---+\n";
-        for (Rank r = RANK_8; r >= RANK_1; --r)
-        {
-            for (File f = FILE_A; f <= FILE_H; ++f)
-            {
-                cout << (is_attacked(make_square(f, r), side) ? "| X " : "|   ");
-            }
-            cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
-        }
     }
 
 } // namespace Clovis

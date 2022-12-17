@@ -92,8 +92,8 @@ namespace Clovis {
 				curr = last = end_bad_caps = moves;
 				stage = TT_MOVE;
 			}
-			template<HashFlag hf> void update_history(Move best_move, int depth);
-			Move get_next(bool skip_quiets);
+			template<HashFlag HF> void update_history(Move best_move, int depth);
+			template<bool PLAY_QUIETS> Move get_next();
 			int get_stage() const { return stage; }
 			void print();
 		private:
@@ -101,26 +101,90 @@ namespace Clovis {
 			void score_quiets();
 			const Position& pos;
 			int ply;
-			ScoredMove *curr, *last, *end_bad_caps;
+			ScoredMove* curr, *last, *end_bad_caps;
 			ScoredMove moves[MAX_MOVES];
 			Move tt_move, prev_move;
 			int stage;
 		};
 
-		template<HashFlag hf>
+		// return the next ordered move
+		template<bool PLAY_QUIETS>
+		Move MovePicker::get_next()
+		{
+			switch (stage)
+			{
+			case TT_MOVE:
+				++stage;
+				if (tt_move != MOVE_NONE && (PLAY_QUIETS || move_capture(tt_move)))
+					return tt_move;
+			case INIT_CAPTURES:
+				curr = end_bad_caps = moves;
+				last = MoveGen::gen_moves<ScoredMove, CAPTURE_MOVES>(pos, moves);
+				score_captures();
+				sort(moves, last, sm_score_comp);
+				++stage;
+			case WINNING_CAPTURES:
+				while (curr < last)
+				{
+					assert(move_capture(*curr));
+					if (curr->move == tt_move)
+						++curr;
+					else if (pos.see(*curr))
+						return *curr++;
+					else
+						*end_bad_caps++ = *curr++;
+				}
+				++stage;
+			case INIT_QUIETS:
+				if (PLAY_QUIETS)
+				{
+					curr = end_bad_caps;
+					last = MoveGen::gen_moves<ScoredMove, QUIET_MOVES>(pos, curr);
+					score_quiets();
+					sort(end_bad_caps, last, sm_score_comp);
+				}
+				++stage;
+			case QUIETS:
+				while (PLAY_QUIETS && curr < last)
+				{
+					assert(!move_capture(*curr));
+					if (*curr != tt_move)
+						return *curr++;
+					++curr;
+				}
+				curr = moves;
+				++stage;
+			case LOSING_CAPTURES:
+				while (curr < end_bad_caps)
+				{
+					assert(move_capture(*curr));
+					if (*curr != tt_move)
+						return *curr++;
+					++curr;
+				}
+				++stage;
+				break;
+			default:
+				break;
+			}
+
+			return MOVE_NONE;
+		}
+
+		template<HashFlag HF>
 		void MovePicker::update_history(Move best_move, int depth)
 		{
+			ScoredMove* last_searched_quiet = HF == HASH_EXACT ? last : curr;
+
 			assert(!move_capture(best_move));
 
-			update_history_entry(best_move, pos.stm(), history_bonus[depth]);
-
-			ScoredMove* last_searched_quiet = (hf == HASH_EXACT) ? last : curr;
+			update_history_entry(best_move, pos.side, history_bonus[depth]);
 
 			for (ScoredMove* sm = end_bad_caps; sm < last_searched_quiet; ++sm)
 			{
 				assert(!move_capture(*sm));
 				if (*sm != best_move)
-					update_history_entry(*sm, pos.stm(), -history_bonus[depth]);
+					update_history_entry(*sm, pos.side, -history_bonus[depth]);
 			}
 		}
 

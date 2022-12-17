@@ -11,7 +11,7 @@ namespace Clovis {
     constexpr Bitboard castle_occ_ks[COLOUR_N] = { 96ULL, 6917529027641081856ULL };
     constexpr Bitboard castle_occ_qs[COLOUR_N] = { 14ULL, 1008806316530991104ULL };
 
-	class Position;
+	struct Position;
 
 	struct ScoredMove {
 		Move move = MOVE_NONE;
@@ -20,11 +20,13 @@ namespace Clovis {
 		operator Move() const { return move; }
 	};
 
-	inline static bool sm_score_comp(ScoredMove const& lhs, ScoredMove const& rhs) {
+	inline bool sm_score_comp(ScoredMove const& lhs, ScoredMove const& rhs) {
 		return lhs.score > rhs.score;
 	}
 
 	namespace MoveGen {
+
+		template<typename T, MoveType M> T* gen_moves(const Position& pos, T* moves);
 
 		struct MoveList {
 			MoveList(const Position& pos) : last(gen_moves<Move, ALL_MOVES>(pos, moves)) {}
@@ -36,12 +38,42 @@ namespace Clovis {
 			Move moves[MAX_MOVES], *last;
 		};
 
+		template<typename T, MoveType M, PieceType P>
+		T* gen_majors(const Position& pos, T* moves)
+		{
+			constexpr bool quiets   = M != CAPTURE_MOVES;
+			constexpr bool captures = M != QUIET_MOVES;
+
+			Colour us = pos.side;
+			Colour them = other_side(us);
+
+			Bitboard bb = pos.piece_bitboard[make_piece(P, us)];
+
+            while (bb)
+            {
+                Square src = pop_lsb(bb);
+                Bitboard att = ~pos.occ_bitboard[us] & Bitboards::get_attacks<P>(pos.occ_bitboard[BOTH], src);
+
+                while (att)
+                {
+                    Square tar = pop_lsb(att);
+
+                    if (quiets && !(pos.occ_bitboard[them] & tar))
+                        *moves++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
+                    if (captures && (pos.occ_bitboard[them] & tar))
+                        *moves++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
+                }
+            }
+
+			return moves;
+		}
+
         // gen pseudo-legal moves for a position
-        template<typename T, MoveType mt>
+        template<typename T, MoveType M>
         T* gen_moves(const Position& pos, T* moves)
         {
-            constexpr bool quiets = mt != CAPTURE_MOVES;
-            constexpr bool captures = mt != QUIET_MOVES;
+            constexpr bool quiets   = M != CAPTURE_MOVES;
+            constexpr bool captures = M != QUIET_MOVES;
 
             Colour us = pos.side, them = other_side(pos.side);
             Bitboard bb = pos.piece_bitboard[make_piece(PAWN, us)];
@@ -50,7 +82,6 @@ namespace Clovis {
             Rank spawn_rank = relative_rank(us, RANK_2);
             Direction push = pawn_push(us);
 
-            // repeat until all friendly pawns are popped
             while (bb)
             {
                 Square src = pop_lsb(bb);
@@ -118,25 +149,11 @@ namespace Clovis {
                     *moves++ = encode_move(king_origin, king_origin + 2 * WEST, pos.piece_board[king_origin], NO_PIECE, 0, 0, 0, 1);
             }
 
-            for (PieceType pt = KNIGHT; pt <= KING; ++pt)
-            {
-                bb = pos.piece_bitboard[make_piece(pt, us)];
-                while (bb)
-                {
-                    Square src = pop_lsb(bb);
-                    Bitboard att = ~pos.occ_bitboard[us] & Bitboards::get_attacks(pos.occ_bitboard[BOTH], src, pt);
-
-                    while (att)
-                    {
-                        Square tar = pop_lsb(att);
-
-                        if (quiets && !(pos.occ_bitboard[them] & tar))
-                            *moves++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 0, 0, 0, 0);
-                        if (captures && (pos.occ_bitboard[them] & tar))
-                            *moves++ = encode_move(src, tar, pos.piece_board[src], NO_PIECE, 1, 0, 0, 0);
-                    }
-                }
-            }
+			moves = gen_majors<T, M, KNIGHT>(pos, moves);
+			moves = gen_majors<T, M, BISHOP>(pos, moves);
+			moves = gen_majors<T, M, ROOK>  (pos, moves);
+			moves = gen_majors<T, M, QUEEN> (pos, moves);
+			moves = gen_majors<T, M, KING>  (pos, moves);
 
             return moves;
         }
