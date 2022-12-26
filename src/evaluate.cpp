@@ -6,7 +6,7 @@ namespace Clovis {
 
     Score pawn_table[] = {
 	Score(0,0), Score(0,0), Score(0,0), Score(0,0),
-	Score(141,263), Score(175,274), Score(145,219), Score(166,197),
+	Score(141,336), Score(189,311), Score(195,280), Score(210,262),
 	Score(97,111), Score(115,110), Score(148,103), Score(139,98),
 	Score(79,98), Score(100,94), Score(100,97), Score(119,87),
 	Score(66,90), Score(76,90), Score(95,89), Score(111,86),
@@ -66,7 +66,7 @@ Score king_table[] = {
 	};
 Score passed_pawn_bonus[] = {
 	 Score(0, 0),  Score(0, 0),  Score(0, 0),  Score(0, 0),
-	 Score(0, 73),  Score(14, 37),  Score(50, 61),  Score(44, 65),
+	 Score(0, 0),  Score(0, 0),  Score(0, 0),  Score(0, 0),
 	 Score(17, 137),  Score(12, 126),  Score(13, 98),  Score(8, 80),
 	 Score(18, 69),  Score(7, 65),  Score(12, 41),  Score(8, 33),
 	 Score(22, 34),  Score(0, 36),  Score(0, 17),  Score(0, 14),

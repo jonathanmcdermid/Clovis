@@ -62,7 +62,7 @@ namespace Clovis {
 
 			long double mse = tune_loop(weights);
 
-			for (short step = 1; step < 10; ++step)
+			for (short step = 1; step < 5; ++step)
 			{
 				cout << "step: " << step << endl;
 				for (size_t index = 0; index < weights.size() - 1; index += 2)
@@ -72,7 +72,7 @@ namespace Clovis {
 
 					*weights[index] += step;
 					
-					for (int i = 0; i < 10 && mse >= best_mse && *weights[index + 1] > 0; ++i)
+					for (int i = 0; i < 5 && mse >= best_mse && *weights[index + 1] > 0; ++i)
 					{
 						*weights[index + 1] -= 1;
 						*weights[index + 1] = max(short(0), *weights[index + 1]);
@@ -314,7 +314,7 @@ namespace Clovis {
 				{
 					weights.push_back(&Eval::pawn_table[sq].mg);
 					weights.push_back(&Eval::pawn_table[sq].eg);
-					if(sq / 4 != RANK_7)
+					if(sq / 4 != RANK_2)
 					{
 						weights.push_back(&Eval::passed_pawn_bonus[sq].mg);
 						weights.push_back(&Eval::passed_pawn_bonus[sq].eg);
