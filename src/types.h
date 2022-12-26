@@ -196,6 +196,14 @@ namespace Clovis {
         BLACK_QS = 1 << 3
     };
 
+    constexpr CastleRights ks_castle_rights(Colour c) {
+        return CastleRights(1 << (c * 2));
+    }
+
+    constexpr CastleRights qs_castle_rights(Colour c) {
+        return CastleRights(1 << (c * 2 + 1));
+    }
+
     constexpr Move encode_move(Square from, Square to, Piece piece, Piece promo, int cap, int dpush, int enpassant, int castling) {
         return Move(from | (to << 6) | (piece << 12) | (promo << 16) | (cap << 20) | (dpush << 21) | (enpassant << 22) | (castling << 23));
     }

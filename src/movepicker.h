@@ -77,14 +77,12 @@ namespace Clovis {
 			counter_table[cft_index(c, prev)] = curr;
 		}
 
-		inline bool is_killer(Move m, int ply) {
+		constexpr bool is_killer(Move m, int ply) {
 			Move* k = &killers[ply * 2];
 			return (m == k[0] || m == k[1]);
 		}
 
 		void init_movepicker();
-
-		void test_movepicker();
 
 		class MovePicker {
 		public:
@@ -119,7 +117,7 @@ namespace Clovis {
 					return tt_move;
 			case INIT_CAPTURES:
 				curr = end_bad_caps = moves;
-				last = MoveGen::gen_moves<ScoredMove, CAPTURE_MOVES>(pos, moves);
+				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves);
 				score_captures();
 				sort(moves, last, sm_score_comp);
 				++stage;
@@ -139,7 +137,7 @@ namespace Clovis {
 				if (PLAY_QUIETS)
 				{
 					curr = end_bad_caps;
-					last = MoveGen::gen_moves<ScoredMove, QUIET_MOVES>(pos, curr);
+					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
 					score_quiets();
 					sort(end_bad_caps, last, sm_score_comp);
 				}

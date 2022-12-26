@@ -12,13 +12,79 @@
 namespace Clovis {
 
     // precalculated bitboards for each square
-    extern Bitboard sqbb[SQ_N];
+    constexpr Bitboard sqbb[SQ_N] = {
+        0x1ULL,
+        0x2ULL,
+        0x4ULL,
+        0x8ULL,
+        0x10ULL,
+        0x20ULL,
+        0x40ULL,
+        0x80ULL,
+        0x100ULL,
+        0x200ULL,
+        0x400ULL,
+        0x800ULL,
+        0x1000ULL,
+        0x2000ULL,
+        0x4000ULL,
+        0x8000ULL,
+        0x10000ULL,
+        0x20000ULL,
+        0x40000ULL,
+        0x80000ULL,
+        0x100000ULL,
+        0x200000ULL,
+        0x400000ULL,
+        0x800000ULL,
+        0x1000000ULL,
+        0x2000000ULL,
+        0x4000000ULL,
+        0x8000000ULL,
+        0x10000000ULL,
+        0x20000000ULL,
+        0x40000000ULL,
+        0x80000000ULL,
+        0x100000000ULL,
+        0x200000000ULL,
+        0x400000000ULL,
+        0x800000000ULL,
+        0x1000000000ULL,
+        0x2000000000ULL,
+        0x4000000000ULL,
+        0x8000000000ULL,
+        0x10000000000ULL,
+        0x20000000000ULL,
+        0x40000000000ULL,
+        0x80000000000ULL,
+        0x100000000000ULL,
+        0x200000000000ULL,
+        0x400000000000ULL,
+        0x800000000000ULL,
+        0x1000000000000ULL,
+        0x2000000000000ULL,
+        0x4000000000000ULL,
+        0x8000000000000ULL,
+        0x10000000000000ULL,
+        0x20000000000000ULL,
+        0x40000000000000ULL,
+        0x80000000000000ULL,
+        0x100000000000000ULL,
+        0x200000000000000ULL,
+        0x400000000000000ULL,
+        0x800000000000000ULL,
+        0x1000000000000000ULL,
+        0x2000000000000000ULL,
+        0x4000000000000000ULL,
+        0x8000000000000000ULL,
+    };
 
-    inline Bitboard operator&(Bitboard bb, Square sq) { return bb & sqbb[sq]; }
-    inline Bitboard operator|(Bitboard bb, Square sq) { return bb | sqbb[sq]; }
-    inline Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sqbb[sq]; }
-    inline Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb[sq]; }
-    inline Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb[sq]; }
+    constexpr Bitboard operator|(Square sq1, Square sq2) { return sqbb[sq1] | sqbb[sq2]; }
+    constexpr Bitboard operator&(Bitboard bb, Square sq) { return bb & sqbb[sq]; }
+    constexpr Bitboard operator|(Bitboard bb, Square sq) { return bb | sqbb[sq]; }
+    constexpr Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sqbb[sq]; }
+    constexpr Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb[sq]; }
+    constexpr Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb[sq]; }
 
 #if defined(__GNUC__)
 

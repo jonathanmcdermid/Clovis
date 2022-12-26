@@ -4,8 +4,6 @@ using namespace std;
 
 namespace Clovis {
 
-	Bitboard sqbb[SQ_N];
-
 	namespace Bitboards {
 
 		// 64 - number of relevant occupancy bits for every bishop square
@@ -463,9 +461,6 @@ namespace Clovis {
 
 		void init_bitboards(bool calc_magic)
 		{
-			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-				sqbb[sq] = 1ULL << sq;
-
 			init_leapers_attacks();
 			init_sliders_attacks();
 
