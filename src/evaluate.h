@@ -5,7 +5,7 @@
 
 namespace Clovis {
 
-	class Position;
+	struct Position;
 
 	struct KingZone {
 		KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }

@@ -39,13 +39,16 @@ namespace Clovis {
 
         void MovePicker::score_quiets()
         {
+            size_t primary_index = ply * 2;
+            size_t secondary_index = primary_index + 1;
+
             Move counter_move = get_counter_entry(pos.side, prev_move);
 
             for (ScoredMove* sm = end_bad_caps; sm < last; ++sm)
             {
-                if (*sm == killers[ply * 2])
+                if (*sm == killers[primary_index])
                     sm->score = 22000;
-                else if (*sm == killers[ply * 2 + 1])
+                else if (*sm == killers[secondary_index])
                     sm->score = 21000;
                 else if (move_promotion_type(*sm))
                     sm->score = 20000 + move_promotion_type(*sm);
@@ -75,86 +78,6 @@ namespace Clovis {
 
             }
             cout << "\n\nTotal move count:" << count;
-        }
-
-        void test_movepicker()
-        {
-            cout << "Running movepicker tests..." << endl;
-            Position pos("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
-
-            Move tt_move = encode_move(E2, A6, W_BISHOP, NO_PIECE, 1, 0, 0, 0);
-            MovePick::MovePicker mp(pos, 0, MOVE_NONE, tt_move);
-
-            Move curr_move;
-
-            // valid move
-            Move primary = encode_move(C3, A4, W_KNIGHT, NO_PIECE, 0, 0, 0, 0);
-            // invalid move for this position
-            Move secondary = encode_move(A2, A6, W_ROOK, NO_PIECE, 0, 0, 0, 0);
-
-            vector<Move> win_caps;
-            vector<Move> quiets;
-            vector<Move> lose_caps;
-
-            MovePick::update_killers(primary, 0);
-            MovePick::update_killers(primary, 0);
-            MovePick::update_killers(secondary, 0);
-
-            int count = 0;
-
-            while ((curr_move = mp.get_next<true>()) != MOVE_NONE)
-            {
-                ++count;
-
-                switch (mp.get_stage())
-                {
-                case INIT_CAPTURES:
-                    assert(curr_move == tt_move);
-                    break;
-                case WINNING_CAPTURES:
-                    assert(curr_move != tt_move);
-                    // if there is a move preceding curr, it must have a higher value victim or an equal value victim and an equal or lower valued attacker
-                    // test does not account for promotions
-                    assert(win_caps.empty()
-                        || pos.piece_on(move_to_sq(curr_move)) <= pos.piece_on(move_to_sq(win_caps.back()))
-                        || (pos.piece_on(move_to_sq(curr_move)) == pos.piece_on(move_to_sq(win_caps.back()))
-                            && pos.piece_on(move_from_sq(curr_move)) >= pos.piece_on(move_from_sq(win_caps.back()))));
-                    win_caps.push_back(curr_move);
-                    break;
-                case QUIETS:
-                    // if curr is primary, must be first quiet
-                    // or if curr is secondary, must be first quiet or preceded by primary
-                    // or if curr is promotion, must only be preceded by killers or equal or better promotions
-                    // or if curr is castle, must only be preceded by killers, promos, or other castles
-                    assert(curr_move != tt_move);
-                    assert((curr_move == primary) == quiets.empty()
-                        || (curr_move == secondary) == (quiets.empty() || quiets[0] == primary)
-                        || ((move_promotion_type(curr_move) != NO_PIECE) == quiets.empty()
-                            || quiets.back() == primary
-                            || quiets.back() == secondary
-                            || move_promotion_type(quiets.back()) >= move_promotion_type(curr_move))
-                        || ((move_castling(curr_move) == quiets.empty())
-                            || quiets.back() == primary
-                            || quiets.back() == secondary
-                            || move_promotion_type(quiets.back()) != NO_PIECE
-                            || move_castling(quiets.back())));
-                    // if curr is not a special move, must only be preceded by special moves, or moves with higher HH score
-                    quiets.push_back(curr_move);
-                    break;
-                case LOSING_CAPTURES:
-                    assert(curr_move != tt_move);
-                    lose_caps.push_back(curr_move);
-                    break;
-                default:
-                    assert(0);
-                }
-            }
-
-            MoveGen::MoveList ml(pos);
-
-            assert(ml.size() == count);
-
-            cout << "Movepicker tests complete!" << endl;
         }
 
 	} // namespace MovePick

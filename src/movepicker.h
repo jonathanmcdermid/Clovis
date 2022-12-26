@@ -129,7 +129,7 @@ namespace Clovis {
 					assert(move_capture(*curr));
 					if (curr->move == tt_move)
 						++curr;
-					else if (pos.see(*curr))
+					else if (pos.see(*curr) >= 0)
 						return *curr++;
 					else
 						*end_bad_caps++ = *curr++;

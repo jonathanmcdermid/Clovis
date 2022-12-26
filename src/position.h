@@ -47,9 +47,9 @@ namespace Clovis {
 		Key get_pawn_key() const { return bs->pkey; }
 		bool is_attacked(Square sq, Colour side) const;
 		Bitboard attackers_to(Square sq) const;
-		PieceType get_smallest_attacker(Bitboard attackers, Colour stm) const;
+		Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
 		Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
-		bool see(Move move) const;
+		int see(Move move) const;
 		bool do_move(Move move);
 		void undo_move(Move move);
 		bool is_repeat() const;

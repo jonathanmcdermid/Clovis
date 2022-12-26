@@ -6,7 +6,7 @@ namespace Clovis {
 
     const extern string piece_str = " PNBRQK  pnbrqk";
     constexpr int game_phase_inc[15] = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
-    constexpr int piece_value[7] = { 0,100,300,300,500,900,20000 };
+    constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
     // castling rights lookup table
     const int castling_rights[SQ_N] = {
@@ -23,16 +23,16 @@ namespace Clovis {
 	namespace Zobrist {
 
 		void init_zobrist()
-    {
-        for (int i = NO_PIECE; i <= B_KING; ++i)
+        {
+            for (int i = NO_PIECE; i <= B_KING; ++i)
+                for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+                    piece_square[i][sq] = Random::random_U64();
             for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-                piece_square[i][sq] = Random::random_U64();
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-            enpassant[sq] = Random::random_U64();
-        for (int i = 0; i < 16; ++i)
-            castling[i] = Random::random_U64();
-        side = Random::random_U64();
-    }
+                enpassant[sq] = Random::random_U64();
+            for (int i = 0; i < 16; ++i)
+                castling[i] = Random::random_U64();
+            side = Random::random_U64();
+        }
 
         Key piece_square[15][SQ_N];
         Key enpassant[SQ_N];
@@ -153,13 +153,13 @@ namespace Clovis {
     }
 
     // returns the piece type of the least valuable piece on a bitboard of attackers
-    PieceType Position::get_smallest_attacker(Bitboard attackers, Colour stm) const
+    Square Position::get_smallest_attacker(Bitboard attackers, Colour stm) const
     {
-        for (PieceType pt = PAWN; pt <= KING; ++pt)
-            if (attackers & piece_bitboard[make_piece(pt, stm)])
-                return pt;
-
-        return PIECETYPE_N;
+        Bitboard bb;
+        for (Piece p = make_piece(PAWN, stm); p <= make_piece(KING, stm); ++p)
+            if ((bb = piece_bitboard[p] & attackers))
+                return lsb(bb);
+        return SQ_NONE;
     }
 
     // updates a bitboard of attackers after a piece has moved to include possible x ray attackers
@@ -180,55 +180,41 @@ namespace Clovis {
         }
     }
 
-    bool Position::see(Move move) const
+    int Position::see(Move move) const
     {
-		return true;
-
-		//the following is an attempt at SEE that did not result in a strength gain
-
-        assert(move_is_ok(move));
-        assert(move_capture(move));
-
+        // dont even bother
         if (move_promotion_type(move) || move_enpassant(move))
-            return true;
+            return 0;
+
+        int gain[32], d = 0;
 
         Square from = move_from_sq(move);
         Square to = move_to_sq(move);
+        Bitboard occ = occ_bitboard[BOTH];
+        Bitboard attackers = attackers_to(to);
+        Colour stm = side;
 
-		int gain[32], d = 0;
+        gain[d] = piece_value[piece_board[to]];
 
-		Bitboard occ = occ_bitboard[BOTH];
-		Bitboard attackers = attackers_to(to);
-		gain[d] = piece_value[piece_type(piece_on(to))];
-		Colour stm = side;
-		PieceType pt = piece_type(piece_on(from));
+        do {
+            stm = other_side(stm);
+            d++;
+            assert(d < 32);
+            gain[d] = piece_value[piece_board[from]] - gain[d - 1]; 
 
-   		while(true) {
+            if (max(-gain[d - 1], gain[d]) < 0) 
+                break; 
 
-			++d;
-			gain[d] = piece_value[piece_type(piece_on(from))] - gain[d-1];
+            attackers ^= from;
+            occ ^= from;
+            attackers |= consider_xray(occ, to, piece_type(piece_board[from]));
+            from = get_smallest_attacker(attackers, stm);
+        } while (from != SQ_NONE);
 
-			if (max(-gain[d-1], gain[d]) < 0) 
-			   break; 
+        while (--d)
+            gain[d - 1] = -max(-gain[d - 1], gain[d]);
 
-			attackers ^= from; 
-			occ ^= from;
-
-			attackers |= consider_xray(occ, to, pt);
-
-			stm = other_side(stm);
-
-			if(!(attackers & occ_bitboard[stm]))
-				break;
-
-			pt = get_smallest_attacker(attackers, stm);
-			from = lsb(attackers & piece_bitboard[make_piece(pt, stm)]);
-		};
-   		
-		while (--d)
-			gain[d-1]= -max(-gain[d-1], gain[d]);
-		
-		return (gain[0] >= 0);
+        return gain[0];
     }
 
     // updates bitboards to represent a new piece on a square

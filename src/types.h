@@ -64,6 +64,20 @@ namespace Clovis {
         PIECETYPE_N = 6
     };
 
+    inline void operator++(PieceType& pt) {
+        pt = static_cast<PieceType>(static_cast<int>(pt) + 1);
+    }
+
+    enum Piece {
+        NO_PIECE,
+        W_PAWN = PAWN, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
+        B_PAWN = PAWN + 8, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
+    };
+
+    inline void operator++(Piece& p) {
+        p = static_cast<Piece>(static_cast<int>(p) + 1);
+    }
+
     enum MoveType : int {
         QUIET_MOVES, CAPTURE_MOVES, ALL_MOVES
     };
@@ -92,16 +106,6 @@ namespace Clovis {
 
     enum NodeType : int {
         NODE_ROOT, NODE_PV, NODE_NON_PV
-    };
-
-    inline void operator++(PieceType& pt) {
-        pt = static_cast<PieceType>(static_cast<int>(pt) + 1);
-    }
-
-    enum Piece {
-        NO_PIECE,
-        W_PAWN = PAWN, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
-        B_PAWN = PAWN + 8, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
     };
 
     enum Direction : int {
