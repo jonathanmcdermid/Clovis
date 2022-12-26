@@ -7,13 +7,6 @@ namespace Clovis {
 
 	struct Position;
 
-	struct KingZone {
-		KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
-		KingZone(Bitboard outer_ring, Bitboard inner_ring) : outer_ring(outer_ring), inner_ring(inner_ring) { ; }
-		Bitboard outer_ring;
-		Bitboard inner_ring;
-	};
-
 	namespace Eval {
 
 		extern Score pawn_table[32];
@@ -73,15 +66,15 @@ namespace Clovis {
             return (Bitboards::pawn_attacks[other_side(side)][sq] & friendly_pawns) && (outpost_masks[side] & sq) && !(enemy_pawns & outpost_pawn_masks[side][sq]);
         }
 
-		template<Colour US, PieceType P>
-		Score evaluate_majors(const Position& pos, KingZone enemy_king_zone, int& n_king_attackers, Score& king_attack_weight)
+		template<Colour US, PieceType PT, bool SAFE>
+		Score evaluate_majors(const Position& pos, PTEntry& pte)
 		{
 			constexpr Colour THEM = other_side(US);
 
 			constexpr Piece OUR_PAWN	= make_piece(PAWN, US);
 			constexpr Piece OUR_BISHOP	= make_piece(BISHOP, US);
 			constexpr Piece OUR_ROOK	= make_piece(ROOK, US);
-			constexpr Piece PIECE		= make_piece(P, US);
+			constexpr Piece PIECE		= make_piece(PT, US);
 
 			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
 			constexpr Piece THEIR_ROOK	= make_piece(ROOK, THEM);
@@ -91,9 +84,9 @@ namespace Clovis {
 			Bitboard bb = pos.piece_bitboard[PIECE];
 
 			Bitboard transparent_occ =
-				(P == KNIGHT || P == QUEEN)
+				(PT == KNIGHT || PT == QUEEN)
 				? pos.occ_bitboard[BOTH]
-				: P == BISHOP
+				: PT == BISHOP
 				? pos.occ_bitboard[BOTH] & ~(pos.piece_bitboard[OUR_BISHOP] | pos.piece_bitboard[THEIR_ROOK] | pos.piece_bitboard[W_QUEEN] | pos.piece_bitboard[B_QUEEN])
 				: pos.occ_bitboard[BOTH] & ~(pos.piece_bitboard[W_QUEEN] | pos.piece_bitboard[B_QUEEN] | pos.piece_bitboard[OUR_ROOK]);
 
@@ -101,31 +94,32 @@ namespace Clovis {
 			{
 				sq = pop_lsb(bb);
 				score += *score_table[PIECE][sq];
-				Bitboard attacks = Bitboards::get_attacks<P>(transparent_occ, sq);
+				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
 
-				score += mobility[P] * (popcnt(attacks & ~pos.occ_bitboard[US]));
+				score += mobility[PT] * (popcnt(attacks & ~pos.occ_bitboard[US]));
 
-				if (P == ROOK)
+				if (PT == ROOK)
 				{
 					if (!(file_masks[sq] & (pos.piece_bitboard[W_PAWN] | pos.piece_bitboard[B_PAWN])))
 						score += rook_open_file_bonus;
 					else if (!(file_masks[sq] & pos.piece_bitboard[OUR_PAWN]))
 						score += rook_semi_open_file_bonus;
 				}
-				else if (P == KNIGHT || P == BISHOP)
+				else if (PT == KNIGHT || PT == BISHOP)
 				{
 					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
-						score += outpost_bonus[P - KNIGHT];
-					if (P == BISHOP && bb)
+						score += outpost_bonus[PT - KNIGHT];
+					if (PT == BISHOP && bb)
 						score += bishop_pair_bonus;
 				}
 
-				Bitboard or_att_bb = attacks & enemy_king_zone.outer_ring;
-				Bitboard ir_att_bb = attacks & enemy_king_zone.inner_ring;
+				if (!SAFE)
+				{
+					Bitboard or_att_bb = attacks & pte.zone[THEM].outer_ring;
+					Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;
 
-				if (or_att_bb || ir_att_bb) {
-					++n_king_attackers;
-					king_attack_weight += inner_ring_attack[P] * popcnt(ir_att_bb) + outer_ring_attack[P] * popcnt(or_att_bb);
+					if (or_att_bb || ir_att_bb)
+						pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
 				}
 			}
 
@@ -133,32 +127,36 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		Score evaluate_all(const Position& pos)
+		Score evaluate_all(const Position& pos, PTEntry& pte)
         {
         	constexpr Colour THEM = other_side(US);
 
-			constexpr Piece THEIR_KING	= make_piece(KING, THEM);
 			constexpr Piece OUR_QUEEN	= make_piece(QUEEN, US);
         	
 			Score score;
 
-			int n_king_attackers = 0;
-			Score king_attack_weight;
-			KingZone enemy_king_zone = king_zones[lsb(pos.piece_bitboard[THEIR_KING])];
+			if (pos.piece_bitboard[OUR_QUEEN])
+			{
+				score += evaluate_majors<US, KNIGHT,false>(pos, pte);
+				score += evaluate_majors<US, BISHOP,false>(pos, pte);
+				score += evaluate_majors<US, ROOK,	false>(pos, pte);
+				score += evaluate_majors<US, QUEEN, false>(pos, pte);
 
-			score += evaluate_majors<US, KNIGHT>(pos, enemy_king_zone, n_king_attackers, king_attack_weight);
-			score += evaluate_majors<US, BISHOP>(pos, enemy_king_zone, n_king_attackers, king_attack_weight);
-			score += evaluate_majors<US, ROOK>	(pos, enemy_king_zone, n_king_attackers, king_attack_weight);
-			score += evaluate_majors<US, QUEEN>	(pos, enemy_king_zone, n_king_attackers, king_attack_weight);
-
-			if (n_king_attackers >= 2 && pos.piece_bitboard[OUR_QUEEN])
-				score += (king_attack_weight * king_attack_weight) / (king_safety_reduction_factor + 1);
+				score += (pte.weight[US] * pte.weight[US]) / (king_safety_reduction_factor + 1);// change THIS
+			}
+			else
+			{
+				score += evaluate_majors<US, KNIGHT,true>(pos, pte);
+				score += evaluate_majors<US, BISHOP,true>(pos, pte);
+				score += evaluate_majors<US, ROOK,	true>(pos, pte);
+				score += evaluate_majors<US, QUEEN, true>(pos, pte);
+			}
 
 			return score;
         }
 
 		template<Colour US>
-		Score evaluate_pawns(const Position& pos)
+		Score evaluate_pawns(const Position& pos, PTEntry& pte)
 		{
 			constexpr Colour THEM = other_side(US);
 
@@ -167,6 +165,8 @@ namespace Clovis {
 			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
 
 			Square king_sq = lsb(pos.piece_bitboard[OUR_KING]);
+
+			pte.zone[US] = king_zones[king_sq];
 
 			Score score;
 
@@ -227,22 +227,19 @@ namespace Clovis {
 
 			Score score = (us == WHITE) ? tempo_bonus : -tempo_bonus;
 
-			score += evaluate_all<WHITE>(pos) - evaluate_all<BLACK>(pos);
+			PTEntry pte;
 
-			if (USE_TT)
+			pte = tt.probe_pawn(pos.bs->pkey);
+
+			if (!USE_TT || pte.key != pos.bs->pkey)
 			{
-				PTEntry* pte = tt.probe_pawn(pos.get_pawn_key());
-
-				if (!pte)
-				{
-					tt.new_pawn_entry(pos.get_pawn_key(), evaluate_pawns<WHITE>(pos) - evaluate_pawns<BLACK>(pos));
-					pte = tt.probe_pawn(pos.get_pawn_key());
-					assert(pte);
-				}
-
-				score += pte->s;
+				pte.clear();
+				pte.key = pos.bs->pkey;
+				pte.score = evaluate_pawns<WHITE>(pos, pte) - evaluate_pawns<BLACK>(pos, pte);
+				tt.new_pawn_entry(pte);
 			}
-			else score += evaluate_pawns<WHITE>(pos) - evaluate_pawns<BLACK>(pos);
+
+			score += pte.score + evaluate_all<WHITE>(pos, pte) - evaluate_all<BLACK>(pos, pte);
 
 			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
 			if (us == BLACK)

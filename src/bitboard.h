@@ -191,14 +191,14 @@ namespace Clovis {
 
         void init_bitboards(bool calc_magic);
 
-        template<PieceType P>
+        template<PieceType PT>
         Bitboard get_attacks(Bitboard occ, Square sq)
         {
-            assert(P != PAWN);
-            return P == KNIGHT ? knight_attacks[sq] 
-                : P == BISHOP ? get_bishop_attacks(occ, sq)
-                : P == ROOK ? get_rook_attacks(occ, sq)
-                : P == QUEEN ? get_queen_attacks(occ, sq)
+            assert(PT != PAWN);
+            return PT == KNIGHT ? knight_attacks[sq] 
+                : PT == BISHOP ? get_bishop_attacks(occ, sq)
+                : PT == ROOK ? get_rook_attacks(occ, sq)
+                : PT == QUEEN ? get_queen_attacks(occ, sq)
                 : king_attacks[sq];
         }
 

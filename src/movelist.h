@@ -35,13 +35,15 @@ namespace Clovis {
 			Move moves[MAX_MOVES], *last;
 		};
 
-		template<typename T, MoveType M, PieceType P, Colour US>
+		template<typename T, MoveType M, PieceType PT, Colour US>
 		T* generate_majors(const Position& pos, T* moves)
 		{
 			constexpr bool QUIETS   = M != CAPTURE_MOVES;
 			constexpr bool CAPTURES = M != QUIET_MOVES;
+
 			constexpr Colour THEM = other_side(US);
-            constexpr Piece PIECE = make_piece(P, US);
+
+            constexpr Piece PIECE = make_piece(PT, US);
 
 			Bitboard bb = pos.piece_bitboard[PIECE];
 
@@ -50,7 +52,7 @@ namespace Clovis {
             while (bb)
             {
                 Square src = pop_lsb(bb);
-                Bitboard att = our_inv_occ & Bitboards::get_attacks<P>(pos.occ_bitboard[BOTH], src);
+                Bitboard att = our_inv_occ & Bitboards::get_attacks<PT>(pos.occ_bitboard[BOTH], src);
 
                 while (att)
                 {
@@ -72,19 +74,26 @@ namespace Clovis {
         {
             constexpr bool QUIETS   = M != CAPTURE_MOVES;
             constexpr bool CAPTURES = M != QUIET_MOVES;
+
             constexpr Colour THEM = other_side(US);
-            constexpr Piece OUR_PAWN = make_piece(PAWN, US);
-            constexpr Piece OUR_KNIGHT = make_piece(KNIGHT, US);
-            constexpr Piece OUR_BISHOP = make_piece(BISHOP, US);
-            constexpr Piece OUR_ROOK = make_piece(ROOK, US);
-            constexpr Piece OUR_QUEEN = make_piece(QUEEN, US);
-            constexpr Piece OUR_KING = make_piece(KING, US);
+
+            constexpr Piece OUR_PAWN    = make_piece(PAWN, US);
+            constexpr Piece OUR_KNIGHT  = make_piece(KNIGHT, US);
+            constexpr Piece OUR_BISHOP  = make_piece(BISHOP, US);
+            constexpr Piece OUR_ROOK    = make_piece(ROOK, US);
+            constexpr Piece OUR_QUEEN   = make_piece(QUEEN, US);
+            constexpr Piece OUR_KING    = make_piece(KING, US);
+
             constexpr Square KING_ORIGIN = relative_square(US, E1);
+
             constexpr Rank PROMO_RANK = relative_rank(US, RANK_7);
             constexpr Rank SPAWN_RANK = relative_rank(US, RANK_2);
+
             constexpr Direction PUSH = pawn_push(US);
+
             constexpr CastleRights KS_CASTLE = ks_castle_rights(US);
             constexpr CastleRights QS_CASTLE = qs_castle_rights(US);
+
             constexpr Bitboard KS_CASTLE_OCC = relative_square(US, F1) | relative_square(US, G1);
             constexpr Bitboard QS_CASTLE_OCC = relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1);
 

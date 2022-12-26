@@ -43,8 +43,6 @@ namespace Clovis {
 	struct Position {
 		Position(const char* fen) { set(fen); }
 		void set(const char* fen);
-		Key get_key() const { return bs->key; }
-		Key get_pawn_key() const { return bs->pkey; }
 		bool is_attacked(Square sq, Colour side) const;
 		Bitboard attackers_to(Square sq) const;
 		Square get_smallest_attacker(Bitboard attackers, Colour stm) const;

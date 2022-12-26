@@ -136,7 +136,7 @@ namespace Clovis {
 
 			// extract ponder move if one exists
 			pos.do_move(best_move);
-			tte = tt.probe(pos.get_key());
+			tte = tt.probe(pos.bs->key);
 			ponder_move = tte ? tte->move : MOVE_NONE;
 			pos.undo_move(best_move);
 
@@ -173,7 +173,7 @@ namespace Clovis {
             if (alpha >= beta)
                 return alpha;
 
-            TTEntry* tte = tt.probe(pos.get_key());
+            TTEntry* tte = tt.probe(pos.bs->key);
             Move tt_move;
             if (tte)
             {
@@ -227,7 +227,7 @@ namespace Clovis {
             if (!tte && depth >= iid_depth[PV_NODE])
             {
                 negamax<N>(pos, alpha, beta, iid_table[depth][PV_NODE], ply, false, prev_move, nodes, lline);
-                tte = tt.probe(pos.get_key());
+                tte = tt.probe(pos.bs->key);
                 if (tte)
                 {
 					pline.last = pline.moves;
@@ -305,7 +305,7 @@ namespace Clovis {
                         MovePick::update_counter_entry(pos.side, prev_move, curr_move);
                     }
                     
-                    tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move);
+                    tt.new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
 
                     return beta;
                 }
@@ -333,7 +333,7 @@ namespace Clovis {
             if (moves_searched == 0)
                 return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
-            tt.new_entry(pos.get_key(), depth, best_score, eval_type, best_move);
+            tt.new_entry(pos.bs->key, depth, best_score, eval_type, best_move);
 
             if(eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
                 mp.update_history<HASH_EXACT>(best_move, depth);
@@ -350,7 +350,7 @@ namespace Clovis {
 
 			++nodes;
 
-            TTEntry* tte = tt.probe(pos.get_key());
+            TTEntry* tte = tt.probe(pos.bs->key);
 
             if (!PV_NODE && tte &&
                 (tte->flags == HASH_EXACT
@@ -393,7 +393,7 @@ namespace Clovis {
                 // fail high
                 if (eval >= beta)
                 {
-                    tt.new_entry(pos.get_key(), 0, beta, HASH_BETA, curr_move);
+                    tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
 
                     return beta;
                 }
@@ -409,7 +409,7 @@ namespace Clovis {
                 }
             }
 
-            tt.new_entry(pos.get_key(), 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+            tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
             return alpha;
         }

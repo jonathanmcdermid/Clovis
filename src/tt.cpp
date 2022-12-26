@@ -54,11 +54,9 @@ namespace Clovis {
     }
 
     // probe the pawn table to see if an entry exists
-    PTEntry* TTable::probe_pawn(Key key)
+    PTEntry TTable::probe_pawn(Key key)
     {
-        PTEntry* p = pt + pawn_hash_index(key);
-
-        return (p->key == key) ? p : nullptr;
+        return pt[pawn_hash_index(key)];
     }
 
 } // namespace Clovis
