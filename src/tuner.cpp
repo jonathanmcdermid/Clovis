@@ -349,8 +349,6 @@ namespace Clovis {
 			weights.push_back(&Eval::rook_open_file_bonus.eg);
 			weights.push_back(&Eval::rook_semi_open_file_bonus.mg);
 			weights.push_back(&Eval::rook_semi_open_file_bonus.eg);
-			weights.push_back(&Eval::king_safety_reduction_factor.mg);
-			weights.push_back(&Eval::king_safety_reduction_factor.eg);
 
 			for (int j = KNIGHT; j < KING; ++j)
 			{
@@ -451,9 +449,6 @@ namespace Clovis {
 			cout << "Score tempo_bonus = Score("
 				<< Eval::tempo_bonus.mg << ", "
 				<< Eval::tempo_bonus.eg << ");\n";
-			cout << "Score king_safety_reduction_factor = Score("
-				<< Eval::king_safety_reduction_factor.mg << ", "
-				<< Eval::king_safety_reduction_factor.eg << ");\n";
 			cout << "Score king_full_open_penalty = Score("
 				<< Eval::king_full_open_penalty.mg << ", "
 				<< Eval::king_full_open_penalty.eg << ");\n";

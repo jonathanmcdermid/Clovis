@@ -391,7 +391,7 @@ namespace Clovis {
 
 				for (index = 0; index < occ_indices; ++index)
 				{
-					int magic_index = (occ[index] * magic) >> (SQ_N - relevant_bits);
+					size_t magic_index = (occ[index] * magic) >> (SQ_N - relevant_bits);
 
 					if (used_attacks[magic_index] == 0ULL)
 						used_attacks[magic_index] = attacks[index];
@@ -429,40 +429,41 @@ namespace Clovis {
 		}
 
 		// populates slider attack tables
+		template<PieceType PT>
 		void init_sliders_attacks()
 		{
-			bool is_bishop = true;
-		start:
+			constexpr Bitboard (*OTF)(Square, Bitboard)	= PT == BISHOP ? bishop_otf : rook_otf;
+			constexpr Bitboard (*MASK_ATTACKS)(Square)	= PT == BISHOP ? mask_bishop_attacks : mask_rook_attacks;
+			constexpr Bitboard* ATTACK_MASK				= PT == BISHOP ? bishop_masks : rook_masks;
+			constexpr Bitboard* MAGIC					= PT == BISHOP ? b_magic : r_magic;
+			constexpr int RELEVANT_BITS[SQ_N]			= PT == BISHOP ? b_rbits : r_rbits;
+
+			assert(PT == BISHOP || PT == ROOK);
+
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 			{
-				bishop_masks[sq] = mask_bishop_attacks(sq);
-				rook_masks[sq] = mask_rook_attacks(sq);
+				ATTACK_MASK[sq] = MASK_ATTACKS(sq);
 
-				Bitboard attack_mask = is_bishop ? bishop_masks[sq] : rook_masks[sq];
-
-				int relevant_bits_count = popcnt(attack_mask);
+				int relevant_bits_count = popcnt(ATTACK_MASK[sq]);
 				int occupancy_indicies = (1 << relevant_bits_count);
 
 				for (int index = 0; index < occupancy_indicies; ++index)
 				{
-					Bitboard occ = set_occupancy(attack_mask, index, relevant_bits_count);
-					if (is_bishop)
-						bishop_attacks[sq][(occ * b_magic[sq]) >> b_rbits[sq]] = bishop_otf(sq, occ);
+					Bitboard occ = set_occupancy(ATTACK_MASK[sq], index, relevant_bits_count);
+
+					if (PT == BISHOP)
+						bishop_attacks[sq][(occ * MAGIC[sq]) >> RELEVANT_BITS[sq]] = OTF(sq, occ);
 					else
-						rook_attacks[sq][(occ * r_magic[sq]) >> r_rbits[sq]] = rook_otf(sq, occ);
+						rook_attacks[sq][(occ * MAGIC[sq]) >> RELEVANT_BITS[sq]] = OTF(sq, occ);
 				}
-			}
-			if (is_bishop) 
-			{
-				is_bishop = false;
-				goto start;
 			}
 		}
 
 		void init_bitboards(bool calc_magic)
 		{
 			init_leapers_attacks();
-			init_sliders_attacks();
+			init_sliders_attacks<BISHOP>();
+			init_sliders_attacks<ROOK>();
 
 			if (calc_magic)
 				init_magic_numbers();

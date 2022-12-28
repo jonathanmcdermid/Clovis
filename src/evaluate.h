@@ -26,7 +26,6 @@ namespace Clovis {
 		extern Score outer_ring_attack[7];
 		extern Score inner_ring_attack[7];
 		extern Score outpost_bonus[2];
-		extern Score king_safety_reduction_factor;
 		extern Score king_full_open_penalty;
 		extern Score king_semi_open_penalty;
 		extern Score king_adjacent_full_open_penalty;
@@ -79,6 +78,10 @@ namespace Clovis {
 			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
 			constexpr Piece THEIR_ROOK	= make_piece(ROOK, THEM);
 
+			constexpr size_t OUTPOST_INDEX = PT - KNIGHT;
+
+			assert(PT >= KNIGHT);
+
 			Score score;
 			Square sq;
 			Bitboard bb = pos.piece_bitboard[PIECE];
@@ -108,7 +111,7 @@ namespace Clovis {
 				else if (PT == KNIGHT || PT == BISHOP)
 				{
 					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
-						score += outpost_bonus[PT - KNIGHT];
+						score += outpost_bonus[OUTPOST_INDEX];
 					if (PT == BISHOP && bb)
 						score += bishop_pair_bonus;
 				}
@@ -131,7 +134,7 @@ namespace Clovis {
         {
         	constexpr Colour THEM = other_side(US);
 
-			constexpr Piece OUR_QUEEN	= make_piece(QUEEN, US);
+			constexpr Piece OUR_QUEEN = make_piece(QUEEN, US);
         	
 			Score score;
 
@@ -142,7 +145,7 @@ namespace Clovis {
 				score += evaluate_majors<US, ROOK,	false>(pos, pte);
 				score += evaluate_majors<US, QUEEN, false>(pos, pte);
 
-				score += (pte.weight[US] * pte.weight[US]) / (king_safety_reduction_factor + 1);// change THIS
+				score += (pte.weight[US] * pte.weight[US]) / 6;
 			}
 			else
 			{
@@ -160,13 +163,11 @@ namespace Clovis {
 		{
 			constexpr Colour THEM = other_side(US);
 
-			constexpr Piece OUR_KING	= make_piece(KING, US);
 			constexpr Piece OUR_PAWN	= make_piece(PAWN, US);
+			constexpr Piece OUR_KING	= make_piece(KING, US);
 			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
 
 			Square king_sq = lsb(pos.piece_bitboard[OUR_KING]);
-
-			pte.zone[US] = king_zones[king_sq];
 
 			Score score;
 
@@ -227,14 +228,14 @@ namespace Clovis {
 
 			Score score = (us == WHITE) ? tempo_bonus : -tempo_bonus;
 
-			PTEntry pte;
-
-			pte = tt.probe_pawn(pos.bs->pkey);
+			PTEntry pte = tt.probe_pawn(pos.bs->pkey);
 
 			if (!USE_TT || pte.key != pos.bs->pkey)
 			{
 				pte.clear();
 				pte.key = pos.bs->pkey;
+				pte.zone[WHITE] = king_zones[lsb(pos.piece_bitboard[W_KING])];
+				pte.zone[BLACK] = king_zones[lsb(pos.piece_bitboard[B_KING])];
 				pte.score = evaluate_pawns<WHITE>(pos, pte) - evaluate_pawns<BLACK>(pos, pte);
 				tt.new_pawn_entry(pte);
 			}

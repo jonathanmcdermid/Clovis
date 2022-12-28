@@ -166,25 +166,6 @@ namespace Clovis {
 
         void print_bitboard(const Bitboard& bb);
 
-        template<Colour c> Bitboard mask_pawn_attacks(Square sq);
-        Bitboard mask_knight_attacks(Square sq);
-        Bitboard mask_bishop_attacks(Square sq);
-        Bitboard mask_rook_attacks(Square sq);
-        Bitboard mask_king_attacks(Square sq);
-
-        Bitboard bishop_otf(Square sq, Bitboard block);
-        Bitboard rook_otf(Square sq, Bitboard block);
-
-        Bitboard set_occupancy(Bitboard attack_mask, int index, int bits);
-
-        Bitboard generate_magic();
-        Bitboard find_magic(Square sq, int relevant_bits, bool is_bishop);
-
-        void init_magic_numbers();
-
-        void init_leapers_attacks();
-        void init_sliders_attacks();
-
         Bitboard get_bishop_attacks(Bitboard occ, Square sq);
         Bitboard get_rook_attacks(Bitboard occ, Square sq);
         Bitboard get_queen_attacks(Bitboard occ, Square sq);

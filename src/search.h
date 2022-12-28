@@ -19,11 +19,10 @@ namespace Clovis {
             SearchLimits() {
                 time[WHITE] = time[BLACK] = 5000;
                 inc[WHITE] = inc[BLACK] = move_time = start_time = 0;
-                depth = 0;
-                mate = perft = 0;
                 moves_left = 20;
+                depth = mate = perft = 0;
                 infinite = false;
-                nodes = 0;
+                nodes = 0ULL;
             }
             int time[COLOUR_N], inc[COLOUR_N], move_time, start_time;
             int moves_left, depth, mate, perft;

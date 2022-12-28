@@ -74,11 +74,13 @@ namespace Clovis {
 
     struct PTEntry {
         PTEntry() : key(0ULL) { ; }
-        PTEntry(Key key, Score score, Score weight[COLOUR_N], KingZone zone[COLOUR_N]) : key(key), score(score) { 
+        PTEntry(Key key, Score score, Score weight[COLOUR_N], KingZone zone[COLOUR_N], int n_att[COLOUR_N]) : key(key), score(score) { 
             this->weight[WHITE] = weight[WHITE];
             this->weight[BLACK] = weight[BLACK];
             this->zone[WHITE] = zone[WHITE];
             this->zone[BLACK] = zone[BLACK];
+            this->n_att[WHITE] = n_att[WHITE];
+            this->n_att[BLACK] = n_att[BLACK];
         }
         void clear() {
             this->key = 0ULL;
@@ -89,6 +91,8 @@ namespace Clovis {
             this->zone[WHITE].outer_ring = 0ULL;
             this->zone[BLACK].inner_ring = 0ULL;
             this->zone[BLACK].outer_ring = 0ULL;
+            this->n_att[WHITE] = 0;
+            this->n_att[BLACK] = 0;
         }
         void operator=(const PTEntry& rhs) {
             this->key = rhs.key;
@@ -97,11 +101,14 @@ namespace Clovis {
             this->weight[BLACK] = rhs.weight[BLACK];
             this->zone[WHITE] = rhs.zone[WHITE];
             this->zone[BLACK] = rhs.zone[BLACK];
+            this->n_att[WHITE] = rhs.n_att[WHITE];
+            this->n_att[BLACK] = rhs.n_att[BLACK];
         }
         Key key;
         Score score;
         Score weight[COLOUR_N];
         KingZone zone[COLOUR_N];
+        int n_att[COLOUR_N];
     };
 
 	class TTable {
@@ -111,9 +118,7 @@ namespace Clovis {
         void clear();
         void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
         TTEntry* probe(Key key);
-        void new_pawn_entry(PTEntry pte) { 
-            pt[pawn_hash_index(pte.key)] = pte; 
-        }
+        void new_pawn_entry(PTEntry pte) { pt[pawn_hash_index(pte.key)] = pte; }
         PTEntry probe_pawn(Key key);
         ~TTable();
     private:

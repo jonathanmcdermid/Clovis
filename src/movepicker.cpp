@@ -34,7 +34,7 @@ namespace Clovis {
         {
             for (ScoredMove* sm = moves; sm < last; ++sm)
                 // promotions supercede mvv-lva
-                sm->score = mvv_lva[move_piece_type(*sm)][pos.piece_board[move_to_sq(*sm)]] + (move_promotion_type(*sm) << 6);
+                sm->score = mvv_lva[move_piece_type(*sm)][pos.piece_board[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
         }
 
         void MovePicker::score_quiets()

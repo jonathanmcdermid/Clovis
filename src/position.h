@@ -53,8 +53,6 @@ namespace Clovis {
 		bool is_repeat() const;
 		void print_position() const;
 		void print_bitboards();
-		Piece piece_on(Square sq) const;
-		bool empty(Square sq) const;
 		bool is_king_in_check(Colour side) const;
 		bool stm_has_promoted() const;
 		bool is_material_draw() const;
