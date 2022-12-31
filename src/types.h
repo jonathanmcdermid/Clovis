@@ -151,19 +151,19 @@ namespace Clovis {
         FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_N
     };
 
-    inline void operator++(File& f) {
+    constexpr void operator++(File& f) {
         f = static_cast<File>(static_cast<int>(f) + 1);
     }
 
-    inline void operator--(File& f) {
+    constexpr void operator--(File& f) {
         f = static_cast<File>(static_cast<int>(f) - 1);
     }
 
-    inline File operator+(File& f, int i) {
+    constexpr File operator+(File& f, int i) {
         return static_cast<File>(static_cast<int>(f) + i);
     }
 
-    inline File operator-(File& f, int i) {
+    constexpr File operator-(File& f, int i) {
         return static_cast<File>(static_cast<int>(f) - i);
     }
 
@@ -172,19 +172,19 @@ namespace Clovis {
         RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_N
     };
 
-    inline void operator++(Rank& r) {
+    constexpr void operator++(Rank& r) {
         r = static_cast<Rank>(static_cast<int>(r) + 1);
     }
 
-    inline void operator--(Rank& r) {
+    constexpr void operator--(Rank& r) {
         r = static_cast<Rank>(static_cast<int>(r) - 1);
     }
 
-    inline Rank operator+(Rank& r, int i) {
+    constexpr Rank operator+(Rank& r, int i) {
         return static_cast<Rank>(static_cast<int>(r) + i);
     }
 
-    inline Rank operator-(Rank& r, int i) {
+    constexpr Rank operator-(Rank& r, int i) {
         return static_cast<Rank>(static_cast<int>(r) - i);
     }
 

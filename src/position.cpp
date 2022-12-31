@@ -9,7 +9,7 @@ namespace Clovis {
     constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
     // castling rights lookup table
-    const int castling_rights[SQ_N] = {
+    constexpr int castling_rights[SQ_N] = {
         13, 15, 15, 15, 12, 15, 15, 14,
         15, 15, 15, 15, 15, 15, 15, 15,
         15, 15, 15, 15, 15, 15, 15, 15,
@@ -142,8 +142,8 @@ namespace Clovis {
 
     Bitboard Position::attackers_to(Square sq) const 
     {
-        return  (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[W_PAWN]) 
-            | (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[B_PAWN]) 
+        return  (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[W_PAWN]) 
+            | (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[B_PAWN]) 
             | (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) 
             | (Bitboards::get_rook_attacks(occ_bitboard[BOTH], sq) 
                 & (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
@@ -204,7 +204,6 @@ namespace Clovis {
 
             if (max(-gain[d - 1], gain[d]) < 0) 
                 break; 
-
             attackers ^= from;
             occ ^= from;
             attackers |= consider_xray(occ, to, piece_type(piece_board[from]));
@@ -277,93 +276,92 @@ namespace Clovis {
             }
             bs->captured_piece = NO_PIECE;
             bs->ply_null = 0;
-            goto nullmove;
         }
-
-        assert(get_side(move_piece_type(move)) == side);
-        assert(get_side(piece_board[src]) == side);
-        assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
-        assert(piece_type(piece_board[tar]) != KING);
-
-        // move piece
-        bs->captured_piece = piece_board[tar];
-
-        if (move_castling(move))
+        else
         {
-            Square rt, rf;
-            get_castle_rook_squares(tar, rf, rt);
-            bs->key ^= Zobrist::piece_square[piece_board[rf]][rf];
-            bs->key ^= Zobrist::piece_square[piece_board[rf]][rt];
-            remove_piece(rf);
-            put_piece(make_piece(ROOK, side), rt);
-        }
+            assert(get_side(move_piece_type(move)) == side);
+            assert(get_side(piece_board[src]) == side);
+            assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
+            assert(piece_type(piece_board[tar]) != KING);
 
-        // update castling rights
-        bs->key ^= Zobrist::castling[bs->castle];
-        bs->castle &= castling_rights[src];
-        bs->castle &= castling_rights[tar];
-        bs->key ^= Zobrist::castling[bs->castle];
+            // move piece
+            bs->captured_piece = piece_board[tar];
 
-        if (move_capture(move))
-        {
-            if (move_enpassant(move))
+            if (move_castling(move))
             {
-                Square victim_sq = tar - pawn_push(side);
-                bs->captured_piece = make_piece(PAWN, other_side(side));
-                bs->key ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
-                bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
-                remove_piece(victim_sq);
+                Square rt, rf;
+                get_castle_rook_squares(tar, rf, rt);
+                bs->key ^= Zobrist::piece_square[piece_board[rf]][rf];
+                bs->key ^= Zobrist::piece_square[piece_board[rf]][rt];
+                remove_piece(rf);
+                put_piece(make_piece(ROOK, side), rt);
             }
-            else
+
+            // update castling rights
+            bs->key ^= Zobrist::castling[bs->castle];
+            bs->castle &= castling_rights[src];
+            bs->castle &= castling_rights[tar];
+            bs->key ^= Zobrist::castling[bs->castle];
+
+            if (move_capture(move))
             {
-                if (piece_type(bs->captured_piece) == PAWN)
-                    bs->pkey ^= Zobrist::piece_square[bs->captured_piece][tar];
-                bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
-                remove_piece(tar);
+                if (move_enpassant(move))
+                {
+                    Square victim_sq = tar - pawn_push(side);
+                    bs->captured_piece = make_piece(PAWN, other_side(side));
+                    bs->key ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
+                    bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
+                    remove_piece(victim_sq);
+                }
+                else
+                {
+                    if (piece_type(bs->captured_piece) == PAWN)
+                        bs->pkey ^= Zobrist::piece_square[bs->captured_piece][tar];
+                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    remove_piece(tar);
+                }
+                bs->game_phase -= game_phase_inc[bs->captured_piece];
+                bs->hmc = 0;
             }
-            bs->game_phase -= game_phase_inc[bs->captured_piece];
-            bs->hmc = 0;
-        }
 
-        put_piece(piece, tar);
-        bs->key ^= Zobrist::piece_square[piece_board[src]][src];
-        bs->key ^= Zobrist::piece_square[piece_board[src]][tar];
-        remove_piece(src);
+            put_piece(piece, tar);
+            bs->key ^= Zobrist::piece_square[piece_board[src]][src];
+            bs->key ^= Zobrist::piece_square[piece_board[src]][tar];
+            remove_piece(src);
 
-        if (bs->enpassant != SQ_NONE)
-        {
-            bs->key ^= Zobrist::enpassant[bs->enpassant];
-            bs->enpassant = SQ_NONE;
-        }
-
-        if (piece_type(piece) == PAWN)
-        {
-            if (move_double(move))
+            if (bs->enpassant != SQ_NONE)
             {
-                bs->enpassant = tar - pawn_push(side);
                 bs->key ^= Zobrist::enpassant[bs->enpassant];
+                bs->enpassant = SQ_NONE;
             }
-            else if (move_promotion_type(move))
-            {
-                bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
-                bs->pkey ^= Zobrist::piece_square[piece][tar];
-                remove_piece(tar);
-                put_piece(move_promotion_type(move), tar);
-                bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
-                bs->game_phase -= game_phase_inc[PAWN];
-                bs->game_phase += game_phase_inc[move_promotion_type(move)];
-            }
-            bs->pkey ^= Zobrist::piece_square[piece][src];
-            bs->pkey ^= Zobrist::piece_square[piece][tar];
-            bs->hmc = 0;
-        }
-		else if (piece_type(piece) == KING)
-		{
-			bs->pkey ^= Zobrist::piece_square[piece][src];
-			bs->pkey ^= Zobrist::piece_square[piece][tar];
-		}
 
-    nullmove:
+            if (piece_type(piece) == PAWN)
+            {
+                if (move_double(move))
+                {
+                    bs->enpassant = tar - pawn_push(side);
+                    bs->key ^= Zobrist::enpassant[bs->enpassant];
+                }
+                else if (move_promotion_type(move))
+                {
+                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    bs->pkey ^= Zobrist::piece_square[piece][tar];
+                    remove_piece(tar);
+                    put_piece(move_promotion_type(move), tar);
+                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    bs->game_phase -= game_phase_inc[PAWN];
+                    bs->game_phase += game_phase_inc[move_promotion_type(move)];
+                }
+                bs->pkey ^= Zobrist::piece_square[piece][src];
+                bs->pkey ^= Zobrist::piece_square[piece][tar];
+                bs->hmc = 0;
+            }
+            else if (piece_type(piece) == KING)
+            {
+                bs->pkey ^= Zobrist::piece_square[piece][src];
+                bs->pkey ^= Zobrist::piece_square[piece][tar];
+            }
+        }
 
         side = other_side(side);
         bs->key ^= Zobrist::side;
@@ -385,29 +383,27 @@ namespace Clovis {
         Square src = move_from_sq(move);
         Square tar = move_to_sq(move);
 
-        if (move == MOVE_NULL)
-            goto nullmove;
-
-        put_piece(move_piece_type(move), src);
-        remove_piece(tar);
-
-        if (move_castling(move))
+        if (move != MOVE_NULL)
         {
-            Square rt, rf;
-            get_castle_rook_squares(tar, rf, rt);
-            remove_piece(rt);
-            put_piece(make_piece(ROOK, side), rf);
-        }
+            put_piece(move_piece_type(move), src);
+            remove_piece(tar);
 
-        if (move_capture(move))
-        {
-            if (move_enpassant(move))
-                put_piece(bs->captured_piece, tar - pawn_push(side));
-            else
-                put_piece(bs->captured_piece, tar);
-        }
+            if (move_castling(move))
+            {
+                Square rt, rf;
+                get_castle_rook_squares(tar, rf, rt);
+                remove_piece(rt);
+                put_piece(make_piece(ROOK, side), rf);
+            }
 
-    nullmove:
+            if (move_capture(move))
+            {
+                if (move_enpassant(move))
+                    put_piece(bs->captured_piece, tar - pawn_push(side));
+                else
+                    put_piece(bs->captured_piece, tar);
+            }
+        }
 
         assert(bs->prev);
         BoardState* temp = bs;

@@ -9,4 +9,4 @@ namespace Clovis {
 	void TimeManager::set() { 
 		start_time = now(); 
 	}
-}
+} // namespace Clovis

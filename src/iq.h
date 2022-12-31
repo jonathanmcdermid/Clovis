@@ -22,6 +22,6 @@ namespace Clovis {
 
 		void iq_test();
 
-	} // IQ
+	} // namespace IQ
 
-} // Clovis
+} // namespace Clovis

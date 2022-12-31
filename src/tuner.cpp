@@ -54,84 +54,81 @@ namespace Clovis {
 			// compute scaling constant k
 			k = 1.68;//find_k();
 
-		repeat:
+			do {
+				improved = false;
 
-			improved = false;
+				best_mse = mean_squared_error(k);
 
-			best_mse = mean_squared_error(k);
+				long double mse = tune_loop(weights);
 
-			long double mse = tune_loop(weights);
-
-			for (short step = 1; step < 5; ++step)
-			{
-				cout << "step: " << step << endl;
-				for (size_t index = 0; index < weights.size() - 1; index += 2)
+				for (short step = 1; step < 5; ++step)
 				{
-					short best_val1 = *weights[index];
-					short best_val2 = *weights[index + 1];
-
-					*weights[index] += step;
-					
-					for (int i = 0; i < 5 && mse >= best_mse && *weights[index + 1] > 0; ++i)
+					cout << "step: " << step << endl;
+					for (size_t index = 0; index < weights.size() - 1; index += 2)
 					{
-						*weights[index + 1] -= 1;
-						*weights[index + 1] = max(short(0), *weights[index + 1]);
+						short best_val_mg = *weights[index];
+						short best_val_eg = *weights[index + 1];
 
-						mse = mean_squared_error(k);
+						*weights[index] += step;
 
-						// if a thread fails we catch it here
-						while (best_mse - mse > best_mse / (n_cores + 1))
+						for (int i = 0; i < 5 && mse >= best_mse && *weights[index + 1] > 0; ++i)
+						{
+							*weights[index + 1] -= 1;
+							*weights[index + 1] = max(short(0), *weights[index + 1]);
+
 							mse = mean_squared_error(k);
-					}
 
-					if (mse < best_mse)
-					{
-						best_val1 = *weights[index];
-						best_val2 = *weights[index + 1];
-						best_mse = mse;
-						print_params();
-						cout << mse << endl;
-						improved = true;
-					}
-					else
-					{
-						*weights[index] = best_val1;
-						*weights[index + 1] = best_val2;
-					}
+							// if a thread fails we catch it here
+							while (best_mse - mse > best_mse / (n_cores + 1))
+								mse = mean_squared_error(k);
+						}
 
-					if (*weights[index] == 0)
-						continue;
+						if (mse < best_mse)
+						{
+							best_val_mg = *weights[index];
+							best_val_eg = *weights[index + 1];
+							best_mse = mse;
+							print_params();
+							cout << mse << endl;
+							improved = true;
+						}
+						else
+						{
+							*weights[index] = best_val_mg;
+							*weights[index + 1] = best_val_eg;
+						}
 
-					*weights[index] -= step;
-					*weights[index] = max(short(0), *weights[index]);
+						if (*weights[index] == 0)
+							continue;
 
-					for (int i = 0; i < 10 && mse >= best_mse; ++i)
-					{
-						*weights[index + 1] += 1;
-						mse = mean_squared_error(k);
+						*weights[index] -= step;
+						*weights[index] = max(short(0), *weights[index]);
 
-						// if a thread fails we catch it here
-						while (best_mse - mse > best_mse / (n_cores + 1))
+						for (int i = 0; i < 10 && mse >= best_mse; ++i)
+						{
+							*weights[index + 1] += 1;
 							mse = mean_squared_error(k);
-					}
 
-					if (mse < best_mse)
-					{
-						best_mse = mse;
-						print_params();
-						cout << mse << endl;
-						improved = true;
-					}
-					else
-					{
-						*weights[index] = best_val1;
-						*weights[index + 1] = best_val2;
+							// if a thread fails we catch it here
+							while (best_mse - mse > best_mse / (n_cores + 1))
+								mse = mean_squared_error(k);
+						}
+
+						if (mse < best_mse)
+						{
+							best_mse = mse;
+							print_params();
+							cout << mse << endl;
+							improved = true;
+						}
+						else
+						{
+							*weights[index] = best_val_mg;
+							*weights[index + 1] = best_val_eg;
+						}
 					}
 				}
-			}
-
-			if (improved)
-				goto repeat;
+			} while (improved);
 
 			print_params();
 
@@ -350,10 +347,13 @@ namespace Clovis {
 			weights.push_back(&Eval::rook_semi_open_file_bonus.mg);
 			weights.push_back(&Eval::rook_semi_open_file_bonus.eg);
 
-			for (int j = KNIGHT; j < KING; ++j)
+			for (int j = PAWN; j < KING; ++j)
 			{
-				weights.push_back(&Eval::mobility[j].mg);
-				weights.push_back(&Eval::mobility[j].eg);
+				if (j > PAWN)
+				{
+					weights.push_back(&Eval::mobility[j].mg);
+					weights.push_back(&Eval::mobility[j].eg);
+				}
 
 				weights.push_back(&Eval::inner_ring_attack[j].mg);
 				weights.push_back(&Eval::inner_ring_attack[j].eg);
@@ -492,6 +492,6 @@ namespace Clovis {
 			cout << "};\n";
 		}
 
-	} // Tuner
+	} // namespace Tuner
 
-} // Clovis
+} // namespace Clovis

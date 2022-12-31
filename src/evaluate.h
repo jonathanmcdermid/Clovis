@@ -97,7 +97,7 @@ namespace Clovis {
 			{
 				sq = pop_lsb(bb);
 				score += *score_table[PIECE][sq];
-				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
+				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq) & ~pte.attacks[THEM];
 
 				score += mobility[PT] * (popcnt(attacks & ~pos.occ_bitboard[US]));
 
@@ -122,7 +122,10 @@ namespace Clovis {
 					Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;
 
 					if (or_att_bb || ir_att_bb)
+					{
 						pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
+						++pte.n_att[US];
+					}
 				}
 			}
 
@@ -132,8 +135,6 @@ namespace Clovis {
 		template<Colour US>
 		Score evaluate_all(const Position& pos, PTEntry& pte)
         {
-        	constexpr Colour THEM = other_side(US);
-
 			constexpr Piece OUR_QUEEN = make_piece(QUEEN, US);
         	
 			Score score;
@@ -145,7 +146,7 @@ namespace Clovis {
 				score += evaluate_majors<US, ROOK,	false>(pos, pte);
 				score += evaluate_majors<US, QUEEN, false>(pos, pte);
 
-				score += (pte.weight[US] * pte.weight[US]) / 6;
+				score += pte.weight[US] * pte.weight[US] / max(10 - pte.n_att[US], 1);
 			}
 			else
 			{
@@ -187,6 +188,19 @@ namespace Clovis {
 
 				if (passed_pawn(pos.piece_bitboard[THEIR_PAWN], sq, US))
 					score += *passed_table[relative_square(US, sq)];
+
+				Bitboard attacks = Bitboards::pawn_attacks[US][sq];
+
+				Bitboard or_att_bb = attacks & pte.zone[THEM].outer_ring;
+				Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;
+
+				if (or_att_bb || ir_att_bb)
+				{
+					pte.weight[US] += inner_ring_attack[PAWN] * popcnt(ir_att_bb) + outer_ring_attack[PAWN] * popcnt(or_att_bb);
+					//++pte.n_att[US];
+				}
+
+				pte.attacks[US] |= attacks;
 			}
 
 			if (!(file_masks[king_sq] & pos.piece_bitboard[OUR_PAWN]))

@@ -52,6 +52,6 @@ namespace Clovis {
 			exit(EXIT_FAILURE);
 		}
 		
-	} // Bench
+	} // namespace Bench
 
-} // Clovis
+} // namespace Clovis

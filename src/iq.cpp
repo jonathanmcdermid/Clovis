@@ -7,7 +7,6 @@ namespace Clovis {
 		void iq_test() 
 		{
 			vector<IQPosition> iq;
-
 			string file_name = "src/iqtest.epd";
 			ifstream ifs;
 			ifs.open(file_name.c_str(), ifstream::in);
@@ -92,4 +91,4 @@ namespace Clovis {
 
 	}
 
-} // Clovis
+} // namespace Clovis

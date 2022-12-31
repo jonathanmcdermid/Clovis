@@ -7,7 +7,7 @@ namespace Clovis {
 	namespace Bitboards {
 
 		// 64 - number of relevant occupancy bits for every bishop square
-		constexpr int b_rbits[SQ_N] = {
+		int bishop_rbits[SQ_N] = {
 			58, 59, 59, 59, 59, 59, 59, 58,
 			59, 59, 59, 59, 59, 59, 59, 59,
 			59, 59, 57, 57, 57, 57, 59, 59,
@@ -19,7 +19,7 @@ namespace Clovis {
 		};
 
 		// 64 - number of relevant occupancy bits for every rook square
-		constexpr int r_rbits[SQ_N] = {
+		int rook_rbits[SQ_N] = {
 			52, 53, 53, 53, 53, 53, 53, 52,
 			53, 54, 54, 54, 54, 54, 54, 53,
 			53, 54, 54, 54, 54, 54, 54, 53,
@@ -29,8 +29,6 @@ namespace Clovis {
 			53, 54, 54, 54, 54, 54, 54, 53,
 			52, 53, 53, 53, 53, 53, 53, 52,
 		};
-
-		constexpr int attacks_size = 8 * rook_attack_indices;
 
 		Bitboard pawn_attacks[COLOUR_N][SQ_N];
 		Bitboard knight_attacks[SQ_N];
@@ -43,7 +41,7 @@ namespace Clovis {
 		Bitboard rook_masks[SQ_N];
 
 		// precalculated magic numbers for generating rook attacks
-		Bitboard r_magic[SQ_N] = {
+		Bitboard rook_magic[SQ_N] = {
 			0x8a80104000800020ULL,
 			0x140002000100040ULL,
 			0x2801880a0017001ULL,
@@ -111,7 +109,7 @@ namespace Clovis {
 		};
 
 		// precalculated magic numbers for generating bishop attacks
-		Bitboard b_magic[SQ_N] = {
+		Bitboard bishop_magic[SQ_N] = {
 			0x40040844404084ULL,
 			0x2004208a004208ULL,
 			0x10190041080202ULL,
@@ -232,11 +230,11 @@ namespace Clovis {
 		}
 
 		// generates relevant squares for bishop attacks on a given square
-		Bitboard mask_bishop_attacks(Square sq)
+		constexpr Bitboard mask_bishop_attacks(Square sq)
 		{
 			Bitboard attacks = 0ULL;
-			Rank r, tr = rank_of(sq);
-			File f, tf = file_of(sq);
+			Rank r = RANK_NONE, tr = rank_of(sq);
+			File f = FILE_NONE, tf = file_of(sq);
 
 			for (r = tr + 1, f = tf + 1; r < RANK_8 && f < FILE_H; ++r, ++f)
 				attacks |= (1ULL << (r * RANK_N + f));
@@ -362,20 +360,28 @@ namespace Clovis {
 			return Random::random_U64() & Random::random_U64() & Random::random_U64();
 		}
 
-
 		// brute force method of finding magic numbers for slider piece move generation
-		Bitboard find_magic(Square sq, int relevant_bits, bool is_bishop)
+		template<PieceType PT>
+		Bitboard find_magic(Square sq, int relevant_bits)
 		{
-			Bitboard occ[rook_attack_indices];
-			Bitboard attacks[rook_attack_indices];
-			Bitboard used_attacks[rook_attack_indices];
-			Bitboard mask = is_bishop ? mask_bishop_attacks(sq) : mask_rook_attacks(sq);
+			constexpr Bitboard(*OTF)(Square, Bitboard) = PT == BISHOP ? bishop_otf : rook_otf;
+			constexpr int ATTACK_INDICES = PT == BISHOP ? bishop_attack_indices : rook_attack_indices;
+			constexpr int ATTACKS_SIZE = 8 * ATTACK_INDICES;
+			
+			assert(PT == BISHOP || PT == ROOK);
+
+			Bitboard mask = PT == BISHOP ? mask_bishop_attacks(sq) : mask_rook_attacks(sq);
+
+			Bitboard occ[ATTACK_INDICES];
+			Bitboard attacks[ATTACK_INDICES];
+			Bitboard used_attacks[ATTACK_INDICES];
+
 			int occ_indices = 1 << relevant_bits;
 
 			for (int i = 0; i < occ_indices; ++i)
 			{
 				occ[i] = set_occupancy(mask, i, relevant_bits);
-				attacks[i] = is_bishop ? bishop_otf(sq, occ[i]) : rook_otf(sq, occ[i]);
+				attacks[i] = OTF(sq, occ[i]);
 			}
 
 			for (int i = 0; i < INT_MAX; ++i)
@@ -385,7 +391,7 @@ namespace Clovis {
 				if (popcnt((mask * magic) & 0xFF00000000000000) < 6) 
 					continue;
 
-				memset(used_attacks, 0ULL, attacks_size);
+				memset(used_attacks, 0ULL, ATTACKS_SIZE);
 
 				int index;
 
@@ -411,8 +417,8 @@ namespace Clovis {
 		void init_magic_numbers()
 		{
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-				r_magic[sq] = find_magic(sq, r_rbits[sq], false);
-				b_magic[sq] = find_magic(sq, b_rbits[sq], true);
+				bishop_magic[sq] = find_magic<BISHOP>(sq, bishop_rbits[sq]);
+				rook_magic[sq] = find_magic<ROOK>(sq, rook_rbits[sq]);
 			}
 		}
 
@@ -435,8 +441,8 @@ namespace Clovis {
 			constexpr Bitboard (*OTF)(Square, Bitboard)	= PT == BISHOP ? bishop_otf : rook_otf;
 			constexpr Bitboard (*MASK_ATTACKS)(Square)	= PT == BISHOP ? mask_bishop_attacks : mask_rook_attacks;
 			constexpr Bitboard* ATTACK_MASK				= PT == BISHOP ? bishop_masks : rook_masks;
-			constexpr Bitboard* MAGIC					= PT == BISHOP ? b_magic : r_magic;
-			constexpr int RELEVANT_BITS[SQ_N]			= PT == BISHOP ? b_rbits : r_rbits;
+			constexpr Bitboard* MAGIC					= PT == BISHOP ? bishop_magic : rook_magic;
+			constexpr int* RELEVANT_BITS				= PT == BISHOP ? bishop_rbits : rook_rbits;
 
 			assert(PT == BISHOP || PT == ROOK);
 
@@ -471,12 +477,12 @@ namespace Clovis {
 
 		Bitboard get_bishop_attacks(Bitboard occ, Square sq)
 		{
-			return bishop_attacks[sq][(occ & bishop_masks[sq])* b_magic[sq] >> b_rbits[sq]];
+			return bishop_attacks[sq][(occ & bishop_masks[sq])* bishop_magic[sq] >> bishop_rbits[sq]];
 		}
 
 		Bitboard get_rook_attacks(Bitboard occ, Square sq)
 		{
-			return rook_attacks[sq][(occ & rook_masks[sq]) * r_magic[sq] >> r_rbits[sq]];
+			return rook_attacks[sq][(occ & rook_masks[sq]) * rook_magic[sq] >> rook_rbits[sq]];
 		}
 
 		Bitboard get_queen_attacks(Bitboard occ, Square sq)

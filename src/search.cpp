@@ -76,63 +76,63 @@ namespace Clovis {
 			TTEntry* tte;
             MoveGen::MoveList ml = MoveGen::MoveList(pos);
 
-            if (ml.size() == 1)
+            if (ml.size() > 1)
             {
-                best_move = *ml.begin();
-                goto end;
+                MovePick::reset_killers();
+                MovePick::age_history();
+
+                nodes = 0;
+
+                for (int depth = 1; depth <= MAX_PLY && (lim.depth == 0 || depth <= lim.depth); ++depth)
+                {
+                    score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
+
+                    if (stop)
+                        break;
+
+                    if (score <= alpha)
+                    {
+                        assert(depth > asp_depth);
+                        alpha = -CHECKMATE_SCORE;
+                        --depth;
+                        continue;
+                    }
+                    if (score >= beta)
+                    {
+                        assert(depth > asp_depth);
+                        beta = CHECKMATE_SCORE;
+                        --depth;
+                        continue;
+                    }
+
+                    auto time = tm.get_time_elapsed();
+
+                    cout << "info depth " << setw(2) << depth
+                        << " score cp " << setw(4) << score
+                        << " nodes " << setw(8) << nodes
+                        << " time " << setw(6) << tm.get_time_elapsed()
+                        << " nps " << setw(8) << 1000ULL * nodes / (time + 1)
+                        << " pv " << pline.moves[0];
+
+                    cout << endl;
+
+                    if (time > allocated_time / 3)
+                        break;
+
+                    if (depth > asp_depth)
+                    {
+                        alpha = score - delta;
+                        beta = score + delta;
+                    }
+                }
+
+                best_move = pline.moves[0];
             }
-
-            MovePick::reset_killers();
-            MovePick::age_history();
-
-            nodes = 0;
-
-            for (int depth = 1; depth <= MAX_PLY  && (lim.depth == 0 || depth <= lim.depth); ++depth)
+            else
             {
-                score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
-				
-                if (stop)
-                    break;
-				
-                if (score <= alpha)
-				{
-					assert(depth > asp_depth);
-					alpha = -CHECKMATE_SCORE;
-					--depth;
-					continue;
-				}
-				if (score >= beta)
-				{
-					assert(depth > asp_depth);
-					beta = CHECKMATE_SCORE;
-					--depth;
-					continue;
-				}
-
-				auto time = tm.get_time_elapsed();
-
-                cout << "info depth "	<< setw(2) << depth
-                    << " score cp "		<< setw(4) << score
-                    << " nodes "		<< setw(8) << nodes
-                    << " time "			<< setw(6) << tm.get_time_elapsed()
-					<< " nps "			<< setw(8) << 1000ULL * nodes / (time + 1) 
-                    << " pv "			<< pline.moves[0];
-
-				cout << endl;
-
-                if (time > allocated_time / 3)
-                    break;
-                
-				if (depth > asp_depth)
-				{
-					alpha = score - delta;
-					beta = score + delta;
-				}
-			}
-
-			best_move = pline.moves[0];
-
-        end:
+                assert(ml.size() == 1);
+                best_move = *ml.begin();
+            }
 
 			// extract ponder move if one exists
 			pos.do_move(best_move);
@@ -198,45 +198,43 @@ namespace Clovis {
 
             int score;
 
-            if (king_in_check)
-                goto loop;
+            if (!king_in_check)
+            {
+                score = tte ? tte->eval : Eval::evaluate<true>(pos);
 
-            score = tte ? tte->eval : Eval::evaluate<true>(pos);
-            
-            // reverse futility pruning
-            // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
-            if (!PV_NODE
-                && depth <= futility_depth
-                && score - futility_reduction[depth] > beta)
-                return score;
-            
-            // null move pruning
-            if (!PV_NODE
-                && !is_null
-                && depth >= null_depth
-                && pos.stm_has_promoted()) 
-            {
-                pos.do_move(MOVE_NULL);
-                score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, lline);
-                pos.undo_move(MOVE_NULL);
-                if (score >= beta)
-                    return beta;
-            }
-            
-            // internal iterative deepening
-            if (!tte && depth >= iid_depth[PV_NODE])
-            {
-                negamax<N>(pos, alpha, beta, iid_table[depth][PV_NODE], ply, false, prev_move, nodes, lline);
-                tte = tt.probe(pos.bs->key);
-                if (tte)
+                // reverse futility pruning
+                // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
+                if (!PV_NODE
+                    && depth <= futility_depth
+                    && score - futility_reduction[depth] > beta)
+                    return score;
+
+                // null move pruning
+                if (!PV_NODE
+                    && !is_null
+                    && depth >= null_depth
+                    && pos.stm_has_promoted())
                 {
-					pline.last = pline.moves;
-					*pline.last++ = tte->move;
-                    tt_move = tte->move;
+                    pos.do_move(MOVE_NULL);
+                    score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, lline);
+                    pos.undo_move(MOVE_NULL);
+                    if (score >= beta)
+                        return beta;
+                }
+
+                // internal iterative deepening
+                if (!tte && depth >= iid_depth[PV_NODE])
+                {
+                    negamax<N>(pos, alpha, beta, iid_table[depth][PV_NODE], ply, false, prev_move, nodes, lline);
+                    tte = tt.probe(pos.bs->key);
+                    if (tte)
+                    {
+                        pline.last = pline.moves;
+                        *pline.last++ = tte->move;
+                        tt_move = tte->move;
+                    }
                 }
             }
-
-        loop:
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move);
 

@@ -21,6 +21,6 @@ namespace Clovis {
 		
 		TimePoint benchmark(int argc, char* argv[]);
 
-	} // Bench
+	} // namespace Bench
 
-} // Clovis
+} // namespace Clovis

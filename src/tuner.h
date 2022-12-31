@@ -26,6 +26,6 @@ namespace Clovis {
 		vector<short*> map_weights_to_params();
 		void print_params();
 	
-	} // Tuner
+	} // namespace Tuner
 
-} // Clovis
+} // namespace Clovis

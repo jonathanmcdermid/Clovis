@@ -14,6 +14,6 @@ namespace Clovis {
 
 		void handle_cmd(int argc, char* argv[]);
 
-	} // Bench
+	} // namespace Bench
 
-} // Clovis
+} // namespace Clovis

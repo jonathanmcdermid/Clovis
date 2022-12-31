@@ -73,15 +73,7 @@ namespace Clovis {
     };
 
     struct PTEntry {
-        PTEntry() : key(0ULL) { ; }
-        PTEntry(Key key, Score score, Score weight[COLOUR_N], KingZone zone[COLOUR_N], int n_att[COLOUR_N]) : key(key), score(score) { 
-            this->weight[WHITE] = weight[WHITE];
-            this->weight[BLACK] = weight[BLACK];
-            this->zone[WHITE] = zone[WHITE];
-            this->zone[BLACK] = zone[BLACK];
-            this->n_att[WHITE] = n_att[WHITE];
-            this->n_att[BLACK] = n_att[BLACK];
-        }
+        PTEntry() { clear(); }
         void clear() {
             this->key = 0ULL;
             this->score = Score();
@@ -91,6 +83,8 @@ namespace Clovis {
             this->zone[WHITE].outer_ring = 0ULL;
             this->zone[BLACK].inner_ring = 0ULL;
             this->zone[BLACK].outer_ring = 0ULL;
+            this->attacks[WHITE] = 0ULL;
+            this->attacks[BLACK] = 0ULL;
             this->n_att[WHITE] = 0;
             this->n_att[BLACK] = 0;
         }
@@ -101,6 +95,8 @@ namespace Clovis {
             this->weight[BLACK] = rhs.weight[BLACK];
             this->zone[WHITE] = rhs.zone[WHITE];
             this->zone[BLACK] = rhs.zone[BLACK];
+            this->attacks[WHITE] = rhs.attacks[WHITE];
+            this->attacks[BLACK] = rhs.attacks[BLACK];
             this->n_att[WHITE] = rhs.n_att[WHITE];
             this->n_att[BLACK] = rhs.n_att[BLACK];
         }
@@ -108,6 +104,7 @@ namespace Clovis {
         Score score;
         Score weight[COLOUR_N];
         KingZone zone[COLOUR_N];
+        Bitboard attacks[COLOUR_N];
         int n_att[COLOUR_N];
     };
 

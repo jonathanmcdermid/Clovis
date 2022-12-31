@@ -68,6 +68,6 @@ namespace Clovis {
 			return total_time;
 		}
 
-	} // Bench
+	} // namespace Bench
 
-} // Clovis
+} // namespace Clovis

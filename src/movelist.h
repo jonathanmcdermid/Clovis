@@ -47,12 +47,10 @@ namespace Clovis {
 
 			Bitboard bb = pos.piece_bitboard[PIECE];
 
-            Bitboard our_inv_occ = ~pos.occ_bitboard[US];
-
             while (bb)
             {
                 Square src = pop_lsb(bb);
-                Bitboard att = our_inv_occ & Bitboards::get_attacks<PT>(pos.occ_bitboard[BOTH], src);
+                Bitboard att = ~pos.occ_bitboard[US] & Bitboards::get_attacks<PT>(pos.occ_bitboard[BOTH], src);
 
                 while (att)
                 {
