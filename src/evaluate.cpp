@@ -87,7 +87,8 @@ namespace Clovis {
         Score mobility[7] = { Score(0, 0), Score(0, 0), Score(4, 0), Score(8, 2), Score(4, 3), Score(3, 5), Score(0, 0), };
         Score inner_ring_attack[7] = { Score(0, 0), Score(2, 0), Score(4, 10), Score(7, 5), Score(7, 0), Score(4, 1), Score(0, 0), };
         Score outer_ring_attack[7] = { Score(0, 0), Score(0, 0), Score(6, 0), Score(3, 0), Score(2, 3), Score(4, 0), Score(0, 0), };
-        Score outpost_bonus[2] = { Score(39, 13), Score(46, 0), };
+        Score knight_outpost_bonus = Score(39, 13);
+        Score bishop_outpost_bonus = Score(46, 0);
 
 		Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
 

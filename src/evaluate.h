@@ -25,7 +25,8 @@ namespace Clovis {
 		extern Score mobility[7];
 		extern Score outer_ring_attack[7];
 		extern Score inner_ring_attack[7];
-		extern Score outpost_bonus[2];
+		extern Score knight_outpost_bonus;
+		extern Score bishop_outpost_bonus;
 		extern Score king_full_open_penalty;
 		extern Score king_semi_open_penalty;
 		extern Score king_adjacent_full_open_penalty;
@@ -62,7 +63,9 @@ namespace Clovis {
         }
 
         inline bool outpost(Bitboard enemy_pawns, Bitboard friendly_pawns, Square sq, Colour side) {
-            return (Bitboards::pawn_attacks[other_side(side)][sq] & friendly_pawns) && (outpost_masks[side] & sq) && !(enemy_pawns & outpost_pawn_masks[side][sq]);
+            return (Bitboards::pawn_attacks[other_side(side)][sq] & friendly_pawns) 
+				&& (outpost_masks[side] & sq) 
+				&& !(enemy_pawns & outpost_pawn_masks[side][sq]);
         }
 
 		template<Colour US, PieceType PT, bool SAFE>
@@ -77,8 +80,6 @@ namespace Clovis {
 
 			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
 			constexpr Piece THEIR_ROOK	= make_piece(ROOK, THEM);
-
-			constexpr size_t OUTPOST_INDEX = PT - KNIGHT;
 
 			assert(PT >= KNIGHT);
 
@@ -101,22 +102,27 @@ namespace Clovis {
 
 				score += mobility[PT] * (popcnt(attacks & ~pos.occ_bitboard[US]));
 
-				if (PT == ROOK)
+				if constexpr (PT == KNIGHT)
+				{
+					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
+						score += knight_outpost_bonus;
+				}
+				else if constexpr (PT == BISHOP)
+				{
+					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
+						score += bishop_outpost_bonus;
+					if (bb)
+						score += bishop_pair_bonus;
+				}
+				else if constexpr (PT == ROOK)
 				{
 					if (!(file_masks[sq] & (pos.piece_bitboard[W_PAWN] | pos.piece_bitboard[B_PAWN])))
 						score += rook_open_file_bonus;
 					else if (!(file_masks[sq] & pos.piece_bitboard[OUR_PAWN]))
 						score += rook_semi_open_file_bonus;
 				}
-				else if (PT == KNIGHT || PT == BISHOP)
-				{
-					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
-						score += outpost_bonus[OUTPOST_INDEX];
-					if (PT == BISHOP && bb)
-						score += bishop_pair_bonus;
-				}
 
-				if (!SAFE)
+				if constexpr (!SAFE)
 				{
 					Bitboard or_att_bb = attacks & pte.zone[THEM].outer_ring;
 					Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;

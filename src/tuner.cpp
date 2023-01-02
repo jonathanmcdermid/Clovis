@@ -300,11 +300,6 @@ namespace Clovis {
 			weights.push_back(&Eval::king_adjacent_semi_open_penalty.mg);
 			weights.push_back(&Eval::king_adjacent_semi_open_penalty.eg);
 
-			weights.push_back(&Eval::outpost_bonus[0].mg);
-			weights.push_back(&Eval::outpost_bonus[0].eg);
-			weights.push_back(&Eval::outpost_bonus[1].mg);
-			weights.push_back(&Eval::outpost_bonus[1].eg);
-
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
 				if ((sq / 4 != RANK_1 && sq / 4 != RANK_8))
@@ -346,6 +341,10 @@ namespace Clovis {
 			weights.push_back(&Eval::rook_open_file_bonus.eg);
 			weights.push_back(&Eval::rook_semi_open_file_bonus.mg);
 			weights.push_back(&Eval::rook_semi_open_file_bonus.eg);
+			weights.push_back(&Eval::knight_outpost_bonus.mg);
+			weights.push_back(&Eval::knight_outpost_bonus.eg);
+			weights.push_back(&Eval::bishop_outpost_bonus.mg);
+			weights.push_back(&Eval::bishop_outpost_bonus.eg);
 
 			for (int j = PAWN; j < KING; ++j)
 			{
@@ -461,6 +460,12 @@ namespace Clovis {
 			cout << "Score king_adjacent_semi_open_penalty = Score("
 				<< Eval::king_adjacent_semi_open_penalty.mg << ", "
 				<< Eval::king_adjacent_semi_open_penalty.eg << ");\n";
+			cout << "Score knight_outpost_bonus = Score("
+				<< Eval::knight_outpost_bonus.mg << ", "
+				<< Eval::knight_outpost_bonus.eg << ");\n";
+			cout << "Score bishop_outpost_bonus = Score("
+				<< Eval::bishop_outpost_bonus.mg << ", "
+				<< Eval::bishop_outpost_bonus.eg << ");\n";
 
 			cout << "Score mobility[7] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
@@ -481,13 +486,6 @@ namespace Clovis {
 				cout << " Score("
 					<< Eval::outer_ring_attack[i].mg << ", "
 					<< Eval::outer_ring_attack[i].eg << "),";
-			}
-			cout << "};\n";
-			cout << "Score outpost_bonus[2] = {";
-			for (int i = KNIGHT; i <= BISHOP; ++i) {
-				cout << " Score("
-					<< Eval::outpost_bonus[i - KNIGHT].mg << ", "
-					<< Eval::outpost_bonus[i - KNIGHT].eg << "),";
 			}
 			cout << "};\n";
 		}
