@@ -88,11 +88,11 @@ namespace Clovis {
 			Bitboard bb = pos.piece_bitboard[PIECE];
 
 			Bitboard transparent_occ =
-				(PT == KNIGHT || PT == QUEEN)
-				? pos.occ_bitboard[BOTH]
-				: PT == BISHOP
-				? pos.occ_bitboard[BOTH] & ~(pos.piece_bitboard[OUR_BISHOP] | pos.piece_bitboard[THEIR_ROOK] | pos.piece_bitboard[W_QUEEN] | pos.piece_bitboard[B_QUEEN])
-				: pos.occ_bitboard[BOTH] & ~(pos.piece_bitboard[W_QUEEN] | pos.piece_bitboard[B_QUEEN] | pos.piece_bitboard[OUR_ROOK]);
+				PT == BISHOP
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[THEIR_ROOK]
+				: PT == ROOK 
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[OUR_ROOK]
+				: pos.occ_bitboard[BOTH];
 
 			while (bb)
 			{
@@ -102,19 +102,19 @@ namespace Clovis {
 
 				score += mobility[PT] * (popcnt(attacks & ~pos.occ_bitboard[US]));
 
-				if constexpr (PT == KNIGHT)
+				if (PT == KNIGHT)
 				{
 					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
 						score += knight_outpost_bonus;
 				}
-				else if constexpr (PT == BISHOP)
+				else if (PT == BISHOP)
 				{
 					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
 						score += bishop_outpost_bonus;
 					if (bb)
 						score += bishop_pair_bonus;
 				}
-				else if constexpr (PT == ROOK)
+				else if (PT == ROOK)
 				{
 					if (!(file_masks[sq] & (pos.piece_bitboard[W_PAWN] | pos.piece_bitboard[B_PAWN])))
 						score += rook_open_file_bonus;
@@ -122,7 +122,7 @@ namespace Clovis {
 						score += rook_semi_open_file_bonus;
 				}
 
-				if constexpr (!SAFE)
+				if (!SAFE)
 				{
 					Bitboard or_att_bb = attacks & pte.zone[THEM].outer_ring;
 					Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;
@@ -203,7 +203,6 @@ namespace Clovis {
 				if (or_att_bb || ir_att_bb)
 				{
 					pte.weight[US] += inner_ring_attack[PAWN] * popcnt(ir_att_bb) + outer_ring_attack[PAWN] * popcnt(or_att_bb);
-					//++pte.n_att[US];
 				}
 
 				pte.attacks[US] |= attacks;

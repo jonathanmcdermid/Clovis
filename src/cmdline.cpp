@@ -9,7 +9,6 @@ namespace Clovis {
 		// handle any start-up command line arguments
 		void handle_cmd(int argc, char* argv[])
 		{
-
 			if (argc < 2)
 			{
 				UCI::loop(argc, argv);
