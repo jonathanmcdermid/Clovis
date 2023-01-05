@@ -90,9 +90,11 @@ namespace Clovis {
 
 			Bitboard transparent_occ =
 				PT == BISHOP
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN]
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[THEIR_KING] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[THEIR_ROOK]
 				: PT == ROOK 
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[OUR_ROOK]
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[THEIR_KING] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[OUR_ROOK]
+				: PT == QUEEN 
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[THEIR_KING]
 				: pos.occ_bitboard[BOTH];
 
 			while (bb)
