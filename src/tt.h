@@ -37,7 +37,6 @@ namespace Clovis {
     inline Score operator*(Score s1, int i)     { return Score(s1.mg * i, s1.eg * i); }
     inline Score operator*(Score s1, Score s2)  { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
     inline Score operator/(Score s1, int i)     { return Score(s1.mg / i, s1.eg / i); }
-    inline Score operator/(Score s1, Score s2)  { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
 
     struct KingZone {
         KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
@@ -74,20 +73,7 @@ namespace Clovis {
 
     struct PTEntry {
         PTEntry() { clear(); }
-        void clear() {
-            this->key = 0ULL;
-            this->score = Score();
-            this->weight[WHITE] = Score();
-            this->weight[BLACK] = Score();
-            this->zone[WHITE].inner_ring = 0ULL;
-            this->zone[WHITE].outer_ring = 0ULL;
-            this->zone[BLACK].inner_ring = 0ULL;
-            this->zone[BLACK].outer_ring = 0ULL;
-            this->attacks[WHITE] = 0ULL;
-            this->attacks[BLACK] = 0ULL;
-            this->n_att[WHITE] = 0;
-            this->n_att[BLACK] = 0;
-        }
+        void clear() { memset(this, 0, sizeof(PTEntry)); }
         void operator=(const PTEntry& rhs) {
             this->key = rhs.key;
             this->score = rhs.score;

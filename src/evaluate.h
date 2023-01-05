@@ -80,8 +80,9 @@ namespace Clovis {
 
 			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
 			constexpr Piece THEIR_ROOK	= make_piece(ROOK, THEM);
+			constexpr Piece THEIR_KING	= make_piece(KING, THEM);
 
-			assert(PT >= KNIGHT);
+			assert(PT >= KNIGHT && PT < KING);
 
 			Score score;
 			Square sq;
@@ -89,7 +90,7 @@ namespace Clovis {
 
 			Bitboard transparent_occ =
 				PT == BISHOP
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[THEIR_ROOK]
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN]
 				: PT == ROOK 
 				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[OUR_ROOK]
 				: pos.occ_bitboard[BOTH];
@@ -152,7 +153,9 @@ namespace Clovis {
 				score += evaluate_majors<US, ROOK,	false>(pos, pte);
 				score += evaluate_majors<US, QUEEN, false>(pos, pte);
 
-				score += pte.weight[US] * pte.weight[US] / max(10 - pte.n_att[US], 1);
+				// we dont count kings or pawns in n_att so the max should be 7
+				assert(pte.n_att[US] < 10);
+				score += pte.weight[US] * pte.weight[US] / (10 - pte.n_att[US]);
 			}
 			else
 			{

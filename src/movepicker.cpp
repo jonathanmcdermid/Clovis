@@ -24,8 +24,8 @@ namespace Clovis {
             {
                 for (PieceType vic = PAWN; vic <= KING; ++vic)
                 {
-                    mvv_lva[make_piece(att, WHITE)][make_piece(vic, BLACK)] = (vic - 1) * 8 - att + 6;
-                    mvv_lva[make_piece(att, BLACK)][make_piece(vic, WHITE)] = (vic - 1) * 8 - att + 6;
+                    mvv_lva[make_piece(att, WHITE)][make_piece(vic, BLACK)] = ((vic - 1) << 3) - att + 6;
+                    mvv_lva[make_piece(att, BLACK)][make_piece(vic, WHITE)] = ((vic - 1) << 3) - att + 6;
                 }
             }
         }
@@ -39,7 +39,7 @@ namespace Clovis {
 
         void MovePicker::score_quiets()
         {
-            size_t primary_index = ply * 2;
+            size_t primary_index = ply << 1;
             size_t secondary_index = primary_index + 1;
 
             Move counter_move = get_counter_entry(pos.side, prev_move);

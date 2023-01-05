@@ -17,7 +17,7 @@ namespace Clovis {
 
 		extern int history_table[cft_size];
 		extern Move counter_table[cft_size];
-		extern Move killers[2 * MAX_PLY];
+		extern Move killers[MAX_PLY << 1];
 		extern int history_bonus[MAX_PLY + 1];
 
 		constexpr int cft_index(Colour c, Move m) {
@@ -38,7 +38,7 @@ namespace Clovis {
 
 		inline void age_history() {
 			for (auto& it : history_table)
-				it /= 16;
+				it >>= 4;
 		}
 
 		inline void reset_counter() {
@@ -60,7 +60,7 @@ namespace Clovis {
 		}
 
 		inline void update_killers(Move m, int ply) {
-			Move* k = &killers[ply * 2];
+			Move* k = &killers[ply << 1];
 			if (k[0] != m)
 			{
 				k[1] = k[0];
@@ -70,7 +70,7 @@ namespace Clovis {
 
 		inline void update_history_entry(Move move, Colour side, int bonus) {
 			int* history_entry = get_history_entry_ptr(side, move);
-			*history_entry += 32 * bonus - *history_entry * abs(bonus) / 512;
+			*history_entry += (bonus << 5) - (*history_entry * abs(bonus) >> 9);
 		}
 
 		inline void update_counter_entry(Colour c, Move prev, Move curr) {
@@ -78,7 +78,7 @@ namespace Clovis {
 		}
 
 		constexpr bool is_killer(Move m, int ply) {
-			Move* k = &killers[ply * 2];
+			Move* k = &killers[ply << 1];
 			return (m == k[0] || m == k[1]);
 		}
 

@@ -197,11 +197,11 @@ namespace Clovis {
     };
 
     constexpr CastleRights ks_castle_rights(Colour c) {
-        return CastleRights(1 << (c * 2));
+        return CastleRights(1 << (c << 1));
     }
 
     constexpr CastleRights qs_castle_rights(Colour c) {
-        return CastleRights(1 << (c * 2 + 1));
+        return CastleRights(1 << ((c << 1) + 1));
     }
 
     constexpr Move encode_move(Square from, Square to, Piece piece, Piece promo, int cap, int dpush, int enpassant, int castling) {

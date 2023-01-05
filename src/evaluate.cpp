@@ -120,11 +120,11 @@ namespace Clovis {
                     int r = sq / 4;
                     int f = sq & 0x3;
 
-                    score_table[make_piece(pt, WHITE)][8 * (7 - r) + f] = &piece_table[pt][sq];
-                    score_table[make_piece(pt, WHITE)][8 * (7 - r) + (7 - f)] = &piece_table[pt][sq];
+                    score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f] = &piece_table[pt][sq];
+                    score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
 
-                    score_table[make_piece(pt, BLACK)][8 * r + f] = &piece_table[pt][sq];
-                    score_table[make_piece(pt, BLACK)][8 * r + (7 - f)] = &piece_table[pt][sq];
+                    score_table[make_piece(pt, BLACK)][(r << 3) + f] = &piece_table[pt][sq];
+                    score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)] = &piece_table[pt][sq];
                 }
             }
 			
@@ -133,8 +133,8 @@ namespace Clovis {
                 int r = sq / 4;
                 int f = sq & 0x3;
 
-                passed_table[8 * (7 - r) + f] = &passed_pawn_bonus[sq];
-                passed_table[8 * (7 - r) + (7 - f)] = &passed_pawn_bonus[sq];
+                passed_table[((7 - r) << 3) + f] = &passed_pawn_bonus[sq];
+                passed_table[((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
             }
 		}
 
@@ -166,14 +166,14 @@ namespace Clovis {
                     passed_masks[WHITE][sq] |= set_file_rank_mask(f + 1, RANK_NONE);
 
                     for (int i = 0; i < r + 1; ++i)
-                        passed_masks[WHITE][sq] &= ~rank_masks[i * 8 + f];
+                        passed_masks[WHITE][sq] &= ~rank_masks[(i << 3) + f];
 
                     passed_masks[BLACK][sq] |= set_file_rank_mask(f - 1, RANK_NONE);
                     passed_masks[BLACK][sq] |= set_file_rank_mask(f, RANK_NONE);
                     passed_masks[BLACK][sq] |= set_file_rank_mask(f + 1, RANK_NONE);
 
                     for (int i = 0; i < 8 - r; ++i)
-                        passed_masks[BLACK][sq] &= ~rank_masks[(7 - i) * 8 + f];
+                        passed_masks[BLACK][sq] &= ~rank_masks[((7 - i) << 3) + f];
                 }
             }
             
