@@ -73,7 +73,20 @@ namespace Clovis {
 
     struct PTEntry {
         PTEntry() { clear(); }
-        void clear() { memset(this, 0, sizeof(PTEntry)); }
+        void clear() { 
+			key = 0ULL;
+			score = Score();
+			weight[WHITE] = Score();
+			weight[BLACK] = Score();
+			zone[WHITE].inner_ring = 0ULL;
+			zone[WHITE].outer_ring = 0ULL;
+			zone[BLACK].inner_ring = 0ULL;
+			zone[BLACK].outer_ring = 0ULL;
+			attacks[WHITE] = 0ULL;
+			attacks[BLACK] = 0ULL;
+			n_att[WHITE] = 0;
+			n_att[BLACK] = 0;
+		}
         void operator=(const PTEntry& rhs) {
             this->key = rhs.key;
             this->score = rhs.score;

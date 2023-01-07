@@ -8,7 +8,6 @@ namespace Clovis {
 	struct Position;
 
 	namespace Eval {
-
 		extern Score pawn_table[32];
 		extern Score knight_table[32];
 		extern Score bishop_table[32];
@@ -74,7 +73,7 @@ namespace Clovis {
 			constexpr Colour THEM = other_side(US);
 
 			constexpr Piece OUR_PAWN	= make_piece(PAWN, US);
-			constexpr Piece OUR_BISHOP	= make_piece(BISHOP, US);
+			//constexpr Piece OUR_BISHOP	= make_piece(BISHOP, US);
 			constexpr Piece OUR_ROOK	= make_piece(ROOK, US);
 			constexpr Piece PIECE		= make_piece(PT, US);
 
