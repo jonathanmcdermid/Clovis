@@ -73,13 +73,11 @@ namespace Clovis {
 			constexpr Colour THEM = other_side(US);
 
 			constexpr Piece OUR_PAWN	= make_piece(PAWN, US);
-			//constexpr Piece OUR_BISHOP	= make_piece(BISHOP, US);
 			constexpr Piece OUR_ROOK	= make_piece(ROOK, US);
 			constexpr Piece PIECE		= make_piece(PT, US);
 
 			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
 			constexpr Piece THEIR_ROOK	= make_piece(ROOK, THEM);
-			constexpr Piece THEIR_KING	= make_piece(KING, THEM);
 
 			assert(PT >= KNIGHT && PT < KING);
 
@@ -89,11 +87,9 @@ namespace Clovis {
 
 			Bitboard transparent_occ =
 				PT == BISHOP
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[THEIR_KING] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[THEIR_ROOK]
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[THEIR_ROOK]
 				: PT == ROOK 
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[THEIR_KING] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[OUR_ROOK]
-				: PT == QUEEN 
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[THEIR_KING]
+				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[OUR_ROOK]
 				: pos.occ_bitboard[BOTH];
 
 			while (bb)
