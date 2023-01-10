@@ -250,7 +250,7 @@ namespace Clovis {
 
             HashFlag eval_type = HASH_ALPHA;
 
-            while ((curr_move = mp.get_next<true>()) != MOVE_NONE)
+            while ((curr_move = mp.get_next(true)) != MOVE_NONE)
             {
                 // illegal move
                 if (!pos.do_move(curr_move))
@@ -356,29 +356,35 @@ namespace Clovis {
                     || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
                 return tte->eval;
 
-            int eval = Eval::evaluate<true>(pos);
+			bool in_check = pos.is_king_in_check(pos.side);
 
-            // use TT score instead of static eval if conditions are right
-            // conditions: valid TTE and either 
-            // 1. alpha flag + lower hash score than static eval
-            // 2. beta flag + higher hash score than static eval
-            if(tte && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
-                eval = tte->eval;
+			int eval;
+			int old_alpha = alpha;
 
-            if (eval >= beta)
-                return beta;
-
-            int old_alpha = alpha;
-
-            if (eval > alpha)
-                alpha = eval;
+			if (!in_check)
+			{
+				eval = Eval::evaluate<true>(pos);
+	
+				// use TT score instead of static eval if conditions are right
+				// conditions: valid TTE and either 
+				// 1. alpha flag + lower hash score than static eval
+				// 2. beta flag + higher hash score than static eval
+				if(tte && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
+					eval = tte->eval;
+	
+				if (eval >= beta)
+					return beta;
+	
+				if (eval > alpha)
+					alpha = eval;
+			}
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
             Move curr_move;
             Move best_move = MOVE_NONE;
             int best_eval = INT_MIN;
 
-            while ((curr_move = mp.get_next<false>()) != MOVE_NONE && mp.get_stage() != LOSING_CAPTURES)
+            while ((curr_move = mp.get_next(in_check)) != MOVE_NONE && (in_check || mp.get_stage() != LOSING_CAPTURES))
             {
                 // illegal move or non capture
                 if (!pos.do_move(curr_move))

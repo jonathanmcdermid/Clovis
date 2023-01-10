@@ -18,7 +18,7 @@ namespace Clovis {
 
 			Move m;
 
-			while ((m = mp.get_next<true>()) != MOVE_NONE)
+			while ((m = mp.get_next(true)) != MOVE_NONE)
 			{
 				if (!pos.do_move(m))
 					continue;

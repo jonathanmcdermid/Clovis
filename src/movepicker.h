@@ -91,7 +91,7 @@ namespace Clovis {
 				stage = TT_MOVE;
 			}
 			template<HashFlag HF> void update_history(Move best_move, int depth);
-			template<bool PLAY_QUIETS> Move get_next();
+			Move get_next(bool play_quiets);
 			int get_stage() const { return stage; }
 			void print();
 		private:
@@ -104,71 +104,7 @@ namespace Clovis {
 			Move tt_move, prev_move;
 			int stage;
 		};
-
-		// return the next ordered move
-		template<bool PLAY_QUIETS>
-		Move MovePicker::get_next()
-		{
-			switch (stage)
-			{
-			case TT_MOVE:
-				++stage;
-				if (tt_move != MOVE_NONE && (PLAY_QUIETS || move_capture(tt_move)))
-					return tt_move;
-			case INIT_CAPTURES:
-				curr = end_bad_caps = moves;
-				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves);
-				score_captures();
-				sort(moves, last, sm_score_comp);
-				++stage;
-			case WINNING_CAPTURES:
-				while (curr < last)
-				{
-					assert(move_capture(*curr));
-					if (curr->move == tt_move)
-						++curr;
-					else if (pos.see(*curr) >= 0)
-						return *curr++;
-					else
-						*end_bad_caps++ = *curr++;
-				}
-				++stage;
-			case INIT_QUIETS:
-				if (PLAY_QUIETS)
-				{
-					curr = end_bad_caps;
-					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
-					score_quiets();
-					sort(end_bad_caps, last, sm_score_comp);
-				}
-				++stage;
-			case QUIETS:
-				while (PLAY_QUIETS && curr < last)
-				{
-					assert(!move_capture(*curr));
-					if (*curr != tt_move)
-						return *curr++;
-					++curr;
-				}
-				curr = moves;
-				++stage;
-			case LOSING_CAPTURES:
-				while (curr < end_bad_caps)
-				{
-					assert(move_capture(*curr));
-					if (*curr != tt_move)
-						return *curr++;
-					++curr;
-				}
-				++stage;
-				break;
-			default:
-				break;
-			}
-
-			return MOVE_NONE;
-		}
-
+	
 		template<HashFlag HF>
 		void MovePicker::update_history(Move best_move, int depth)
 		{

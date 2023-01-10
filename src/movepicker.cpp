@@ -30,6 +30,69 @@ namespace Clovis {
             }
         }
 
+		// return the next ordered move
+		Move MovePicker::get_next(bool play_quiets)
+		{
+			switch (stage)
+			{
+			case TT_MOVE:
+				++stage;
+				if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move)))
+					return tt_move;
+			case INIT_CAPTURES:
+				curr = end_bad_caps = moves;
+				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves);
+				score_captures();
+				sort(moves, last, sm_score_comp);
+				++stage;
+			case WINNING_CAPTURES:
+				while (curr < last)
+				{
+					assert(move_capture(*curr));
+					if (curr->move == tt_move)
+						++curr;
+					else if (pos.see(*curr) >= 0)
+						return *curr++;
+					else
+						*end_bad_caps++ = *curr++;
+				}
+				++stage;
+			case INIT_QUIETS:
+				if (play_quiets)
+				{
+					curr = end_bad_caps;
+					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
+					score_quiets();
+					sort(end_bad_caps, last, sm_score_comp);
+				}
+				++stage;
+			case QUIETS:
+				while (play_quiets && curr < last)
+				{
+					assert(!move_capture(*curr));
+					if (*curr != tt_move)
+						return *curr++;
+					++curr;
+				}
+				curr = moves;
+				++stage;
+			case LOSING_CAPTURES:
+				while (curr < end_bad_caps)
+				{
+					assert(move_capture(*curr));
+					if (*curr != tt_move)
+						return *curr++;
+					++curr;
+				}
+				++stage;
+				break;
+			default:
+				break;
+			}
+
+			return MOVE_NONE;
+		}
+
         void MovePicker::score_captures()
         {
             for (ScoredMove* sm = moves; sm < last; ++sm)
