@@ -1,4 +1,12 @@
-![](img/ClovisBanner.png)
+<div align="center" style="padding-top: 60px">
+    <img src="/img/ClovisBanner.png" alt="Clovis banner" width="945px" height="auto">
+    <br>
+    <img src="https://img.shields.io/github/downloads/jonathanmcdermid/Clovis/total?color=red&style=for-the-badge">
+    <img src="https://shields.io/github/v/release/jonathanmcdermid/Clovis?label=Latest%20release&color=blueviolet&style=for-the-badge">
+    <br>
+</div>
+
+## Overview
 
 Clovis is a UCI chess engine written in C++. 
 
