@@ -6,7 +6,7 @@ Clovis is a UCI chess engine written in C++.
 
 ### Binaries
 
-[Releases](https://github.com/jonathamcdermid/Clovis/releases)
+[Releases](https://github.com/jonathanmcdermid/Clovis/releases)
 
 ### Build from source
 
