@@ -1,11 +1,85 @@
 ![](img/ClovisBanner.png)
 
-My second chess engine. Clovis utilizes magic bitboards and follows standard convention more closely. The goal is to make something stronger than Hopper. Should be easy right? 
+Clovis is a UCI chess engine written in C++. 
 
-## Credits
+## Installation
 
-This engine uses ideas and resources from various sources
+### Binaries
 
-Maksym Korzh (BBC)
-Christian Dean (Blunder)
-Stockfish Authors
+[Releases](https://github.com/jonathamcdermid/Clovis/releases)
+
+### Build from source
+
+Clovis requires 'cmake' and a compiler with C++17 support.
+
+```
+git clone https://github.com/jonathanmcdermid/Clovis
+cd Clovis
+make
+./build/Clovis
+```
+
+Commands for the engine can be issued using the standard [UCI format](http://page.mi.fu-berlin.de/block/uci.htm)
+
+## Strength
+
+### Rankings
+
+Clovis version 2.0 is currently estimated to have an Elo rating of ~2700
+
+- [CCRL 40/15](https://ccrl.chessdom.com/ccrl/4040/) **Clovisv1.8 2653 Elo**
+- [CCRL Blitz](https://ccrl.chessdom.com/ccrl/404/) **Clovisv1.8 2588 Elo**
+
+## Technical Details
+
+### Board Representation and Move Generation
+
+- [Bitboards](https://www.chessprogramming.org/Bitboards)
+- [Magic Bitboards](https://www.chessprogramming.org/Magic_Bitboards)
+- [Move Generation](https://www.chessprogramming.org/Move_Generation)
+
+### Search
+
+- [Negamax](https://www.chessprogramming.org/Negamax)
+- [Principal Variation Search](https://www.chessprogramming.org/Principal_Variation_Search)
+- [Quiescence Search](https://www.chessprogramming.org/Quiescence_Search)
+- [Iterative Deepening](https://www.chessprogramming.org/Iterative_Deepening)
+- [Transposition Table](https://www.chessprogramming.org/Transposition_Table)
+- [Pawn Hash Table](https://www.chessprogramming.org/Pawn_Hash_Table)
+- [Aspiration Windows](https://www.chessprogramming.org/Aspiration_Windows)
+- [Internal Iterative Deepening](https://www.chessprogramming.org/Internal_Iterative_Deepening)
+- [Reverse Futility Pruning](https://www.chessprogramming.org/Reverse_Futility_Pruning)
+- [Null Move Pruning](https://www.chessprogramming.org/Null_Move_Pruning)
+- [Static Exchange Evaluation](https://www.chessprogramming.org/Static_Exchange_Evaluation)
+- [Late Move Reductions](https://www.chessprogramming.org/Late_Move_Reductions)
+- [Killer Heuristic](https://www.chessprogramming.org/Killer_Heuristic)
+- [Countermove Heuristic](https://www.chessprogramming.org/Countermove_Heuristic)
+
+### Evaluation
+
+- [Piece Square Tables](https://www.chessprogramming.org/Piece-Square_Tables)
+- [Tapered Evaluation](https://www.chessprogramming.org/Tapered_Eval)
+- [Texel's Tuning Method](https://www.chessprogramming.org/Texel%27s_Tuning_Method)
+- [King Safety](https://www.chessprogramming.org/King_Safety)
+- [Outposts](https://www.chessprogramming.org/Outposts)
+- [Pawn Structure](https://www.chessprogramming.org/Pawn_Structure)
+- [Mobility](https://www.chessprogramming.org/Mobility)
+
+## Credit
+
+This engine uses ideas from various sources
+
+### Engine Inspirations
+
+- [Stockfish](https://github.com/official-stockfish/Stockfish)
+- [Ethereal](https://github.com/AndyGrant/Ethereal)
+- [BBC](https://github.com/maksimKorzh/chess_programming)
+- [Blunder](https://github.com/algerbrex/blunder)
+
+### Resources
+
+- [Chess Programming Wiki](https://www.chessprogramming.org/Main_Page)
+- [TalkChess Forum](http://talkchess.com/forum3/viewforum.php?f=7)
+- [CCRL](https://kirill-kryukov.com/chess/discussion-board/viewforum.php?f=7)
+- [Cute Chess](https://cutechess.com/)
+
