@@ -8,7 +8,7 @@
 
 ## Overview
 
-Clovis is a UCI chess engine written in C++. 
+Named after the first king of the Franks and the paleoamerican mammoth slayers, Clovis is a powerful UCI chess engine written in C++. It is a successor to [Hopper Chess](https://github.com/jonathanmcdermid/Hopper-Chess-Engine) in that it follows standard convention more closely. 
 
 ## Installation
 
@@ -73,7 +73,7 @@ Clovis version 2.0 is currently estimated to have an Elo rating of ~2700
 - [Pawn Structure](https://www.chessprogramming.org/Pawn_Structure)
 - [Mobility](https://www.chessprogramming.org/Mobility)
 
-## Credit
+## Credits
 
 This engine uses ideas from various sources
 
@@ -90,4 +90,6 @@ This engine uses ideas from various sources
 - [TalkChess Forum](http://talkchess.com/forum3/viewforum.php?f=7)
 - [CCRL](https://kirill-kryukov.com/chess/discussion-board/viewforum.php?f=7)
 - [Cute Chess](https://cutechess.com/)
+
+Special thanks to the engine testers!
 
