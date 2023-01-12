@@ -81,7 +81,7 @@ This engine uses ideas from various sources
 
 - [Stockfish](https://github.com/official-stockfish/Stockfish)
 - [Ethereal](https://github.com/AndyGrant/Ethereal)
-- [BBC](https://github.com/maksimKorzh/chess_programming)
+- [BBC](https://github.com/maksimKorzh/bbc)
 - [Blunder](https://github.com/algerbrex/blunder)
 
 ### Resources
