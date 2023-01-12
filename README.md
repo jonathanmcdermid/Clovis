@@ -10,7 +10,7 @@ Clovis is a UCI chess engine written in C++.
 
 ### Build from source
 
-Clovis requires 'cmake' and a compiler with C++17 support.
+Clovis requires `cmake` and a compiler with C++17 support.
 
 ```
 git clone https://github.com/jonathanmcdermid/Clovis
