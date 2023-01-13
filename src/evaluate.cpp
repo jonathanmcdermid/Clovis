@@ -94,7 +94,7 @@ namespace Clovis {
 
         Score* score_table[15][SQ_N];
 
-		Score* passed_table[SQ_N];
+		Score* passed_table[COLOUR_N][SQ_N];
 
         Bitboard file_masks[SQ_N];
         Bitboard rank_masks[SQ_N];
@@ -133,9 +133,12 @@ namespace Clovis {
                 int r = sq / 4;
                 int f = sq & 0x3;
 
-                passed_table[((7 - r) << 3) + f] = &passed_pawn_bonus[sq];
-                passed_table[((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
-            }
+                passed_table[WHITE][((7 - r) << 3) + f] = &passed_pawn_bonus[sq];
+                passed_table[WHITE][((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
+
+				passed_table[BLACK][(((7 - r) << 3) + f) ^ 56] = &passed_pawn_bonus[sq];
+                passed_table[BLACK][(((7 - r) << 3) + (7 - f)) ^ 56] = &passed_pawn_bonus[sq];
+			}
 		}
 
         void init_masks()

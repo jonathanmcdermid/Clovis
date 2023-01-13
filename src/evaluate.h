@@ -33,7 +33,7 @@ namespace Clovis {
 
 		extern Score* piece_table[7];
         extern Score* score_table[15][SQ_N];
-		extern Score* passed_table[SQ_N];
+		extern Score* passed_table[COLOUR_N][SQ_N];
 
         extern Bitboard file_masks[SQ_N];
         extern Bitboard rank_masks[SQ_N];
@@ -193,7 +193,7 @@ namespace Clovis {
 					score -= isolated_pawn_penalty;
 
 				if (passed_pawn(pos.piece_bitboard[THEIR_PAWN], sq, US))
-					score += *passed_table[relative_square(US, sq)];
+					score += *passed_table[US][sq];
 
 				Bitboard attacks = Bitboards::pawn_attacks[US][sq];
 
