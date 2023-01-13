@@ -136,8 +136,8 @@ namespace Clovis {
                 passed_table[WHITE][((7 - r) << 3) + f] = &passed_pawn_bonus[sq];
                 passed_table[WHITE][((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
 
-				passed_table[BLACK][(((7 - r) << 3) + f) ^ 56] = &passed_pawn_bonus[sq];
-                passed_table[BLACK][(((7 - r) << 3) + (7 - f)) ^ 56] = &passed_pawn_bonus[sq];
+				passed_table[BLACK][(r << 3) + f] = &passed_pawn_bonus[sq];
+                passed_table[BLACK][(r << 3) + (7 - f)] = &passed_pawn_bonus[sq];
 			}
 		}
 
