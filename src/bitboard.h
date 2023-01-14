@@ -117,6 +117,7 @@ namespace Clovis {
     inline int popcnt(Bitboard bb) {
         return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
     }
+
     inline Square lsb(Bitboard bb) {
         assert(bb);
         unsigned long pos;

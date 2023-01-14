@@ -23,11 +23,11 @@ namespace Clovis {
 
 	namespace MoveGen {
 
-		template<typename T, MoveType M> T* generate(const Position& pos, T* moves);
+		template<typename T, MoveType M> inline T* generate(const Position& pos, T* moves);
 
 		struct MoveList {
 			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves)) {}
-			int size() const { return (last - moves); }
+			inline int size() const { return (last - moves); }
 			void print();
 			const Move* begin() const { return moves; }
 			const Move* end() const { return last; }
@@ -169,7 +169,7 @@ namespace Clovis {
         }
 
         template<typename T, MoveType M> 
-        T* generate(const Position& pos, T* moves)
+        inline T* generate(const Position& pos, T* moves)
         {
             return (pos.side == WHITE)
                 ? generate_all<T, M, WHITE>(pos, moves)
