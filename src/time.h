@@ -10,7 +10,7 @@ namespace Clovis {
 
 	class TimeManager {
 	public:
-		void set();
+		inline void set();
 		inline TimePoint get_time_elapsed();
 		inline TimePoint now();
 	private:
@@ -23,6 +23,10 @@ namespace Clovis {
 
 	inline TimePoint TimeManager::now() {
 		return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+	}
+
+	inline void TimeManager::set() { 
+		start_time = now(); 
 	}
 
 	extern TimeManager tm;

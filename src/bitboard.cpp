@@ -355,7 +355,7 @@ namespace Clovis {
 		}
 
 		// generates a pseudo-random magic bitboard
-		Bitboard generate_magic()
+		inline Bitboard generate_magic()
 		{
 			return Random::random_U64() & Random::random_U64() & Random::random_U64();
 		}

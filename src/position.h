@@ -24,6 +24,7 @@ namespace Clovis {
         extern Key enpassant[SQ_N];
         extern Key castling[16];
         extern Key side;
+
 	}
 
 	// linked list implementation for board state info
@@ -89,7 +90,7 @@ namespace Clovis {
 	}
 
 	template <Colour US>
-	bool Position::is_insufficient() const {
+	inline bool Position::is_insufficient() const {
 		return (popcnt(piece_bitboard[make_piece(PAWN,	US)]) == 0
 			&& (popcnt(piece_bitboard[make_piece(ROOK,	US)]) == 0)
 			&& (popcnt(piece_bitboard[make_piece(QUEEN,	US)]) == 0)

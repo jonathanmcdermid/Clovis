@@ -203,7 +203,8 @@ namespace Clovis {
             gain[d] = piece_value[piece_board[from]] - gain[d - 1]; 
 
             if (max(-gain[d - 1], gain[d]) < 0) 
-                break; 
+                break;
+
             attackers ^= from;
             occ ^= from;
             attackers |= consider_xray(occ, to, piece_type(piece_board[from]));

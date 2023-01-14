@@ -66,7 +66,6 @@ namespace Clovis {
 	};
 
     struct Bucket {
-    public:
         TTEntry e1;
         TTEntry e2;
     };
