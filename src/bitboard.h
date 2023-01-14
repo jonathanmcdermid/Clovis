@@ -158,6 +158,13 @@ namespace Clovis {
         constexpr int bishop_attack_indices = 512;
         constexpr int rook_attack_indices = 4096;
 
+		extern int bishop_rbits[SQ_N];
+		extern int rook_rbits[SQ_N];
+
+		extern Bitboard bishop_masks[SQ_N];
+		extern Bitboard rook_masks[SQ_N];
+		extern Bitboard bishop_magic[SQ_N];
+		extern Bitboard rook_magic[SQ_N];
         extern Bitboard pawn_attacks[COLOUR_N][SQ_N];
         extern Bitboard knight_attacks[SQ_N];
         extern Bitboard king_attacks[SQ_N];
@@ -166,20 +173,16 @@ namespace Clovis {
 
         void print_bitboard(const Bitboard& bb);
 
-        Bitboard get_bishop_attacks(Bitboard occ, Square sq);
-        Bitboard get_rook_attacks(Bitboard occ, Square sq);
-        Bitboard get_queen_attacks(Bitboard occ, Square sq);
-
         void init_bitboards(bool calc_magic);
 
         template<PieceType PT>
         inline Bitboard get_attacks(Bitboard occ, Square sq)
-        {
-            assert(PT != PAWN);
+		{
+			assert(PT != PAWN);
             return PT == KNIGHT ? knight_attacks[sq] 
-                : PT == BISHOP ? get_bishop_attacks(occ, sq)
-                : PT == ROOK ? get_rook_attacks(occ, sq)
-                : PT == QUEEN ? get_queen_attacks(occ, sq)
+                : PT == BISHOP	? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_rbits[sq]]
+                : PT == ROOK	? rook_attacks[sq][(occ & rook_masks[sq]) * rook_magic[sq] >> rook_rbits[sq]]
+                : PT == QUEEN	? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
                 : king_attacks[sq];
         }
 

@@ -130,13 +130,13 @@ namespace Clovis {
     }
 
     // returns whether or not a square is attacked by a particular side
-    bool Position::is_attacked (Square sq, Colour s) const
+    bool Position::is_attacked(Square sq, Colour s) const
     {
         return ((piece_bitboard[make_piece(PAWN, s)] & Bitboards::pawn_attacks[!s][sq]) 
             || (piece_bitboard[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) 
-            || (piece_bitboard[make_piece(BISHOP, s)] & Bitboards::get_bishop_attacks(occ_bitboard[BOTH], sq)) 
-            || (piece_bitboard[make_piece(ROOK, s)] & Bitboards::get_rook_attacks(occ_bitboard[BOTH], sq)) 
-            || (piece_bitboard[make_piece(QUEEN, s)] & Bitboards::get_queen_attacks(occ_bitboard[BOTH], sq)) 
+            || (piece_bitboard[make_piece(BISHOP, s)] & Bitboards::get_attacks<BISHOP>(occ_bitboard[BOTH], sq)) 
+            || (piece_bitboard[make_piece(ROOK, s)] & Bitboards::get_attacks<ROOK>(occ_bitboard[BOTH], sq)) 
+            || (piece_bitboard[make_piece(QUEEN, s)] & Bitboards::get_attacks<QUEEN>(occ_bitboard[BOTH], sq)) 
             || (piece_bitboard[make_piece(KING, s)] & Bitboards::king_attacks[sq]));
     }
 
@@ -145,9 +145,9 @@ namespace Clovis {
         return  (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[W_PAWN]) 
             | (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[B_PAWN]) 
             | (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) 
-            | (Bitboards::get_rook_attacks(occ_bitboard[BOTH], sq) 
+            | (Bitboards::get_attacks<ROOK>(occ_bitboard[BOTH], sq) 
                 & (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
-            | (Bitboards::get_bishop_attacks(occ_bitboard[BOTH], sq) 
+            | (Bitboards::get_attacks<BISHOP>(occ_bitboard[BOTH], sq) 
                 & (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
             | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
     }

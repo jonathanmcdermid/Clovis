@@ -475,21 +475,6 @@ namespace Clovis {
 				init_magic_numbers();
 		}
 
-		Bitboard get_bishop_attacks(Bitboard occ, Square sq)
-		{
-			return bishop_attacks[sq][(occ & bishop_masks[sq])* bishop_magic[sq] >> bishop_rbits[sq]];
-		}
-
-		Bitboard get_rook_attacks(Bitboard occ, Square sq)
-		{
-			return rook_attacks[sq][(occ & rook_masks[sq]) * rook_magic[sq] >> rook_rbits[sq]];
-		}
-
-		Bitboard get_queen_attacks(Bitboard occ, Square sq)
-		{
-			return get_bishop_attacks(occ, sq) | get_rook_attacks(occ, sq);
-		}
-
 	} // namespace Bitboards
 
 } // namespace Clovis
