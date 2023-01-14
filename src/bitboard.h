@@ -173,7 +173,7 @@ namespace Clovis {
         void init_bitboards(bool calc_magic);
 
         template<PieceType PT>
-        Bitboard get_attacks(Bitboard occ, Square sq)
+        inline Bitboard get_attacks(Bitboard occ, Square sq)
         {
             assert(PT != PAWN);
             return PT == KNIGHT ? knight_attacks[sq] 
