@@ -27,7 +27,7 @@ namespace Clovis {
 
 		struct MoveList {
 			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves)) {}
-			inline int size() const { return (last - moves); }
+			int size() const { return (last - moves); }
 			void print();
 			const Move* begin() const { return moves; }
 			const Move* end() const { return last; }

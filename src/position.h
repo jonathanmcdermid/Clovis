@@ -81,6 +81,7 @@ namespace Clovis {
 			| piece_bitboard[make_piece(ROOK,	side)]
 			| piece_bitboard[make_piece(QUEEN,	side)]);
 	}
+
 	inline bool Position::is_material_draw() const {
 		return is_insufficient<WHITE>() && is_insufficient<BLACK>();
 	}
