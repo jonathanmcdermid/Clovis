@@ -1,94 +1,96 @@
 #include "evaluate.h"
 
+#define S(mg, eg) Score(mg, eg)
+
 namespace Clovis {
 
     namespace Eval {
 
         Score pawn_table[] = {
-        Score(0,0), Score(0,0), Score(0,0), Score(0,0),
-        Score(140,334), Score(176,312), Score(182,281), Score(203,261),
-        Score(94,111), Score(112,109), Score(141,101), Score(136,97),
-        Score(76,99), Score(94,93), Score(97,95), Score(112,83),
-        Score(66,90), Score(74,89), Score(94,87), Score(105,83),
-        Score(75,82), Score(84,83), Score(94,87), Score(96,92),
-        Score(68,85), Score(92,83), Score(91,96), Score(85,97),
-        Score(0,0), Score(0,0), Score(0,0), Score(0,0),
+        S(0,0), S(0,0), S(0,0), S(0,0),
+        S(140,334), S(176,312), S(182,281), S(203,261),
+        S(94,111), S(112,109), S(141,101), S(136,97),
+        S(76,99), S(94,93), S(97,95), S(112,83),
+        S(66,90), S(74,89), S(94,87), S(105,83),
+        S(75,82), S(84,83), S(94,87), S(96,92),
+        S(68,85), S(92,83), S(91,96), S(85,97),
+        S(0,0), S(0,0), S(0,0), S(0,0),
         };
         Score knight_table[] = {
-                Score(178,236), Score(247,263), Score(238,290), Score(324,276),
-                Score(284,272), Score(313,291), Score(403,274), Score(337,306),
-                Score(316,275), Score(382,282), Score(369,311), Score(382,307),
-                Score(352,284), Score(353,305), Score(361,321), Score(366,327),
-                Score(336,288), Score(357,302), Score(364,318), Score(365,321),
-                Score(331,282), Score(360,293), Score(364,302), Score(369,316),
-                Score(332,265), Score(333,282), Score(352,295), Score(366,296),
-                Score(302,259), Score(334,255), Score(334,282), Score(342,286),
+                S(178,236), S(247,263), S(238,290), S(324,276),
+                S(284,272), S(313,291), S(403,274), S(337,306),
+                S(316,275), S(382,282), S(369,311), S(382,307),
+                S(352,284), S(353,305), S(361,321), S(366,327),
+                S(336,288), S(357,302), S(364,318), S(365,321),
+                S(331,282), S(360,293), S(364,302), S(369,316),
+                S(332,265), S(333,282), S(352,295), S(366,296),
+                S(302,259), S(334,255), S(334,282), S(342,286),
         };
         Score bishop_table[] = {
-                Score(275,299), Score(290,299), Score(205,315), Score(226,316),
-                Score(277,305), Score(319,305), Score(299,314), Score(298,307),
-                Score(291,316), Score(322,308), Score(330,308), Score(311,309),
-                Score(315,308), Score(322,308), Score(317,316), Score(336,313),
-                Score(332,299), Score(325,305), Score(323,317), Score(346,311),
-                Score(333,300), Score(345,305), Score(355,308), Score(339,319),
-                Score(338,291), Score(366,289), Score(350,301), Score(344,304),
-                Score(314,295), Score(332,305), Score(332,298), Score(335,303),
+                S(275,299), S(290,299), S(205,315), S(226,316),
+                S(277,305), S(319,305), S(299,314), S(298,307),
+                S(291,316), S(322,308), S(330,308), S(311,309),
+                S(315,308), S(322,308), S(317,316), S(336,313),
+                S(332,299), S(325,305), S(323,317), S(346,311),
+                S(333,300), S(345,305), S(355,308), S(339,319),
+                S(338,291), S(366,289), S(350,301), S(344,304),
+                S(314,295), S(332,305), S(332,298), S(335,303),
         };
         Score rook_table[] = {
-                Score(445,544), Score(463,539), Score(431,548), Score(473,539),
-                Score(468,542), Score(468,543), Score(507,531), Score(512,525),
-                Score(456,536), Score(487,532), Score(468,535), Score(469,534),
-                Score(446,540), Score(455,536), Score(479,538), Score(473,531),
-                Score(443,535), Score(467,529), Score(462,533), Score(472,527),
-                Score(446,524), Score(468,524), Score(474,518), Score(471,520),
-                Score(442,523), Score(471,516), Score(472,519), Score(482,517),
-                Score(474,509), Score(469,519), Score(490,516), Score(493,512),
+                S(445,544), S(463,539), S(431,548), S(473,539),
+                S(468,542), S(468,543), S(507,531), S(512,525),
+                S(456,536), S(487,532), S(468,535), S(469,534),
+                S(446,540), S(455,536), S(479,538), S(473,531),
+                S(443,535), S(467,529), S(462,533), S(472,527),
+                S(446,524), S(468,524), S(474,518), S(471,520),
+                S(442,523), S(471,516), S(472,519), S(482,517),
+                S(474,509), S(469,519), S(490,516), S(493,512),
         };
         Score queen_table[] = {
-                Score(914,978), Score(890,1009), Score(900,1016), Score(921,996),
-                Score(915,984), Score(864,1024), Score(883,1028), Score(853,1059),
-                Score(933,980), Score(920,997), Score(920,1000), Score(886,1044),
-                Score(911,1016), Score(897,1034), Score(898,1016), Score(892,1029),
-                Score(927,981), Score(909,1025), Score(916,1009), Score(913,1020),
-                Score(919,1000), Score(943,976), Score(928,1000), Score(931,988),
-                Score(921,975), Score(939,956), Score(953,958), Score(945,975),
-                Score(941,951), Score(931,959), Score(938,961), Score(951,950),
+                S(914,978), S(890,1009), S(900,1016), S(921,996),
+                S(915,984), S(864,1024), S(883,1028), S(853,1059),
+                S(933,980), S(920,997), S(920,1000), S(886,1044),
+                S(911,1016), S(897,1034), S(898,1016), S(892,1029),
+                S(927,981), S(909,1025), S(916,1009), S(913,1020),
+                S(919,1000), S(943,976), S(928,1000), S(931,988),
+                S(921,975), S(939,956), S(953,958), S(945,975),
+                S(941,951), S(931,959), S(938,961), S(951,950),
         };
         Score king_table[] = {
-                Score(3,58), Score(162,67), Score(119,97), Score(110,87),
-                Score(98,83), Score(137,112), Score(128,129), Score(174,113),
-                Score(112,95), Score(204,118), Score(219,124), Score(158,116),
-                Score(40,96), Score(105,126), Score(105,136), Score(85,141),
-                Score(3,95), Score(63,113), Score(52,137), Score(23,151),
-                Score(56,87), Score(89,106), Score(73,124), Score(61,139),
-                Score(101,68), Score(110,89), Score(69,118), Score(45,130),
-                Score(94,33), Score(125,60), Score(75,92), Score(89,86),
+                S(3,58), S(162,67), S(119,97), S(110,87),
+                S(98,83), S(137,112), S(128,129), S(174,113),
+                S(112,95), S(204,118), S(219,124), S(158,116),
+                S(40,96), S(105,126), S(105,136), S(85,141),
+                S(3,95), S(63,113), S(52,137), S(23,151),
+                S(56,87), S(89,106), S(73,124), S(61,139),
+                S(101,68), S(110,89), S(69,118), S(45,130),
+                S(94,33), S(125,60), S(75,92), S(89,86),
         };
         Score passed_pawn_bonus[] = {
-                 Score(0, 0),  Score(0, 0),  Score(0, 0),  Score(0, 0),
-                 Score(0, 0),  Score(0, 0),  Score(0, 0),  Score(0, 0),
-                 Score(17, 137),  Score(4, 127),  Score(11, 101),  Score(5, 79),
-                 Score(20, 67),  Score(6, 65),  Score(12, 40),  Score(8, 37),
-                 Score(18, 35),  Score(0, 35),  Score(0, 17),  Score(0, 16),
-                 Score(12, 8),  Score(0, 12),  Score(0, 0),  Score(0, 0),
-                 Score(4, 9),  Score(6, 6),  Score(4, 0),  Score(0, 0),
-                 Score(0, 0),  Score(0, 0),  Score(0, 0),  Score(0, 0),
+                 S(0, 0),  S(0, 0),  S(0, 0),  S(0, 0),
+                 S(0, 0),  S(0, 0),  S(0, 0),  S(0, 0),
+                 S(17, 137),  S(4, 127),  S(11, 101),  S(5, 79),
+                 S(20, 67),  S(6, 65),  S(12, 40),  S(8, 37),
+                 S(18, 35),  S(0, 35),  S(0, 17),  S(0, 16),
+                 S(12, 8),  S(0, 12),  S(0, 0),  S(0, 0),
+                 S(4, 9),  S(6, 6),  S(4, 0),  S(0, 0),
+                 S(0, 0),  S(0, 0),  S(0, 0),  S(0, 0),
         };
-        Score double_pawn_penalty = Score(0, 8);
-        Score isolated_pawn_penalty = Score(18, 9);
-        Score bishop_pair_bonus = Score(37, 47);
-        Score rook_open_file_bonus = Score(40, 0);
-        Score rook_semi_open_file_bonus = Score(12, 19);
-        Score tempo_bonus = Score(20, 17);
-        Score king_full_open_penalty = Score(51, 7);
-        Score king_semi_open_penalty = Score(17, 0);
-        Score king_adjacent_full_open_penalty = Score(12, 9);
-        Score king_adjacent_semi_open_penalty = Score(17, 0);
-        Score mobility[7] = { Score(0, 0), Score(0, 0), Score(4, 0), Score(8, 2), Score(4, 3), Score(3, 5), Score(0, 0), };
-        Score inner_ring_attack[7] = { Score(0, 0), Score(2, 0), Score(4, 10), Score(7, 5), Score(7, 0), Score(4, 1), Score(0, 0), };
-        Score outer_ring_attack[7] = { Score(0, 0), Score(0, 0), Score(6, 0), Score(3, 0), Score(2, 3), Score(4, 0), Score(0, 0), };
-        Score knight_outpost_bonus = Score(39, 13);
-        Score bishop_outpost_bonus = Score(46, 0);
+        Score double_pawn_penalty = S(0, 8);
+        Score isolated_pawn_penalty = S(18, 9);
+        Score bishop_pair_bonus = S(37, 47);
+        Score rook_open_file_bonus = S(40, 0);
+        Score rook_semi_open_file_bonus = S(12, 19);
+        Score tempo_bonus = S(20, 17);
+        Score king_full_open_penalty = S(51, 7);
+        Score king_semi_open_penalty = S(17, 0);
+        Score king_adjacent_full_open_penalty = S(12, 9);
+        Score king_adjacent_semi_open_penalty = S(17, 0);
+        Score mobility[7] = { S(0, 0), S(0, 0), S(4, 0), S(8, 2), S(4, 3), S(3, 5), S(0, 0), };
+        Score inner_ring_attack[7] = { S(0, 0), S(2, 0), S(4, 10), S(7, 5), S(7, 0), S(4, 1), S(0, 0), };
+        Score outer_ring_attack[7] = { S(0, 0), S(0, 0), S(6, 0), S(3, 0), S(2, 3), S(4, 0), S(0, 0), };
+        Score knight_outpost_bonus = S(39, 13);
+        Score bishop_outpost_bonus = S(46, 0);
 
 		Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
 

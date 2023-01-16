@@ -369,7 +369,7 @@ namespace Clovis {
 
 			cout << "Score pawn_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				cout << "Score("
+				cout << "S("
 					<< Eval::pawn_table[sq].mg << ","
 					<< Eval::pawn_table[sq].eg << "),";
 				(sq % 4 == 3) ? cout << "\n\t" : cout << " ";
@@ -378,7 +378,7 @@ namespace Clovis {
 
 			cout << "Score knight_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				cout << "Score("
+				cout << "S("
 					<< Eval::knight_table[sq].mg << ","
 					<< Eval::knight_table[sq].eg << "),";
 				(sq % 4 == 3) ? cout << "\n\t" : cout << " ";
@@ -387,7 +387,7 @@ namespace Clovis {
 
 			cout << "Score bishop_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				cout << "Score("
+				cout << "S("
 					<< Eval::bishop_table[sq].mg << ","
 					<< Eval::bishop_table[sq].eg << "),";
 				(sq % 4 == 3) ? cout << "\n\t" : cout << " ";
@@ -396,7 +396,7 @@ namespace Clovis {
 
 			cout << "Score rook_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				cout << "Score("
+				cout << "S("
 					<< Eval::rook_table[sq].mg << ","
 					<< Eval::rook_table[sq].eg << "),";
 				(sq % 4 == 3) ? cout << "\n\t" : cout << " ";
@@ -405,7 +405,7 @@ namespace Clovis {
 
 			cout << "Score queen_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				cout << "Score("
+				cout << "S("
 					<< Eval::queen_table[sq].mg << ","
 					<< Eval::queen_table[sq].eg << "),";
 				(sq % 4 == 3) ? cout << "\n\t" : cout << " ";
@@ -414,7 +414,7 @@ namespace Clovis {
 
 			cout << "Score king_table[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				cout << "Score("
+				cout << "S("
 					<< Eval::king_table[sq].mg << ","
 					<< Eval::king_table[sq].eg << "),";
 				(sq % 4 == 3) ? cout << "\n\t" : cout << " ";
@@ -423,67 +423,67 @@ namespace Clovis {
 
 			cout << "Score passed_pawn_bonus[] = {\n\t";
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				cout << " Score("
+				cout << " S("
 					<< Eval::passed_pawn_bonus[sq].mg << ", "
 					<< Eval::passed_pawn_bonus[sq].eg << "),";
 				(sq % 4 == 3) ? cout << "\n\t" : cout << " ";
 			}
 			cout << "};\n";
 
-			cout << "Score double_pawn_penalty = Score("
+			cout << "Score double_pawn_penalty = S("
 				<< Eval::double_pawn_penalty.mg << ", "
 				<< Eval::double_pawn_penalty.eg << ");\n";
-			cout << "Score isolated_pawn_penalty = Score("
+			cout << "Score isolated_pawn_penalty = S("
 				<< Eval::isolated_pawn_penalty.mg << ", "
 				<< Eval::isolated_pawn_penalty.eg << ");\n";
-			cout << "Score bishop_pair_bonus = Score("
+			cout << "Score bishop_pair_bonus = S("
 				<< Eval::bishop_pair_bonus.mg << ", "
 				<< Eval::bishop_pair_bonus.eg << ");\n";
-			cout << "Score rook_open_file_bonus = Score("
+			cout << "Score rook_open_file_bonus = S("
 				<< Eval::rook_open_file_bonus.mg << ", "
 				<< Eval::rook_open_file_bonus.eg << ");\n";
-			cout << "Score rook_semi_open_file_bonus = Score("
+			cout << "Score rook_semi_open_file_bonus = S("
 				<< Eval::rook_semi_open_file_bonus.mg << ", "
 				<< Eval::rook_semi_open_file_bonus.eg << ");\n";
-			cout << "Score tempo_bonus = Score("
+			cout << "Score tempo_bonus = S("
 				<< Eval::tempo_bonus.mg << ", "
 				<< Eval::tempo_bonus.eg << ");\n";
-			cout << "Score king_full_open_penalty = Score("
+			cout << "Score king_full_open_penalty = S("
 				<< Eval::king_full_open_penalty.mg << ", "
 				<< Eval::king_full_open_penalty.eg << ");\n";
-			cout << "Score king_semi_open_penalty = Score("
+			cout << "Score king_semi_open_penalty = S("
 				<< Eval::king_semi_open_penalty.mg << ", "
 				<< Eval::king_semi_open_penalty.eg << ");\n";
-			cout << "Score king_adjacent_full_open_penalty = Score("
+			cout << "Score king_adjacent_full_open_penalty = S("
 				<< Eval::king_adjacent_full_open_penalty.mg << ", "
 				<< Eval::king_adjacent_full_open_penalty.eg << ");\n";
-			cout << "Score king_adjacent_semi_open_penalty = Score("
+			cout << "Score king_adjacent_semi_open_penalty = S("
 				<< Eval::king_adjacent_semi_open_penalty.mg << ", "
 				<< Eval::king_adjacent_semi_open_penalty.eg << ");\n";
-			cout << "Score knight_outpost_bonus = Score("
+			cout << "Score knight_outpost_bonus = S("
 				<< Eval::knight_outpost_bonus.mg << ", "
 				<< Eval::knight_outpost_bonus.eg << ");\n";
-			cout << "Score bishop_outpost_bonus = Score("
+			cout << "Score bishop_outpost_bonus = S("
 				<< Eval::bishop_outpost_bonus.mg << ", "
 				<< Eval::bishop_outpost_bonus.eg << ");\n";
 
 			cout << "Score mobility[7] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
-				cout << " Score("
+				cout << " S("
 					<< Eval::mobility[i].mg << ", "
 					<< Eval::mobility[i].eg << "),";
 			}
 			cout << "};\n";
 			cout << "Score inner_ring_attack[7] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
-				cout << " Score("
+				cout << " S("
 					<< Eval::inner_ring_attack[i].mg << ", "
 					<< Eval::inner_ring_attack[i].eg << "),";
 			}
 			cout << "};\n";
 			cout << "Score outer_ring_attack[7] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
-				cout << " Score("
+				cout << " S("
 					<< Eval::outer_ring_attack[i].mg << ", "
 					<< Eval::outer_ring_attack[i].eg << "),";
 			}
