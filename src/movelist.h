@@ -38,28 +38,26 @@ namespace Clovis {
 		template<typename T, MoveType M, PieceType PT, Colour US>
 		T* generate_majors(const Position& pos, T* moves)
 		{
-			constexpr bool QUIETS   = M != CAPTURE_MOVES;
-			constexpr bool CAPTURES = M != QUIET_MOVES;
-
 			constexpr Colour THEM = other_side(US);
 
             constexpr Piece PIECE = make_piece(PT, US);
 
 			Bitboard bb = pos.piece_bitboard[PIECE];
 
+			Bitboard tar_bb = M == ALL_MOVES ? ~pos.occ_bitboard[US] 
+				: M == QUIET_MOVES ? ~pos.occ_bitboard[BOTH]
+				: pos.occ_bitboard[THEM];
+
             while (bb)
             {
                 Square src = pop_lsb(bb);
-                Bitboard att = ~pos.occ_bitboard[US] & Bitboards::get_attacks<PT>(pos.occ_bitboard[BOTH], src);
+                Bitboard att = Bitboards::get_attacks<PT>(pos.occ_bitboard[BOTH], src) & tar_bb;
 
                 while (att)
                 {
                     Square tar = pop_lsb(att);
 
-                    if (QUIETS && !(pos.occ_bitboard[THEM] & tar))
-                        *moves++ = encode_move(src, tar, PIECE, NO_PIECE, 0, 0, 0, 0);
-                    if (CAPTURES && (pos.occ_bitboard[THEM] & tar))
-                        *moves++ = encode_move(src, tar, PIECE, NO_PIECE, 1, 0, 0, 0);
+                    *moves++ = encode_move(src, tar, PIECE, NO_PIECE, bool(pos.occ_bitboard[BOTH] & tar), 0, 0, 0);
                 }
             }
 
