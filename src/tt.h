@@ -13,7 +13,7 @@ namespace Clovis {
     struct Score {
     public:
         Score() : mg(0), eg(0) {}
-        Score(int mg, int eg) : mg(mg), eg(eg) {}
+        constexpr Score(int mg, int eg) : mg(mg), eg(eg) {}
         void operator+=(const Score& rhs) {
             this->mg += rhs.mg;
             this->eg += rhs.eg;
@@ -40,7 +40,7 @@ namespace Clovis {
 
     struct KingZone {
         KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
-        KingZone(Bitboard outer_ring, Bitboard inner_ring) : outer_ring(outer_ring), inner_ring(inner_ring) { ; }
+        constexpr KingZone(Bitboard outer_ring, Bitboard inner_ring) : outer_ring(outer_ring), inner_ring(inner_ring) { ; }
         void operator=(const KingZone& rhs) {
             this->outer_ring = rhs.outer_ring;
             this->inner_ring = rhs.inner_ring;

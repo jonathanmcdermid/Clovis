@@ -92,25 +92,13 @@ namespace Clovis {
         Score knight_outpost_bonus = S(39, 13);
         Score bishop_outpost_bonus = S(46, 0);
 
-		Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
+		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
+        const Score* score_table[15][SQ_N];
+		const Score* passed_table[COLOUR_N][SQ_N];
 
-        Score* score_table[15][SQ_N];
-
-		Score* passed_table[COLOUR_N][SQ_N];
-
-        Bitboard file_masks[SQ_N];
-        Bitboard rank_masks[SQ_N];
-        Bitboard isolated_masks[SQ_N];
-        Bitboard passed_masks[COLOUR_N][SQ_N];
-        Bitboard outpost_masks[COLOUR_N];
-        Bitboard outpost_pawn_masks[COLOUR_N][SQ_N];
-
-        KingZone king_zones[SQ_N];
-
-        void init_eval()
+		void init_eval()
         {
             init_values();
-            init_masks();
         }
 
         void init_values()
@@ -142,98 +130,6 @@ namespace Clovis {
                 passed_table[BLACK][(r << 3) + (7 - f)] = &passed_pawn_bonus[sq];
 			}
 		}
-
-        void init_masks()
-        {
-            // file and rank masks
-            for (File f = FILE_A; f <= FILE_H; ++f)
-            {
-                for (Rank r = RANK_1; r <= RANK_8; ++r)
-                {
-                    Square sq = make_square(f, r);
-
-                    file_masks[sq] = set_file_rank_mask(f, RANK_NONE);
-                    rank_masks[sq] = set_file_rank_mask(FILE_NONE, r);
-
-                    isolated_masks[sq] |= set_file_rank_mask(f - 1, RANK_NONE);
-                    isolated_masks[sq] |= set_file_rank_mask(f + 1, RANK_NONE);
-                }
-            }
-            
-			for (Rank r = RANK_1; r <= RANK_8; ++r)
-            {
-                for (File f = FILE_A; f <= FILE_H; ++f)
-                {
-                    Square sq = make_square(f, r);
-
-                    passed_masks[WHITE][sq] |= set_file_rank_mask(f - 1, RANK_NONE);
-                    passed_masks[WHITE][sq] |= set_file_rank_mask(f, RANK_NONE);
-                    passed_masks[WHITE][sq] |= set_file_rank_mask(f + 1, RANK_NONE);
-
-                    for (int i = 0; i < r + 1; ++i)
-                        passed_masks[WHITE][sq] &= ~rank_masks[(i << 3) + f];
-
-                    passed_masks[BLACK][sq] |= set_file_rank_mask(f - 1, RANK_NONE);
-                    passed_masks[BLACK][sq] |= set_file_rank_mask(f, RANK_NONE);
-                    passed_masks[BLACK][sq] |= set_file_rank_mask(f + 1, RANK_NONE);
-
-                    for (int i = 0; i < 8 - r; ++i)
-                        passed_masks[BLACK][sq] &= ~rank_masks[((7 - i) << 3) + f];
-                }
-            }
-            
-			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-            {
-                king_zones[sq].inner_ring = Bitboards::get_attacks<KING>(0ULL, sq);
-                Bitboard bb = king_zones[sq].inner_ring;
-
-                // this probably isnt the most efficient way of generating outer king ring
-                while (bb)
-                {
-                    Square sq2 = pop_lsb(bb);
-
-                    king_zones[sq].outer_ring |= Bitboards::get_attacks<KING>(0ULL, sq2);
-                }
-
-                king_zones[sq].outer_ring = king_zones[sq].outer_ring & ~(king_zones[sq].inner_ring | sq);
-            }
-            
-			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-            {
-                outpost_pawn_masks[WHITE][sq] = passed_masks[WHITE][sq] & ~file_masks[sq];
-                outpost_pawn_masks[BLACK][sq] = passed_masks[BLACK][sq] & ~file_masks[sq];
-            }
-            
-			outpost_masks[WHITE] = rank_masks[A4] | rank_masks[A5] | rank_masks[A6];
-            outpost_masks[BLACK] = rank_masks[A3] | rank_masks[A4] | rank_masks[A5];
-        }
-
-        Bitboard set_file_rank_mask(File file_number, Rank rank_number)
-        {
-            Bitboard mask = 0ULL;
-
-            for (Rank r = RANK_1; r <= RANK_8; ++r)
-            {
-                for (File f = FILE_A; f <= FILE_H; ++f)
-                {
-                    Square sq = make_square(f, r);
-
-                    if (file_number != FILE_NONE)
-                    {
-                        if (f == file_number)
-                            mask |= sq;
-                    }
-
-                    else if (rank_number != RANK_NONE)
-                    {
-                        if (r == rank_number)
-                            mask |= sq;
-                    }
-                }
-            }
-
-            return mask;
-        }
 
     } // namespace Eval
 
