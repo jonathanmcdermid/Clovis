@@ -302,11 +302,11 @@ namespace Clovis {
 
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
-				if ((sq / 4 != RANK_1 && sq / 4 != RANK_8))
+				if ((Rank(sq / 4) != RANK_1 && Rank(sq / 4) != RANK_8))
 				{
 					weights.push_back(&Eval::pawn_table[sq].mg);
 					weights.push_back(&Eval::pawn_table[sq].eg);
-					if(sq / 4 != RANK_2)
+					if(Rank(sq / 4) != RANK_2)
 					{
 						weights.push_back(&Eval::passed_pawn_bonus[sq].mg);
 						weights.push_back(&Eval::passed_pawn_bonus[sq].eg);

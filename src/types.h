@@ -64,19 +64,11 @@ namespace Clovis {
         PIECETYPE_N = 6
     };
 
-    inline void operator++(PieceType& pt) {
-        pt = static_cast<PieceType>(static_cast<int>(pt) + 1);
-    }
-
     enum Piece {
         NO_PIECE,
         W_PAWN = PAWN, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
         B_PAWN = PAWN + 8, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
     };
-
-    inline void operator++(Piece& p) {
-        p = static_cast<Piece>(static_cast<int>(p) + 1);
-    }
 
     enum MoveType : int {
         QUIET_MOVES, CAPTURE_MOVES, ALL_MOVES
@@ -133,14 +125,6 @@ namespace Clovis {
         SQ_N = 64
     };
 
-    inline void operator++(Square& sq) {
-        sq = static_cast<Square>(static_cast<int>(sq) + 1);
-    }
-
-    inline Square operator+(Square& sq, int i) {
-        return static_cast<Square>(static_cast<int>(sq) + i);
-    }
-
     constexpr Square operator+(Square sq, Direction dir) { return Square(int(sq) + int(dir)); }
     constexpr Square operator-(Square sq, Direction dir) { return Square(int(sq) - int(dir)); }
     inline Square& operator+=(Square& sq, Direction dir) { return sq = sq + dir; }
@@ -151,44 +135,12 @@ namespace Clovis {
         FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_N
     };
 
-    constexpr void operator++(File& f) {
-        f = static_cast<File>(static_cast<int>(f) + 1);
-    }
-
-    constexpr void operator--(File& f) {
-        f = static_cast<File>(static_cast<int>(f) - 1);
-    }
-
-    constexpr File operator+(File& f, int i) {
-        return static_cast<File>(static_cast<int>(f) + i);
-    }
-
-    constexpr File operator-(File& f, int i) {
-        return static_cast<File>(static_cast<int>(f) - i);
-    }
-
-    enum Rank : int {
+	enum Rank : int {
         RANK_NONE = -1,
         RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_N
     };
 
-    constexpr void operator++(Rank& r) {
-        r = static_cast<Rank>(static_cast<int>(r) + 1);
-    }
-
-    constexpr void operator--(Rank& r) {
-        r = static_cast<Rank>(static_cast<int>(r) - 1);
-    }
-
-    constexpr Rank operator+(Rank& r, int i) {
-        return static_cast<Rank>(static_cast<int>(r) + i);
-    }
-
-    constexpr Rank operator-(Rank& r, int i) {
-        return static_cast<Rank>(static_cast<int>(r) - i);
-    }
-
-    enum CastleRights {
+	enum CastleRights {
         NO_CASTLING,
         WHITE_KS = 1 << 0,
         WHITE_QS = 1 << 1,
@@ -301,7 +253,7 @@ namespace Clovis {
         }
         else
         {
-            rf = king_tar + 2 * WEST;
+            rf = king_tar + WEST + WEST;
             rt = king_tar + EAST;
         }
     }
@@ -342,5 +294,28 @@ namespace Clovis {
             os << " pnbrqk  pnbrqk"[move_promotion_type(m)];
         return os;
     }
+    
+#define INCR_OPERATORS(T)											\
+inline T& operator++(T& d) { return d = T(int(d) + 1); }			\
+inline T& operator--(T& d) { return d = T(int(d) - 1); }
+
+#define BASE_OPERATORS(T)											\
+constexpr T operator+(T d1, int d2) { return T(int(d1) + d2); }		\
+constexpr T operator-(T d1, int d2) { return T(int(d1) - d2); }		\
+constexpr T operator-(T d) { return T(-int(d)); }					\
+inline T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }		\
+inline T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }					
+
+INCR_OPERATORS(Piece)
+INCR_OPERATORS(PieceType)
+INCR_OPERATORS(File)
+INCR_OPERATORS(Rank)
+INCR_OPERATORS(Direction)
+INCR_OPERATORS(Square)
+
+BASE_OPERATORS(File)
+BASE_OPERATORS(Rank)
+BASE_OPERATORS(Direction)
+BASE_OPERATORS(Square)
 
 } // namespace Clovis
