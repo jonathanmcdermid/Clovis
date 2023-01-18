@@ -61,86 +61,84 @@ namespace Clovis {
             MovePick::clear();
             tt.clear();
         }
-
-        // begin search
-        void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes)
+ 
+		template<NodeType N>
+        int quiescence(Position& pos, int alpha, int beta, U64& nodes)
         {
-            stop = false;
-            allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side] / (lim.moves_left + 5);
-            tm.set();
+            constexpr bool PV_NODE = N != NODE_NON_PV;
 
-            int alpha = -CHECKMATE_SCORE;
-            int beta = CHECKMATE_SCORE;
-			Line pline;
+            assert(PV_NODE || (alpha == beta - 1));
 
-			TTEntry* tte;
-            MoveGen::MoveList ml = MoveGen::MoveList(pos);
+			++nodes;
 
-            if (ml.size() > 1)
+            TTEntry* tte = tt.probe(pos.bs->key);
+
+            if (!PV_NODE && tte &&
+                (tte->flags == HASH_EXACT
+                    || (tte->flags == HASH_BETA && tte->eval >= beta)
+                    || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
+                return tte->eval;
+
+			bool in_check = pos.is_king_in_check(pos.side);
+
+			int eval;
+			int old_alpha = alpha;
+
+			if (!in_check)
+			{
+				eval = Eval::evaluate<true>(pos);
+	
+				// use TT score instead of static eval if conditions are right
+				// conditions: valid TTE and either 
+				// 1. alpha flag + lower hash score than static eval
+				// 2. beta flag + higher hash score than static eval
+				if(tte && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
+					eval = tte->eval;
+	
+				if (eval >= beta)
+					return beta;
+	
+				if (eval > alpha)
+					alpha = eval;
+			}
+
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
+            Move curr_move;
+            Move best_move = MOVE_NONE;
+            int best_eval = INT_MIN;
+
+            while ((curr_move = mp.get_next(in_check)) != MOVE_NONE && (in_check || mp.get_stage() != LOSING_CAPTURES))
             {
-                MovePick::reset_killers();
-                MovePick::age_history();
+                // illegal move or non capture
+                if (!pos.do_move(curr_move))
+                    continue;
 
-                nodes = 0;
+                eval = -quiescence<N>(pos, -beta, -alpha, nodes);
 
-                for (int depth = 1; depth <= MAX_PLY && (lim.depth == 0 || depth <= lim.depth); ++depth)
+                pos.undo_move(curr_move);
+
+                // fail high
+                if (eval >= beta)
                 {
-                    score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
+                    tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
 
-                    if (stop)
-                        break;
-
-                    if (score <= alpha)
+                    return beta;
+                }
+                if (eval > best_eval)
+                {
+                    best_eval = eval;
+                    best_move = curr_move;
+                    if (eval > alpha)
                     {
-                        assert(depth > asp_depth);
-                        alpha = -CHECKMATE_SCORE;
-                        --depth;
-                        continue;
-                    }
-                    if (score >= beta)
-                    {
-                        assert(depth > asp_depth);
-                        beta = CHECKMATE_SCORE;
-                        --depth;
-                        continue;
-                    }
-
-                    auto time = tm.get_time_elapsed();
-
-                    cout << "info depth " << setw(2) << depth
-                        << " score cp " << setw(4) << score
-                        << " nodes " << setw(8) << nodes
-                        << " time " << setw(6) << tm.get_time_elapsed()
-                        << " nps " << setw(8) << 1000ULL * nodes / (time + 1)
-                        << " pv " << pline.moves[0];
-
-                    cout << endl;
-
-                    if (time > allocated_time / 3)
-                        break;
-
-                    if (depth > asp_depth)
-                    {
-                        alpha = score - delta;
-                        beta = score + delta;
+                        // new best move found
+                        alpha = eval;
                     }
                 }
-
-                best_move = pline.moves[0];
-            }
-            else
-            {
-                assert(ml.size() == 1);
-                best_move = *ml.begin();
             }
 
-			// extract ponder move if one exists
-			pos.do_move(best_move);
-			tte = tt.probe(pos.bs->key);
-			ponder_move = tte ? tte->move : MOVE_NONE;
-			pos.undo_move(best_move);
+            tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
-            cout << "bestmove " << best_move << endl;
+            return alpha;
         }
 
         template<NodeType N>
@@ -158,7 +156,7 @@ namespace Clovis {
             }
 
             if (depth <= 0)
-                return quiescent<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes);
+                return quiescence<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes);
 
 			++nodes;
 
@@ -339,85 +337,87 @@ namespace Clovis {
             return alpha;
         }
 
-        template<NodeType N>
-        int quiescent(Position& pos, int alpha, int beta, U64& nodes)
+		// begin search
+        void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes)
         {
-            constexpr bool PV_NODE = N != NODE_NON_PV;
+            stop = false;
+            allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side] / (lim.moves_left + 5);
+            tm.set();
 
-            assert(PV_NODE || (alpha == beta - 1));
+            int alpha = -CHECKMATE_SCORE;
+            int beta = CHECKMATE_SCORE;
+			Line pline;
 
-			++nodes;
+			TTEntry* tte;
+            MoveGen::MoveList ml = MoveGen::MoveList(pos);
 
-            TTEntry* tte = tt.probe(pos.bs->key);
-
-            if (!PV_NODE && tte &&
-                (tte->flags == HASH_EXACT
-                    || (tte->flags == HASH_BETA && tte->eval >= beta)
-                    || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
-                return tte->eval;
-
-			bool in_check = pos.is_king_in_check(pos.side);
-
-			int eval;
-			int old_alpha = alpha;
-
-			if (!in_check)
-			{
-				eval = Eval::evaluate<true>(pos);
-	
-				// use TT score instead of static eval if conditions are right
-				// conditions: valid TTE and either 
-				// 1. alpha flag + lower hash score than static eval
-				// 2. beta flag + higher hash score than static eval
-				if(tte && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
-					eval = tte->eval;
-	
-				if (eval >= beta)
-					return beta;
-	
-				if (eval > alpha)
-					alpha = eval;
-			}
-
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
-            Move curr_move;
-            Move best_move = MOVE_NONE;
-            int best_eval = INT_MIN;
-
-            while ((curr_move = mp.get_next(in_check)) != MOVE_NONE && (in_check || mp.get_stage() != LOSING_CAPTURES))
+            if (ml.size() > 1)
             {
-                // illegal move or non capture
-                if (!pos.do_move(curr_move))
-                    continue;
+                MovePick::reset_killers();
+                MovePick::age_history();
 
-                eval = -quiescent<N>(pos, -beta, -alpha, nodes);
+                nodes = 0;
 
-                pos.undo_move(curr_move);
-
-                // fail high
-                if (eval >= beta)
+                for (int depth = 1; depth <= MAX_PLY && (lim.depth == 0 || depth <= lim.depth); ++depth)
                 {
-                    tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
+                    score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
 
-                    return beta;
-                }
-                if (eval > best_eval)
-                {
-                    best_eval = eval;
-                    best_move = curr_move;
-                    if (eval > alpha)
+                    if (stop)
+                        break;
+
+                    if (score <= alpha)
                     {
-                        // new best move found
-                        alpha = eval;
+                        assert(depth > asp_depth);
+                        alpha = -CHECKMATE_SCORE;
+                        --depth;
+                        continue;
+                    }
+                    if (score >= beta)
+                    {
+                        assert(depth > asp_depth);
+                        beta = CHECKMATE_SCORE;
+                        --depth;
+                        continue;
+                    }
+
+                    auto time = tm.get_time_elapsed();
+
+                    cout << "info depth " << setw(2) << depth
+                        << " score cp " << setw(4) << score
+                        << " nodes " << setw(8) << nodes
+                        << " time " << setw(6) << tm.get_time_elapsed()
+                        << " nps " << setw(8) << 1000ULL * nodes / (time + 1)
+                        << " pv " << pline.moves[0];
+
+                    cout << endl;
+
+                    if (time > allocated_time / 3)
+                        break;
+
+                    if (depth > asp_depth)
+                    {
+                        alpha = score - delta;
+                        beta = score + delta;
                     }
                 }
+
+                best_move = pline.moves[0];
+            }
+            else
+            {
+                assert(ml.size() == 1);
+                best_move = *ml.begin();
             }
 
-            tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+			// extract ponder move if one exists
+			pos.do_move(best_move);
+			tte = tt.probe(pos.bs->key);
+			ponder_move = tte ? tte->move : MOVE_NONE;
+			pos.undo_move(best_move);
 
-            return alpha;
+            cout << "bestmove " << best_move << endl;
         }
-
+ 
     } // namespace Search
 
 } // namespace Clovis
