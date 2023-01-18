@@ -40,11 +40,11 @@ namespace Clovis {
 
 #if defined(__GNUC__)
 
-    inline int popcnt(Bitboard bb) {
+    constexpr int popcnt(Bitboard bb) {
         return __builtin_popcountll(bb);
     }
 
-    inline Square lsb(Bitboard bb) {
+    constexpr Square lsb(Bitboard bb) {
         assert(bb);
         return Square(__builtin_ctzll(bb));
     }
@@ -53,11 +53,11 @@ namespace Clovis {
 
 #ifdef _WIN64
 
-    inline int popcnt(Bitboard bb) {
+    constexpr int popcnt(Bitboard bb) {
         return __popcnt64(bb);
     }
 
-    inline Square lsb(Bitboard bb) {
+    constexpr Square lsb(Bitboard bb) {
         assert(bb);
         unsigned long pos;
         _BitScanForward64(&pos, bb);
@@ -66,11 +66,11 @@ namespace Clovis {
 
 #else
 
-    inline int popcnt(Bitboard bb) {
+    constexpr int popcnt(Bitboard bb) {
         return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
     }
 
-    inline Square lsb(Bitboard bb) {
+    constexpr Square lsb(Bitboard bb) {
         assert(bb);
         unsigned long pos;
 
@@ -291,7 +291,7 @@ namespace Clovis {
         template<PieceType PT>
         inline Bitboard get_attacks(Bitboard occ, Square sq)
 		{
-			assert(PT != PAWN);
+			static_assert(PT != PAWN);
             return PT == KNIGHT ? knight_attacks[sq] 
                 : PT == BISHOP	? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_rbits[sq]]
                 : PT == ROOK	? rook_attacks[sq][(occ & rook_masks[sq]) * rook_magic[sq] >> rook_rbits[sq]]

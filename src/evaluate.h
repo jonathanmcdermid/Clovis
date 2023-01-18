@@ -204,19 +204,19 @@ namespace Clovis {
 		void init_eval();
 		void init_values();
 		
-		inline bool doubled_pawn(Bitboard bb, Square sq) {
+		constexpr bool doubled_pawn(Bitboard bb, Square sq) {
             return popcnt(bb & file_masks[sq]) >= 2;
         }
 
-        inline bool isolated_pawn(Bitboard bb, Square sq) {
+        constexpr bool isolated_pawn(Bitboard bb, Square sq) {
             return !(bb & isolated_masks[sq]);
         }
 
-        inline bool passed_pawn(Bitboard bb, Square sq, Colour side) {
+		constexpr bool passed_pawn(Bitboard bb, Square sq, Colour side) {
             return !(bb & passed_masks[side][sq]);
         }
 
-        inline bool outpost(Bitboard enemy_pawns, Bitboard friendly_pawns, Square sq, Colour side) {
+        constexpr bool outpost(Bitboard enemy_pawns, Bitboard friendly_pawns, Square sq, Colour side) {
             return (Bitboards::pawn_attacks[other_side(side)][sq] & friendly_pawns) 
 				&& (outpost_masks[side] & sq) 
 				&& !(enemy_pawns & outpost_pawn_masks[side][sq]);
@@ -305,7 +305,7 @@ namespace Clovis {
 				score += evaluate_majors<US, ROOK,	false>(pos, pte);
 				score += evaluate_majors<US, QUEEN, false>(pos, pte);
 
-				// we dont count kings or pawns in n_att so the max should be 7
+				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(pte.n_att[US] < 10);
 				score += pte.weight[US] * pte.weight[US] / (10 - pte.n_att[US]);
 			}

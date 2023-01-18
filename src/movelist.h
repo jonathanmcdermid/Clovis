@@ -120,7 +120,7 @@ namespace Clovis {
                     }
                 }
 
-                if (CAPTURES)
+                if constexpr (CAPTURES)
                 {
                     Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bitboard[THEM];
 
@@ -157,7 +157,7 @@ namespace Clovis {
                     *moves++ = encode_move(KING_ORIGIN, KING_ORIGIN + WEST + WEST, OUR_KING, NO_PIECE, 0, 0, 0, 1);
             }
 
-			moves = generate_majors<T, M, KNIGHT,   US>(pos, moves);
+			moves = generate_majors<T, M, KNIGHT,	US>(pos, moves);
 			moves = generate_majors<T, M, BISHOP,   US>(pos, moves);
 			moves = generate_majors<T, M, ROOK,     US>(pos, moves);
 			moves = generate_majors<T, M, QUEEN,    US>(pos, moves);

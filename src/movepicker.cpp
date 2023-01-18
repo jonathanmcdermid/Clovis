@@ -10,22 +10,6 @@ namespace Clovis {
         Move counter_table[];
         Move killers[];
 
-        // initialize lookup tables and precalculated values
-        void init_movepicker()
-        {
-            /*for (int i = 0; i <= MAX_PLY; ++i)
-                history_bonus[i] = min(i * i, 400);
-
-			for (PieceType att = PAWN; att <= KING; ++att)
-            {
-                for (PieceType vic = PAWN; vic <= KING; ++vic)
-                {
-                    mvv_lva[make_piece(att, WHITE)][make_piece(vic, BLACK)] = ((vic - 1) << 3) - att + 6;
-                    mvv_lva[make_piece(att, BLACK)][make_piece(vic, WHITE)] = ((vic - 1) << 3) - att + 6;
-                }
-            }*/
-		}
-
 		// return the next ordered move
 		Move MovePicker::get_next(bool play_quiets)
 		{
@@ -134,7 +118,6 @@ namespace Clovis {
                     << int(move_enpassant(*sm)) << '\t'
                     << int(move_castling(*sm)) << '\t'
                     << sm->score << '\n';
-
             }
             cout << "\n\nTotal move count:" << count;
         }
