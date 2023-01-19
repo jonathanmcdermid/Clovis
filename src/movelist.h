@@ -64,20 +64,40 @@ namespace Clovis {
 			return moves;
 		}
 
-        // gen pseudo-legal moves for a position
-        template<typename T, MoveType M, Colour US>
-        T* generate_all(const Position& pos, T* moves)
-        {
-            constexpr bool QUIETS   = M != CAPTURE_MOVES;
+		template<typename T, MoveType M, Colour US, int TC>
+		T* generate_promotions(const Position& pos, T* moves, Square src, Square tar)
+		{
             constexpr bool CAPTURES = M != QUIET_MOVES;
+			constexpr bool QUIETS	= M != CAPTURE_MOVES;
 
-            constexpr Colour THEM = other_side(US);
-
-            constexpr Piece OUR_PAWN    = make_piece(PAWN, US);
+			constexpr Piece OUR_PAWN    = make_piece(PAWN, US);
             constexpr Piece OUR_KNIGHT  = make_piece(KNIGHT, US);
             constexpr Piece OUR_BISHOP  = make_piece(BISHOP, US);
             constexpr Piece OUR_ROOK    = make_piece(ROOK, US);
             constexpr Piece OUR_QUEEN   = make_piece(QUEEN, US);
+
+			if constexpr (CAPTURES)
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_QUEEN, TC, 0, 0, 0);
+			if constexpr (QUIETS)
+			{
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_KNIGHT, TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_BISHOP, TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_ROOK, TC, 0, 0, 0);
+			}
+
+			return moves;
+		}
+
+        // gen pseudo-legal moves for a position
+        template<typename T, MoveType M, Colour US>
+        T* generate_all(const Position& pos, T* moves)
+        {
+            constexpr bool CAPTURES = M != QUIET_MOVES;
+            constexpr bool QUIETS	= M != CAPTURE_MOVES;
+
+            constexpr Colour THEM = other_side(US);
+
+            constexpr Piece OUR_PAWN    = make_piece(PAWN, US);
             constexpr Piece OUR_KING    = make_piece(KING, US);
 
             constexpr Square KING_ORIGIN = relative_square(US, E1);
@@ -100,48 +120,46 @@ namespace Clovis {
                 Square src = pop_lsb(bb);
                 Square tar = src + PUSH;
 
-                if (QUIETS && is_valid(tar) && !(pos.occ_bitboard[BOTH] & tar))
-                {
-                    // promotion
-                    if (rank_of(src) == PROMO_RANK)
-                    {
-                        *moves++ = encode_move(src, tar, OUR_PAWN, OUR_KNIGHT, 0, 0, 0, 0);
-                        *moves++ = encode_move(src, tar, OUR_PAWN, OUR_BISHOP, 0, 0, 0, 0);
-                        *moves++ = encode_move(src, tar, OUR_PAWN, OUR_ROOK, 0, 0, 0, 0);
-                        *moves++ = encode_move(src, tar, OUR_PAWN, OUR_QUEEN, 0, 0, 0, 0);
+				if (rank_of(src) == PROMO_RANK)
+				{
+					Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bitboard[THEM];
+
+					if (!(pos.occ_bitboard[BOTH] & tar))
+						moves = generate_promotions<T, M, US, 0>(pos, moves, src, tar);
+
+					while (att) 
+					{
+						tar = pop_lsb(att);
+
+						moves = generate_promotions<T, M, US, 1>(pos, moves, src, tar);
+					}
+				}
+				else 
+				{
+					if (QUIETS && is_valid(tar) && !(pos.occ_bitboard[BOTH] & tar))
+				    {
+                            // single push
+                            *moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 0, 0, 0, 0);
+                            // double push
+                            if (rank_of(src) == SPAWN_RANK && !(pos.occ_bitboard[BOTH] & (tar + PUSH)))
+                                *moves++ = encode_move(src, tar + PUSH, OUR_PAWN, NO_PIECE, 0, 1, 0, 0);
                     }
-                    else
+
+                    if constexpr (CAPTURES)
                     {
-                        // single push
-                        *moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 0, 0, 0, 0);
-                        // double push
-                        if (rank_of(src) == SPAWN_RANK && !(pos.occ_bitboard[BOTH] & (tar + PUSH)))
-                            *moves++ = encode_move(src, tar + PUSH, OUR_PAWN, NO_PIECE, 0, 1, 0, 0);
-                    }
-                }
+                        Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bitboard[THEM];
 
-                if constexpr (CAPTURES)
-                {
-                    Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bitboard[THEM];
-
-                    while (att)
-                    {
-                        tar = pop_lsb(att);
-
-                        if (rank_of(src) == PROMO_RANK)
+                        while (att)
                         {
-                            *moves++ = encode_move(src, tar, OUR_PAWN, OUR_KNIGHT, 1, 0, 0, 0);
-                            *moves++ = encode_move(src, tar, OUR_PAWN, OUR_BISHOP, 1, 0, 0, 0);
-                            *moves++ = encode_move(src, tar, OUR_PAWN, OUR_ROOK, 1, 0, 0, 0);
-                            *moves++ = encode_move(src, tar, OUR_PAWN, OUR_QUEEN, 1, 0, 0, 0);
-                        }
-                        else
-                            *moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 1, 0, 0, 0);
-                    }
+                            tar = pop_lsb(att);
 
-                    if (pos.bs->enpassant != SQ_NONE && Bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
+                            *moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 1, 0, 0, 0);
+                        }
+
+                        if (pos.bs->enpassant != SQ_NONE && Bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
                             *moves++ = encode_move(src, pos.bs->enpassant, OUR_PAWN, NO_PIECE, 1, 0, 1, 0);
-                }
+                    }
+				}
             }
 
             if (QUIETS && !pos.is_attacked(KING_ORIGIN, THEM))

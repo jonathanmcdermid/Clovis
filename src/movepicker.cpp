@@ -28,7 +28,7 @@ namespace Clovis {
 			case WINNING_CAPTURES:
 				while (curr < last)
 				{
-					assert(move_capture(*curr));
+					assert(move_capture(*curr) || piece_type(move_promotion_type(*curr)) == QUEEN);
 					if (curr->move == tt_move)
 						++curr;
 					else if (pos.see(*curr) >= 0)
@@ -49,7 +49,7 @@ namespace Clovis {
 			case QUIETS:
 				while (play_quiets && curr < last)
 				{
-					assert(!move_capture(*curr));
+					assert(!move_capture(*curr) || piece_type(move_promotion_type(*curr)) != QUEEN);
 					if (*curr != tt_move)
 						return *curr++;
 					++curr;
