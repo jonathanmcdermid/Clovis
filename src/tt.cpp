@@ -1,5 +1,7 @@
 #include "tt.h"
 
+using namespace std;
+
 namespace Clovis {
 
     TTable tt; // global transpotision table
@@ -28,8 +30,8 @@ namespace Clovis {
     // empty transposition table
     void TTable::clear()
     {
-        std::memset(static_cast<void*>(ht), 0, tt_size * sizeof(Bucket));
-        std::memset(static_cast<void*>(pt), 0, pt_size * sizeof(PTEntry));
+        memset(static_cast<void*>(ht), 0, tt_size * sizeof(Bucket));
+        memset(static_cast<void*>(pt), 0, pt_size * sizeof(PTEntry));
     }
 
     // probe the table to see if an entry exists

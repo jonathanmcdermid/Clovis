@@ -20,7 +20,7 @@ namespace Clovis {
 			do {
 				if (argc == 1 && !getline(cin, cmd))
 					cmd = "quit";
-				std::istringstream is(cmd);
+				istringstream is(cmd);
 				token.clear();
 				is >> skipws >> token;
 				if (token == "quit" || token == "stop")	break;
