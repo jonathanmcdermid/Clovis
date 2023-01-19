@@ -255,19 +255,19 @@ namespace Clovis {
 
 				score += mobility[PT] * (popcnt(attacks & ~pos.occ_bitboard[US]));
 
-				if (PT == KNIGHT)
+				if constexpr (PT == KNIGHT)
 				{
 					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
 						score += knight_outpost_bonus;
 				}
-				else if (PT == BISHOP)
+				else if constexpr (PT == BISHOP)
 				{
 					if (outpost(pos.piece_bitboard[THEIR_PAWN], pos.piece_bitboard[OUR_PAWN], sq, US))
 						score += bishop_outpost_bonus;
 					if (bb)
 						score += bishop_pair_bonus;
 				}
-				else if (PT == ROOK)
+				else if constexpr (PT == ROOK)
 				{
 					if (!(file_masks[sq] & (pos.piece_bitboard[W_PAWN] | pos.piece_bitboard[B_PAWN])))
 						score += rook_open_file_bonus;
@@ -275,7 +275,7 @@ namespace Clovis {
 						score += rook_semi_open_file_bonus;
 				}
 
-				if (!SAFE)
+				if constexpr (!SAFE)
 				{
 					Bitboard or_att_bb = attacks & pte.zone[THEM].outer_ring;
 					Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;
