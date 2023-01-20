@@ -7,27 +7,45 @@ namespace Clovis {
     namespace Search {
 
         int lmr_table[MAX_PLY + 1][64];
-		int lmr_depth = 2;
-		int lmr_history_min = 2;
-		int lmr_history_max = 2;
-		int lmr_history_divisor = 4000;
-		int lmr_reduction = 2;
+		constexpr int lmr_depth = 2;
+		constexpr int lmr_history_min = 2;
+		constexpr int lmr_history_max = 2;
+		constexpr int lmr_history_divisor = 4000;
+		constexpr int lmr_reduction = 2;
 
-		int iid_table[MAX_PLY + 1][2];
-		int iid_depth[2] = { 5, 7 };
-		int iid_reduction[2] = { 5, 4 };
-		int iid_factor[2] = { 1, 4 };
-		int iid_divisor[2] = { 2, 4 };
-
-		int futility_reduction[MAX_PLY + 1];
-		int futility_factor = 75;
-		int futility_depth = 8;
-
-        int null_depth = 3;
-		int null_reduction = 3;
-
-        int asp_depth = 3;
-		int delta = 45;
+		constexpr int iid_table[2][MAX_PLY + 1] = {
+			 0, 
+			-1, -1,  0,  0,  0,  0,  0,  1, 
+			 1,  1,  2,  2,  2,  3,  3,  3, 
+			 4,  4,  4,  5,  5,  5,  6,  6, 
+			 6,  7,  7,  7,  8,  8,  8,  9, 
+			 9,  9, 10, 10, 10, 11, 11, 11, 
+			12, 12, 12, 13, 13, 13, 14, 14, 
+			14, 15, 15, 15, 16, 16, 16, 17, 
+			17, 17, 18, 18, 18, 19, 19, 19, 
+			 0, 
+			 0,  0,  1,  2,  3,  4,  4,  5, 
+			 6,  7,  8,  8,  9, 10, 11, 12, 
+			12, 13, 14, 15, 16, 16, 17, 18, 
+			19, 20, 20, 21, 22, 23, 24, 24, 
+			25, 26, 27, 28, 28, 29, 30, 31, 
+			32, 32, 33, 34, 35, 36, 36, 37, 
+			38, 39, 40, 40, 41, 42, 43, 44, 
+			44, 45, 46, 47, 48, 48, 49, 50,
+		};
+		constexpr int iid_depth[2] = { 5, 7 };
+		constexpr int iid_reduction[2] = { 5, 4 };
+		constexpr int iid_factor[2] = { 1, 4 };
+		constexpr int iid_divisor[2] = { 2, 4 };
+	
+		constexpr int futility_factor = 75;
+		constexpr int futility_depth = 8;
+        
+		constexpr int null_depth = 3;
+		constexpr int null_reduction = 3;
+        
+		constexpr int asp_depth = 3;
+		constexpr int delta = 45;
 
         bool stop;
 
@@ -45,10 +63,10 @@ namespace Clovis {
         {
             for (int depth = 1; depth <= MAX_PLY; ++depth)
 			{
-				futility_reduction[depth] = depth * futility_factor;
+				//futility_reduction[depth] = depth * futility_factor;
 
-				for (int i = 0; i < 2; ++i)
-					iid_table[depth][i] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
+				//for (int i = 0; i < 2; ++i)
+				//	iid_table[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
 
                 for (int ordered = 1; ordered < 64; ++ordered)
                     lmr_table[depth][ordered] = int(0.75 + log(depth) * log(ordered) / 2.25);
@@ -128,11 +146,9 @@ namespace Clovis {
                 {
                     best_eval = eval;
                     best_move = curr_move;
+                    // new best move found
                     if (eval > alpha)
-                    {
-                        // new best move found
                         alpha = eval;
-                    }
                 }
             }
 
@@ -204,7 +220,7 @@ namespace Clovis {
                 // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
                 if (!PV_NODE
                     && depth <= futility_depth
-                    && score - futility_reduction[depth] > beta)
+                    && score - depth * futility_factor > beta)
                     return score;
 
                 // null move pruning
@@ -223,7 +239,7 @@ namespace Clovis {
                 // internal iterative deepening
                 if (!tte && depth >= iid_depth[PV_NODE])
                 {
-                    negamax<N>(pos, alpha, beta, iid_table[depth][PV_NODE], ply, false, prev_move, nodes, lline);
+                    negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, lline);
                     tte = tt.probe(pos.bs->key);
                     if (tte)
                     {
