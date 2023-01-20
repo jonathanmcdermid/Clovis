@@ -105,7 +105,7 @@ namespace Clovis {
 			constexpr const Bitboard* MAGIC				= PT == BISHOP ? bishop_magic : rook_magic;
 			constexpr const int* RELEVANT_BITS			= PT == BISHOP ? bishop_rbits : rook_rbits;
 
-			assert(PT == BISHOP || PT == ROOK);
+			static_assert(PT == BISHOP || PT == ROOK);
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 			{

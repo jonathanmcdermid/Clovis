@@ -318,4 +318,7 @@ BASE_OPERATORS(Rank)
 BASE_OPERATORS(Direction)
 BASE_OPERATORS(Square)
 
+#undef INCR_OPERATORS
+#undef BASE_OPERATORS
+
 } // namespace Clovis
