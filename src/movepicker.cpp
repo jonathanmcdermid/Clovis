@@ -17,7 +17,7 @@ namespace Clovis {
 			{
 			case TT_MOVE:
 				++stage;
-				if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move)))
+				if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move)))
 					return tt_move;
 			case INIT_CAPTURES:
 				curr = end_bad_caps = moves;
@@ -93,8 +93,6 @@ namespace Clovis {
                     sm->score = 22000;
                 else if (*sm == killers[secondary_index])
                     sm->score = 21000;
-                else if (move_promotion_type(*sm))
-                    sm->score = 20000 + move_promotion_type(*sm);
                 else if (*sm == counter_move)
                     sm->score = 20000;
                 else

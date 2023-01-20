@@ -20,15 +20,15 @@ namespace Clovis {
 		extern Move killers[MAX_PLY << 1];
 
 		constexpr int history_bonus[MAX_PLY + 1] = {
-			  0, 
-			  1,   4,   9,  16,  25,  36,  49,  64, 
-			 81, 100, 121, 144, 169, 196, 225, 256, 
-			289, 324, 361, 400, 400, 400, 400, 400, 
-			400, 400, 400, 400, 400, 400, 400, 400, 
-			400, 400, 400, 400, 400, 400, 400, 400, 
-			400, 400, 400, 400, 400, 400, 400, 400, 
-			400, 400, 400, 400, 400, 400, 400, 400, 
-			400, 400, 400, 400, 400, 400, 400, 400,
+			    0, 
+               32,   128,   288,   512,   800,  1152,  1568,  2048, 
+             2592,  3200,  3872,  4608,  5408,  6272,  7200,  8192, 
+             9248, 10368, 11552, 12800, 12800, 12800, 12800, 12800, 
+            12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
+            12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
+            12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
+            12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
+            12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800,
 		};
 
         // MVV-LVA lookup table [attacker][victim]
@@ -100,7 +100,7 @@ namespace Clovis {
 
 		inline void update_history_entry(Move move, Colour side, int bonus) {
 			int* history_entry = get_history_entry_ptr(side, move);
-			*history_entry += (bonus << 5) - (*history_entry * abs(bonus) >> 9);
+			*history_entry += bonus - (*history_entry * abs(bonus) >> 14);
 		}
 
 		inline void update_counter_entry(Colour c, Move prev, Move curr) {
@@ -140,13 +140,13 @@ namespace Clovis {
 		{
 			ScoredMove* last_searched_quiet = HF == HASH_EXACT ? last : curr;
 
-			assert(!move_capture(best_move));
+			assert(!move_capture(best_move) || move_promotion_type(*sm));
 
 			update_history_entry(best_move, pos.side, history_bonus[depth]);
 
 			for (ScoredMove* sm = end_bad_caps; sm < last_searched_quiet; ++sm)
 			{
-				assert(!move_capture(*sm));
+				assert(!move_capture(*sm) || move_promotion_type(*sm));
 				if (*sm != best_move)
 					update_history_entry(*sm, pos.side, -history_bonus[depth]);
 			}
