@@ -11,7 +11,7 @@ namespace Clovis {
         Move killers[];
 
 		// return the next ordered move
-		Move MovePicker::get_next(bool play_quiets)
+		Move MovePicker::get_next()
 		{
 			switch (stage)
 			{
@@ -33,8 +33,10 @@ namespace Clovis {
 						++curr;
 					else if (pos.see(*curr) >= 0)
 						return *curr++;
-					else
+					else if (play_quiets)
 						*end_bad_caps++ = *curr++;
+					else
+						++curr;
 				}
 				++stage;
 			case INIT_QUIETS:
@@ -47,7 +49,7 @@ namespace Clovis {
 				}
 				++stage;
 			case QUIETS:
-				while (play_quiets && curr < last)
+				while (curr < last)
 				{
 					assert(!move_capture(*curr) || piece_type(move_promotion_type(*curr)) != QUEEN);
 					if (*curr != tt_move)

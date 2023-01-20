@@ -102,12 +102,12 @@ namespace Clovis {
 					alpha = eval;
 			}
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE, in_check);
             Move curr_move;
             Move best_move = MOVE_NONE;
             int best_eval = INT_MIN;
 
-            while ((curr_move = mp.get_next(in_check)) != MOVE_NONE && (in_check || mp.get_stage() != LOSING_CAPTURES))
+            while ((curr_move = mp.get_next()) != MOVE_NONE)
             {
                 // illegal move or non capture
                 if (!pos.do_move(curr_move))
@@ -234,7 +234,7 @@ namespace Clovis {
                 }
             }
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move, true);
 
             Move curr_move;
             Move best_move = MOVE_NONE;
@@ -248,7 +248,7 @@ namespace Clovis {
 
             HashFlag eval_type = HASH_ALPHA;
 
-            while ((curr_move = mp.get_next(true)) != MOVE_NONE)
+            while ((curr_move = mp.get_next()) != MOVE_NONE)
             {
                 // illegal move
                 if (!pos.do_move(curr_move))

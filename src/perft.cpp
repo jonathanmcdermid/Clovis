@@ -14,11 +14,11 @@ namespace Clovis {
 				return;
 			}
 
-			MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
+			MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE, true);
 
 			Move m;
 
-			while ((m = mp.get_next(true)) != MOVE_NONE)
+			while ((m = mp.get_next()) != MOVE_NONE)
 			{
 				if (!pos.do_move(m))
 					continue;

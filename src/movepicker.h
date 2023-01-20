@@ -116,13 +116,13 @@ namespace Clovis {
 
 		class MovePicker {
 		public:
-			MovePicker(const Position& pos, int ply, Move prev_move, Move tt_move) : pos(pos), ply(ply), tt_move(tt_move), prev_move(prev_move) {
+			MovePicker(const Position& pos, int ply, Move prev_move, Move tt_move, bool play_quiets) 
+				: pos(pos), ply(ply), tt_move(tt_move), prev_move(prev_move), play_quiets(play_quiets) {
 				curr = last = end_bad_caps = moves;
 				stage = TT_MOVE;
 			}
 			template<HashFlag HF> void update_history(Move best_move, int depth);
-			Move get_next(bool play_quiets);
-			int get_stage() const { return stage; }
+			Move get_next();
 			void print();
 		private:
 			void score_captures();
@@ -133,6 +133,7 @@ namespace Clovis {
 			ScoredMove moves[MAX_MOVES];
 			Move tt_move, prev_move;
 			int stage;
+			bool play_quiets;
 		};
 	
 		template<HashFlag HF>
