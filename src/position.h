@@ -48,7 +48,7 @@ namespace Clovis {
 		Bitboard attackers_to(Square sq) const;
 		Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
 		Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
-		int see(Move move) const;
+		bool see_ge(Move move, int threshold) const;
 		bool do_move(Move move);
 		void undo_move(Move move);
 		bool is_repeat() const;

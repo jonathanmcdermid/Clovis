@@ -180,11 +180,11 @@ namespace Clovis {
         }
     }
 
-    int Position::see(Move move) const
+    bool Position::see_ge(Move move, int threshold) const
     {
         // dont even bother
         if (move_promotion_type(move) || move_enpassant(move))
-            return 0;
+            return true;
 
         int gain[32], d = 0;
 
@@ -192,6 +192,7 @@ namespace Clovis {
         Square to = move_to_sq(move);
         Bitboard occ = occ_bitboard[BOTH];
         Bitboard attackers = attackers_to(to);
+
         Colour stm = side;
 
         gain[d] = piece_value[piece_board[to]];
@@ -202,7 +203,7 @@ namespace Clovis {
             assert(d < 32);
             gain[d] = piece_value[piece_board[from]] - gain[d - 1]; 
 
-            if (max(-gain[d - 1], gain[d]) < 0) 
+            if (max(-gain[d - 1], gain[d]) < threshold) 
                 break;
 
             attackers ^= from;
@@ -214,7 +215,7 @@ namespace Clovis {
         while (--d)
             gain[d - 1] = -max(-gain[d - 1], gain[d]);
 
-        return gain[0];
+        return gain[0] >= threshold;
     }
 
     // updates bitboards to represent a new piece on a square
