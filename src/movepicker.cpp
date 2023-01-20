@@ -31,7 +31,7 @@ namespace Clovis {
 					assert(move_capture(*curr) || piece_type(move_promotion_type(*curr)) == QUEEN);
 					if (curr->move == tt_move)
 						++curr;
-					else if (pos.see_ge(*curr, 0))
+					else if (pos.see_ge(*curr, -100))
 						return *curr++;
 					else if (play_quiets)
 						*end_bad_caps++ = *curr++;
