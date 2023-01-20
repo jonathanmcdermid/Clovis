@@ -204,7 +204,7 @@ namespace Clovis {
 		void init_eval();
 		void init_values();
 		
-		constexpr bool doubled_pawn(Bitboard bb, Square sq) {
+		inline bool doubled_pawn(Bitboard bb, Square sq) {
             return popcnt(bb & file_masks[sq]) >= 2;
         }
 

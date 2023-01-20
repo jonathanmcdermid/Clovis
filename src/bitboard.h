@@ -22,11 +22,11 @@ namespace Clovis {
 
 #if defined(__GNUC__)
 
-    constexpr int popcnt(Bitboard bb) {
+    inline int popcnt(Bitboard bb) {
         return __builtin_popcountll(bb);
     }
 
-    constexpr Square lsb(Bitboard bb) {
+    inline Square lsb(Bitboard bb) {
         assert(bb);
         return Square(__builtin_ctzll(bb));
     }
@@ -35,11 +35,11 @@ namespace Clovis {
 
 #ifdef _WIN64
 
-    constexpr int popcnt(Bitboard bb) {
+    inline int popcnt(Bitboard bb) {
         return __popcnt64(bb);
     }
 
-    constexpr Square lsb(Bitboard bb) {
+    inline Square lsb(Bitboard bb) {
         assert(bb);
         unsigned long pos;
         _BitScanForward64(&pos, bb);
@@ -48,11 +48,11 @@ namespace Clovis {
 
 #else
 
-    constexpr int popcnt(Bitboard bb) {
+    inline int popcnt(Bitboard bb) {
         return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
     }
 
-    constexpr Square lsb(Bitboard bb) {
+    inline Square lsb(Bitboard bb) {
         assert(bb);
         unsigned long pos;
 
