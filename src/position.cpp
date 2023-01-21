@@ -153,10 +153,10 @@ namespace Clovis {
     }
 
     // returns the piece type of the least valuable piece on a bitboard of attackers
-    Square Position::get_smallest_attacker(Bitboard attackers, Colour stm) const
+    Square Position::get_smallest_attacker(Bitboard attackers, const Colour stm) const
     {
         Bitboard bb;
-        for (Piece p = make_piece(PAWN, stm); p <= make_piece(KING, stm); ++p)
+        for (Piece p = make_piece(PAWN, stm); piece_type(p) <= KING; ++p)
             if ((bb = piece_bitboard[p] & attackers))
                 return lsb(bb);
         return SQ_NONE;

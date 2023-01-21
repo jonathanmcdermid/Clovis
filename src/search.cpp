@@ -398,12 +398,12 @@ namespace Clovis {
 
                     auto time = tm.get_time_elapsed();
 
-                    cout << "info depth " << setw(2) << depth
-                        << " score cp " << setw(4) << score
-                        << " nodes " << setw(8) << nodes
-                        << " time " << setw(6) << tm.get_time_elapsed()
-                        << " nps " << setw(8) << 1000ULL * nodes / (time + 1)
-                        << " pv " << pline.moves[0];
+                    cout << "info depth "   << setw(2) << depth
+                        << " score cp "     << setw(4) << score
+                        << " nodes "        << setw(8) << nodes
+                        << " time "         << setw(6) << tm.get_time_elapsed()
+                        << " nps "          << setw(8) << 1000ULL * nodes / (time + 1)
+                        << " pv "           << pline.moves[0];
 
                     cout << endl;
 
