@@ -417,6 +417,7 @@ namespace Clovis {
 			score += pte.score + evaluate_all<WHITE>(pos, pte) - evaluate_all<BLACK>(pos, pte);
 
 			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
+			
 			if (us == BLACK)
 				eval = -eval;
 

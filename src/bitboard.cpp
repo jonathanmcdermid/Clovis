@@ -89,6 +89,7 @@ namespace Clovis {
 			for (int i = 0; i < bits; ++i) 
 			{
 				Square sq = pop_lsb(attack_mask);
+				
 				if (index & (1 << i))
 					occ |= sq;
 			}

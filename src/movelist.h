@@ -28,7 +28,6 @@ namespace Clovis {
 		struct MoveList {
 			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves)) {}
 			int size() const { return (last - moves); }
-			void print();
 			const Move* begin() const { return moves; }
 			const Move* end() const { return last; }
 		private:
@@ -191,6 +190,41 @@ namespace Clovis {
                 ? generate_all<T, M, WHITE>(pos, moves)
                 : generate_all<T, M, BLACK>(pos, moves);
         }
+
+		template<typename T>
+		void print_moves(T* m, T* end) 
+		{
+			cout << "move\tpiece\tcapture\tdouble\tenpass\tcastle";
+
+			if constexpr (is_same<T, ScoredMove>())
+				cout << "\tscore";
+
+			cout << endl;
+
+            int count = 0;
+
+            while (m != end)
+            {
+                cout << move_from_sq(*m)
+                    << move_to_sq(*m)
+                    << piece_str[move_promotion_type(*m)]	<< '\t'
+                    << piece_str[move_piece_type(*m)]		<< '\t'
+                    << int(move_capture(*m))				<< '\t'
+                    << int(move_double(*m))					<< '\t'
+                    << int(move_enpassant(*m))				<< '\t'
+                    << int(move_castling(*m))				<< '\t';
+
+				if constexpr (is_same<T, ScoredMove>())
+					cout << m->score;
+
+				cout << endl;
+
+				++m;
+				++count;
+            }
+
+            cout << "Total move count:" << count << endl;
+		}
 
 	} // namespace MoveGen
 

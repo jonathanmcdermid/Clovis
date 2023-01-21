@@ -184,6 +184,7 @@ namespace Clovis {
             // if me have found a mate, no point in finding a longer mate
             alpha = max(alpha, - CHECKMATE_SCORE + ply);
             beta = min(beta, CHECKMATE_SCORE - ply + 1);
+
             if (alpha >= beta)
                 return alpha;
 
@@ -193,14 +194,14 @@ namespace Clovis {
             {
 				pline.last = pline.moves;
 				*pline.last++ = tte->move;
+
                 if (!PV_NODE
                     && tte->depth >= depth
                     && (tte->flags == HASH_EXACT
                         || (tte->flags == HASH_BETA && tte->eval >= beta)
                         || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
-                {
                     return tte->eval;
-                }
+
                 tt_move = tte->move;
             }
             else
@@ -232,6 +233,7 @@ namespace Clovis {
                     pos.do_move(MOVE_NULL);
                     score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, lline);
                     pos.undo_move(MOVE_NULL);
+
                     if (score >= beta)
                         return beta;
                 }
@@ -241,6 +243,7 @@ namespace Clovis {
                 {
                     negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, lline);
                     tte = tt.probe(pos.bs->key);
+
                     if (tte)
                     {
                         pline.last = pline.moves;
@@ -299,7 +302,8 @@ namespace Clovis {
                 }
                 else if (!PV_NODE || moves_searched > 1)
                     score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
-                if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
+                
+				if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
                     score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
 
                 pos.undo_move(curr_move);
@@ -326,11 +330,13 @@ namespace Clovis {
                 {
                     best_move = curr_move;
                     best_score = score;
-                    if (score > alpha)
+                    
+					if (score > alpha)
                     {
                         pline.last = pline.moves;
                         *pline.last++ = curr_move;
-                        for (const auto& m : lline)
+                        
+						for (const auto& m : lline)
                             *pline.last++ = m;
 
 						eval_type = HASH_EXACT;
@@ -388,7 +394,8 @@ namespace Clovis {
                         --depth;
                         continue;
                     }
-                    if (score >= beta)
+                    
+					if (score >= beta)
                     {
                         assert(depth > asp_depth);
                         beta = CHECKMATE_SCORE;

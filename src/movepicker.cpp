@@ -102,26 +102,6 @@ namespace Clovis {
             }
         }
 
-        void MovePicker::print()
-        {
-            cout << "move\tpiece\tcapture\tdouble\tenpass\tcastle\tscore" << endl;
-
-            int count = 0;
-            for (ScoredMove* sm = moves; sm != last; ++sm, ++count)
-            {
-                cout << move_from_sq(*sm)
-                    << move_to_sq(*sm)
-                    << piece_str[move_promotion_type(*sm)] << '\t'
-                    << piece_str[move_piece_type(*sm)] << '\t'
-                    << int(move_capture(*sm)) << '\t'
-                    << int(move_double(*sm)) << '\t'
-                    << int(move_enpassant(*sm)) << '\t'
-                    << int(move_castling(*sm)) << '\t'
-                    << sm->score << endl;
-            }
-            cout << "Total move count:" << count << endl;
-        }
-
 	} // namespace MovePick
 
 } // namespace Clovis

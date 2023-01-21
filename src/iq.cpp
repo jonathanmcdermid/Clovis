@@ -16,7 +16,9 @@ namespace Clovis {
 			{
 				if (ifs.eof())
 					break;
+				
 				getline(ifs, line);
+				
 				if (line.length())
 				{
 					size_t idx = line.find(",");
@@ -32,12 +34,12 @@ namespace Clovis {
 
 						switch(token[0])
 						{
-							case 'P': pt = PAWN; break;
-							case 'N': pt = KNIGHT; break;
-							case 'B': pt = BISHOP; break;
-							case 'R': pt = ROOK; break;
-							case 'Q': pt = QUEEN; break;
-							case 'K': pt = KING; break;
+							case 'P': pt = PAWN;	break;
+							case 'N': pt = KNIGHT;	break;
+							case 'B': pt = BISHOP;	break;
+							case 'R': pt = ROOK;	break;
+							case 'Q': pt = QUEEN;	break;
+							case 'K': pt = KING;	break;
 							default: exit(EXIT_FAILURE);
 						}
 
@@ -51,12 +53,14 @@ namespace Clovis {
 					iq.push_back(IQPosition(fen, moves));
 				}
 			}
+			
 			ifs.close();
 
 			Search::SearchLimits limits;
 			limits.time[WHITE] = 100000;
 			limits.time[BLACK] = 100000;
 			int passes = 0, fails = 0;
+			
 			for (auto& it : iq)
 			{
 				Position pos(it.fen.c_str());
@@ -65,6 +69,7 @@ namespace Clovis {
 				U64 nodes;
 				Search::start_search(pos, limits, best_move, ponder_move, score, nodes);
 				bool res = false;
+				
 				for(auto& move : it.moves)
 				{
 					if(move_to_sq(best_move) == move.to && piece_type(move_piece_type(best_move)) == move.pt)
@@ -73,6 +78,7 @@ namespace Clovis {
 						break;
 					}
 				}
+				
 				if(res)
 				{
 					cout << "PASS!" << endl;
@@ -83,6 +89,7 @@ namespace Clovis {
 					cout << "FAIL!" << endl;
 					++fails;
 				}
+				
 				cout << passes << " tests passed!" << endl
 					<< fails << " tests failed!" << endl;
 				Search::clear();

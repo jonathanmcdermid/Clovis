@@ -17,7 +17,9 @@ namespace Clovis {
 			{
 				if (ifs.eof())
 					break;
+
 				getline(ifs, line);
+				
 				if (line.length())
 				{
 					size_t idx = line.find("\"");
