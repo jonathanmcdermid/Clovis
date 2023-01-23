@@ -290,6 +290,11 @@ namespace Clovis {
 			
 			vector<short*> weights;
 			
+			weights.push_back(&Eval::virtual_king_m.mg);
+			weights.push_back(&Eval::virtual_king_m.eg);
+			weights.push_back(&Eval::virtual_king_b.mg);
+			weights.push_back(&Eval::virtual_king_b.eg);
+
 			weights.push_back(&Eval::king_full_open_penalty.mg);
 			weights.push_back(&Eval::king_full_open_penalty.eg);
 			weights.push_back(&Eval::king_semi_open_penalty.mg);
@@ -432,63 +437,68 @@ namespace Clovis {
 
 			cout << "Score double_pawn_penalty = S("
 				<< Eval::double_pawn_penalty.mg << ", "
-				<< Eval::double_pawn_penalty.eg << ");\n";
+				<< Eval::double_pawn_penalty.eg << ");" << endl;
 			cout << "Score isolated_pawn_penalty = S("
 				<< Eval::isolated_pawn_penalty.mg << ", "
-				<< Eval::isolated_pawn_penalty.eg << ");\n";
+				<< Eval::isolated_pawn_penalty.eg << ");" << endl;
 			cout << "Score bishop_pair_bonus = S("
 				<< Eval::bishop_pair_bonus.mg << ", "
-				<< Eval::bishop_pair_bonus.eg << ");\n";
+				<< Eval::bishop_pair_bonus.eg << ");" << endl;
 			cout << "Score rook_open_file_bonus = S("
 				<< Eval::rook_open_file_bonus.mg << ", "
-				<< Eval::rook_open_file_bonus.eg << ");\n";
+				<< Eval::rook_open_file_bonus.eg << ");" << endl;
 			cout << "Score rook_semi_open_file_bonus = S("
 				<< Eval::rook_semi_open_file_bonus.mg << ", "
-				<< Eval::rook_semi_open_file_bonus.eg << ");\n";
+				<< Eval::rook_semi_open_file_bonus.eg << ");" << endl;
 			cout << "Score tempo_bonus = S("
 				<< Eval::tempo_bonus.mg << ", "
-				<< Eval::tempo_bonus.eg << ");\n";
+				<< Eval::tempo_bonus.eg << ");" << endl;
 			cout << "Score king_full_open_penalty = S("
 				<< Eval::king_full_open_penalty.mg << ", "
-				<< Eval::king_full_open_penalty.eg << ");\n";
+				<< Eval::king_full_open_penalty.eg << ");" << endl;
 			cout << "Score king_semi_open_penalty = S("
 				<< Eval::king_semi_open_penalty.mg << ", "
-				<< Eval::king_semi_open_penalty.eg << ");\n";
+				<< Eval::king_semi_open_penalty.eg << ");" << endl;
 			cout << "Score king_adjacent_full_open_penalty = S("
 				<< Eval::king_adjacent_full_open_penalty.mg << ", "
-				<< Eval::king_adjacent_full_open_penalty.eg << ");\n";
+				<< Eval::king_adjacent_full_open_penalty.eg << ");" << endl;
 			cout << "Score king_adjacent_semi_open_penalty = S("
 				<< Eval::king_adjacent_semi_open_penalty.mg << ", "
-				<< Eval::king_adjacent_semi_open_penalty.eg << ");\n";
+				<< Eval::king_adjacent_semi_open_penalty.eg << ");" << endl;
 			cout << "Score knight_outpost_bonus = S("
 				<< Eval::knight_outpost_bonus.mg << ", "
-				<< Eval::knight_outpost_bonus.eg << ");\n";
+				<< Eval::knight_outpost_bonus.eg << ");" << endl;
 			cout << "Score bishop_outpost_bonus = S("
 				<< Eval::bishop_outpost_bonus.mg << ", "
-				<< Eval::bishop_outpost_bonus.eg << ");\n";
+				<< Eval::bishop_outpost_bonus.eg << ");" << endl;
 
-			cout << "Score mobility[7] = {";
+			cout << "Score mobility[] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
 				cout << " S("
 					<< Eval::mobility[i].mg << ", "
 					<< Eval::mobility[i].eg << "),";
 			}
-			cout << "};\n";
-			cout << "Score inner_ring_attack[7] = {";
+			cout << "};" << endl;
+			cout << "Score inner_ring_attack[] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
 				cout << " S("
 					<< Eval::inner_ring_attack[i].mg << ", "
 					<< Eval::inner_ring_attack[i].eg << "),";
 			}
-			cout << "};\n";
-			cout << "Score outer_ring_attack[7] = {";
+			cout << "};" << endl;
+			cout << "Score outer_ring_attack[] = {";
 			for (int i = NO_PIECE; i <= KING; ++i) {
 				cout << " S("
 					<< Eval::outer_ring_attack[i].mg << ", "
 					<< Eval::outer_ring_attack[i].eg << "),";
 			}
-			cout << "};\n";
-
+			cout << "};" << endl;	
+			cout << "Score virtual_king_m = S("
+					<< Eval::virtual_king_m.mg << ", "
+					<< Eval::virtual_king_m.eg << ");" << endl;
+			cout << "Score virtual_king_b = S("
+					<< Eval::virtual_king_b.mg << ", "
+					<< Eval::virtual_king_b.eg << ");" << endl;			
 		}
 
 	} // namespace Tuner

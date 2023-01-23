@@ -76,12 +76,12 @@ namespace Clovis {
             constexpr Piece OUR_QUEEN   = make_piece(QUEEN, US);
 
 			if constexpr (CAPTURES)
-				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_QUEEN, TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_QUEEN,	TC, 0, 0, 0);
 			if constexpr (QUIETS)
 			{
-				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_KNIGHT, TC, 0, 0, 0);
-				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_BISHOP, TC, 0, 0, 0);
-				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_ROOK, TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_KNIGHT,	TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_BISHOP,	TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_ROOK,	TC, 0, 0, 0);
 			}
 
 			return moves;

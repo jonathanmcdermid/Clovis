@@ -432,7 +432,7 @@ namespace Clovis {
     // prints the current position
     void Position::print_position() const
     {
-        cout << "+---+---+---+---+---+---+---+---+\n";
+        cout << "+---+---+---+---+---+---+---+---+" << endl;
         for (Rank r = RANK_8; r >= 0; --r)
         {
             for (File f = FILE_A; f < FILE_N; ++f)
@@ -446,7 +446,7 @@ namespace Clovis {
 
                 cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
             }
-            cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+" << endl;
+            cout << "|" << to_string(1 + r) << endl << "+---+---+---+---+---+---+---+---+" << endl;
         }
         cout << "  a   b   c   d   e   f   g   h" << endl
             << "Side:\t\t" 

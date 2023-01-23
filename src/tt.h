@@ -37,6 +37,7 @@ namespace Clovis {
     inline Score operator*(Score s1, int i)     { return Score(s1.mg * i, s1.eg * i); }
     inline Score operator*(Score s1, Score s2)  { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
     inline Score operator/(Score s1, int i)     { return Score(s1.mg / i, s1.eg / i); }
+    inline Score operator/(Score s1, Score s2)  { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
 
     struct KingZone {
         KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
@@ -77,33 +78,31 @@ namespace Clovis {
 			score = Score();
 			weight[WHITE] = Score();
 			weight[BLACK] = Score();
-			zone[WHITE].inner_ring = 0ULL;
-			zone[WHITE].outer_ring = 0ULL;
-			zone[BLACK].inner_ring = 0ULL;
-			zone[BLACK].outer_ring = 0ULL;
 			attacks[WHITE] = 0ULL;
 			attacks[BLACK] = 0ULL;
 			n_att[WHITE] = 0;
 			n_att[BLACK] = 0;
+			ksq[WHITE] = SQ_NONE;
+			ksq[BLACK] = SQ_NONE;
 		}
         void operator=(const PTEntry& rhs) {
             this->key = rhs.key;
             this->score = rhs.score;
             this->weight[WHITE] = rhs.weight[WHITE];
             this->weight[BLACK] = rhs.weight[BLACK];
-            this->zone[WHITE] = rhs.zone[WHITE];
-            this->zone[BLACK] = rhs.zone[BLACK];
             this->attacks[WHITE] = rhs.attacks[WHITE];
             this->attacks[BLACK] = rhs.attacks[BLACK];
             this->n_att[WHITE] = rhs.n_att[WHITE];
             this->n_att[BLACK] = rhs.n_att[BLACK];
+			this->ksq[WHITE] = rhs.ksq[WHITE];
+			this->ksq[BLACK] = rhs.ksq[BLACK];
         }
         Key key;
         Score score;
         Score weight[COLOUR_N];
-        KingZone zone[COLOUR_N];
         Bitboard attacks[COLOUR_N];
         int n_att[COLOUR_N];
+		Square ksq[COLOUR_N];
     };
 
 	class TTable {

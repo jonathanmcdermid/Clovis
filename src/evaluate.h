@@ -31,6 +31,8 @@ namespace Clovis {
 		extern Score king_semi_open_penalty;
 		extern Score king_adjacent_full_open_penalty;
 		extern Score king_adjacent_semi_open_penalty;
+		extern Score virtual_king_m;
+		extern Score virtual_king_b;
 
 		extern const Score* piece_table[7];
         extern const Score* score_table[15][SQ_N];
@@ -277,8 +279,8 @@ namespace Clovis {
 
 				if constexpr (!SAFE)
 				{
-					Bitboard or_att_bb = attacks & pte.zone[THEM].outer_ring;
-					Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;
+					Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
+					Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
 
 					if (or_att_bb || ir_att_bb)
 					{
@@ -294,8 +296,10 @@ namespace Clovis {
 		template<Colour US>
 		Score evaluate_all(const Position& pos, PTEntry& pte)
         {
+			constexpr Colour THEM = other_side(US);
 			constexpr Piece OUR_QUEEN = make_piece(QUEEN, US);
-        	
+			constexpr Piece OUR_PAWN = make_piece(PAWN, US);
+			
 			Score score;
 
 			if (pos.piece_bitboard[OUR_QUEEN])
@@ -307,6 +311,12 @@ namespace Clovis {
 
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(pte.n_att[US] < 10);
+
+				int virtual_mobility = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bitboard[THEM] ^ pos.piece_bitboard[OUR_PAWN], pte.ksq[THEM]) & ~pte.attacks[THEM]);
+
+				if (virtual_mobility > 4)
+					pte.weight[US] += virtual_king_m * min(13, virtual_mobility) - virtual_king_b;
+				
 				score += pte.weight[US] * pte.weight[US] / (10 - pte.n_att[US]);
 			}
 			else
@@ -352,13 +362,11 @@ namespace Clovis {
 
 				Bitboard attacks = Bitboards::pawn_attacks[US][sq];
 
-				Bitboard or_att_bb = attacks & pte.zone[THEM].outer_ring;
-				Bitboard ir_att_bb = attacks & pte.zone[THEM].inner_ring;
+				Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
+				Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
 
 				if (or_att_bb || ir_att_bb)
-				{
 					pte.weight[US] += inner_ring_attack[PAWN] * popcnt(ir_att_bb) + outer_ring_attack[PAWN] * popcnt(or_att_bb);
-				}
 
 				pte.attacks[US] |= attacks;
 			}
@@ -408,8 +416,8 @@ namespace Clovis {
 			{
 				pte.clear();
 				pte.key = pos.bs->pkey;
-				pte.zone[WHITE] = king_zones[lsb(pos.piece_bitboard[W_KING])];
-				pte.zone[BLACK] = king_zones[lsb(pos.piece_bitboard[B_KING])];
+				pte.ksq[WHITE] = lsb(pos.piece_bitboard[W_KING]);
+				pte.ksq[BLACK] = lsb(pos.piece_bitboard[B_KING]);
 				pte.score = evaluate_pawns<WHITE>(pos, pte) - evaluate_pawns<BLACK>(pos, pte);
 				tt.new_pawn_entry(pte);
 			}
