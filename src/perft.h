@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 
 #include "position.h"
 #include "movelist.h"

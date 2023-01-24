@@ -14,11 +14,12 @@ namespace Clovis {
 				return;
 			}
 
-			MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
+			//MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
 
-			Move m;
+			//Move m;
 
-			while ((m = mp.get_next(true)) != MOVE_NONE)
+			for (const auto& m : MoveGen::MoveList(pos))
+			//while ((m = mp.get_next(true)) != MOVE_NONE)
 			{
 				if (!pos.do_move(m))
 					continue;
@@ -71,6 +72,7 @@ namespace Clovis {
 
 			for (auto& it : pp) 
 			{
+				tm.set();
 				Position pos(it.s.c_str());
 				cout << "testing position " << it.s << endl;
 				for (size_t depth = 1; depth - 1 < it.nodes.size(); ++depth) 
@@ -80,8 +82,10 @@ namespace Clovis {
 					if (nodes != it.nodes[depth - 1])
 						failed = true;
 					cout << "depth " << depth
-						<< ": perft test " << (failed ? "FAIL! " : "PASS! ") 
-						<< "expected: " << it.nodes[depth - 1] << " result : " << nodes << endl;
+						<< (failed ? " FAIL! " : " PASS! ") 
+						<< "expected: " << setw(10) << it.nodes[depth - 1] 
+						<< " result: " << setw(10) << nodes
+						<< " time" << setw(7) << tm.get_time_elapsed() << endl;
 				}
 			}
 
