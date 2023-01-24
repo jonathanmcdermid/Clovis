@@ -9,13 +9,13 @@ namespace Clovis {
 	namespace IQ {
 
 		struct IQMove {
-			IQMove(PieceType pt, Square to) : pt(pt), to(to) {;}
+			IQMove(PieceType p, Square t) : pt(p), to(t) {;}
 			PieceType pt;
 			Square to;
 		};
 
 		struct IQPosition {
-			IQPosition(string fen, vector<IQMove> moves) : fen(fen), moves(moves) {;}
+			IQPosition(string f, vector<IQMove> m) : fen(f), moves(m) {;}
 			string fen;
 			vector<IQMove> moves;
 		};

@@ -51,8 +51,8 @@ namespace Clovis {
     {
         Bucket* b = ht + hash_index(key);
         (b->e1.depth <= depth) 
-            ? b->e1 = TTEntry(key, depth, eval, flags, move) 
-            : b->e2 = TTEntry(key, depth, eval, flags, move);
+            ? b->e1 = TTEntry(key, depth, flags, eval, move) 
+            : b->e2 = TTEntry(key, depth, flags, eval, move);
     }
 
     // probe the pawn table to see if an entry exists

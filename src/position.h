@@ -71,8 +71,8 @@ namespace Clovis {
 		Colour side;
 	};
 
-	inline bool Position::is_king_in_check(Colour side) const {
-		return is_attacked(lsb(piece_bitboard[make_piece(KING, side)]), other_side(side));
+	inline bool Position::is_king_in_check(Colour c) const {
+		return is_attacked(lsb(piece_bitboard[make_piece(KING, c)]), other_side(c));
 	}
 
 	inline bool Position::stm_has_promoted() const {

@@ -13,7 +13,7 @@ namespace Clovis {
     struct Score {
     public:
         Score() : mg(0), eg(0) {}
-        constexpr Score(int mg, int eg) : mg(mg), eg(eg) {}
+        constexpr Score(int m, int e) : mg(m), eg(e) {}
         void operator+=(const Score& rhs) {
             this->mg += rhs.mg;
             this->eg += rhs.eg;
@@ -41,7 +41,7 @@ namespace Clovis {
 
     struct KingZone {
         KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
-        constexpr KingZone(Bitboard outer_ring, Bitboard inner_ring) : outer_ring(outer_ring), inner_ring(inner_ring) { ; }
+        constexpr KingZone(Bitboard outer, Bitboard inner) : outer_ring(outer), inner_ring(inner) { ; }
         void operator=(const KingZone& rhs) {
             this->outer_ring = rhs.outer_ring;
             this->inner_ring = rhs.inner_ring;
@@ -51,7 +51,7 @@ namespace Clovis {
     };
 
 	struct TTEntry {
-        TTEntry(Key key = 0ULL, int depth = 0, int eval = 0, HashFlag flags = HASH_NONE, Move move = MOVE_NONE) : key(key), depth(depth), flags(flags), eval(eval), move(move) {};
+        TTEntry(Key k = 0ULL, int d = 0, HashFlag f = HASH_NONE, int e = 0, Move m = MOVE_NONE) : key(k), depth(d), flags(f), eval(e), move(m) {};
         void operator=(const TTEntry& rhs){
             key = rhs.key;
             depth = rhs.depth;
@@ -84,19 +84,7 @@ namespace Clovis {
 			n_att[BLACK] = 0;
 			ksq[WHITE] = SQ_NONE;
 			ksq[BLACK] = SQ_NONE;
-		}
-        void operator=(const PTEntry& rhs) {
-            this->key = rhs.key;
-            this->score = rhs.score;
-            this->weight[WHITE] = rhs.weight[WHITE];
-            this->weight[BLACK] = rhs.weight[BLACK];
-            this->attacks[WHITE] = rhs.attacks[WHITE];
-            this->attacks[BLACK] = rhs.attacks[BLACK];
-            this->n_att[WHITE] = rhs.n_att[WHITE];
-            this->n_att[BLACK] = rhs.n_att[BLACK];
-			this->ksq[WHITE] = rhs.ksq[WHITE];
-			this->ksq[BLACK] = rhs.ksq[BLACK];
-        }
+		} 
         Key key;
         Score score;
         Score weight[COLOUR_N];

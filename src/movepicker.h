@@ -116,8 +116,8 @@ namespace Clovis {
 
 		class MovePicker {
 		public:
-			MovePicker(const Position& pos, int ply, Move prev_move, Move tt_move) 
-				: pos(pos), ply(ply), tt_move(tt_move), prev_move(prev_move) {
+			MovePicker(const Position& p, int pl, Move pm, Move ttm) 
+				: pos(p), ply(pl), prev_move(pm), tt_move(ttm) {
 				curr = last = end_bad_caps = moves;
 				stage = TT_MOVE;
 			}
@@ -131,7 +131,7 @@ namespace Clovis {
 			int ply;
 			ScoredMove* curr, *last, *end_bad_caps;
 			ScoredMove moves[MAX_MOVES];
-			Move tt_move, prev_move;
+			Move prev_move, tt_move;
 			int stage;
 		};
 	

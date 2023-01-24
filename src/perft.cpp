@@ -73,19 +73,19 @@ namespace Clovis {
 			for (auto& it : pp) 
 			{
 				tm.set();
-				Position pos(it.s.c_str());
-				cout << "testing position " << it.s << endl;
+				Position pos(it.fen.c_str());
+				cout << "testing position " << it.fen << endl;
 				for (size_t depth = 1; depth - 1 < it.nodes.size(); ++depth) 
 				{
 					nodes = 0;
 					perft(pos, depth, nodes);
 					if (nodes != it.nodes[depth - 1])
 						failed = true;
-					cout << "depth " << depth
+					cout << "depth: " << depth
 						<< (failed ? " FAIL! " : " PASS! ") 
-						<< "expected: " << setw(10) << it.nodes[depth - 1] 
-						<< " result: " << setw(10) << nodes
-						<< " time" << setw(7) << tm.get_time_elapsed() << endl;
+						<< "expected: "	<< setw(10) << it.nodes[depth - 1] 
+						<< " result: "  << setw(10) << nodes
+						<< " time:"      << setw(7)  << tm.get_time_elapsed() << endl;
 				}
 			}
 

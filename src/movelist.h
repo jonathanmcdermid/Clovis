@@ -13,7 +13,7 @@ namespace Clovis {
 	struct ScoredMove {
 		Move move = MOVE_NONE;
 		int score = 0;
-		void operator=(Move move) { this->move = move; }
+		void operator=(Move m) { this->move = m; }
 		operator Move() const { return move; }
 	};
 
@@ -64,7 +64,7 @@ namespace Clovis {
 		}
 
 		template<typename T, MoveType M, Colour US, int TC>
-		T* generate_promotions(const Position& pos, T* moves, Square src, Square tar)
+		T* generate_promotions(T* moves, Square src, Square tar)
 		{
             constexpr bool CAPTURES = M != QUIET_MOVES;
 			constexpr bool QUIETS	= M != CAPTURE_MOVES;
@@ -124,13 +124,13 @@ namespace Clovis {
 					Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bitboard[THEM];
 
 					if (!(pos.occ_bitboard[BOTH] & tar))
-						moves = generate_promotions<T, M, US, 0>(pos, moves, src, tar);
+						moves = generate_promotions<T, M, US, 0>(moves, src, tar);
 
 					while (att) 
 					{
 						tar = pop_lsb(att);
 
-						moves = generate_promotions<T, M, US, 1>(pos, moves, src, tar);
+						moves = generate_promotions<T, M, US, 1>(moves, src, tar);
 					}
 				}
 				else 

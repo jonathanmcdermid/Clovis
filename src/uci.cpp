@@ -17,6 +17,9 @@ namespace Clovis {
 			string token;
 			string cmd;
 
+			for (int i = 0; i < argc; ++i)
+				cmd += string(argv[i]) + " ";
+
 			do {
 				if (argc == 1 && !getline(cin, cmd))
 					cmd = "quit";

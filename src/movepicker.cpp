@@ -19,12 +19,14 @@ namespace Clovis {
 				++stage;
 				if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move)))
 					return tt_move;
+				[[fallthrough]];
 			case INIT_CAPTURES:
 				curr = end_bad_caps = moves;
 				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves);
 				score_captures();
 				sort(moves, last, sm_score_comp);
 				++stage;
+				[[fallthrough]];
 			case WINNING_CAPTURES:
 				while (curr < last)
 				{
@@ -39,6 +41,7 @@ namespace Clovis {
 						++curr;
 				}
 				++stage;
+				[[fallthrough]];
 			case INIT_QUIETS:
 				if (play_quiets)
 				{
@@ -48,6 +51,7 @@ namespace Clovis {
 					sort(end_bad_caps, last, sm_score_comp);
 				}
 				++stage;
+				[[fallthrough]];
 			case QUIETS:
 				while (play_quiets && curr < last)
 				{
@@ -58,6 +62,7 @@ namespace Clovis {
 				}
 				curr = moves;
 				++stage;
+				[[fallthrough]];
 			case LOSING_CAPTURES:
 				while (play_quiets && curr < end_bad_caps)
 				{
@@ -67,7 +72,7 @@ namespace Clovis {
 					++curr;
 				}
 				++stage;
-				break;
+				[[fallthrough]];
 			default:
 				break;
 			}
