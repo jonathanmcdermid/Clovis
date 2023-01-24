@@ -2,7 +2,7 @@ EXE=Clovis
 BUILD_DIR=build
 SRC_DIR=src
 
-CXXFLAGS=-std=c++17 -O3 -Wall -Werror
+CXXFLAGS=-std=c++17 -O3 -Wall -Werror -Wextra -Wshadow -pedantic -flto
 
 SRC_FILES = $(shell find $(SRC_DIR) -name *.cpp)
 OBJ_FILES = $(SRC_FILES:%.cpp=$(BUILD_DIR)/%.o)
