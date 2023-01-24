@@ -120,12 +120,12 @@ namespace Clovis {
 					alpha = eval;
 			}
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE, in_check);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
             Move curr_move;
             Move best_move = MOVE_NONE;
             int best_eval = INT_MIN;
 
-            while ((curr_move = mp.get_next()) != MOVE_NONE)
+            while ((curr_move = mp.get_next(in_check)) != MOVE_NONE)
             {
                 // illegal move or non capture
                 if (!pos.do_move(curr_move))
@@ -253,7 +253,7 @@ namespace Clovis {
                 }
             }
 
-            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move, true);
+            MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move);
 
             Move curr_move;
             Move best_move = MOVE_NONE;
@@ -267,7 +267,9 @@ namespace Clovis {
 
             HashFlag eval_type = HASH_ALPHA;
 
-            while ((curr_move = mp.get_next()) != MOVE_NONE)
+			bool move_count_pruning = true;
+
+            while ((curr_move = mp.get_next(move_count_pruning)) != MOVE_NONE)
             {
                 // illegal move
                 if (!pos.do_move(curr_move))
@@ -345,6 +347,8 @@ namespace Clovis {
                         alpha = score;
                     }
                 }
+
+                move_count_pruning = moves_searched < 4 + depth * depth;
             }
 
             // no legal moves
