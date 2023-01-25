@@ -161,16 +161,16 @@ namespace Clovis {
 				}
             }
 
-            if (QUIETS && !pos.is_attacked(KING_ORIGIN, THEM))
+            if (QUIETS && !pos.is_attacked<US>(KING_ORIGIN))
             {
                 if (pos.bs->castle & KS_CASTLE
                     && !(pos.occ_bb[BOTH] & KS_CASTLE_OCC)
-                    && !pos.is_attacked(KING_ORIGIN + EAST, THEM))
+                    && !pos.is_attacked<US>(KING_ORIGIN + EAST))
                     *moves++ = encode_move(KING_ORIGIN, KING_ORIGIN + EAST + EAST, OUR_KING, NO_PIECE, 0, 0, 0, 1);
 
                 if (pos.bs->castle & QS_CASTLE
                     && !(pos.occ_bb[BOTH] & QS_CASTLE_OCC)
-                    && !pos.is_attacked(KING_ORIGIN + WEST, THEM))
+                    && !pos.is_attacked<US>(KING_ORIGIN + WEST))
                     *moves++ = encode_move(KING_ORIGIN, KING_ORIGIN + WEST + WEST, OUR_KING, NO_PIECE, 0, 0, 0, 1);
             }
 

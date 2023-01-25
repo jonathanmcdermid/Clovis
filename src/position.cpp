@@ -74,7 +74,7 @@ namespace Clovis {
 
         while ((ss >> token) && !isspace(token)) 
         {
-            if (token == 'K') bs->castle |= WHITE_KS;
+            if      (token == 'K') bs->castle |= WHITE_KS;
             else if (token == 'Q') bs->castle |= WHITE_QS;
             else if (token == 'k') bs->castle |= BLACK_KS;
             else if (token == 'q') bs->castle |= BLACK_QS;
@@ -133,17 +133,6 @@ namespace Clovis {
         }
 
         return k;
-    }
-
-    // returns whether or not a square is attacked by a particular side
-    bool Position::is_attacked(Square sq, Colour s) const
-    {
-        return ((pc_bb[make_piece(PAWN, s)]  & Bitboards::pawn_attacks[!s][sq]) 
-            || (pc_bb[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) 
-            || (pc_bb[make_piece(BISHOP, s)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) 
-            || (pc_bb[make_piece(ROOK, s)]   & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) 
-            || (pc_bb[make_piece(QUEEN, s)]  & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) 
-            || (pc_bb[make_piece(KING, s)]   & Bitboards::king_attacks[sq]));
     }
 
     Bitboard Position::attackers_to(Square sq) const 
