@@ -34,8 +34,8 @@ namespace Clovis {
 		    U64 total_nodes = 0ULL;
 			TimePoint total_time = 0ULL;
 		
-		    int depth	= argc > 2 ? atoi(argv[2]) : DEFAULT_BENCH_DEPTH;
-			int mb		= argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
+		    int depth = argc > 2 ? atoi(argv[2]) : DEFAULT_BENCH_DEPTH;
+			int mb    = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
 
 		    tt.resize(mb);
 		    tm.set();
@@ -57,15 +57,14 @@ namespace Clovis {
 		
 		    for (auto& it : bm) 
 			{
-				cout << "score cp: "<< setw(4) << it.score
-					<< " best: "	<< setw(4) << it.best_move 
-					<< " ponder: "	<< setw(4) << it.ponder_move
-					<< " nodes: "	<< setw(7) << it.nodes
-					<< " nps: "		<< setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
+				cout << "score cp: " << setw(4) << it.score
+					 << " best: "	 << setw(4) << it.best_move 
+					 << " ponder: "	 << setw(4) << it.ponder_move
+					 << " nodes: "	 << setw(7) << it.nodes
+					 << " nps: "	 << setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
 		    }
 
-			cout << total_nodes << " nodes "
-				<< 1000ULL * total_nodes / (total_time + 1) << " nps " << total_time << " ms" << endl;
+			cout << total_nodes << " nodes " << 1000ULL * total_nodes / (total_time + 1) << " nps " << total_time << " ms" << endl;
 
 			return total_time;
 		}

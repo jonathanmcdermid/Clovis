@@ -67,9 +67,11 @@ namespace Clovis {
                 ++sq;
             }
         }
+
         ss >> token;
         side = (token == 'w' ? WHITE : BLACK);
         ss >> token;
+
         while ((ss >> token) && !isspace(token)) 
         {
             if (token == 'K') bs->castle |= WHITE_KS;
@@ -78,7 +80,9 @@ namespace Clovis {
             else if (token == 'q') bs->castle |= BLACK_QS;
             else continue;
         }
+
         ss >> token;
+
         if (token != '-') 
         {
             File f = File(token - 'a');
@@ -87,6 +91,7 @@ namespace Clovis {
             bs->enpassant = make_square(f, r);
         }
         else bs->enpassant = SQ_NONE;
+
         ss >> skipws >> bs->hmc >> bs->fmc;
         bs->key = make_key();
         bs->pkey = make_pawn_key();
@@ -99,7 +104,8 @@ namespace Clovis {
 
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) 
         {
-            Piece p = piece_board[sq];
+            Piece p = pc_table[sq];
+
             if (p != NO_PIECE)
                 k ^= Zobrist::piece_square[p][sq];
         }
@@ -121,7 +127,7 @@ namespace Clovis {
 
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
         {
-            Piece p = piece_board[sq];
+            Piece p = pc_table[sq];
             if (piece_type(p) == PAWN || piece_type(p) == KING)
                 k ^= Zobrist::piece_square[p][sq];
         }
@@ -132,31 +138,33 @@ namespace Clovis {
     // returns whether or not a square is attacked by a particular side
     bool Position::is_attacked(Square sq, Colour s) const
     {
-        return ((piece_bb[make_piece(PAWN, s)]  & Bitboards::pawn_attacks[!s][sq]) 
-            || (piece_bb[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) 
-            || (piece_bb[make_piece(BISHOP, s)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) 
-            || (piece_bb[make_piece(ROOK, s)]   & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) 
-            || (piece_bb[make_piece(QUEEN, s)]  & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) 
-            || (piece_bb[make_piece(KING, s)]   & Bitboards::king_attacks[sq]));
+        return ((pc_bb[make_piece(PAWN, s)]  & Bitboards::pawn_attacks[!s][sq]) 
+            || (pc_bb[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) 
+            || (pc_bb[make_piece(BISHOP, s)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) 
+            || (pc_bb[make_piece(ROOK, s)]   & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) 
+            || (pc_bb[make_piece(QUEEN, s)]  & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) 
+            || (pc_bb[make_piece(KING, s)]   & Bitboards::king_attacks[sq]));
     }
 
     Bitboard Position::attackers_to(Square sq) const 
     {
-        return  (Bitboards::pawn_attacks[BLACK][sq] & piece_bb[W_PAWN]) 
-              | (Bitboards::pawn_attacks[WHITE][sq] & piece_bb[B_PAWN]) 
-              | (Bitboards::knight_attacks[sq] & (piece_bb[W_KNIGHT] | piece_bb[B_KNIGHT])) 
-              | (Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq) & (piece_bb[W_ROOK] | piece_bb[B_ROOK] | piece_bb[W_QUEEN] | piece_bb[B_QUEEN])) 
-              | (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)  & (piece_bb[W_BISHOP] | piece_bb[B_BISHOP] | piece_bb[W_QUEEN] | piece_bb[B_QUEEN])) 
-              | (Bitboards::king_attacks[sq] & (piece_bb[W_KING] | piece_bb[B_KING]));
+        return  (Bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN]) 
+              | (Bitboards::pawn_attacks[WHITE][sq] &  pc_bb[B_PAWN]) 
+              | (Bitboards::knight_attacks[sq]      & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT])) 
+              | (Bitboards::king_attacks[sq]        & (pc_bb[W_KING]   | pc_bb[B_KING]))
+              | (Bitboards::get_attacks<ROOK>  (occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK]))
+              | (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
     }
 
     // returns the piece type of the least valuable piece on a bitboard of attackers
     Square Position::get_smallest_attacker(Bitboard attackers, const Colour stm) const
     {
         Bitboard bb;
+        
         for (Piece p = make_piece(PAWN, stm); piece_type(p) <= KING; ++p)
-            if ((bb = piece_bb[p] & attackers))
+            if ((bb = pc_bb[p] & attackers))
                 return lsb(bb);
+        
         return SQ_NONE;
     }
 
@@ -167,12 +175,12 @@ namespace Clovis {
         {
         case PAWN:
         case BISHOP:
-            return occ & (Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_BISHOP] | piece_bb[B_BISHOP]));
+            return occ & (Bitboards::get_attacks<BISHOP> (occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
         case ROOK:
-            return occ & (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_ROOK] | piece_bb[B_ROOK]));
+            return occ & (Bitboards::get_attacks<ROOK>   (occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK]   | pc_bb[B_ROOK]));
         case QUEEN:
-            return occ & ((Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_BISHOP] | piece_bb[B_BISHOP]))
-                | (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_ROOK] | piece_bb[B_ROOK])));
+            return occ & ((Bitboards::get_attacks<BISHOP>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
+                       |  (Bitboards::get_attacks<ROOK>  (occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK]   | pc_bb[B_ROOK])));
         default:
             return 0ULL;
         }
@@ -193,20 +201,20 @@ namespace Clovis {
 
         Colour stm = side;
 
-        gain[d] = piece_value[piece_board[to]];
+        gain[d] = piece_value[pc_table[to]];
 
         do {
             stm = other_side(stm);
             d++;
             assert(d < 32);
-            gain[d] = piece_value[piece_board[from]] - gain[d - 1]; 
+            gain[d] = piece_value[pc_table[from]] - gain[d - 1]; 
 
             if (max(-gain[d - 1], gain[d]) < threshold) 
                 break;
 
             attackers ^= from;
             occ ^= from;
-            attackers |= consider_xray(occ, to, piece_type(piece_board[from]));
+            attackers |= consider_xray(occ, to, piece_type(pc_table[from]));
             from = get_smallest_attacker(attackers, stm);
         } while (from != SQ_NONE);
 
@@ -220,29 +228,29 @@ namespace Clovis {
     // does not remove info if a piece was already on that square
 	void Position::put_piece(Piece pc, Square sq) 
 	{
-        assert(!(piece_bb[pc] & sq));
+        assert(!(pc_bb[pc] & sq));
         assert(!(occ_bb[get_side(pc)] & sq));
         assert(!(occ_bb[BOTH] & sq));
 
-        piece_bb[pc] |= sq;
+        pc_bb[pc] |= sq;
         occ_bb[get_side(pc)] |= sq;
         occ_bb[BOTH] |= sq;
-        piece_board[sq] = pc;
+        pc_table[sq] = pc;
 	}
 
     // updates bitboards to represent a piece being removed from a square
     void Position::remove_piece(Square sq)
     {
-        Piece pc = piece_board[sq];
+        Piece pc = pc_table[sq];
 
-        assert(piece_bb[pc] & sq);
+        assert(pc_bb[pc] & sq);
         assert(occ_bb[get_side(pc)] & sq);
         assert(occ_bb[BOTH] & sq);
 
-        piece_bb[pc] ^= sq;
+        pc_bb[pc] ^= sq;
         occ_bb[get_side(pc)] ^= sq;
         occ_bb[BOTH] ^= sq;
-        piece_board[sq] = NO_PIECE;
+        pc_table[sq] = NO_PIECE;
     }
 
     // executes a move and updates the position
@@ -280,19 +288,19 @@ namespace Clovis {
         else
         {
             assert(get_side(move_piece_type(move)) == side);
-            assert(get_side(piece_board[src]) == side);
-            assert(piece_board[tar] == NO_PIECE || get_side(piece_board[tar]) != side);
-            assert(piece_type(piece_board[tar]) != KING);
+            assert(get_side(pc_table[src]) == side);
+            assert(pc_table[tar] == NO_PIECE || get_side(pc_table[tar]) != side);
+            assert(piece_type(pc_table[tar]) != KING);
 
             // move piece
-            bs->captured_piece = piece_board[tar];
+            bs->captured_piece = pc_table[tar];
 
             if (move_castling(move))
             {
                 Square rt, rf;
                 get_castle_rook_squares(tar, rf, rt);
-                bs->key ^= Zobrist::piece_square[piece_board[rf]][rf];
-                bs->key ^= Zobrist::piece_square[piece_board[rf]][rt];
+                bs->key ^= Zobrist::piece_square[pc_table[rf]][rf];
+                bs->key ^= Zobrist::piece_square[pc_table[rf]][rt];
                 remove_piece(rf);
                 put_piece(make_piece(ROOK, side), rt);
             }
@@ -309,7 +317,7 @@ namespace Clovis {
                 {
                     Square victim_sq = tar - pawn_push(side);
                     bs->captured_piece = make_piece(PAWN, other_side(side));
-                    bs->key ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
+                    bs->key  ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
                     bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
                     remove_piece(victim_sq);
                 }
@@ -317,7 +325,8 @@ namespace Clovis {
                 {
                     if (piece_type(bs->captured_piece) == PAWN)
                         bs->pkey ^= Zobrist::piece_square[bs->captured_piece][tar];
-                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+
+                    bs->key ^= Zobrist::piece_square[pc_table[tar]][tar];
                     remove_piece(tar);
                 }
                 bs->game_phase -= game_phase_inc[bs->captured_piece];
@@ -325,8 +334,8 @@ namespace Clovis {
             }
 
             put_piece(piece, tar);
-            bs->key ^= Zobrist::piece_square[piece_board[src]][src];
-            bs->key ^= Zobrist::piece_square[piece_board[src]][tar];
+            bs->key ^= Zobrist::piece_square[pc_table[src]][src];
+            bs->key ^= Zobrist::piece_square[pc_table[src]][tar];
             remove_piece(src);
 
             if (bs->enpassant != SQ_NONE)
@@ -344,11 +353,11 @@ namespace Clovis {
                 }
                 else if (move_promotion_type(move))
                 {
-                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    bs->key  ^= Zobrist::piece_square[pc_table[tar]][tar];
                     bs->pkey ^= Zobrist::piece_square[piece][tar];
                     remove_piece(tar);
                     put_piece(move_promotion_type(move), tar);
-                    bs->key ^= Zobrist::piece_square[piece_board[tar]][tar];
+                    bs->key ^= Zobrist::piece_square[pc_table[tar]][tar];
                     bs->game_phase -= game_phase_inc[PAWN];
                     bs->game_phase += game_phase_inc[move_promotion_type(move)];
                 }
@@ -397,12 +406,7 @@ namespace Clovis {
             }
 
             if (move_capture(move))
-            {
-                if (move_enpassant(move))
-                    put_piece(bs->captured_piece, tar - pawn_push(side));
-                else
-                    put_piece(bs->captured_piece, tar);
-            }
+                put_piece(bs->captured_piece, move_enpassant(move) ? tar - pawn_push(side) : tar);
         }
 
         assert(bs->prev);
@@ -431,21 +435,23 @@ namespace Clovis {
     void Position::print_position() const
     {
         cout << "+---+---+---+---+---+---+---+---+" << endl;
+
         for (Rank r = RANK_8; r >= 0; --r)
         {
             for (File f = FILE_A; f < FILE_N; ++f)
             {
                 Square sq = make_square(f, r);
-
                 int bb_piece;
+
                 for (bb_piece = W_PAWN; bb_piece <= B_KING; ++bb_piece)
-                    if (piece_bb[bb_piece] & sq)
+                    if (pc_bb[bb_piece] & sq)
                         break;
 
                 cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
             }
             cout << "|" << to_string(1 + r) << endl << "+---+---+---+---+---+---+---+---+" << endl;
         }
+
         cout << "  a   b   c   d   e   f   g   h" << endl
             << "Side:\t\t" 
             << (side == WHITE ? "white" : "black") << endl
@@ -466,7 +472,7 @@ namespace Clovis {
         // there is a gap in value between W_KING AND B_PAWN
         // therefore some of the bitboards printed are empty
         cout << "Printing Bitboards\n";
-        for (auto it : piece_bb)
+        for (auto it : pc_bb)
             Bitboards::print_bitboard(it);
         for (auto it : occ_bb)
             Bitboards::print_bitboard(it);

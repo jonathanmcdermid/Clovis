@@ -96,7 +96,7 @@ namespace Clovis {
 
             if (!PV_NODE && tte &&
                 (tte->flags == HASH_EXACT
-                    || (tte->flags == HASH_BETA && tte->eval >= beta)
+                    || (tte->flags == HASH_BETA  && tte->eval >= beta)
                     || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
                 return tte->eval;
 
@@ -167,7 +167,7 @@ namespace Clovis {
         int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline)
         {
             constexpr bool ROOT_NODE = N == NODE_ROOT;
-            constexpr bool PV_NODE = N != NODE_NON_PV;
+            constexpr bool PV_NODE   = N != NODE_NON_PV;
 
             assert(PV_NODE || (alpha == beta - 1));
 
@@ -189,13 +189,14 @@ namespace Clovis {
             // mate distance pruning
             // if me have found a mate, no point in finding a longer mate
             alpha = max(alpha, - CHECKMATE_SCORE + ply);
-            beta = min(beta, CHECKMATE_SCORE - ply + 1);
+            beta  = min(beta,    CHECKMATE_SCORE - ply + 1);
 
             if (alpha >= beta)
                 return alpha;
 
             TTEntry* tte = tt.probe(pos.bs->key);
             Move tt_move;
+
             if (tte)
             {
 				pline.last = pline.moves;
@@ -204,7 +205,7 @@ namespace Clovis {
                 if (!PV_NODE
                     && tte->depth >= depth
                     && (tte->flags == HASH_EXACT
-                        || (tte->flags == HASH_BETA && tte->eval >= beta)
+                        || (tte->flags == HASH_BETA  && tte->eval >= beta)
                         || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
                     return tte->eval;
 
@@ -363,7 +364,7 @@ namespace Clovis {
 
             tt.new_entry(pos.bs->key, depth, best_score, eval_type, best_move);
 
-            if(eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
+            if (eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
                 mp.update_history<HASH_EXACT>(best_move, depth);
 
             return alpha;
@@ -376,8 +377,8 @@ namespace Clovis {
             allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side] / (lim.moves_left + 5);
             tm.set();
 
-            int alpha = -CHECKMATE_SCORE;
-            int beta = CHECKMATE_SCORE;
+            int alpha = - CHECKMATE_SCORE;
+            int beta  =   CHECKMATE_SCORE;
 			Line pline;
 
 			TTEntry* tte;
@@ -415,12 +416,12 @@ namespace Clovis {
 
                     auto time = tm.get_time_elapsed();
 
-                    cout << "info depth "   << setw(2) << depth
-                        << " score cp "     << setw(4) << score
-                        << " nodes "        << setw(8) << nodes
-                        << " time "         << setw(6) << tm.get_time_elapsed()
-                        << " nps "          << setw(8) << 1000ULL * nodes / (time + 1)
-                        << " pv "           << pline.moves[0];
+                    cout << "info depth " << setw(2) << depth
+                         << " score cp "  << setw(4) << score
+                         << " nodes "     << setw(8) << nodes
+                         << " time "      << setw(6) << tm.get_time_elapsed()
+                         << " nps "       << setw(8) << 1000ULL * nodes / (time + 1)
+                         << " pv "        << pline.moves[0];
 
                     cout << endl;
 
@@ -430,7 +431,7 @@ namespace Clovis {
                     if (depth > asp_depth)
                     {
                         alpha = score - delta;
-                        beta = score + delta;
+                        beta  = score + delta;
                     }
                 }
 

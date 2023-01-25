@@ -18,9 +18,9 @@ namespace Clovis {
 			if (!strcmp(argv[1], "--help")) 
 			{
     		    cout << "bench [depth=" << DEFAULT_BENCH_DEPTH 
-					<< "] [threads=" << DEFAULT_BENCH_THREADS 
-					<< "] [hash=" << DEFAULT_BENCH_MB  << "]" << endl
-					<< "search positions as speficied by OpenBench" << endl;
+					 << "] [threads="   << DEFAULT_BENCH_THREADS 
+					 << "] [hash="      << DEFAULT_BENCH_MB  << "]"  << endl
+					 << "search positions as speficied by OpenBench" << endl;
 				exit(EXIT_SUCCESS);
     		}
 

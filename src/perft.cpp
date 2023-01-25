@@ -81,15 +81,16 @@ namespace Clovis {
 					perft(pos, depth, nodes);
 					if (nodes != it.nodes[depth - 1])
 						failed = true;
-					cout << "depth: " << depth
-						<< (failed ? " FAIL! " : " PASS! ") 
-						<< "expected: "	<< setw(10) << it.nodes[depth - 1] 
-						<< " result: "  << setw(10) << nodes
-						<< " time:"      << setw(7)  << tm.get_time_elapsed() << endl;
+					cout << (failed ? " FAIL! " : " PASS! ") 
+						 << "depth: "    << depth
+						 << "expected: " << setw(10) << it.nodes[depth - 1] 
+						 << " result: "  << setw(10) << nodes
+						 << " time:"     << setw(7)  << tm.get_time_elapsed() << endl;
 				}
 			}
 
 			cout << "Perft tests complete!" << endl;
+
 			if(failed)
 				cout << "Some tests failed..." << endl;
 			else

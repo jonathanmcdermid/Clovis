@@ -112,8 +112,6 @@ namespace Clovis {
 			return (m == k[0] || m == k[1]);
 		}
 
-		void init_movepicker();
-
 		class MovePicker {
 		public:
 			MovePicker(const Position& p, int pl, Move pm, Move ttm) 
@@ -123,7 +121,6 @@ namespace Clovis {
 			}
 			template<HashFlag HF> void update_history(Move best_move, int depth);
 			Move get_next(bool play_quiets);
-			void print();
 		private:
 			void score_captures();
 			void score_quiets();

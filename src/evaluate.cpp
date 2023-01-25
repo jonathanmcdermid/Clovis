@@ -120,11 +120,11 @@ Score virtual_king_b = S(3, 0);
                     int r = sq / 4;
                     int f = sq & 0x3;
 
-                    score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f] = &piece_table[pt][sq];
+                    score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
                     score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
 
-                    score_table[make_piece(pt, BLACK)][(r << 3) + f] = &piece_table[pt][sq];
-                    score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)] = &piece_table[pt][sq];
+                    score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
+                    score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
                 }
             }
 			
@@ -133,11 +133,11 @@ Score virtual_king_b = S(3, 0);
                 int r = sq / 4;
                 int f = sq & 0x3;
 
-                passed_table[WHITE][((7 - r) << 3) + f] = &passed_pawn_bonus[sq];
+                passed_table[WHITE][((7 - r) << 3) + f]       = &passed_pawn_bonus[sq];
                 passed_table[WHITE][((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
 
-				passed_table[BLACK][(r << 3) + f] = &passed_pawn_bonus[sq];
-                passed_table[BLACK][(r << 3) + (7 - f)] = &passed_pawn_bonus[sq];
+				passed_table[BLACK][(r << 3) + f]             = &passed_pawn_bonus[sq];
+                passed_table[BLACK][(r << 3) + (7 - f)]       = &passed_pawn_bonus[sq];
 			}
 		}
 

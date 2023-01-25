@@ -94,7 +94,7 @@ namespace Clovis {
 						}
 						else
 						{
-							*weights[index] = best_val_mg;
+							*weights[index]     = best_val_mg;
 							*weights[index + 1] = best_val_eg;
 						}
 
@@ -123,7 +123,7 @@ namespace Clovis {
 						}
 						else
 						{
-							*weights[index] = best_val_mg;
+							*weights[index]     = best_val_mg;
 							*weights[index + 1] = best_val_eg;
 						}
 					}
@@ -284,7 +284,8 @@ namespace Clovis {
 			return start;
 		}
 
-		void add_weight(vector<short*>& weights, Score* s) {
+		void add_weight(vector<short*>& weights, Score* s) 
+		{
 			weights.push_back(&s->mg);
 			weights.push_back(&s->eg);
 		}
@@ -342,13 +343,16 @@ namespace Clovis {
 			return weights;
 		}
 
-		void print_score_table(string name, Score* begin, int size, int cols) {
+		void print_score_table(string name, Score* begin, int size, int cols) 
+		{
 			cout << "Score " << name << "[] = {" << endl;
+
 			for (int i = 0; i < size; ++i) {
 				if (!(i % cols))
 					cout << '\t';
 				cout << *begin++ << "," << ((i % cols == (cols - 1)) ? "\n" : " ");
 			}
+
 			cout << "};" << endl;
 		}
 
@@ -356,12 +360,12 @@ namespace Clovis {
 		{
 			// print the tuned weights so they can be copy pasted into evaluation file
 			
-			print_score_table("pawn_table", Eval::pawn_table, 32, 4);
+			print_score_table("pawn_table",   Eval::pawn_table,   32, 4);
 			print_score_table("knight_table", Eval::knight_table, 32, 4);
 			print_score_table("bishop_table", Eval::bishop_table, 32, 4);
-			print_score_table("rook_table", Eval::rook_table, 32, 4);
-			print_score_table("queen_table", Eval::queen_table, 32, 4);
-			print_score_table("king_table", Eval::king_table, 32, 4);
+			print_score_table("rook_table",   Eval::rook_table,   32, 4);
+			print_score_table("queen_table",  Eval::queen_table,  32, 4);
+			print_score_table("king_table",   Eval::king_table,   32, 4);
 			print_score_table("passed_pawn_bonus", Eval::passed_pawn_bonus, 32, 4);
 			print_score_table("mobility", Eval::mobility, PIECETYPE_N, PIECETYPE_N);
 			print_score_table("inner_ring_attack", Eval::inner_ring_attack, PIECETYPE_N, PIECETYPE_N);

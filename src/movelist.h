@@ -41,7 +41,7 @@ namespace Clovis {
 
             constexpr Piece PIECE = make_piece(PT, US);
 
-			Bitboard bb = pos.piece_bb[PIECE];
+			Bitboard bb = pos.pc_bb[PIECE];
 
 			Bitboard tar_bb = M == ALL_MOVES   ? ~pos.occ_bb[US] 
 				            : M == QUIET_MOVES ? ~pos.occ_bb[BOTH]
@@ -76,7 +76,7 @@ namespace Clovis {
             constexpr Piece OUR_QUEEN  = make_piece(QUEEN,  US);
 
 			if constexpr (CAPTURES)
-				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_QUEEN, TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_QUEEN,  TC, 0, 0, 0);
 			if constexpr (QUIETS)
 			{
 				*moves++ = encode_move(src, tar, OUR_PAWN, OUR_KNIGHT, TC, 0, 0, 0);
@@ -112,7 +112,7 @@ namespace Clovis {
             constexpr Bitboard KS_CASTLE_OCC = relative_square(US, F1) | relative_square(US, G1);
             constexpr Bitboard QS_CASTLE_OCC = relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1);
 
-            Bitboard bb = pos.piece_bb[OUR_PAWN];
+            Bitboard bb = pos.pc_bb[OUR_PAWN];
 
             while (bb)
             {

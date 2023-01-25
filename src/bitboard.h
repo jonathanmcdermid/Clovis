@@ -36,7 +36,6 @@ namespace Clovis {
         return Square(63 ^ __builtin_clzll(b));
     }
 
-
 #elif defined(_MSC_VER)
 
 #ifdef _WIN64

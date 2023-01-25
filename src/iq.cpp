@@ -34,12 +34,12 @@ namespace Clovis {
 
 						switch(token[0])
 						{
-							case 'P': pt = PAWN;	break;
-							case 'N': pt = KNIGHT;	break;
-							case 'B': pt = BISHOP;	break;
-							case 'R': pt = ROOK;	break;
-							case 'Q': pt = QUEEN;	break;
-							case 'K': pt = KING;	break;
+							case 'P': pt = PAWN;   break;
+							case 'N': pt = KNIGHT; break;
+							case 'B': pt = BISHOP; break;
+							case 'R': pt = ROOK;   break;
+							case 'Q': pt = QUEEN;  break;
+							case 'K': pt = KING;   break;
 							default: exit(EXIT_FAILURE);
 						}
 
@@ -70,16 +70,16 @@ namespace Clovis {
 				Search::start_search(pos, limits, best_move, ponder_move, score, nodes);
 				bool res = false;
 				
-				for(auto& move : it.moves)
+				for (auto& move : it.moves)
 				{
-					if(move_to_sq(best_move) == move.to && piece_type(move_piece_type(best_move)) == move.pt)
+					if (move_to_sq(best_move) == move.to && piece_type(move_piece_type(best_move)) == move.pt)
 					{
 						res = true;
 						break;
 					}
 				}
 				
-				if(res)
+				if (res)
 				{
 					cout << "PASS!" << endl;
 					++passes;
@@ -91,7 +91,7 @@ namespace Clovis {
 				}
 				
 				cout << passes << " tests passed!" << endl
-					<< fails << " tests failed!" << endl;
+					 << fails  << " tests failed!" << endl;
 				Search::clear();
 			}
 		}
