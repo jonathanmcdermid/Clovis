@@ -81,13 +81,16 @@ namespace Clovis {
         }
  
 		template<NodeType N>
-        int quiescence(Position& pos, int alpha, int beta, U64& nodes)
+        int quiescence(Position& pos, int alpha, int beta, U64& nodes, int ply)
         {
             constexpr bool PV_NODE = N != NODE_NON_PV;
 
             assert(PV_NODE || (alpha == beta - 1));
 
 			++nodes;
+
+			if (ply >= MAX_PLY)
+				return Eval::evaluate<true>(pos);
 
             TTEntry* tte = tt.probe(pos.bs->key);
 
@@ -131,7 +134,7 @@ namespace Clovis {
                 if (!pos.do_move(curr_move))
                     continue;
 
-                eval = -quiescence<N>(pos, -beta, -alpha, nodes);
+                eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1);
 
                 pos.undo_move(curr_move);
 
@@ -151,6 +154,9 @@ namespace Clovis {
                         alpha = eval;
                 }
             }
+
+			if (in_check && best_eval == INT_MIN)
+				return - CHECKMATE_SCORE + ply;
 
             tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
@@ -172,7 +178,7 @@ namespace Clovis {
             }
 
             if (depth <= 0)
-                return quiescence<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes);
+                return quiescence<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes, ply);
 
 			++nodes;
 
@@ -209,11 +215,11 @@ namespace Clovis {
 
 			Line lline;
 
-            bool king_in_check = pos.is_king_in_check(pos.side);
+            bool in_check = pos.is_king_in_check(pos.side);
 
             int score;
 
-            if (!king_in_check)
+            if (!in_check)
             {
                 score = tte ? tte->eval : Eval::evaluate<true>(pos);
 
@@ -260,7 +266,7 @@ namespace Clovis {
 
             int best_score = INT_MIN;
 
-            if (king_in_check) 
+            if (in_check) 
                 ++depth;
 
             int moves_searched = 0;
@@ -353,7 +359,7 @@ namespace Clovis {
 
             // no legal moves
             if (moves_searched == 0)
-                return king_in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
+                return in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
             tt.new_entry(pos.bs->key, depth, best_score, eval_type, best_move);
 
