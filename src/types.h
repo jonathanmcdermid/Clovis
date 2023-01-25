@@ -33,6 +33,35 @@ namespace Clovis {
 	constexpr int DEFAULT_BENCH_DEPTH = 13;
 	constexpr int DEFAULT_BENCH_THREADS = 1;
 
+	struct Score {
+    public:
+        Score() : mg(0), eg(0) {}
+        constexpr Score(int m, int e) : mg(m), eg(e) {}
+        void operator+=(const Score& rhs) {
+            this->mg += rhs.mg;
+            this->eg += rhs.eg;
+        }
+        void operator-=(const Score& rhs) {
+            this->mg -= rhs.mg;
+            this->eg -= rhs.eg;
+        }
+        bool operator==(const Score& rhs) {
+            return this->mg == rhs.mg && this->eg == rhs.eg;
+        }
+        short mg;
+        short eg;
+    };
+
+	inline Score operator-(Score s)             { return Score(-s.mg, -s.eg); }
+    inline Score operator+(Score s1, Score s2)  { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+    inline Score operator+(Score s1, int i)     { return Score(s1.mg + i, s1.eg + i); }
+    inline Score operator-(Score s1, Score s2)  { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+    inline Score operator-(Score s1, int i)     { return Score(s1.mg - i, s1.eg - i); }
+    inline Score operator*(Score s1, int i)     { return Score(s1.mg * i, s1.eg * i); }
+    inline Score operator*(Score s1, Score s2)  { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
+    inline Score operator/(Score s1, int i)     { return Score(s1.mg / i, s1.eg / i); }
+    inline Score operator/(Score s1, Score s2)  { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
+
     /*
                     MOVE BIT FORMATTING
 
@@ -286,6 +315,12 @@ namespace Clovis {
         os << sq2str(sq);
         return os;
     }
+
+	inline ostream& operator<<(ostream& os, const Score& s)
+	{
+		os << "S(" << s.mg << ", " << s.eg << ")";
+		return os;
+	}
 
     inline ostream& operator<<(ostream& os, const Move& m)
     {

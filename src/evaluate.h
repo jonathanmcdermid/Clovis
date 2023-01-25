@@ -255,7 +255,7 @@ namespace Clovis {
 				score += *score_table[PIECE][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq) & ~pte.attacks[THEM];
 
-				score += mobility[PT] * (popcnt(attacks & ~pos.occ_bitboard[US]));
+				score += mobility[PT] * popcnt(attacks & ~pos.occ_bitboard[US]);
 
 				if constexpr (PT == KNIGHT)
 				{
