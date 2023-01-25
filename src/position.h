@@ -54,7 +54,7 @@ namespace Clovis {
 		bool is_repeat() const;
 		void print_position() const;
 		void print_bitboards();
-		bool is_king_in_check(Colour side) const;
+		bool is_king_in_check() const;
 		bool stm_has_promoted() const;
 		bool is_material_draw() const;
 		template <Colour c> bool is_insufficient() const;
@@ -71,8 +71,8 @@ namespace Clovis {
 		Colour side;
 	};
 
-	inline bool Position::is_king_in_check(Colour c) const {
-		return is_attacked(lsb(pc_bb[make_piece(KING, c)]), other_side(c));
+	inline bool Position::is_king_in_check() const {
+		return is_attacked(lsb(pc_bb[make_piece(KING, side)]), other_side(side));
 	}
 
 	inline bool Position::stm_has_promoted() const {

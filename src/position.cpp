@@ -372,15 +372,17 @@ namespace Clovis {
             }
         }
 
-        side = other_side(side);
         bs->key ^= Zobrist::side;
 
         // move gen doesnt check for suicidal king, so we check here
-        if (is_king_in_check(other_side(side)))
+        if (is_king_in_check())
         {
+            side = other_side(side);
             undo_move(move);
             return false;
         }
+
+        side = other_side(side);
         return true;
     }
 

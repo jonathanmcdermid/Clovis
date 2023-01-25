@@ -100,7 +100,7 @@ namespace Clovis {
                     || (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
                 return tte->eval;
 
-			bool in_check = pos.is_king_in_check(pos.side);
+			bool in_check = pos.is_king_in_check();
 
 			int eval;
 			int old_alpha = alpha;
@@ -216,7 +216,7 @@ namespace Clovis {
 
 			Line lline;
 
-            bool in_check = pos.is_king_in_check(pos.side);
+            bool in_check = pos.is_king_in_check();
 
             int score;
 
