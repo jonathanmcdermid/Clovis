@@ -132,24 +132,22 @@ namespace Clovis {
     // returns whether or not a square is attacked by a particular side
     bool Position::is_attacked(Square sq, Colour s) const
     {
-        return ((piece_bitboard[make_piece(PAWN, s)] & Bitboards::pawn_attacks[!s][sq]) 
-            || (piece_bitboard[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) 
-            || (piece_bitboard[make_piece(BISHOP, s)] & Bitboards::get_attacks<BISHOP>(occ_bitboard[BOTH], sq)) 
-            || (piece_bitboard[make_piece(ROOK, s)] & Bitboards::get_attacks<ROOK>(occ_bitboard[BOTH], sq)) 
-            || (piece_bitboard[make_piece(QUEEN, s)] & Bitboards::get_attacks<QUEEN>(occ_bitboard[BOTH], sq)) 
-            || (piece_bitboard[make_piece(KING, s)] & Bitboards::king_attacks[sq]));
+        return ((piece_bb[make_piece(PAWN, s)]  & Bitboards::pawn_attacks[!s][sq]) 
+            || (piece_bb[make_piece(KNIGHT, s)] & Bitboards::knight_attacks[sq]) 
+            || (piece_bb[make_piece(BISHOP, s)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) 
+            || (piece_bb[make_piece(ROOK, s)]   & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) 
+            || (piece_bb[make_piece(QUEEN, s)]  & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) 
+            || (piece_bb[make_piece(KING, s)]   & Bitboards::king_attacks[sq]));
     }
 
     Bitboard Position::attackers_to(Square sq) const 
     {
-        return  (Bitboards::pawn_attacks[BLACK][sq] & piece_bitboard[W_PAWN]) 
-            | (Bitboards::pawn_attacks[WHITE][sq] & piece_bitboard[B_PAWN]) 
-            | (Bitboards::knight_attacks[sq] & (piece_bitboard[W_KNIGHT] | piece_bitboard[B_KNIGHT])) 
-            | (Bitboards::get_attacks<ROOK>(occ_bitboard[BOTH], sq) 
-                & (piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
-            | (Bitboards::get_attacks<BISHOP>(occ_bitboard[BOTH], sq) 
-                & (piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP] | piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN])) 
-            | (Bitboards::king_attacks[sq] & (piece_bitboard[W_KING] | piece_bitboard[B_KING]));
+        return  (Bitboards::pawn_attacks[BLACK][sq] & piece_bb[W_PAWN]) 
+              | (Bitboards::pawn_attacks[WHITE][sq] & piece_bb[B_PAWN]) 
+              | (Bitboards::knight_attacks[sq] & (piece_bb[W_KNIGHT] | piece_bb[B_KNIGHT])) 
+              | (Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq) & (piece_bb[W_ROOK] | piece_bb[B_ROOK] | piece_bb[W_QUEEN] | piece_bb[B_QUEEN])) 
+              | (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)  & (piece_bb[W_BISHOP] | piece_bb[B_BISHOP] | piece_bb[W_QUEEN] | piece_bb[B_QUEEN])) 
+              | (Bitboards::king_attacks[sq] & (piece_bb[W_KING] | piece_bb[B_KING]));
     }
 
     // returns the piece type of the least valuable piece on a bitboard of attackers
@@ -157,7 +155,7 @@ namespace Clovis {
     {
         Bitboard bb;
         for (Piece p = make_piece(PAWN, stm); piece_type(p) <= KING; ++p)
-            if ((bb = piece_bitboard[p] & attackers))
+            if ((bb = piece_bb[p] & attackers))
                 return lsb(bb);
         return SQ_NONE;
     }
@@ -169,12 +167,12 @@ namespace Clovis {
         {
         case PAWN:
         case BISHOP:
-            return occ & (Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]));
+            return occ & (Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_BISHOP] | piece_bb[B_BISHOP]));
         case ROOK:
-            return occ & (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK]));
+            return occ & (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_ROOK] | piece_bb[B_ROOK]));
         case QUEEN:
-            return occ & ((Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_BISHOP] | piece_bitboard[B_BISHOP]))
-                | (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bitboard[W_QUEEN] | piece_bitboard[B_QUEEN] | piece_bitboard[W_ROOK] | piece_bitboard[B_ROOK])));
+            return occ & ((Bitboards::get_attacks<BISHOP>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_BISHOP] | piece_bb[B_BISHOP]))
+                | (Bitboards::get_attacks<ROOK>(occ, to) & (piece_bb[W_QUEEN] | piece_bb[B_QUEEN] | piece_bb[W_ROOK] | piece_bb[B_ROOK])));
         default:
             return 0ULL;
         }
@@ -190,7 +188,7 @@ namespace Clovis {
 
         Square from = move_from_sq(move);
         Square to = move_to_sq(move);
-        Bitboard occ = occ_bitboard[BOTH];
+        Bitboard occ = occ_bb[BOTH];
         Bitboard attackers = attackers_to(to);
 
         Colour stm = side;
@@ -222,13 +220,13 @@ namespace Clovis {
     // does not remove info if a piece was already on that square
 	void Position::put_piece(Piece pc, Square sq) 
 	{
-        assert(!(piece_bitboard[pc] & sq));
-        assert(!(occ_bitboard[get_side(pc)] & sq));
-        assert(!(occ_bitboard[BOTH] & sq));
+        assert(!(piece_bb[pc] & sq));
+        assert(!(occ_bb[get_side(pc)] & sq));
+        assert(!(occ_bb[BOTH] & sq));
 
-        piece_bitboard[pc] |= sq;
-        occ_bitboard[get_side(pc)] |= sq;
-        occ_bitboard[BOTH] |= sq;
+        piece_bb[pc] |= sq;
+        occ_bb[get_side(pc)] |= sq;
+        occ_bb[BOTH] |= sq;
         piece_board[sq] = pc;
 	}
 
@@ -237,13 +235,13 @@ namespace Clovis {
     {
         Piece pc = piece_board[sq];
 
-        assert(piece_bitboard[pc] & sq);
-        assert(occ_bitboard[get_side(pc)] & sq);
-        assert(occ_bitboard[BOTH] & sq);
+        assert(piece_bb[pc] & sq);
+        assert(occ_bb[get_side(pc)] & sq);
+        assert(occ_bb[BOTH] & sq);
 
-        piece_bitboard[pc] ^= sq;
-        occ_bitboard[get_side(pc)] ^= sq;
-        occ_bitboard[BOTH] ^= sq;
+        piece_bb[pc] ^= sq;
+        occ_bb[get_side(pc)] ^= sq;
+        occ_bb[BOTH] ^= sq;
         piece_board[sq] = NO_PIECE;
     }
 
@@ -441,7 +439,7 @@ namespace Clovis {
 
                 int bb_piece;
                 for (bb_piece = W_PAWN; bb_piece <= B_KING; ++bb_piece)
-                    if (piece_bitboard[bb_piece] & sq)
+                    if (piece_bb[bb_piece] & sq)
                         break;
 
                 cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
@@ -468,9 +466,9 @@ namespace Clovis {
         // there is a gap in value between W_KING AND B_PAWN
         // therefore some of the bitboards printed are empty
         cout << "Printing Bitboards\n";
-        for (auto it : piece_bitboard)
+        for (auto it : piece_bb)
             Bitboards::print_bitboard(it);
-        for (auto it : occ_bitboard)
+        for (auto it : occ_bb)
             Bitboards::print_bitboard(it);
     }
 

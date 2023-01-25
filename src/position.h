@@ -65,21 +65,22 @@ namespace Clovis {
 		void put_piece(Piece pc, Square s);
 		void remove_piece(Square s);
 		Piece piece_board[SQ_N];
-		Bitboard piece_bitboard[15];
-		Bitboard occ_bitboard[COLOUR_N + 1];
+		Bitboard piece_bb[15];
+		Bitboard occ_bb[COLOUR_N + 1];
 		BoardState* bs;
 		Colour side;
 	};
 
 	inline bool Position::is_king_in_check(Colour c) const {
-		return is_attacked(lsb(piece_bitboard[make_piece(KING, c)]), other_side(c));
+		return is_attacked(lsb(piece_bb[make_piece(KING, c)]), other_side(c));
 	}
 
 	inline bool Position::stm_has_promoted() const {
-		return bool(piece_bitboard[make_piece(KNIGHT, side)]
-			| piece_bitboard[make_piece(BISHOP,	side)]
-			| piece_bitboard[make_piece(ROOK,	side)]
-			| piece_bitboard[make_piece(QUEEN,	side)]);
+		return bool(
+			  piece_bb[make_piece(KNIGHT, side)]
+			| piece_bb[make_piece(BISHOP, side)]
+			| piece_bb[make_piece(ROOK,	  side)]
+			| piece_bb[make_piece(QUEEN,  side)]);
 	}
 
 	inline bool Position::is_material_draw() const {
@@ -92,12 +93,12 @@ namespace Clovis {
 
 	template <Colour US>
 	inline bool Position::is_insufficient() const {
-		return (popcnt(piece_bitboard[make_piece(PAWN,	US)]) == 0
-			&& (popcnt(piece_bitboard[make_piece(ROOK,	US)]) == 0)
-			&& (popcnt(piece_bitboard[make_piece(QUEEN,	US)]) == 0)
-			&& (popcnt(piece_bitboard[make_piece(KNIGHT,US)]) < 3)
-			&& (popcnt(piece_bitboard[make_piece(BISHOP,US)])
-				+ popcnt(piece_bitboard[make_piece(KNIGHT,US)]) < 2));
+		return (popcnt(piece_bb[make_piece(PAWN,   US)]) == 0
+			&& (popcnt(piece_bb[make_piece(ROOK,   US)]) == 0)
+			&& (popcnt(piece_bb[make_piece(QUEEN,  US)]) == 0)
+			&& (popcnt(piece_bb[make_piece(KNIGHT, US)])  < 3)
+			&& (popcnt(piece_bb[make_piece(BISHOP, US)])
+			  + popcnt(piece_bb[make_piece(KNIGHT,US)])   < 2));
 	}
 
 } // namespace Clovis

@@ -231,9 +231,9 @@ namespace Clovis {
 
 			constexpr Piece THEIR_PAWN = make_piece(PAWN, THEM);
 
-            return (Bitboards::pawn_attacks[THEM][sq] & pos.piece_bitboard[OUR_PAWN]) 
+            return (Bitboards::pawn_attacks[THEM][sq] & pos.piece_bb[OUR_PAWN]) 
 				&& (outpost_masks[US] & sq) 
-				&& !(pos.piece_bitboard[THEIR_PAWN] & outpost_pawn_masks[US][sq]);
+				&& !(pos.piece_bb[THEIR_PAWN] & outpost_pawn_masks[US][sq]);
         }
 
 		template<Colour US, PieceType PT, bool SAFE>
@@ -241,24 +241,22 @@ namespace Clovis {
 		{
 			constexpr Colour THEM = other_side(US);
 
-			constexpr Piece OUR_PAWN	= make_piece(PAWN, US);
-			constexpr Piece OUR_ROOK	= make_piece(ROOK, US);
-			constexpr Piece PIECE		= make_piece(PT, US);
+			constexpr Piece OUR_PAWN = make_piece(PAWN, US);
+			constexpr Piece OUR_ROOK = make_piece(ROOK, US);
+			constexpr Piece PIECE    = make_piece(PT,   US);
 
-			constexpr Piece THEIR_ROOK	= make_piece(ROOK, THEM);
+			constexpr Piece THEIR_ROOK = make_piece(ROOK, THEM);
 
 			static_assert(PT >= KNIGHT && PT < KING);
 
 			Score score;
 			Square sq;
-			Bitboard bb = pos.piece_bitboard[PIECE];
+			Bitboard bb = pos.piece_bb[PIECE];
 
 			Bitboard transparent_occ =
-				PT == BISHOP
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[THEIR_ROOK]
-				: PT == ROOK 
-				? pos.occ_bitboard[BOTH] ^ pos.piece_bitboard[W_QUEEN] ^ pos.piece_bitboard[B_QUEEN] ^ pos.piece_bitboard[OUR_ROOK]
-				: pos.occ_bitboard[BOTH];
+				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.piece_bb[W_QUEEN] ^ pos.piece_bb[B_QUEEN] ^ pos.piece_bb[THEIR_ROOK]
+				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.piece_bb[W_QUEEN] ^ pos.piece_bb[B_QUEEN] ^ pos.piece_bb[OUR_ROOK]
+				: pos.occ_bb[BOTH];
 
 			while (bb)
 			{
@@ -266,7 +264,7 @@ namespace Clovis {
 				score += *score_table[PIECE][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq) & ~pte.attacks[THEM];
 
-				score += mobility[PT] * popcnt(attacks & ~pos.occ_bitboard[US]);
+				score += mobility[PT] * popcnt(attacks & ~pos.occ_bb[US]);
 
 				if constexpr (PT == KNIGHT)
 				{
@@ -282,9 +280,9 @@ namespace Clovis {
 				}
 				else if constexpr (PT == ROOK)
 				{
-					if (!(file_masks[sq] & (pos.piece_bitboard[W_PAWN] | pos.piece_bitboard[B_PAWN])))
+					if (!(file_masks[sq] & (pos.piece_bb[W_PAWN] | pos.piece_bb[B_PAWN])))
 						score += rook_open_file_bonus;
-					else if (!(file_masks[sq] & pos.piece_bitboard[OUR_PAWN]))
+					else if (!(file_masks[sq] & pos.piece_bb[OUR_PAWN]))
 						score += rook_semi_open_file_bonus;
 				}
 
@@ -308,22 +306,23 @@ namespace Clovis {
 		Score evaluate_all(const Position& pos, PTEntry& pte)
         {
 			constexpr Colour THEM = other_side(US);
+			
+			constexpr Piece OUR_PAWN  = make_piece(PAWN,  US);
 			constexpr Piece OUR_QUEEN = make_piece(QUEEN, US);
-			constexpr Piece OUR_PAWN = make_piece(PAWN, US);
 			
 			Score score;
 
-			if (pos.piece_bitboard[OUR_QUEEN])
+			if (pos.piece_bb[OUR_QUEEN])
 			{
-				score += evaluate_majors<US, KNIGHT,false>(pos, pte);
-				score += evaluate_majors<US, BISHOP,false>(pos, pte);
-				score += evaluate_majors<US, ROOK,	false>(pos, pte);
-				score += evaluate_majors<US, QUEEN, false>(pos, pte);
+				score += evaluate_majors<US, KNIGHT, false>(pos, pte);
+				score += evaluate_majors<US, BISHOP, false>(pos, pte);
+				score += evaluate_majors<US, ROOK,	 false>(pos, pte);
+				score += evaluate_majors<US, QUEEN,  false>(pos, pte);
 
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(pte.n_att[US] < 10);
 
-				int virtual_mobility = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bitboard[THEM] ^ pos.piece_bitboard[OUR_PAWN], pte.ksq[THEM]) & ~pte.attacks[THEM]);
+				int virtual_mobility = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[THEM] ^ pos.piece_bb[OUR_PAWN], pte.ksq[THEM]) & ~pte.attacks[THEM]);
 
 				if (virtual_mobility > 4)
 					pte.weight[US] += virtual_king_m * min(13, virtual_mobility) - virtual_king_b;
@@ -332,10 +331,10 @@ namespace Clovis {
 			}
 			else
 			{
-				score += evaluate_majors<US, KNIGHT,true>(pos, pte);
-				score += evaluate_majors<US, BISHOP,true>(pos, pte);
-				score += evaluate_majors<US, ROOK,	true>(pos, pte);
-				score += evaluate_majors<US, QUEEN, true>(pos, pte);
+				score += evaluate_majors<US, KNIGHT, true>(pos, pte);
+				score += evaluate_majors<US, BISHOP, true>(pos, pte);
+				score += evaluate_majors<US, ROOK,	 true>(pos, pte);
+				score += evaluate_majors<US, QUEEN,  true>(pos, pte);
 			}
 
 			return score;
@@ -346,13 +345,13 @@ namespace Clovis {
 		{
 			constexpr Colour THEM = other_side(US);
 
-			constexpr Piece OUR_PAWN	= make_piece(PAWN, US);
-			constexpr Piece OUR_KING	= make_piece(KING, US);
-			constexpr Piece THEIR_PAWN	= make_piece(PAWN, THEM);
+			constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
+			constexpr Piece OUR_KING   = make_piece(KING, US);
+			constexpr Piece THEIR_PAWN = make_piece(PAWN, THEM);
 
 			Score score;
 
-			Bitboard bb = pos.piece_bitboard[OUR_PAWN];
+			Bitboard bb = pos.piece_bb[OUR_PAWN];
 
 			while (bb)
 			{
@@ -360,13 +359,13 @@ namespace Clovis {
 
 				score += *score_table[OUR_PAWN][sq];
 
-				if (doubled_pawn(pos.piece_bitboard[OUR_PAWN], sq))
+				if (doubled_pawn(pos.piece_bb[OUR_PAWN], sq))
 					score -= double_pawn_penalty;
 
-				if (isolated_pawn(pos.piece_bitboard[OUR_PAWN], sq))
+				if (isolated_pawn(pos.piece_bb[OUR_PAWN], sq))
 					score -= isolated_pawn_penalty;
 
-				if (passed_pawn<US>(pos.piece_bitboard[THEIR_PAWN], sq))
+				if (passed_pawn<US>(pos.piece_bb[THEIR_PAWN], sq))
 					score += *passed_table[US][sq];
 
 				Bitboard attacks = Bitboards::pawn_attacks[US][sq];
@@ -380,21 +379,21 @@ namespace Clovis {
 				pte.attacks[US] |= attacks;
 			}
 
-			if (!(file_masks[pte.ksq[US]] & pos.piece_bitboard[OUR_PAWN]))
+			if (!(file_masks[pte.ksq[US]] & pos.piece_bb[OUR_PAWN]))
 			{
-				score -= (file_masks[pte.ksq[US]] & pos.piece_bitboard[THEIR_PAWN])
+				score -= (file_masks[pte.ksq[US]] & pos.piece_bb[THEIR_PAWN])
 					? king_semi_open_penalty
 					: king_full_open_penalty;
 			}
-			if (file_of(pte.ksq[US]) != FILE_A && !(file_masks[pte.ksq[US] + WEST] & pos.piece_bitboard[OUR_PAWN]))
+			if (file_of(pte.ksq[US]) != FILE_A && !(file_masks[pte.ksq[US] + WEST] & pos.piece_bb[OUR_PAWN]))
 			{
-				score -= (file_masks[pte.ksq[US] + WEST] & pos.piece_bitboard[THEIR_PAWN])
+				score -= (file_masks[pte.ksq[US] + WEST] & pos.piece_bb[THEIR_PAWN])
 					? king_adjacent_semi_open_penalty
 					: king_adjacent_full_open_penalty;
 			}
-			if (file_of(pte.ksq[US]) != FILE_H && !(file_masks[pte.ksq[US] + EAST] & pos.piece_bitboard[OUR_PAWN]))
+			if (file_of(pte.ksq[US]) != FILE_H && !(file_masks[pte.ksq[US] + EAST] & pos.piece_bb[OUR_PAWN]))
 			{
-				score -= (file_masks[pte.ksq[US] + EAST] & pos.piece_bitboard[THEIR_PAWN])
+				score -= (file_masks[pte.ksq[US] + EAST] & pos.piece_bb[THEIR_PAWN])
 					? king_adjacent_semi_open_penalty
 					: king_adjacent_full_open_penalty;
 			}
@@ -425,8 +424,8 @@ namespace Clovis {
 			{
 				pte.clear();
 				pte.key = pos.bs->pkey;
-				pte.ksq[WHITE] = lsb(pos.piece_bitboard[W_KING]);
-				pte.ksq[BLACK] = lsb(pos.piece_bitboard[B_KING]);
+				pte.ksq[WHITE] = lsb(pos.piece_bb[W_KING]);
+				pte.ksq[BLACK] = lsb(pos.piece_bb[B_KING]);
 				pte.score = evaluate_pawns<WHITE>(pos, pte) - evaluate_pawns<BLACK>(pos, pte);
 				tt.new_pawn_entry(pte);
 			}
