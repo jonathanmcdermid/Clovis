@@ -31,9 +31,9 @@ namespace Clovis {
         return Square(__builtin_ctzll(bb));
     }
 
-    inline Square msb(Bitboard b) {
-        assert(b);
-        return Square(63 ^ __builtin_clzll(b));
+    inline Square msb(Bitboard bb) {
+        assert(bb);
+        return Square(63 ^ __builtin_clzll(bb));
     }
 
 #elif defined(_MSC_VER)
@@ -51,11 +51,11 @@ namespace Clovis {
         return Square(pos);
     }
 
-	inline Square msb(Bitboard b) {
-        assert(b);
+	inline Square msb(Bitboard bb) {
+        assert(bb);
         unsigned long idx;
-        _BitScanReverse64(&idx, b);
-        return (Square) idx;
+        _BitScanReverse64(&idx, bb);
+        return Square(idx);
     }
 
 #else
@@ -80,17 +80,17 @@ namespace Clovis {
         }
     }
 
-    inline Square msb(Bitboard b) {
-        assert(b);
+    inline Square msb(Bitboard bb) {
+        assert(bb);
         unsigned long idx;
 
-        if (b >> 32) 
+        if (bb >> 32) 
 		{
-            _BitScanReverse(&idx, int32_t(b >> 32));
+            _BitScanReverse(&idx, int32_t(bb >> 32));
             return Square(idx + 32);
         } else 
 		{
-            _BitScanReverse(&idx, int32_t(b));
+            _BitScanReverse(&idx, int32_t(bb));
             return Square(idx);
         }
     }
