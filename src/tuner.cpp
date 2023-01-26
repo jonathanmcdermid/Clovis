@@ -284,10 +284,10 @@ namespace Clovis {
 			return start;
 		}
 
-		void add_weight(vector<short*>& weights, Score* s) 
+		void add_weight(vector<short*>& weights, Score s) 
 		{
-			weights.push_back(&s->mg);
-			weights.push_back(&s->eg);
+			weights.push_back(&s.mg);
+			weights.push_back(&s.eg);
 		}
 
 		vector<short*> map_weights_to_params()
@@ -296,48 +296,48 @@ namespace Clovis {
 			
 			vector<short*> weights;
 
-			add_weight(weights, &Eval::virtual_king_m);
-			add_weight(weights, &Eval::virtual_king_b);
+			add_weight(weights, Eval::virtual_king_m);
+			add_weight(weights, Eval::virtual_king_b);
 
-			add_weight(weights, &Eval::king_full_open_penalty);
-			add_weight(weights, &Eval::king_semi_open_penalty);
+			add_weight(weights, Eval::king_full_open_penalty);
+			add_weight(weights, Eval::king_semi_open_penalty);
 			
-			add_weight(weights, &Eval::king_adjacent_full_open_penalty);
-			add_weight(weights, &Eval::king_adjacent_semi_open_penalty);
+			add_weight(weights, Eval::king_adjacent_full_open_penalty);
+			add_weight(weights, Eval::king_adjacent_semi_open_penalty);
 
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
 				if ((Rank(sq / 4) != RANK_1 && Rank(sq / 4) != RANK_8))
 				{
-					add_weight(weights, &Eval::pawn_table[sq]);
+					add_weight(weights, Eval::pawn_table[sq]);
 					
 					if(Rank(sq / 4) != RANK_2)
-						add_weight(weights, &Eval::passed_pawn_bonus[sq]);
+						add_weight(weights, Eval::passed_pawn_bonus[sq]);
 				}
 
-				add_weight(weights, &Eval::knight_table[sq]);
-				add_weight(weights, &Eval::bishop_table[sq]);
-				add_weight(weights, &Eval::rook_table[sq]);
-				add_weight(weights, &Eval::queen_table[sq]);
-				add_weight(weights, &Eval::king_table[sq]);
+				add_weight(weights, Eval::knight_table[sq]);
+				add_weight(weights, Eval::bishop_table[sq]);
+				add_weight(weights, Eval::rook_table[sq]);
+				add_weight(weights, Eval::queen_table[sq]);
+				add_weight(weights, Eval::king_table[sq]);
 			}
 
-			add_weight(weights, &Eval::tempo_bonus);
-			add_weight(weights, &Eval::double_pawn_penalty);
-			add_weight(weights, &Eval::isolated_pawn_penalty);
-			add_weight(weights, &Eval::bishop_pair_bonus);
-			add_weight(weights, &Eval::rook_open_file_bonus);
-			add_weight(weights, &Eval::rook_semi_open_file_bonus);
-			add_weight(weights, &Eval::knight_outpost_bonus);
-			add_weight(weights, &Eval::bishop_outpost_bonus);
+			add_weight(weights, Eval::tempo_bonus);
+			add_weight(weights, Eval::double_pawn_penalty);
+			add_weight(weights, Eval::isolated_pawn_penalty);
+			add_weight(weights, Eval::bishop_pair_bonus);
+			add_weight(weights, Eval::rook_open_file_bonus);
+			add_weight(weights, Eval::rook_semi_open_file_bonus);
+			add_weight(weights, Eval::knight_outpost_bonus);
+			add_weight(weights, Eval::bishop_outpost_bonus);
 
 			for (int i = PAWN; i < KING; ++i)
 			{
 				if (i > PAWN)
-					add_weight(weights, &Eval::mobility[i]);
+					add_weight(weights, Eval::mobility[i]);
 
-				add_weight(weights, &Eval::inner_ring_attack[i]);
-				add_weight(weights, &Eval::outer_ring_attack[i]);
+				add_weight(weights, Eval::inner_ring_attack[i]);
+				add_weight(weights, Eval::outer_ring_attack[i]);
 			}
 			
 			return weights;
