@@ -257,10 +257,6 @@ namespace Clovis {
         return Colour(pc >> 3);
     }
 
-    constexpr Colour other_side(Colour c) {
-        return Colour(c ^ 1);
-    }
-
     constexpr Piece make_piece(PieceType pt, Colour c) {
         return Piece((c << 3) + pt);
     }
@@ -329,6 +325,8 @@ namespace Clovis {
             os << " pnbrqk  pnbrqk"[move_promotion_type(m)];
         return os;
     }
+
+	constexpr Colour operator~(Colour c) { return Colour(c ^ 1); }
     
 #define INCR_OPERATORS(T)											\
 inline T& operator++(T& d) { return d = T(int(d) + 1); }			\

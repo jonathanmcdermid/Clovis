@@ -290,11 +290,11 @@ namespace Clovis {
                     && move_capture(curr_move) == NO_PIECE
                     && move_promotion_type(curr_move) == NO_PIECE)
                 {
-                    int history_entry = MovePick::get_history_entry(other_side(pos.side), curr_move);
+                    int history_entry = MovePick::get_history_entry(~pos.side, curr_move);
                     // reduction factor
                     int R = lmr_table[depth][min(moves_searched, 63)];
                     // reduce for pv nodes
-                    R -= (PV_NODE);
+                    R -= PV_NODE;
                     // reduce for killers
                     R -= MovePick::is_killer(curr_move, ply);
                     // reduce based on history heuristic

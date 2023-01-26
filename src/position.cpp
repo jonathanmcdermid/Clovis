@@ -193,7 +193,7 @@ namespace Clovis {
         gain[d] = piece_value[pc_table[to]];
 
         do {
-            stm = other_side(stm);
+            stm = ~stm;
             d++;
             assert(d < 32);
             gain[d] = piece_value[pc_table[from]] - gain[d - 1]; 
@@ -305,7 +305,7 @@ namespace Clovis {
                 if (move_enpassant(move))
                 {
                     Square victim_sq = tar - pawn_push(side);
-                    bs->captured_piece = make_piece(PAWN, other_side(side));
+                    bs->captured_piece = make_piece(PAWN, ~side);
                     bs->key  ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
                     bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
                     remove_piece(victim_sq);
@@ -366,19 +366,19 @@ namespace Clovis {
         // move gen doesnt check for suicidal king, so we check here
         if (is_king_in_check())
         {
-            side = other_side(side);
+            side = ~side;
             undo_move(move);
             return false;
         }
 
-        side = other_side(side);
+        side = ~side;
         return true;
     }
 
     // reverts a move and rolls back the position
     void Position::undo_move(Move move)
     {
-        side = other_side(side);
+        side = ~side;
 
         Square src = move_from_sq(move);
         Square tar = move_to_sq(move);

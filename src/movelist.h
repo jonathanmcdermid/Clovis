@@ -37,7 +37,7 @@ namespace Clovis {
 		template<typename T, MoveType M, PieceType PT, Colour US>
 		T* generate_majors(const Position& pos, T* moves)
 		{
-			constexpr Colour THEM = other_side(US);
+			constexpr Colour THEM = ~US;
 
             constexpr Piece PIECE = make_piece(PT, US);
 
@@ -94,7 +94,7 @@ namespace Clovis {
             constexpr bool CAPTURES = M != QUIET_MOVES;
             constexpr bool QUIETS	= M != CAPTURE_MOVES;
 
-            constexpr Colour THEM = other_side(US);
+            constexpr Colour THEM = ~US;
 
             constexpr Piece OUR_PAWN = make_piece(PAWN, US);
             constexpr Piece OUR_KING = make_piece(KING, US);

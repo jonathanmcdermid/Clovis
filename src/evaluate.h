@@ -225,7 +225,7 @@ namespace Clovis {
 		template<Colour US>
         constexpr bool outpost(const Position& pos, Square sq) 
 		{
-			constexpr Colour THEM = other_side(US);
+			constexpr Colour THEM = ~US;
 
 			constexpr Piece OUR_PAWN = make_piece(PAWN, US);
 
@@ -239,7 +239,7 @@ namespace Clovis {
         template<Colour US, PieceType PT>
         void king_danger(Bitboard attacks, PTEntry& pte)
         {
-			constexpr Colour THEM = other_side(US);
+			constexpr Colour THEM = ~US;
 
             Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
             Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
@@ -256,7 +256,7 @@ namespace Clovis {
 		template<Colour US, PieceType PT, bool SAFE>
 		Score evaluate_majors(const Position& pos, PTEntry& pte)
 		{
-			constexpr Colour THEM = other_side(US);
+			constexpr Colour THEM = ~US;
 
 			constexpr Piece OUR_PAWN = make_piece(PAWN, US);
 			constexpr Piece OUR_ROOK = make_piece(ROOK, US);
@@ -313,7 +313,7 @@ namespace Clovis {
 		template<Colour US>
 		Score evaluate_all(const Position& pos, PTEntry& pte)
         {
-			constexpr Colour THEM = other_side(US);
+			constexpr Colour THEM = ~US;
 			
 			constexpr Piece OUR_PAWN  = make_piece(PAWN,  US);
 			constexpr Piece OUR_QUEEN = make_piece(QUEEN, US);
@@ -351,7 +351,7 @@ namespace Clovis {
 		template<Colour US>
 		Score evaluate_pawns(const Position& pos, PTEntry& pte)
 		{
-			constexpr Colour THEM = other_side(US);
+			constexpr Colour THEM = ~US;
 
 			constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
 			constexpr Piece OUR_KING   = make_piece(KING, US);
@@ -416,7 +416,7 @@ namespace Clovis {
 				return DRAW_SCORE;
 
 			Colour us = pos.side;
-			Colour them = other_side(us);
+			Colour them = ~us;
 
 			int game_phase = pos.get_game_phase();
 

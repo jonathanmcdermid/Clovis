@@ -75,7 +75,7 @@ namespace Clovis {
 	template<Colour US>
 	bool Position::is_attacked(Square sq) const
 	{
-		constexpr Colour THEM = other_side(US);
+		constexpr Colour THEM = ~US;
 
 		constexpr Piece THEIR_PAWN   = make_piece(PAWN,   THEM);
 		constexpr Piece THEIR_KNIGHT = make_piece(KNIGHT, THEM);
