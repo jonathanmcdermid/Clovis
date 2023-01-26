@@ -284,7 +284,7 @@ namespace Clovis {
 			return start;
 		}
 
-		void add_weight(vector<short*>& weights, Score s) 
+		void add_weight(vector<short*>& weights, Score& s) 
 		{
 			weights.push_back(&s.mg);
 			weights.push_back(&s.eg);
