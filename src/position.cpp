@@ -217,9 +217,9 @@ namespace Clovis {
     // does not remove info if a piece was already on that square
 	void Position::put_piece(Piece pc, Square sq) 
 	{
-        assert(!(pc_bb[pc] & sq));
-        assert(!(occ_bb[get_side(pc)] & sq));
-        assert(!(occ_bb[BOTH] & sq));
+        assert(!(sq & pc_bb[pc]));
+        assert(!(sq & occ_bb[get_side(pc)]));
+        assert(!(sq & occ_bb[BOTH]));
 
         pc_bb[pc] |= sq;
         occ_bb[get_side(pc)] |= sq;
@@ -232,9 +232,9 @@ namespace Clovis {
     {
         Piece pc = pc_table[sq];
 
-        assert(pc_bb[pc] & sq);
-        assert(occ_bb[get_side(pc)] & sq);
-        assert(occ_bb[BOTH] & sq);
+        assert(sq & pc_bb[pc]);
+        assert(sq & occ_bb[get_side(pc)]);
+        assert(sq & occ_bb[BOTH]);
 
         pc_bb[pc] ^= sq;
         occ_bb[get_side(pc)] ^= sq;

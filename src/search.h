@@ -15,7 +15,6 @@ namespace Clovis {
     namespace Search {
 
         struct SearchLimits {
-        public:
             SearchLimits() {
                 time[WHITE] = time[BLACK] = 5000;
                 inc[WHITE] = inc[BLACK] = move_time = start_time = 0;

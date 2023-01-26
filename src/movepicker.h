@@ -137,7 +137,7 @@ namespace Clovis {
 		{
 			ScoredMove* last_searched_quiet = HF == HASH_EXACT ? last : curr;
 
-			assert(!move_capture(best_move) || move_promotion_type(*sm));
+			assert(!move_capture(best_move) || move_promotion_type(best_move));
 
 			update_history_entry(best_move, pos.side, history_bonus[depth]);
 

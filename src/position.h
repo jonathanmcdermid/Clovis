@@ -121,11 +121,11 @@ namespace Clovis {
 	template <Colour US>
 	inline bool Position::is_insufficient() const 
 	{
-		constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
+		constexpr Piece OUR_PAWN   = make_piece(PAWN,   US);
 		constexpr Piece OUR_KNIGHT = make_piece(KNIGHT, US);
 		constexpr Piece OUR_BISHOP = make_piece(BISHOP, US);
-		constexpr Piece OUR_ROOK   = make_piece(ROOK, US);
-		constexpr Piece OUR_QUEEN  = make_piece(QUEEN, US);
+		constexpr Piece OUR_ROOK   = make_piece(ROOK,   US);
+		constexpr Piece OUR_QUEEN  = make_piece(QUEEN,  US);
 
 		return (popcnt(pc_bb[OUR_PAWN])  == 0
 			&& (popcnt(pc_bb[OUR_ROOK])  == 0)

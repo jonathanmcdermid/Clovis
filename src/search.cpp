@@ -259,6 +259,8 @@ namespace Clovis {
                     }
                 }
             }
+            else
+                ++depth;
 
             MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move);
 
@@ -266,9 +268,6 @@ namespace Clovis {
             Move best_move = MOVE_NONE;
 
             int best_score = INT_MIN;
-
-            if (in_check) 
-                ++depth;
 
             int moves_searched = 0;
 
@@ -355,7 +354,7 @@ namespace Clovis {
                     }
                 }
 
-                move_count_pruning = moves_searched < 4 + depth * depth;
+                move_count_pruning = (moves_searched < (4 + depth * depth));
             }
 
             // no legal moves

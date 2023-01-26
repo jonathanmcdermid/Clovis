@@ -236,6 +236,23 @@ namespace Clovis {
 				&& !(pos.pc_bb[THEIR_PAWN] & outpost_pawn_masks[US][sq]);
         }
 
+        template<Colour US, PieceType PT>
+        void king_danger(Bitboard attacks, PTEntry& pte)
+        {
+			constexpr Colour THEM = other_side(US);
+
+            Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
+            Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
+
+            if (or_att_bb || ir_att_bb)
+            {
+                pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
+				
+                if constexpr (PT != PAWN)
+                    ++pte.n_att[US];
+            }
+        }
+
 		template<Colour US, PieceType PT, bool SAFE>
 		Score evaluate_majors(const Position& pos, PTEntry& pte)
 		{
@@ -287,16 +304,7 @@ namespace Clovis {
 				}
 
 				if constexpr (!SAFE)
-				{
-					Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
-					Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
-
-					if (or_att_bb || ir_att_bb)
-					{
-						pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
-						++pte.n_att[US];
-					}
-				}
+					king_danger<US, PT>(attacks, pte);
 			}
 
 			return score;
@@ -370,11 +378,7 @@ namespace Clovis {
 
 				Bitboard attacks = Bitboards::pawn_attacks[US][sq];
 
-				Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
-				Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
-
-				if (or_att_bb || ir_att_bb)
-					pte.weight[US] += inner_ring_attack[PAWN] * popcnt(ir_att_bb) + outer_ring_attack[PAWN] * popcnt(or_att_bb);
+				king_danger<US, PAWN>(attacks, pte);
 
 				pte.attacks[US] |= attacks;
 			}
