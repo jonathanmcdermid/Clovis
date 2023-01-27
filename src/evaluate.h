@@ -14,7 +14,7 @@ namespace Clovis {
 		extern Score bishop_table[32];
 		extern Score rook_table[32];
 		extern Score queen_table[32];
-        extern Score king_table[32];
+        extern Score king_table[16];
 		extern Score double_pawn_penalty;
 		extern Score isolated_pawn_penalty;
 		extern Score passed_pawn_bonus[32];

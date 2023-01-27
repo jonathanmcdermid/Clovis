@@ -29,7 +29,7 @@ namespace Clovis {
 			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves)) {}
 			int size() const { return (last - moves); }
 			const Move* begin() const { return moves; }
-			const Move* end() const { return last; }
+			const Move* end()   const { return last;  }
 		private:
 			Move moves[MAX_MOVES], *last;
 		};
@@ -137,11 +137,11 @@ namespace Clovis {
 				{
 					if (QUIETS && is_valid(tar) && !(pos.occ_bb[BOTH] & tar))
 				    {
-                            // single push
-                            *moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 0, 0, 0, 0);
-                            // double push
-                            if (rank_of(src) == SPAWN_RANK && !(pos.occ_bb[BOTH] & (tar + PUSH)))
-                                *moves++ = encode_move(src, tar + PUSH, OUR_PAWN, NO_PIECE, 0, 1, 0, 0);
+                        // single push
+                        *moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 0, 0, 0, 0);
+                        // double push
+                        if (rank_of(src) == SPAWN_RANK && !(pos.occ_bb[BOTH] & (tar + PUSH)))
+                            *moves++ = encode_move(src, tar + PUSH, OUR_PAWN, NO_PIECE, 0, 1, 0, 0);
                     }
 
                     if constexpr (CAPTURES)

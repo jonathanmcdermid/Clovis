@@ -302,10 +302,10 @@ namespace Clovis {
 		{
 			static_assert(PT != PAWN);
             return PT == KNIGHT ? knight_attacks[sq] 
-                : PT == BISHOP	? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_rbits[sq]]
-                : PT == ROOK	? rook_attacks[sq][(occ & rook_masks[sq]) * rook_magic[sq] >> rook_rbits[sq]]
-                : PT == QUEEN	? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
-                : king_attacks[sq];
+                 : PT == BISHOP	? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_rbits[sq]]
+                 : PT == ROOK	?   rook_attacks[sq][(occ &   rook_masks[sq]) *   rook_magic[sq] >>   rook_rbits[sq]]
+                 : PT == QUEEN	? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
+                 : king_attacks[sq];
         }
 
     } // namespace Bitboards
