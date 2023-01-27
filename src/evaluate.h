@@ -21,6 +21,7 @@ namespace Clovis {
 		extern Score bishop_pair_bonus;
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
+		extern Score rook_closed_file_penalty;
 		extern Score tempo_bonus;
 		extern Score mobility[7];
 		extern Score outer_ring_attack[7];
@@ -262,6 +263,7 @@ namespace Clovis {
 			constexpr Piece OUR_ROOK = make_piece(ROOK, US);
 			constexpr Piece PIECE    = make_piece(PT,   US);
 
+			constexpr Piece THEIR_PAWN = make_piece(PAWN, THEM);
 			constexpr Piece THEIR_ROOK = make_piece(ROOK, THEM);
 
 			static_assert(PT >= KNIGHT && PT < KING);
@@ -301,6 +303,8 @@ namespace Clovis {
 						score += rook_open_file_bonus;
 					else if (!(file_masks[sq] & pos.pc_bb[OUR_PAWN]))
 						score += rook_semi_open_file_bonus;
+					else if (file_masks[sq] & pos.pc_bb[THEIR_PAWN])
+						score -= rook_closed_file_penalty;
 				}
 
 				if constexpr (!SAFE)

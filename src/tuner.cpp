@@ -333,6 +333,7 @@ namespace Clovis {
 			add_weight(weights, Eval::rook_semi_open_file_bonus);
 			add_weight(weights, Eval::knight_outpost_bonus);
 			add_weight(weights, Eval::bishop_outpost_bonus);
+			add_weight(weights, Eval::rook_closed_file_penalty);
 
 			for (int i = PAWN; i < KING; ++i)
 			{
@@ -387,7 +388,8 @@ namespace Clovis {
 			     << "Score knight_outpost_bonus = "            << Eval::knight_outpost_bonus            << ";" << endl
 			     << "Score bishop_outpost_bonus = "            << Eval::bishop_outpost_bonus            << ";" << endl
 			     << "Score virtual_king_m = "                  << Eval::virtual_king_m                  << ";" << endl
-			     << "Score virtual_king_b = "                  << Eval::virtual_king_b                  << ";" << endl;			
+			     << "Score virtual_king_b = "                  << Eval::virtual_king_b                  << ";" << endl
+				 << "Score rook_closed_file_penalty = "        << Eval::rook_closed_file_penalty        << ";" << endl;			
 		}
 
 	} // namespace Tuner
