@@ -316,12 +316,12 @@ namespace Clovis {
 				}
 
 				add_weight(weights, Eval::knight_table[sq]);
-				add_weight(weights, Eval::rook_table[sq]);
 				add_weight(weights, Eval::queen_table[sq]);
 				if (sq < 16)
 				{
 					add_weight(weights, Eval::king_table[sq]);
 					add_weight(weights, Eval::bishop_table[sq]);
+					add_weight(weights, Eval::rook_table[sq]);
 				}
 			}
 
@@ -367,7 +367,7 @@ namespace Clovis {
 			print_score_table("pawn_table",   Eval::pawn_table,   32, 4);
 			print_score_table("knight_table", Eval::knight_table, 32, 4);
 			print_score_table("bishop_table", Eval::bishop_table, 16, 4);
-			print_score_table("rook_table",   Eval::rook_table,   32, 4);
+			print_score_table("rook_table",   Eval::rook_table,   16, 4);
 			print_score_table("queen_table",  Eval::queen_table,  32, 4);
 			print_score_table("king_table",   Eval::king_table,   16, 4);
 			print_score_table("passed_pawn_bonus", Eval::passed_pawn_bonus, 32, 4);
