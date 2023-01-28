@@ -11,7 +11,7 @@ namespace Clovis {
 		long double best_mse;
 		long double k;
 
-		constexpr int n_cores = 6;
+		constexpr int n_cores = 8;
 		long double answers = 0;
 	
 		void tune_eval()
@@ -314,7 +314,6 @@ namespace Clovis {
 						add_weight(weights, Eval::passed_pawn_bonus[sq]);
 				}
 
-				add_weight(weights, Eval::knight_table[sq]);
 				add_weight(weights, Eval::queen_table[sq]);
 				if (sq < 16)
 				{
@@ -323,6 +322,7 @@ namespace Clovis {
 						add_weight(weights, Eval::bishop_table[sq]);
 						add_weight(weights, Eval::rook_table[sq]);
 						add_weight(weights, Eval::king_table[sq]);
+						add_weight(weights, Eval::knight_table[sq]);
 					}
 				}
 			}
@@ -368,7 +368,7 @@ namespace Clovis {
 			// print the tuned weights so they can be copy pasted into evaluation file
 			
 			print_score_table("pawn_table",   Eval::pawn_table,   32, 4);
-			print_score_table("knight_table", Eval::knight_table, 32, 4);
+			print_score_table("knight_table", Eval::knight_table, 16, 4);
 			print_score_table("bishop_table", Eval::bishop_table, 16, 4);
 			print_score_table("rook_table",   Eval::rook_table,   16, 4);
 			print_score_table("queen_table",  Eval::queen_table,  32, 4);
