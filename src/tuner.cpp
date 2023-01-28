@@ -319,9 +319,11 @@ namespace Clovis {
 				if (sq < 16)
 				{
 					add_weight(weights, Eval::king_table[sq]);
-					add_weight(weights, Eval::rook_table[sq]);
 					if (sq / 4 >= (sq & 3))
+					{
 						add_weight(weights, Eval::bishop_table[sq]);
+						add_weight(weights, Eval::rook_table[sq]);
+					}
 				}
 			}
 
