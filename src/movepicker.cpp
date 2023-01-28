@@ -6,9 +6,9 @@ namespace Clovis {
 
 	namespace MovePick {
 
-        int history_table[];
-        Move counter_table[];
-        Move killers[];
+		int history_table[];
+		Move counter_table[];
+		Move killers[];
 
 		// return the next ordered move
 		Move MovePicker::get_next(bool play_quiets)
@@ -80,32 +80,33 @@ namespace Clovis {
 			return MOVE_NONE;
 		}
 
-        void MovePicker::score_captures()
-        {
-            for (ScoredMove* sm = moves; sm < last; ++sm)
-                // promotions supercede mvv-lva
-                sm->score = mvv_lva[move_piece_type(*sm)][pos.pc_table[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
-        }
+		void MovePicker::score_captures()
+		{
+			for (ScoredMove* sm = moves; sm < last; ++sm)
+				// promotions supercede mvv-lva
+				sm->score = mvv_lva[move_piece_type(*sm)][pos.pc_table[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
+		}
 
-        void MovePicker::score_quiets()
-        {
-            size_t primary_index = ply << 1;
-            size_t secondary_index = primary_index + 1;
+		void MovePicker::score_quiets()
+		{
+			size_t primary_index = ply << 1;
+			size_t secondary_index = primary_index + 1;
 
-            Move counter_move = get_counter_entry(pos.side, prev_move);
+			Move counter_move = get_counter_entry(pos.side, prev_move);
 
-            for (ScoredMove* sm = end_bad_caps; sm < last; ++sm)
-            {
-                if (*sm == killers[primary_index])
-                    sm->score = 22000;
-                else if (*sm == killers[secondary_index])
-                    sm->score = 21000;
-                else if (*sm == counter_move)
-                    sm->score = 20000;
-                else
-                    sm->score = get_history_entry(pos.side, *sm);
-            }
-        }
+			for (ScoredMove* sm = end_bad_caps; sm < last; ++sm)
+			{
+				if (*sm == killers[primary_index])
+					sm->score = 22000;
+				else if (*sm == killers[secondary_index])
+					sm->score = 21000;
+				else if (*sm == counter_move)
+					sm->score = 20000;
+				else
+					sm->score = get_history_entry(pos.side, *sm);
+			}
+
+		}
 
 	} // namespace MovePick
 

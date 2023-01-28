@@ -11,89 +11,90 @@
 
 namespace Clovis {
 
-    constexpr Bitboard sqbb(Square sq) { return 1ULL << sq; }
+	constexpr Bitboard sqbb(Square sq) { return 1ULL << sq; }
 
-    constexpr Bitboard operator|(Square sq1, Square sq2) { return sqbb(sq1) | sqbb(sq2); }
-    constexpr Bitboard operator&(Bitboard bb, Square sq) { return bb & sqbb(sq); }
-    constexpr Bitboard operator|(Bitboard bb, Square sq) { return bb | sqbb(sq); }
-    constexpr Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sqbb(sq); }
-    constexpr Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb(sq); }
-    constexpr Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb(sq); }
+	constexpr Bitboard operator|(Square sq1, Square sq2) { return sqbb(sq1) | sqbb(sq2); }
+	constexpr Bitboard operator&(Bitboard bb, Square sq) { return bb & sqbb(sq); }
+	constexpr Bitboard operator|(Bitboard bb, Square sq) { return bb | sqbb(sq); }
+	constexpr Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sqbb(sq); }
+	constexpr Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb(sq); }
+	constexpr Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb(sq); }
 
 #if defined(__GNUC__)
 
-    inline int popcnt(Bitboard bb) {
-        return __builtin_popcountll(bb);
-    }
+	inline int popcnt(Bitboard bb) {
+		return __builtin_popcountll(bb);
+	}
 
-    inline Square lsb(Bitboard bb) {
-        assert(bb);
-        return Square(__builtin_ctzll(bb));
-    }
+	inline Square lsb(Bitboard bb) {
+		assert(bb);
+		return Square(__builtin_ctzll(bb));
+	}
 
-    inline Square msb(Bitboard bb) {
-        assert(bb);
-        return Square(63 ^ __builtin_clzll(bb));
-    }
+	inline Square msb(Bitboard bb) {
+		assert(bb);
+		return Square(63 ^ __builtin_clzll(bb));
+	}
 
 #elif defined(_MSC_VER)
 
 #ifdef _WIN64
 
-    inline int popcnt(Bitboard bb) {
-        return __popcnt64(bb);
-    }
+	inline int popcnt(Bitboard bb) {
+		return __popcnt64(bb);
+	}
 
-    inline Square lsb(Bitboard bb) {
-        assert(bb);
-        unsigned long pos;
-        _BitScanForward64(&pos, bb);
-        return Square(pos);
-    }
+	inline Square lsb(Bitboard bb) {
+		assert(bb);
+		unsigned long pos;
+		_BitScanForward64(&pos, bb);
+		return Square(pos);
+	}
 
 	inline Square msb(Bitboard bb) {
-        assert(bb);
-        unsigned long idx;
-        _BitScanReverse64(&idx, bb);
-        return Square(idx);
-    }
+		assert(bb);
+		unsigned long idx;
+		_BitScanReverse64(&idx, bb);
+		return Square(idx);
+	}
 
 #else
 
-    inline int popcnt(Bitboard bb) {
-        return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
-    }
+	inline int popcnt(Bitboard bb) {
+		return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
+	}
 
-    inline Square lsb(Bitboard bb) {
-        assert(bb);
-        unsigned long pos;
+	inline Square lsb(Bitboard bb) {
+		assert(bb);
+		unsigned long pos;
 
-        if (bb & 0xffffffff)
-        {
-            _BitScanForward(&pos, int32_t(bb));
-            return Square(pos);
-        }
-        else
-        {
-            _BitScanForward(&pos, int32_t(bb >> 32));
-            return Square(pos + 32);
-        }
-    }
-
-    inline Square msb(Bitboard bb) {
-        assert(bb);
-        unsigned long idx;
-
-        if (bb >> 32) 
+		if (bb & 0xffffffff)
 		{
-            _BitScanReverse(&idx, int32_t(bb >> 32));
-            return Square(idx + 32);
-        } else 
+  			_BitScanForward(&pos, int32_t(bb));
+			return Square(pos);
+		}
+		else
 		{
-            _BitScanReverse(&idx, int32_t(bb));
-            return Square(idx);
-        }
-    }
+			_BitScanForward(&pos, int32_t(bb >> 32));
+			return Square(pos + 32);
+		}
+	}
+
+	inline Square msb(Bitboard bb) {
+		assert(bb);
+		unsigned long idx;
+
+		if (bb >> 32) 
+		{
+			_BitScanReverse(&idx, int32_t(bb >> 32));
+			return Square(idx + 32);
+		} 
+		else 
+		{
+			_BitScanReverse(&idx, int32_t(bb));
+			return Square(idx);
+		}
+	}
 
 #endif
 
@@ -103,17 +104,17 @@ namespace Clovis {
 
 #endif
 
-    inline Square pop_lsb(Bitboard& bb) {
-        assert(bb);
-        Square sq = lsb(bb);
-        bb &= bb - 1;
-        return sq;
-    }
+	inline Square pop_lsb(Bitboard& bb) {
+		assert(bb);
+		Square sq = lsb(bb);
+		bb &= bb - 1;
+		return sq;
+	}
 
-    namespace Bitboards {
+	namespace Bitboards {
 
-        constexpr int bishop_attack_indices = 512;
-        constexpr int rook_attack_indices = 4096;
+		constexpr int bishop_attack_indices = 512;
+		constexpr int rook_attack_indices = 4096;
 
 		// 64 - number of relevant occupancy bits for every bishop square
 		constexpr int bishop_rbits[SQ_N] = {
@@ -217,7 +218,7 @@ namespace Clovis {
 			0x6e10101010101000ULL, 0x5e20202020202000ULL, 0x3e40404040404000ULL, 0x7e80808080808000ULL, 
 		};
 
-        constexpr Bitboard pawn_attacks[COLOUR_N][SQ_N] = {
+		constexpr Bitboard pawn_attacks[COLOUR_N][SQ_N] = {
 			0x200ULL,              0x500ULL,              0xa00ULL,              0x1400ULL, 
 			0x2800ULL,             0x5000ULL,             0xa000ULL,             0x4000ULL, 
 			0x20000ULL,            0x50000ULL,            0xa0000ULL,            0x140000ULL, 
@@ -252,7 +253,7 @@ namespace Clovis {
 			0x28000000000000ULL,   0x50000000000000ULL,   0xa0000000000000ULL,   0x40000000000000ULL,
 		};
 
-        constexpr Bitboard knight_attacks[SQ_N] = {
+		constexpr Bitboard knight_attacks[SQ_N] = {
 			0x20400ULL,            0x50800ULL,            0xa1100ULL,            0x142200ULL, 
 			0x284400ULL,           0x508800ULL,           0xa01000ULL,           0x402000ULL, 
 			0x2040004ULL,          0x5080008ULL,          0xa110011ULL,          0x14220022ULL, 
@@ -271,7 +272,7 @@ namespace Clovis {
 			0x44280000000000ULL,   0x88500000000000ULL,   0x10a00000000000ULL,   0x20400000000000ULL, 
 		};
 
-        constexpr Bitboard king_attacks[SQ_N] = {
+		constexpr Bitboard king_attacks[SQ_N] = {
 			0x302ULL,              0x705ULL,              0xe0aULL,              0x1c14ULL, 
 			0x3828ULL,             0x7050ULL,             0xe0a0ULL,             0xc040ULL, 
 			0x30203ULL,            0x70507ULL,            0xe0a0eULL,            0x1c141cULL, 
@@ -290,24 +291,25 @@ namespace Clovis {
 			0x2838000000000000ULL, 0x5070000000000000ULL, 0xa0e0000000000000ULL, 0x40c0000000000000ULL,
 		};
 
-        extern Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
-        extern Bitboard rook_attacks[SQ_N][rook_attack_indices];
+		extern Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
+		extern Bitboard rook_attacks[SQ_N][rook_attack_indices];
 
-        void print_bitboard(const Bitboard& bb);
+		void print_bitboard(const Bitboard& bb);
 
-        void init_bitboards();
+		void init_bitboards();
 
-        template<PieceType PT>
-        inline Bitboard get_attacks(Bitboard occ, Square sq)
+		template<PieceType PT>
+		inline Bitboard get_attacks(Bitboard occ, Square sq)
 		{
 			static_assert(PT != PAWN);
-            return PT == KNIGHT ? knight_attacks[sq] 
-                 : PT == BISHOP	? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_rbits[sq]]
-                 : PT == ROOK	?   rook_attacks[sq][(occ &   rook_masks[sq]) *   rook_magic[sq] >>   rook_rbits[sq]]
-                 : PT == QUEEN	? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
-                 : king_attacks[sq];
-        }
+            
+			return PT == KNIGHT ? knight_attacks[sq] 
+				: PT == BISHOP	? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_rbits[sq]]
+				: PT == ROOK	? rook_attacks  [sq][(occ & rook_masks  [sq]) * rook_magic[sq]   >> rook_rbits  [sq]]
+				: PT == QUEEN	? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
+				: king_attacks[sq];
+		}
 
-    } // namespace Bitboards
+	} // namespace Bitboards
 
 } // namespace Clovis

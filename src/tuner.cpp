@@ -378,21 +378,21 @@ namespace Clovis {
 			print_score_table("inner_ring_attack", Eval::inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
 			print_score_table("outer_ring_attack", Eval::outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
 
-			cout << "Score double_pawn_penalty = "             << Eval::double_pawn_penalty             << ";" << endl
-				 << "Score isolated_pawn_penalty = "           << Eval::isolated_pawn_penalty           << ";" << endl
-				 << "Score bishop_pair_bonus = "               << Eval::bishop_pair_bonus               << ";" << endl
-				 << "Score rook_open_file_bonus = "	           << Eval::rook_open_file_bonus            << ";" << endl
-				 << "Score rook_semi_open_file_bonus = "       << Eval::rook_semi_open_file_bonus       << ";" << endl
-				 << "Score tempo_bonus = "                     << Eval::tempo_bonus                     << ";" << endl
-				 << "Score king_full_open_penalty = "          << Eval::king_full_open_penalty          << ";" << endl
-			     << "Score king_semi_open_penalty = "          << Eval::king_semi_open_penalty          << ";" << endl
-			     << "Score king_adjacent_full_open_penalty = " << Eval::king_adjacent_full_open_penalty << ";" << endl
-			     << "Score king_adjacent_semi_open_penalty = " << Eval::king_adjacent_semi_open_penalty << ";" << endl
-			     << "Score knight_outpost_bonus = "            << Eval::knight_outpost_bonus            << ";" << endl
-			     << "Score bishop_outpost_bonus = "            << Eval::bishop_outpost_bonus            << ";" << endl
-			     << "Score virtual_king_m = "                  << Eval::virtual_king_m                  << ";" << endl
-			     << "Score virtual_king_b = "                  << Eval::virtual_king_b                  << ";" << endl
-				 << "Score rook_closed_file_penalty = "        << Eval::rook_closed_file_penalty        << ";" << endl;			
+			cout << "Score double_pawn_penalty = "        << Eval::double_pawn_penalty             << ";" << endl
+			<< "Score isolated_pawn_penalty = "           << Eval::isolated_pawn_penalty           << ";" << endl
+			<< "Score bishop_pair_bonus = "               << Eval::bishop_pair_bonus               << ";" << endl
+			<< "Score rook_open_file_bonus = "	      << Eval::rook_open_file_bonus            << ";" << endl
+			<< "Score rook_semi_open_file_bonus = "       << Eval::rook_semi_open_file_bonus       << ";" << endl
+			<< "Score tempo_bonus = "                     << Eval::tempo_bonus                     << ";" << endl
+			<< "Score king_full_open_penalty = "          << Eval::king_full_open_penalty          << ";" << endl
+			<< "Score king_semi_open_penalty = "          << Eval::king_semi_open_penalty          << ";" << endl
+			<< "Score king_adjacent_full_open_penalty = " << Eval::king_adjacent_full_open_penalty << ";" << endl
+			<< "Score king_adjacent_semi_open_penalty = " << Eval::king_adjacent_semi_open_penalty << ";" << endl
+			<< "Score knight_outpost_bonus = "            << Eval::knight_outpost_bonus            << ";" << endl
+			<< "Score bishop_outpost_bonus = "            << Eval::bishop_outpost_bonus            << ";" << endl
+			<< "Score virtual_king_m = "                  << Eval::virtual_king_m                  << ";" << endl
+			<< "Score virtual_king_b = "                  << Eval::virtual_king_b                  << ";" << endl
+			<< "Score rook_closed_file_penalty = "        << Eval::rook_closed_file_penalty        << ";" << endl;			
 		}
 
 	} // namespace Tuner

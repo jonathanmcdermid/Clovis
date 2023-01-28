@@ -14,7 +14,7 @@ namespace Clovis {
 		extern Score bishop_table[16];
 		extern Score rook_table[16];
 		extern Score queen_table[32];
-        extern Score king_table[16];
+		extern Score king_table[16];
 		extern Score double_pawn_penalty;
 		extern Score isolated_pawn_penalty;
 		extern Score passed_pawn_bonus[32];
@@ -36,7 +36,7 @@ namespace Clovis {
 		extern Score virtual_king_b;
 
 		extern const Score* piece_table[7];
-        extern const Score* score_table[15][SQ_N];
+		extern const Score* score_table[15][SQ_N];
 		extern const Score* passed_table[COLOUR_N][SQ_N];
 	
 		constexpr Bitboard file_masks[SQ_N] =  {
@@ -57,8 +57,8 @@ namespace Clovis {
 			0x101010101010101ULL,  0x202020202020202ULL,  0x404040404040404ULL,  0x808080808080808ULL, 
 			0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL,
 		};
-
-        constexpr Bitboard rank_masks[SQ_N] = {
+		
+		constexpr Bitboard rank_masks[SQ_N] = {
 			0xffULL,               0xffULL,               0xffULL,               0xffULL, 
 			0xffULL,               0xffULL,               0xffULL,               0xffULL, 
 			0xff00ULL,             0xff00ULL,             0xff00ULL,             0xff00ULL, 
@@ -76,8 +76,8 @@ namespace Clovis {
 			0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL, 
 			0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL,
 		};
-
-        constexpr Bitboard isolated_masks[SQ_N] = {
+		
+		constexpr Bitboard isolated_masks[SQ_N] = {
 			0x202020202020202ULL,  0x505050505050505ULL,  0xa0a0a0a0a0a0a0aULL,  0x1414141414141414ULL, 
 			0x2828282828282828ULL, 0x5050505050505050ULL, 0xa0a0a0a0a0a0a0a0ULL, 0x4040404040404040ULL, 
 			0x202020202020202ULL,  0x505050505050505ULL,  0xa0a0a0a0a0a0a0aULL,  0x1414141414141414ULL, 
@@ -95,8 +95,8 @@ namespace Clovis {
 			0x202020202020202ULL,  0x505050505050505ULL,  0xa0a0a0a0a0a0a0aULL,  0x1414141414141414ULL, 
 			0x2828282828282828ULL, 0x5050505050505050ULL, 0xa0a0a0a0a0a0a0a0ULL, 0x4040404040404040ULL,
 		};
-
-        constexpr Bitboard passed_masks[COLOUR_N][SQ_N] = {
+		
+		constexpr Bitboard passed_masks[COLOUR_N][SQ_N] = {
 			0x303030303030300ULL,  0x707070707070700ULL,  0xe0e0e0e0e0e0e00ULL,  0x1c1c1c1c1c1c1c00ULL, 
 			0x3838383838383800ULL, 0x7070707070707000ULL, 0xe0e0e0e0e0e0e000ULL, 0xc0c0c0c0c0c0c000ULL, 
 			0x303030303030000ULL,  0x707070707070000ULL,  0xe0e0e0e0e0e0000ULL,  0x1c1c1c1c1c1c0000ULL, 
@@ -130,10 +130,10 @@ namespace Clovis {
 			0x3030303030303ULL,    0x7070707070707ULL,    0xe0e0e0e0e0e0eULL,    0x1c1c1c1c1c1c1cULL, 
 			0x38383838383838ULL,   0x70707070707070ULL,   0xe0e0e0e0e0e0e0ULL,   0xc0c0c0c0c0c0c0ULL,
 		};
-
-        constexpr Bitboard outpost_masks[COLOUR_N] = { 0xffffff000000ULL, 0xffffff0000ULL };
-
-        constexpr Bitboard outpost_pawn_masks[COLOUR_N][SQ_N] = {
+		
+		constexpr Bitboard outpost_masks[COLOUR_N] = { 0xffffff000000ULL, 0xffffff0000ULL };
+		
+		constexpr Bitboard outpost_pawn_masks[COLOUR_N][SQ_N] = {
 			0x202020202020200ULL,  0x505050505050500ULL,  0xa0a0a0a0a0a0a00ULL,  0x1414141414141400ULL, 
 			0x2828282828282800ULL, 0x5050505050505000ULL, 0xa0a0a0a0a0a0a000ULL, 0x4040404040404000ULL, 
 			0x202020202020000ULL,  0x505050505050000ULL,  0xa0a0a0a0a0a0000ULL,  0x1414141414140000ULL, 
@@ -209,50 +209,49 @@ namespace Clovis {
 		
 		inline bool doubled_pawn(Bitboard bb, Square sq) 
 		{
-            return popcnt(bb & file_masks[sq]) >= 2;
-        }
-
-        constexpr bool isolated_pawn(Bitboard bb, Square sq) 
+			return popcnt(bb & file_masks[sq]) >= 2;
+		}
+		
+		constexpr bool isolated_pawn(Bitboard bb, Square sq) 
 		{
-            return !(bb & isolated_masks[sq]);
-        }
+			return !(bb & isolated_masks[sq]);
+		}
 
 		template<Colour US>
 		constexpr bool passed_pawn(Bitboard bb, Square sq) 
 		{
-            return !(bb & passed_masks[US][sq]);
-        }
+			return !(bb & passed_masks[US][sq]);
+		}
 
 		template<Colour US>
-        constexpr bool outpost(const Position& pos, Square sq) 
+		constexpr bool outpost(const Position& pos, Square sq) 
 		{
 			constexpr Colour THEM = ~US;
 
 			constexpr Piece OUR_PAWN = make_piece(PAWN, US);
 
 			constexpr Piece THEIR_PAWN = make_piece(PAWN, THEM);
-
-            return (Bitboards::pawn_attacks[THEM][sq] & pos.pc_bb[OUR_PAWN]) 
+			
+			return (Bitboards::pawn_attacks[THEM][sq] & pos.pc_bb[OUR_PAWN]) 
 				&& (outpost_masks[US] & sq) 
 				&& !(pos.pc_bb[THEIR_PAWN] & outpost_pawn_masks[US][sq]);
-        }
-
-        template<Colour US, PieceType PT>
-        void king_danger(Bitboard attacks, PTEntry& pte)
-        {
+		}
+		
+		template<Colour US, PieceType PT>
+		void king_danger(Bitboard attacks, PTEntry& pte)
+		{
 			constexpr Colour THEM = ~US;
-
-            Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
-            Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
-
-            if (or_att_bb || ir_att_bb)
-            {
-                pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
-				
-                if constexpr (PT != PAWN)
-                    ++pte.n_att[US];
-            }
-        }
+		
+			Bitboard or_att_bb = attacks & king_zones[pte.ksq[THEM]].outer_ring;
+			Bitboard ir_att_bb = attacks & king_zones[pte.ksq[THEM]].inner_ring;
+		
+			if (or_att_bb || ir_att_bb)
+			{
+				pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
+				if constexpr (PT != PAWN)
+					++pte.n_att[US];
+			}
+		}
 
 		template<Colour US, PieceType PT, bool SAFE>
 		Score evaluate_majors(const Position& pos, PTEntry& pte)
@@ -316,7 +315,7 @@ namespace Clovis {
 
 		template<Colour US>
 		Score evaluate_all(const Position& pos, PTEntry& pte)
-        {
+		{
 			constexpr Colour THEM = ~US;
 			
 			constexpr Piece OUR_PAWN  = make_piece(PAWN,  US);
@@ -350,7 +349,7 @@ namespace Clovis {
 			}
 
 			return score;
-        }
+		}
 
 		template<Colour US>
 		Score evaluate_pawns(const Position& pos, PTEntry& pte)
@@ -414,7 +413,10 @@ namespace Clovis {
 		template<bool USE_TT>
 		int evaluate(const Position& pos)
 		{
-			bool insufficient[COLOUR_N] = { pos.is_insufficient<WHITE>(), pos.is_insufficient<BLACK>() };
+			bool insufficient[COLOUR_N] = { 
+				pos.is_insufficient<WHITE>(), 
+				pos.is_insufficient<BLACK>() 
+			};
 			
 			if (insufficient[WHITE] && insufficient[BLACK])
 				return DRAW_SCORE;
@@ -445,9 +447,7 @@ namespace Clovis {
 			if (us == BLACK)
 				eval = -eval;
 
-			return insufficient[us]   ? min(DRAW_SCORE, eval) 
-				 : insufficient[them] ? max(DRAW_SCORE, eval) 
-				 : eval;
+			return insufficient[us] ? min(DRAW_SCORE, eval) : insufficient[them] ? max(DRAW_SCORE, eval) : eval;
 		}
 
 	} // namespace Eval

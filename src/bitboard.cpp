@@ -101,10 +101,10 @@ namespace Clovis {
 		template<PieceType PT>
 		void init_sliders_attacks()
 		{
-			constexpr Bitboard (*OTF)(Square, Bitboard)	= PT == BISHOP ? bishop_otf   : rook_otf;
-			constexpr const Bitboard* ATTACK_MASK		= PT == BISHOP ? bishop_masks : rook_masks;
-			constexpr const Bitboard* MAGIC				= PT == BISHOP ? bishop_magic : rook_magic;
-			constexpr const int* RELEVANT_BITS			= PT == BISHOP ? bishop_rbits : rook_rbits;
+			constexpr Bitboard (*OTF)(Square, Bitboard) = PT == BISHOP ? bishop_otf   : rook_otf;
+			constexpr const Bitboard* ATTACK_MASK       = PT == BISHOP ? bishop_masks : rook_masks;
+			constexpr const Bitboard* MAGIC             = PT == BISHOP ? bishop_magic : rook_magic;
+			constexpr const int* RELEVANT_BITS          = PT == BISHOP ? bishop_rbits : rook_rbits;
 
 			static_assert(PT == BISHOP || PT == ROOK);
 

@@ -20,9 +20,9 @@ namespace Clovis {
 
 		void init_zobrist();
 
-        extern Key piece_square[15][SQ_N];
-        extern Key enpassant[SQ_N];
-        extern Key castling[16];
+		extern Key piece_square[15][SQ_N];
+		extern Key enpassant[SQ_N];
+		extern Key castling[16];
 		extern Key side;
 
 	}

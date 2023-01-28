@@ -87,11 +87,11 @@ Score rook_closed_file_penalty = S(13, 4);
 
 #undef S
 
-		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
+        const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
         const Score* score_table[15][SQ_N];
-		const Score* passed_table[COLOUR_N][SQ_N];
+        const Score* passed_table[COLOUR_N][SQ_N];
 
-		void init_eval()
+        void init_eval()
         {
             init_values();
         }
@@ -100,73 +100,74 @@ Score rook_closed_file_penalty = S(13, 4);
         {
             for (PieceType pt = PAWN; pt <= KING; ++pt)
             {
-				if(pt == BISHOP || pt == ROOK || pt == KING || pt == KNIGHT)
-					continue;
+                if(pt == BISHOP || pt == ROOK || pt == KING || pt == KNIGHT)
+                    continue;
                 for (Square sq = SQ_ZERO; sq < 32; ++sq)
                 {
                     int r = sq / 4;
                     int f = sq & 0x3;
+                    
 
-		            if (1)
-		            {
-						// horizontal mirror
+                    if (1)
+                    {
+                        // horizontal mirror
                         score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
                         score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
 
                         score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
                         score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
 
-						if (0) 
-						{
-							// vertical mirror
-							score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + f)]       = &piece_table[pt][sq];
-							score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + (7 - f))] = &piece_table[pt][sq];
+                        if (0) 
+                        {
+                            // vertical mirror
+                            score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + f)]       = &piece_table[pt][sq];
+                            score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + (7 - f))] = &piece_table[pt][sq];
 
-							score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + f)]             = &piece_table[pt][sq];
-							score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + (7 - f))]       = &piece_table[pt][sq];		
-						}
-					}
+                            score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + f)]             = &piece_table[pt][sq];
+                            score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + (7 - f))]       = &piece_table[pt][sq];		
+                        }
+                    }
                 }
             }
             
             for (PieceType pt = KNIGHT; pt <= KING; ++pt)
             {
-				if (pt == QUEEN)
-					continue;
+                if (pt == QUEEN)
+                    continue;
                 for (Square sq = SQ_ZERO; sq < 16; ++sq)
                 {
                     int r = sq / 4;
                     int f = sq & 0x3;
 
-					if (r >= f) 
-					{
-						// horizontal mirror
-						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + f]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + (7 - f)] = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][r * 8 + f]             = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][r * 8 + (7 - f)]       = &piece_table[pt][sq];
-						
-						// vertical mirror
-						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + f)]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + (7 - f))] = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + f)]             = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + (7 - f))]       = &piece_table[pt][sq];
+                    if (r >= f) 
+                    {
+                        // horizontal mirror
+                        score_table[make_piece(pt, WHITE)][(7 - r) * 8 + f]       = &piece_table[pt][sq];
+                        score_table[make_piece(pt, WHITE)][(7 - r) * 8 + (7 - f)] = &piece_table[pt][sq];
+                        score_table[make_piece(pt, BLACK)][r * 8 + f]             = &piece_table[pt][sq];
+                        score_table[make_piece(pt, BLACK)][r * 8 + (7 - f)]       = &piece_table[pt][sq];
 
-						// diagonal mirror
-						score_table[make_piece(pt, WHITE)][f * 8 + r]           = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
+                        // vertical mirror
+                        score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + f)]       = &piece_table[pt][sq];
+                        score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + (7 - f))] = &piece_table[pt][sq];
+                        score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + f)]             = &piece_table[pt][sq];
+                        score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + (7 - f))]       = &piece_table[pt][sq];
+
+                        // diagonal mirror
+                        score_table[make_piece(pt, WHITE)][f * 8 + r]           = &piece_table[pt][sq];
+                        score_table[make_piece(pt, WHITE)][f * 8 + 7 - r]       = &piece_table[pt][sq];
+                        score_table[make_piece(pt, WHITE)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
+                        score_table[make_piece(pt, WHITE)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
 								
-						score_table[make_piece(pt, BLACK)][f * 8 + r]           = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
-					}
+                        score_table[make_piece(pt, BLACK)][f * 8 + r]           = &piece_table[pt][sq];
+                        score_table[make_piece(pt, BLACK)][f * 8 + 7 - r]       = &piece_table[pt][sq];
+                        score_table[make_piece(pt, BLACK)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
+                        score_table[make_piece(pt, BLACK)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
+                    }
                 }
             }
 			
-			for (Square sq = SQ_ZERO; sq < 32; ++sq)
+            for (Square sq = SQ_ZERO; sq < 32; ++sq)
             {
                 int r = sq / 4;
                 int f = sq & 0x3;
@@ -174,10 +175,11 @@ Score rook_closed_file_penalty = S(13, 4);
                 passed_table[WHITE][((7 - r) << 3) + f]       = &passed_pawn_bonus[sq];
                 passed_table[WHITE][((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
 
-				passed_table[BLACK][(r << 3) + f]             = &passed_pawn_bonus[sq];
+                passed_table[BLACK][(r << 3) + f]             = &passed_pawn_bonus[sq];
                 passed_table[BLACK][(r << 3) + (7 - f)]       = &passed_pawn_bonus[sq];
-			}
-		}
+            }
+
+        }
 
     } // namespace Eval
 
