@@ -295,7 +295,6 @@ namespace Clovis {
 			// point weights to the variables in the evaluation function
 			
 			vector<short*> weights;
-
 			add_weight(weights, Eval::virtual_king_m);
 			add_weight(weights, Eval::virtual_king_b);
 
@@ -320,8 +319,9 @@ namespace Clovis {
 				if (sq < 16)
 				{
 					add_weight(weights, Eval::king_table[sq]);
-					add_weight(weights, Eval::bishop_table[sq]);
 					add_weight(weights, Eval::rook_table[sq]);
+					if (sq / 4 >= (sq & 3))
+						add_weight(weights, Eval::bishop_table[sq]);
 				}
 			}
 
@@ -335,6 +335,7 @@ namespace Clovis {
 			add_weight(weights, Eval::bishop_outpost_bonus);
 			add_weight(weights, Eval::rook_closed_file_penalty);
 
+
 			for (int i = PAWN; i < KING; ++i)
 			{
 				if (i > PAWN)
@@ -343,7 +344,7 @@ namespace Clovis {
 				add_weight(weights, Eval::inner_ring_attack[i]);
 				add_weight(weights, Eval::outer_ring_attack[i]);
 			}
-			
+
 			return weights;
 		}
 
