@@ -57,7 +57,8 @@ namespace Clovis {
 		bool is_king_in_check() const;
 		bool stm_has_promoted() const;
 		bool is_material_draw() const;
-		template <Colour c> bool is_insufficient() const;
+		template <Colour US> bool discovery_threat(Square sq) const;
+		template <Colour US> bool is_insufficient() const;
 		bool is_draw_50() const;
 		int get_game_phase() const { return min(bs->game_phase, MAX_GAMEPHASE); }
 		Key make_key();
@@ -70,6 +71,31 @@ namespace Clovis {
 		BoardState* bs;
 		Colour side;
 	};
+
+	// returns if a square is in danger of a discovery attack by a rook or bishop
+	template<Colour US>
+	bool Position::discovery_threat(Square sq) const 
+	{
+		constexpr Colour THEM = ~US;
+        
+		constexpr Piece OUR_PAWN = make_piece(PAWN, US);
+
+		constexpr Piece THEIR_BISHOP = make_piece(BISHOP, THEM);
+		constexpr Piece THEIR_ROOK   = make_piece(ROOK,   THEM);
+
+		Bitboard candidates = 
+		((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[THEIR_ROOK])) 
+		| (Bitboards::get_attacks<BISHOP>(pc_bb[OUR_PAWN], sq) & (pc_bb[THEIR_BISHOP])));
+        
+		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
+
+		while (candidates)
+		// gridlocked pawns with no attacks might be an exception to this
+		if (popcnt(between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
+			return true;
+
+		return false;
+	}
 
 	// returns whether or not a square is attacked by opposing side
 	template<Colour US>

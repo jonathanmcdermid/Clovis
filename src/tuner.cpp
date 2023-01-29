@@ -295,12 +295,21 @@ namespace Clovis {
 			// point weights to the variables in the evaluation function
 			
 			vector<short*> weights;
+
+			add_weight(weights, Eval::weak_queen_penalty);
+			add_weight(weights, Eval::tempo_bonus);
+			add_weight(weights, Eval::double_pawn_penalty);
+			add_weight(weights, Eval::isolated_pawn_penalty);
+			add_weight(weights, Eval::bishop_pair_bonus);
+			add_weight(weights, Eval::rook_open_file_bonus);
+			add_weight(weights, Eval::rook_semi_open_file_bonus);
+			add_weight(weights, Eval::knight_outpost_bonus);
+			add_weight(weights, Eval::bishop_outpost_bonus);
+			add_weight(weights, Eval::rook_closed_file_penalty);
 			add_weight(weights, Eval::virtual_king_m);
 			add_weight(weights, Eval::virtual_king_b);
-
 			add_weight(weights, Eval::king_full_open_penalty);
 			add_weight(weights, Eval::king_semi_open_penalty);
-			
 			add_weight(weights, Eval::king_adjacent_full_open_penalty);
 			add_weight(weights, Eval::king_adjacent_semi_open_penalty);
 
@@ -330,17 +339,6 @@ namespace Clovis {
 					}
 				}
 			}
-
-			add_weight(weights, Eval::tempo_bonus);
-			add_weight(weights, Eval::double_pawn_penalty);
-			add_weight(weights, Eval::isolated_pawn_penalty);
-			add_weight(weights, Eval::bishop_pair_bonus);
-			add_weight(weights, Eval::rook_open_file_bonus);
-			add_weight(weights, Eval::rook_semi_open_file_bonus);
-			add_weight(weights, Eval::knight_outpost_bonus);
-			add_weight(weights, Eval::bishop_outpost_bonus);
-			add_weight(weights, Eval::rook_closed_file_penalty);
-
 
 			for (int i = PAWN; i < KING; ++i)
 			{
@@ -396,7 +394,8 @@ namespace Clovis {
 			<< "Score bishop_outpost_bonus = "            << Eval::bishop_outpost_bonus            << ";" << endl
 			<< "Score virtual_king_m = "                  << Eval::virtual_king_m                  << ";" << endl
 			<< "Score virtual_king_b = "                  << Eval::virtual_king_b                  << ";" << endl
-			<< "Score rook_closed_file_penalty = "        << Eval::rook_closed_file_penalty        << ";" << endl;			
+			<< "Score rook_closed_file_penalty = "        << Eval::rook_closed_file_penalty        << ";" << endl
+			<< "Score weak_queen_penalty = "              << Eval::weak_queen_penalty              << ";" << endl;			
 		}
 
 	} // namespace Tuner

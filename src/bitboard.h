@@ -20,6 +20,10 @@ namespace Clovis {
 	constexpr Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb(sq); }
 	constexpr Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb(sq); }
 
+	extern Bitboard between_bb[SQ_N][SQ_N];
+
+	inline Bitboard between_squares(Square sq1, Square sq2) { return between_bb[sq1][sq2]; }
+
 #if defined(__GNUC__)
 
 	inline int popcnt(Bitboard bb) {

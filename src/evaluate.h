@@ -34,6 +34,7 @@ namespace Clovis {
 		extern Score king_adjacent_semi_open_penalty;
 		extern Score virtual_king_m;
 		extern Score virtual_king_b;
+		extern Score weak_queen_penalty;
 
 		extern const Score* piece_table[7];
 		extern const Score* score_table[15][SQ_N];
@@ -289,14 +290,14 @@ namespace Clovis {
 					if (outpost<US>(pos, sq))
 						score += knight_outpost_bonus;
 				}
-				else if constexpr (PT == BISHOP)
+				if constexpr (PT == BISHOP)
 				{
 					if (outpost<US>(pos, sq))
 						score += bishop_outpost_bonus;
 					if (bb)
 						score += bishop_pair_bonus;
 				}
-				else if constexpr (PT == ROOK)
+				if constexpr (PT == ROOK)
 				{
 					if (!(file_masks[sq] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN])))
 						score += rook_open_file_bonus;
@@ -305,7 +306,11 @@ namespace Clovis {
 					else if (file_masks[sq] & pos.pc_bb[THEIR_PAWN])
 						score -= rook_closed_file_penalty;
 				}
-
+				if constexpr (PT == QUEEN)
+				{
+					if (pos.discovery_threat<US>(sq))
+						score -= weak_queen_penalty;// << (pos.side == THEM);
+				}
 				if constexpr (!SAFE)
 					king_danger<US, PT>(attacks, pte);
 			}
