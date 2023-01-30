@@ -84,18 +84,12 @@ namespace Clovis {
 		constexpr Piece THEIR_BISHOP = make_piece(BISHOP, THEM);
 		constexpr Piece THEIR_ROOK   = make_piece(ROOK,   THEM);
 
-		constexpr Direction THEIR_PUSH = pawn_push(THEM);
+		constexpr Direction PUSH = pawn_push(US);
+		constexpr Direction PUSH_EAST = PUSH + EAST;
+		constexpr Direction PUSH_WEST = PUSH + WEST;
 
-		Bitboard their_moveless_pawns = 0ULL;
-
-		Bitboard bb = pc_bb[THEIR_PAWN];
-
-		while (bb) 
-		{
-			Square psq = pop_lsb(bb);
-			if ((occ_bb[BOTH] & (psq + THEIR_PUSH)) && !(Bitboards::pawn_attacks[THEM][psq] & occ_bb[US]))
-				their_moveless_pawns |= psq;
-		}
+		// pawn is moveless if it attacks no enemies and is blocked by a piece (this misses en passant)
+		Bitboard their_moveless_pawns = (shift<PUSH>(occ_bb[BOTH]) & pc_bb[THEIR_PAWN]) & ~(shift<PUSH_EAST>(occ_bb[US]) | shift<PUSH_WEST>(occ_bb[US]));
 
 		Bitboard candidates = 
 		((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[THEIR_ROOK])) 
