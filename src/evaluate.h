@@ -309,7 +309,7 @@ namespace Clovis {
 				if constexpr (PT == QUEEN)
 				{
 					if (pos.discovery_threat<US>(sq))
-						score -= weak_queen_penalty;// << (pos.side == THEM);
+						score -= weak_queen_penalty;
 				}
 				if constexpr (!SAFE)
 					king_danger<US, PT>(attacks, pte);

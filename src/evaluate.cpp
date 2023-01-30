@@ -102,7 +102,7 @@ Score bishop_outpost_bonus = S(47, 0);
 Score virtual_king_m = S(2, 1);
 Score virtual_king_b = S(3, 0);
 Score rook_closed_file_penalty = S(10, 0);
-Score weak_queen_penalty = S(33, 5);
+Score weak_queen_penalty = S(35, 7);
 
 #undef S
 

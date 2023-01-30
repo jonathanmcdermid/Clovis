@@ -80,12 +80,26 @@ namespace Clovis {
         
 		constexpr Piece OUR_PAWN = make_piece(PAWN, US);
 
+		constexpr Piece THEIR_PAWN   = make_piece(PAWN,   THEM);
 		constexpr Piece THEIR_BISHOP = make_piece(BISHOP, THEM);
 		constexpr Piece THEIR_ROOK   = make_piece(ROOK,   THEM);
 
+		constexpr Direction THEIR_PUSH = pawn_push(THEM);
+
+		Bitboard their_moveless_pawns = 0ULL;
+
+		Bitboard bb = pc_bb[THEIR_PAWN];
+
+		while (bb) 
+		{
+			Square psq = pop_lsb(bb);
+			if ((occ_bb[BOTH] & (psq + THEIR_PUSH)) && !(Bitboards::pawn_attacks[THEM][psq] & occ_bb[US]))
+				their_moveless_pawns |= psq;
+		}
+
 		Bitboard candidates = 
 		((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[THEIR_ROOK])) 
-		| (Bitboards::get_attacks<BISHOP>(pc_bb[OUR_PAWN], sq) & (pc_bb[THEIR_BISHOP])));
+		| (Bitboards::get_attacks<BISHOP>(pc_bb[OUR_PAWN] | their_moveless_pawns, sq) & (pc_bb[THEIR_BISHOP])));
         
 		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
