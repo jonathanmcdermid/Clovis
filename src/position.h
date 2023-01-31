@@ -111,23 +111,24 @@ namespace Clovis {
 
 	// returns whether or not a square is attacked by opposing side
 	template<Colour US>
-	bool Position::is_attacked(Square sq) const
+	inline bool Position::is_attacked(Square sq) const
 	{
-		constexpr Colour THEM = ~US;
-
-		constexpr Piece THEIR_PAWN   = make_piece(PAWN,   THEM);
-		constexpr Piece THEIR_KNIGHT = make_piece(KNIGHT, THEM);
-		constexpr Piece THEIR_BISHOP = make_piece(BISHOP, THEM);
-		constexpr Piece THEIR_ROOK   = make_piece(ROOK,   THEM);
-		constexpr Piece THEIR_QUEEN  = make_piece(QUEEN,  THEM);
-		constexpr Piece THEIR_KING   = make_piece(KING,   THEM);
-
-		return ((pc_bb[THEIR_PAWN]   & Bitboards::pawn_attacks[US][sq])
-			 || (pc_bb[THEIR_KNIGHT] & Bitboards::knight_attacks[sq])
-			 || (pc_bb[THEIR_BISHOP] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
-			 || (pc_bb[THEIR_ROOK]   & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
-			 || (pc_bb[THEIR_QUEEN]  & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
-			 || (pc_bb[THEIR_KING]   & Bitboards::king_attacks[sq]));
+		return ((pc_bb[make_piece(PAWN, ~US)]   & Bitboards::pawn_attacks[US][sq])
+			 || (pc_bb[make_piece(KNIGHT, ~US)] & Bitboards::knight_attacks[sq])
+			 || (pc_bb[make_piece(BISHOP, ~US)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
+			 || (pc_bb[make_piece(ROOK, ~US)]   & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
+			 || (pc_bb[make_piece(QUEEN, ~US)]  & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
+			 || (pc_bb[make_piece(KING, ~US)]   & Bitboards::king_attacks[sq]));
+	}
+	
+	template <Colour US>
+	inline bool Position::is_insufficient() const 
+	{
+		return (popcnt(pc_bb[make_piece(PAWN, US)])  == 0
+			&& (popcnt(pc_bb[make_piece(ROOK, US)])  == 0)
+			&& (popcnt(pc_bb[make_piece(QUEEN, US)]) == 0)
+			&& (popcnt(pc_bb[make_piece(KNIGHT, US)]) < 3)
+			&& (popcnt(pc_bb[make_piece(BISHOP, US)]) + popcnt(pc_bb[make_piece(KNIGHT, US)])  < 2));
 	}
 
 	inline bool Position::is_king_in_check() const 
@@ -154,22 +155,6 @@ namespace Clovis {
 	inline bool Position::is_draw_50() const 
 	{
 		return (bs->hmc >= 100);
-	}
-
-	template <Colour US>
-	inline bool Position::is_insufficient() const 
-	{
-		constexpr Piece OUR_PAWN   = make_piece(PAWN,   US);
-		constexpr Piece OUR_KNIGHT = make_piece(KNIGHT, US);
-		constexpr Piece OUR_BISHOP = make_piece(BISHOP, US);
-		constexpr Piece OUR_ROOK   = make_piece(ROOK,   US);
-		constexpr Piece OUR_QUEEN  = make_piece(QUEEN,  US);
-
-		return (popcnt(pc_bb[OUR_PAWN])  == 0
-			&& (popcnt(pc_bb[OUR_ROOK])  == 0)
-			&& (popcnt(pc_bb[OUR_QUEEN]) == 0)
-			&& (popcnt(pc_bb[OUR_KNIGHT]) < 3)
-			&& (popcnt(pc_bb[OUR_BISHOP]) + popcnt(pc_bb[OUR_KNIGHT])  < 2));
 	}
 
 } // namespace Clovis
