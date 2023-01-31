@@ -72,43 +72,6 @@ namespace Clovis {
 		Colour side;
 	};
 
-	// returns if a square is in danger of a discovery attack by a rook or bishop
-	template<Colour US>
-	bool Position::discovery_threat(Square sq) const 
-	{
-		constexpr Colour THEM = ~US;
-        
-		constexpr Piece OUR_PAWN = make_piece(PAWN, US);
-
-		constexpr Piece THEIR_PAWN   = make_piece(PAWN,   THEM);
-		constexpr Piece THEIR_BISHOP = make_piece(BISHOP, THEM);
-		constexpr Piece THEIR_ROOK   = make_piece(ROOK,   THEM);
-
-		constexpr Direction PUSH = pawn_push(US);
-		constexpr Direction PUSH_EAST = PUSH + EAST;
-		constexpr Direction PUSH_WEST = PUSH + WEST;
-
-		// pawn is moveless if it attacks no enemies and is blocked by a piece
-		// we dont have to worry about shift because discovery pawns will never be on outer files
-		Bitboard their_moveless_pawns = (shift<PUSH>(occ_bb[BOTH]) & pc_bb[THEIR_PAWN]) & ~(shift<PUSH_EAST>(occ_bb[US]) | shift<PUSH_WEST>(occ_bb[US]));
-
-		if (side == THEM && bs->enpassant != SQ_NONE)
-			their_moveless_pawns &= ~(shift<PUSH_EAST>(sqbb(bs->enpassant)) | shift<PUSH_WEST>(sqbb(bs->enpassant)));
-
-		Bitboard candidates = 
-		((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[THEIR_ROOK])) 
-		| (Bitboards::get_attacks<BISHOP>(pc_bb[OUR_PAWN] | their_moveless_pawns, sq) & (pc_bb[THEIR_BISHOP])));
-        
-		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
-
-		while (candidates)
-		// gridlocked pawns with no attacks might be an exception to this
-		if (popcnt(between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
-			return true;
-
-		return false;
-	}
-
 	// returns whether or not a square is attacked by opposing side
 	template<Colour US>
 	inline bool Position::is_attacked(Square sq) const

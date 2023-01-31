@@ -40,6 +40,38 @@ namespace Clovis {
 		Key side;
 
 	} // namespace Zobrist
+	
+	// returns if a square is in danger of a discovery attack by a rook or bishop
+	template<Colour US>
+	bool Position::discovery_threat(Square sq) const 
+	{
+		constexpr Colour THEM = ~US;
+
+		// pawn is moveless if it attacks no enemies and is blocked by a piece
+		// we dont have to worry about shift because discovery pawns will never be on outer files
+		Bitboard their_moveless_pawns = 
+		 (shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, THEM)]) & 
+		~(shift<pawn_push(US) + EAST>(occ_bb[US]) | shift<pawn_push(US) + WEST>(occ_bb[US]));
+
+		if (side == THEM && bs->enpassant != SQ_NONE)
+			their_moveless_pawns &= ~(shift<pawn_push(US) + EAST>(sqbb(bs->enpassant)) | shift<pawn_push(US) + WEST>(sqbb(bs->enpassant)));
+
+		Bitboard candidates = 
+		 ((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, THEM)])) 
+		| (Bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_moveless_pawns, sq) & (pc_bb[make_piece(BISHOP, THEM)])));
+        
+		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
+
+		while (candidates)
+			if (popcnt(between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
+				return true;
+
+		return false;
+	}
+	
+	// explicit template instantiations
+	template bool Position::discovery_threat<WHITE>(Square sq) const;
+	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
 	// sets position to the state specified by FEN string
 	void Position::set(const char* fen)

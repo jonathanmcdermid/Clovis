@@ -100,37 +100,35 @@ namespace Clovis {
 		}
 
 		// populates slider attack tables
-		template<PieceType PT>
 		void init_sliders_attacks()
 		{
-			constexpr Bitboard (*OTF)(Square, Bitboard) = PT == BISHOP ? bishop_otf   : rook_otf;
-			constexpr const Bitboard* ATTACK_MASK       = PT == BISHOP ? bishop_masks : rook_masks;
-			constexpr const Bitboard* MAGIC             = PT == BISHOP ? bishop_magic : rook_magic;
-			constexpr const int* RELEVANT_BITS          = PT == BISHOP ? bishop_rbits : rook_rbits;
-
-			static_assert(PT == BISHOP || PT == ROOK);
-
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 			{
-				int relevant_bits_count = popcnt(ATTACK_MASK[sq]);
+				int relevant_bits_count = popcnt(bishop_masks[sq]);
 				int occupancy_indicies = (1 << relevant_bits_count);
 
 				for (int index = 0; index < occupancy_indicies; ++index)
 				{
-					Bitboard occ = set_occupancy(ATTACK_MASK[sq], index, relevant_bits_count);
+					Bitboard occ = set_occupancy(bishop_masks[sq], index, relevant_bits_count);
 
-					if (PT == BISHOP)
-						bishop_attacks[sq][(occ * MAGIC[sq]) >> RELEVANT_BITS[sq]] = OTF(sq, occ);
-					else
-						rook_attacks[sq][(occ * MAGIC[sq]) >> RELEVANT_BITS[sq]] = OTF(sq, occ);
+					bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_rbits[sq]] = bishop_otf(sq, occ);
+				}
+				
+				relevant_bits_count = popcnt(rook_masks[sq]);
+				occupancy_indicies = (1 << relevant_bits_count);
+
+				for (int index = 0; index < occupancy_indicies; ++index)
+				{
+					Bitboard occ = set_occupancy(rook_masks[sq], index, relevant_bits_count);
+
+					rook_attacks[sq][(occ * rook_magic[sq]) >> rook_rbits[sq]] = rook_otf(sq, occ);
 				}
 			}
 		}
 
 		void init_bitboards()
 		{
-			init_sliders_attacks<BISHOP>();
-			init_sliders_attacks<ROOK>();
+			init_sliders_attacks();
 
 			for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1)
 				for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2)

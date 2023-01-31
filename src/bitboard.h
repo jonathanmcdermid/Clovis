@@ -115,11 +115,11 @@ namespace Clovis {
 		return sq;
 	}
 
-    template<Direction D>
-    constexpr Bitboard shift(Bitboard bb)
-    {
-        return D >= 0 ? bb << D : bb >> -D;
-    }
+	template<Direction D>
+	constexpr Bitboard shift(Bitboard bb)
+	{
+		return D >= 0 ? bb << D : bb >> -D;
+	}
 
 	namespace Bitboards {
 

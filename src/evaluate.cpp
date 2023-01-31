@@ -2,7 +2,7 @@
 
 namespace Clovis {
 
-    namespace Eval {
+	namespace Eval {
 
 #define S(mg, eg) Score(mg, eg)
 
@@ -106,97 +106,301 @@ Score weak_queen_penalty = S(35, 7);
 
 #undef S
 
-        const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
-        const Score* score_table[15][SQ_N];
-        const Score* passed_table[COLOUR_N][SQ_N];
+		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
+		const Score* score_table[15][SQ_N];
+		const Score* passed_table[COLOUR_N][SQ_N];
 
-        void init_eval()
-        {
-            init_values();
-        }
+		void init_eval()
+		{
+			init_values();
+		}
 
-        void init_values()
-        {
+		void init_values()
+		{
+			for (auto pt : {PAWN, KNIGHT, ROOK, QUEEN})
+			{
+ 				for (Square sq = SQ_ZERO; sq < 32; ++sq)
+				{
+					int r = sq / 4;
+					int f = sq & 0x3;
+					
+					// horizontal mirror
+					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
+					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
 
-            for (PieceType pt = PAWN; pt <= KING; ++pt)
-            {
-                for (Square sq = SQ_ZERO; sq < 32; ++sq)
-                {
-                    int r = sq / 4;
-                    int f = sq & 0x3;
-
-                    if (sq < 16 || (pt != KING && pt != BISHOP))
-                    {
-                        // horizontal mirror
-                        score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
-                        score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
-
-                        score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
-
-                        if (pt == KING || pt == BISHOP) 
-                        {
-                            // vertical mirror
-                            score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + f)]       = &piece_table[pt][sq];
-                            score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + (7 - f))] = &piece_table[pt][sq];
-
-                            score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + f)]             = &piece_table[pt][sq];
-                            score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + (7 - f))]       = &piece_table[pt][sq];
-                        }
-                    }
-                }
-            }
-            /*
-            for (PieceType pt = KNIGHT; pt <= KING; ++pt)
-            {
-                for (Square sq = SQ_ZERO; sq < 16; ++sq)
-                {
-                    int r = sq / 4;
-                    int f = sq & 0x3;
-
-                    if (r >= f) 
-                    {
-                        // horizontal mirror
-                        score_table[make_piece(pt, WHITE)][(7 - r) * 8 + f]       = &piece_table[pt][sq];
-                        score_table[make_piece(pt, WHITE)][(7 - r) * 8 + (7 - f)] = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][r * 8 + f]             = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][r * 8 + (7 - f)]       = &piece_table[pt][sq];
-
-                        // vertical mirror
-                        score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + f)]       = &piece_table[pt][sq];
-                        score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + (7 - f))] = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + f)]             = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + (7 - f))]       = &piece_table[pt][sq];
-
-                        // diagonal mirror
-                        score_table[make_piece(pt, WHITE)][f * 8 + r]           = &piece_table[pt][sq];
-                        score_table[make_piece(pt, WHITE)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-                        score_table[make_piece(pt, WHITE)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-                        score_table[make_piece(pt, WHITE)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
-								
-                        score_table[make_piece(pt, BLACK)][f * 8 + r]           = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-                        score_table[make_piece(pt, BLACK)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
-                    }
-                }
-            }
-            */
+					score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
+					score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
+				}
+			}
 			
-            for (Square sq = SQ_ZERO; sq < 32; ++sq)
-            {
-                int r = sq / 4;
-                int f = sq & 0x3;
+			for (auto pt : {BISHOP, KING})
+			{
+ 				for (Square sq = SQ_ZERO; sq < 16; ++sq)
+				{
+					int r = sq / 4;
+					int f = sq & 0x3;
+					
+					// horizontal mirror
+					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
+					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
 
-                passed_table[WHITE][((7 - r) << 3) + f]       = &passed_pawn_bonus[sq];
-                passed_table[WHITE][((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
+					score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
+					score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
+						
+					// vertical mirror
+					score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + f)]       = &piece_table[pt][sq];
+					score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + (7 - f))] = &piece_table[pt][sq];
 
-                passed_table[BLACK][(r << 3) + f]             = &passed_pawn_bonus[sq];
-                passed_table[BLACK][(r << 3) + (7 - f)]       = &passed_pawn_bonus[sq];
-            }
+					score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + f)]             = &piece_table[pt][sq];
+					score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + (7 - f))]       = &piece_table[pt][sq];
+				}
+			}
+			
+			/*
+			for (auto pt : {})
+			{
+				for (Square sq = SQ_ZERO; sq < 16; ++sq)
+				{
+					int r = sq / 4;
+					int f = sq & 0x3;
 
-        }
+					if (r >= f) 
+					{
+						// horizontal mirror
+						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + f]       = &piece_table[pt][sq];
+						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + (7 - f)] = &piece_table[pt][sq];
+						score_table[make_piece(pt, BLACK)][r * 8 + f]             = &piece_table[pt][sq];
+						score_table[make_piece(pt, BLACK)][r * 8 + (7 - f)]       = &piece_table[pt][sq];
 
-    } // namespace Eval
+						// vertical mirror
+						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + f)]       = &piece_table[pt][sq];
+						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + (7 - f))] = &piece_table[pt][sq];
+						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + f)]             = &piece_table[pt][sq];
+						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + (7 - f))]       = &piece_table[pt][sq];
+
+						// diagonal mirror
+						score_table[make_piece(pt, WHITE)][f * 8 + r]           = &piece_table[pt][sq];
+						score_table[make_piece(pt, WHITE)][f * 8 + 7 - r]       = &piece_table[pt][sq];
+						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
+						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
+								
+						score_table[make_piece(pt, BLACK)][f * 8 + r]           = &piece_table[pt][sq];
+						score_table[make_piece(pt, BLACK)][f * 8 + 7 - r]       = &piece_table[pt][sq];
+						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
+						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
+					}
+				}
+			}
+			*/
+			
+			for (Square sq = SQ_ZERO; sq < 32; ++sq)
+			{
+				int r = sq / 4;
+				int f = sq & 0x3;
+
+				passed_table[WHITE][((7 - r) << 3) + f]       = &passed_pawn_bonus[sq];
+				passed_table[WHITE][((7 - r) << 3) + (7 - f)] = &passed_pawn_bonus[sq];
+
+				passed_table[BLACK][(r << 3) + f]             = &passed_pawn_bonus[sq];
+				passed_table[BLACK][(r << 3) + (7 - f)]       = &passed_pawn_bonus[sq];
+			}
+
+		}
+        
+        	template<Colour US, PieceType PT, bool SAFE>
+		Score evaluate_majors(const Position& pos, PTEntry& pte)
+		{
+			constexpr Colour THEM = ~US;
+
+			static_assert(PT >= KNIGHT && PT < KING);
+
+			Score score;
+			Square sq;
+			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
+
+			Bitboard transparent_occ =
+				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, THEM)]
+				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, US)]
+				: pos.occ_bb[BOTH];
+
+			while (bb)
+			{
+				sq = pop_lsb(bb);
+				score += *score_table[make_piece(PT, US)][sq];
+				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq) & ~pte.attacks[THEM];
+
+				score += mobility[PT] * popcnt(attacks & ~pos.occ_bb[US]);
+
+				if constexpr (PT == KNIGHT)
+				{
+					if (outpost<US>(pos, sq))
+						score += knight_outpost_bonus;
+				}
+				if constexpr (PT == BISHOP)
+				{
+					if (outpost<US>(pos, sq))
+						score += bishop_outpost_bonus;
+					if (bb)
+						score += bishop_pair_bonus;
+				}
+				if constexpr (PT == ROOK)
+				{
+					if (!(file_masks[sq] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN])))
+						score += rook_open_file_bonus;
+					else if (!(file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)]))
+						score += rook_semi_open_file_bonus;
+					else if (file_masks[sq] & pos.pc_bb[make_piece(PAWN, THEM)])
+						score -= rook_closed_file_penalty;
+				}
+				if constexpr (PT == QUEEN)
+				{
+					if (pos.discovery_threat<US>(sq))
+						score -= weak_queen_penalty;
+				}
+				if constexpr (!SAFE)
+					king_danger<US, PT>(attacks, pte);
+			}
+
+			return score;
+		}
+
+		template<Colour US>
+		Score evaluate_all(const Position& pos, PTEntry& pte)
+		{
+			constexpr Colour THEM = ~US;
+			
+			Score score;
+
+			if (pos.pc_bb[make_piece(QUEEN, US)])
+			{
+				score += evaluate_majors<US, KNIGHT, false>(pos, pte);
+				score += evaluate_majors<US, BISHOP, false>(pos, pte);
+				score += evaluate_majors<US, ROOK,   false>(pos, pte);
+				score += evaluate_majors<US, QUEEN,  false>(pos, pte);
+
+				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
+				assert(pte.n_att[US] < 10);
+
+				int virtual_mobility = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[THEM] ^ pos.pc_bb[make_piece(PAWN, US)], pte.ksq[THEM]) & ~pte.attacks[THEM]);
+
+				if (virtual_mobility > 4)
+					pte.weight[US] += virtual_king_m * min(13, virtual_mobility) - virtual_king_b;
+				
+				score += pte.weight[US] * pte.weight[US] / (10 - pte.n_att[US]);
+			}
+			else
+			{
+				score += evaluate_majors<US, KNIGHT, true>(pos, pte);
+				score += evaluate_majors<US, BISHOP, true>(pos, pte);
+				score += evaluate_majors<US, ROOK,   true>(pos, pte);
+				score += evaluate_majors<US, QUEEN,  true>(pos, pte);
+			}
+
+			return score;
+		}
+
+		template<Colour US>
+		Score evaluate_pawns(const Position& pos, PTEntry& pte)
+		{
+			constexpr Colour THEM = ~US;
+
+			constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
+			constexpr Piece THEIR_PAWN = make_piece(PAWN, THEM);
+
+			Score score;
+
+			Bitboard bb = pos.pc_bb[OUR_PAWN];
+
+			while (bb)
+			{
+				Square sq = pop_lsb(bb);
+
+				score += *score_table[OUR_PAWN][sq];
+
+				if (doubled_pawn(pos.pc_bb[OUR_PAWN], sq))
+					score -= double_pawn_penalty;
+
+				if (isolated_pawn(pos.pc_bb[OUR_PAWN], sq))
+					score -= isolated_pawn_penalty;
+
+				if (passed_pawn<US>(pos.pc_bb[THEIR_PAWN], sq))
+					score += *passed_table[US][sq];
+
+				Bitboard attacks = Bitboards::pawn_attacks[US][sq];
+
+				king_danger<US, PAWN>(attacks, pte);
+
+				pte.attacks[US] |= attacks;
+			}
+
+			if (!(file_masks[pte.ksq[US]] & pos.pc_bb[OUR_PAWN]))
+			{
+				score -= (file_masks[pte.ksq[US]] & pos.pc_bb[THEIR_PAWN])
+					? king_semi_open_penalty
+					: king_full_open_penalty;
+			}
+			if (file_of(pte.ksq[US]) != FILE_A && !(file_masks[pte.ksq[US] + WEST] & pos.pc_bb[OUR_PAWN]))
+			{
+				score -= (file_masks[pte.ksq[US] + WEST] & pos.pc_bb[THEIR_PAWN])
+					? king_adjacent_semi_open_penalty
+					: king_adjacent_full_open_penalty;
+			}
+			if (file_of(pte.ksq[US]) != FILE_H && !(file_masks[pte.ksq[US] + EAST] & pos.pc_bb[OUR_PAWN]))
+			{
+				score -= (file_masks[pte.ksq[US] + EAST] & pos.pc_bb[THEIR_PAWN])
+					? king_adjacent_semi_open_penalty
+					: king_adjacent_full_open_penalty;
+			}
+
+			score += *score_table[make_piece(KING, US)][pte.ksq[US]];
+
+			return score;
+		}
+
+		template<bool USE_TT>
+		int evaluate(const Position& pos)
+		{
+			bool insufficient[COLOUR_N] = { 
+				pos.is_insufficient<WHITE>(), 
+				pos.is_insufficient<BLACK>() 
+			};
+			
+			if (insufficient[WHITE] && insufficient[BLACK])
+				return DRAW_SCORE;
+
+			Colour us = pos.side;
+			Colour them = ~us;
+
+			int game_phase = pos.get_game_phase();
+
+			Score score = (us == WHITE) ? tempo_bonus : -tempo_bonus;
+
+			PTEntry pte = tt.probe_pawn(pos.bs->pkey);
+
+			if (!USE_TT || pte.key != pos.bs->pkey)
+			{
+				pte.clear();
+				pte.key = pos.bs->pkey;
+				pte.ksq[WHITE] = lsb(pos.pc_bb[W_KING]);
+				pte.ksq[BLACK] = lsb(pos.pc_bb[B_KING]);
+				pte.score = evaluate_pawns<WHITE>(pos, pte) - evaluate_pawns<BLACK>(pos, pte);
+				tt.new_pawn_entry(pte);
+			}
+
+			score += pte.score + evaluate_all<WHITE>(pos, pte) - evaluate_all<BLACK>(pos, pte);
+
+			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
+			
+			if (us == BLACK)
+				eval = -eval;
+
+			return insufficient[us] ? min(DRAW_SCORE, eval) : insufficient[them] ? max(DRAW_SCORE, eval) : eval;
+		}
+		
+		// explicit template instantiations
+		template int evaluate<true>(const Position& pos);
+		template int evaluate<false>(const Position& pos);
+
+	} // namespace Eval
 
 } // namespace Clovis
