@@ -88,8 +88,11 @@ namespace Clovis {
 		constexpr Direction PUSH_EAST = PUSH + EAST;
 		constexpr Direction PUSH_WEST = PUSH + WEST;
 
-		// pawn is moveless if it attacks no enemies and is blocked by a piece (this misses en passant)
+		// pawn is moveless if it attacks no enemies and is blocked by a piece
 		Bitboard their_moveless_pawns = (shift<PUSH>(occ_bb[BOTH]) & pc_bb[THEIR_PAWN]) & ~(shift<PUSH_EAST>(occ_bb[US]) | shift<PUSH_WEST>(occ_bb[US]));
+
+		if (side == US && bs->enpassant != SQ_NONE)
+			their_moveless_pawns &= ~(shift<PUSH_EAST>(bs->enpassant) | shift<PUSH_WEST>(bs->enpassant));
 
 		Bitboard candidates = 
 		((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[THEIR_ROOK])) 
