@@ -89,10 +89,11 @@ namespace Clovis {
 		constexpr Direction PUSH_WEST = PUSH + WEST;
 
 		// pawn is moveless if it attacks no enemies and is blocked by a piece
+		// we dont have to worry about shift because discovery pawns will never be on outer files
 		Bitboard their_moveless_pawns = (shift<PUSH>(occ_bb[BOTH]) & pc_bb[THEIR_PAWN]) & ~(shift<PUSH_EAST>(occ_bb[US]) | shift<PUSH_WEST>(occ_bb[US]));
 
-		if (side == US && bs->enpassant != SQ_NONE)
-			their_moveless_pawns &= ~(shift<PUSH_EAST>(bs->enpassant) | shift<PUSH_WEST>(bs->enpassant));
+		if (side == THEM && bs->enpassant != SQ_NONE)
+			their_moveless_pawns &= ~(shift<PUSH_EAST>(sqbb(bs->enpassant)) | shift<PUSH_WEST>(sqbb(bs->enpassant)));
 
 		Bitboard candidates = 
 		((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[THEIR_ROOK])) 
