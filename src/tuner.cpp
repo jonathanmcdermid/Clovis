@@ -1,6 +1,7 @@
 #include "tuner.h"
 
 using namespace std;
+using namespace eval;
 
 namespace Clovis {
 
@@ -295,47 +296,55 @@ namespace Clovis {
 			// point weights to the variables in the evaluation function
 			
 			vector<short*> weights;
-
-			add_weight(weights, Eval::weak_queen_penalty);
-			add_weight(weights, Eval::tempo_bonus);
-			add_weight(weights, Eval::double_pawn_penalty);
-			add_weight(weights, Eval::isolated_pawn_penalty);
-			add_weight(weights, Eval::bishop_pair_bonus);
-			add_weight(weights, Eval::rook_open_file_bonus);
-			add_weight(weights, Eval::rook_semi_open_file_bonus);
-			add_weight(weights, Eval::knight_outpost_bonus);
-			add_weight(weights, Eval::bishop_outpost_bonus);
-			add_weight(weights, Eval::rook_closed_file_penalty);
-			add_weight(weights, Eval::virtual_king_m);
-			add_weight(weights, Eval::virtual_king_b);
-			add_weight(weights, Eval::king_full_open_penalty);
-			add_weight(weights, Eval::king_semi_open_penalty);
-			add_weight(weights, Eval::king_adjacent_full_open_penalty);
-			add_weight(weights, Eval::king_adjacent_semi_open_penalty);
+			
+			add_weight(weights, weak_queen_penalty);
+			add_weight(weights, tempo_bonus);
+			add_weight(weights, double_pawn_penalty);
+			add_weight(weights, isolated_pawn_penalty);
+			add_weight(weights, bishop_pair_bonus);
+			add_weight(weights, rook_open_file_bonus);
+			add_weight(weights, rook_semi_open_file_bonus);
+			add_weight(weights, knight_outpost_bonus);
+			add_weight(weights, bishop_outpost_bonus);
+			add_weight(weights, rook_closed_file_penalty);
+			add_weight(weights, virtual_king_m);
+			add_weight(weights, virtual_king_b);
+			add_weight(weights, king_full_open_penalty);
+			add_weight(weights, king_semi_open_penalty);
+			add_weight(weights, king_adjacent_full_open_penalty);
+			add_weight(weights, king_adjacent_semi_open_penalty);
 
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
 				if ((Rank(sq / 4) != RANK_1 && Rank(sq / 4) != RANK_8))
 				{
-					add_weight(weights, Eval::pawn_table[sq]);
+					add_weight(weights, pawn_table[sq]);
 					
 					if(Rank(sq / 4) != RANK_2)
-						add_weight(weights, Eval::passed_pawn_bonus[sq]);
+						add_weight(weights, passed_pawn_bonus[sq]);
 				}
 
-				add_weight(weights, Eval::queen_table[sq]);
-				add_weight(weights, Eval::rook_table[sq]);
-				add_weight(weights, Eval::knight_table[sq]);
-
+				add_weight(weights, knight_table[sq]);
+				//add_weight(weights, bishop_table[sq]);
+				add_weight(weights, rook_table[sq]);
+				add_weight(weights, queen_table[sq]);
+				//add_weight(weights, king_table[sq]);
+				
 				if (sq < 16)
 				{
-					add_weight(weights, Eval::king_table[sq]);
-					add_weight(weights, Eval::bishop_table[sq]);
+					//add_weight(weights, knight_table[sq]);
+					add_weight(weights, bishop_table[sq]);
+					//add_weight(weights, rook_table[sq]);
+					//add_weight(weights, queen_table[sq]);
+					add_weight(weights, king_table[sq]);
+					
 					if (sq / 4 >= (sq & 3))
 					{
-						//add_weight(weights, Eval::bishop_table[sq]);
-						//add_weight(weights, Eval::king_table[sq]);
-						//add_weight(weights, Eval::knight_table[sq]);
+						//add_weight(weights, knight_table[sq]);
+						//add_weight(weights, bishop_table[sq]);
+						//add_weight(weights, rook_table[sq]);
+						//add_weight(weights, queen_table[sq]);
+						//add_weight(weights, king_table[sq]);
 					}
 				}
 			}
@@ -343,23 +352,23 @@ namespace Clovis {
 			for (int i = PAWN; i < KING; ++i)
 			{
 				if (i > PAWN)
-					add_weight(weights, Eval::mobility[i]);
+					add_weight(weights, mobility[i]);
 
-				add_weight(weights, Eval::inner_ring_attack[i]);
-				add_weight(weights, Eval::outer_ring_attack[i]);
+				add_weight(weights, inner_ring_attack[i]);
+				add_weight(weights, outer_ring_attack[i]);
 			}
 
-			return weights;
+			return weights;		
 		}
 
 		void print_score_table(string name, Score* begin, int size, int cols) 
 		{
-			cout << "Score " << name << "[] = {" << endl;
+			cout << "\t\tScore " << name << "[] = {" << endl << "\t\t";
 
 			for (int i = 0; i < size; ++i) {
 				if (!(i % cols))
 					cout << '\t';
-				cout << *begin++ << "," << ((i % cols == (cols - 1)) ? "\n" : " ");
+				cout << *begin++ << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 			}
 
 			cout << "};" << endl << endl;
@@ -369,33 +378,33 @@ namespace Clovis {
 		{
 			// print the tuned weights so they can be copy pasted into evaluation file
 			
-			print_score_table("pawn_table",   Eval::pawn_table,   32, 4);
-			print_score_table("knight_table", Eval::knight_table, 32, 4);
-			print_score_table("bishop_table", Eval::bishop_table, 16, 4);
-			print_score_table("rook_table",   Eval::rook_table,   32, 4);
-			print_score_table("queen_table",  Eval::queen_table,  32, 4);
-			print_score_table("king_table",   Eval::king_table,   16, 4);
-			print_score_table("passed_pawn_bonus", Eval::passed_pawn_bonus, 32, 4);
-			print_score_table("mobility", Eval::mobility, PIECETYPE_N, PIECETYPE_N);
-			print_score_table("inner_ring_attack", Eval::inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
-			print_score_table("outer_ring_attack", Eval::outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
+			print_score_table("pawn_table",   pawn_table,   sizeof(pawn_table)   / sizeof(Score), 4);
+			print_score_table("knight_table", knight_table, sizeof(knight_table) / sizeof(Score), 4);
+			print_score_table("bishop_table", bishop_table, sizeof(bishop_table) / sizeof(Score), 4);
+			print_score_table("rook_table",   rook_table,   sizeof(rook_table)   / sizeof(Score), 4);
+			print_score_table("queen_table",  queen_table,  sizeof(queen_table)  / sizeof(Score), 4);
+			print_score_table("king_table",   king_table,   sizeof(king_table)   / sizeof(Score), 4);
+			print_score_table("passed_pawn_bonus", passed_pawn_bonus, 32, 4);
+			print_score_table("mobility", mobility, PIECETYPE_N, PIECETYPE_N);
+			print_score_table("inner_ring_attack", inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
+			print_score_table("outer_ring_attack", outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
 
-			cout << "Score double_pawn_penalty = "        << Eval::double_pawn_penalty             << ";" << endl
-			<< "Score isolated_pawn_penalty = "           << Eval::isolated_pawn_penalty           << ";" << endl
-			<< "Score bishop_pair_bonus = "               << Eval::bishop_pair_bonus               << ";" << endl
-			<< "Score rook_open_file_bonus = "	      << Eval::rook_open_file_bonus            << ";" << endl
-			<< "Score rook_semi_open_file_bonus = "       << Eval::rook_semi_open_file_bonus       << ";" << endl
-			<< "Score tempo_bonus = "                     << Eval::tempo_bonus                     << ";" << endl
-			<< "Score king_full_open_penalty = "          << Eval::king_full_open_penalty          << ";" << endl
-			<< "Score king_semi_open_penalty = "          << Eval::king_semi_open_penalty          << ";" << endl
-			<< "Score king_adjacent_full_open_penalty = " << Eval::king_adjacent_full_open_penalty << ";" << endl
-			<< "Score king_adjacent_semi_open_penalty = " << Eval::king_adjacent_semi_open_penalty << ";" << endl
-			<< "Score knight_outpost_bonus = "            << Eval::knight_outpost_bonus            << ";" << endl
-			<< "Score bishop_outpost_bonus = "            << Eval::bishop_outpost_bonus            << ";" << endl
-			<< "Score virtual_king_m = "                  << Eval::virtual_king_m                  << ";" << endl
-			<< "Score virtual_king_b = "                  << Eval::virtual_king_b                  << ";" << endl
-			<< "Score rook_closed_file_penalty = "        << Eval::rook_closed_file_penalty        << ";" << endl
-			<< "Score weak_queen_penalty = "              << Eval::weak_queen_penalty              << ";" << endl;			
+			cout << "\t\tScore double_pawn_penalty = "        << double_pawn_penalty             << ";" << endl
+			<< "\t\tScore isolated_pawn_penalty = "           << isolated_pawn_penalty           << ";" << endl
+			<< "\t\tScore bishop_pair_bonus = "               << bishop_pair_bonus               << ";" << endl
+			<< "\t\tScore rook_open_file_bonus = "	          << rook_open_file_bonus            << ";" << endl
+			<< "\t\tScore rook_semi_open_file_bonus = "       << rook_semi_open_file_bonus       << ";" << endl
+			<< "\t\tScore tempo_bonus = "                     << tempo_bonus                     << ";" << endl
+			<< "\t\tScore king_full_open_penalty = "          << king_full_open_penalty          << ";" << endl
+			<< "\t\tScore king_semi_open_penalty = "          << king_semi_open_penalty          << ";" << endl
+			<< "\t\tScore king_adjacent_full_open_penalty = " << king_adjacent_full_open_penalty << ";" << endl
+			<< "\t\tScore king_adjacent_semi_open_penalty = " << king_adjacent_semi_open_penalty << ";" << endl
+			<< "\t\tScore knight_outpost_bonus = "            << knight_outpost_bonus            << ";" << endl
+			<< "\t\tScore bishop_outpost_bonus = "            << bishop_outpost_bonus            << ";" << endl
+			<< "\t\tScore virtual_king_m = "                  << virtual_king_m                  << ";" << endl
+			<< "\t\tScore virtual_king_b = "                  << virtual_king_b                  << ";" << endl
+			<< "\t\tScore rook_closed_file_penalty = "        << rook_closed_file_penalty        << ";" << endl
+			<< "\t\tScore weak_queen_penalty = "              << weak_queen_penalty              << ";" << endl;			
 		}
 
 	} // namespace Tuner
