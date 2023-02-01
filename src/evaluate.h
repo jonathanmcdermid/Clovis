@@ -18,6 +18,7 @@ namespace Clovis {
 		extern Score double_pawn_penalty;
 		extern Score isolated_pawn_penalty;
 		extern Score passed_pawn_bonus[32];
+		extern Score pawn_shield[32];
 		extern Score bishop_pair_bonus;
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
@@ -39,6 +40,7 @@ namespace Clovis {
 		extern const Score* piece_table[7];
 		extern const Score* score_table[15][SQ_N];
 		extern const Score* passed_table[COLOUR_N][SQ_N];
+		extern const Score* shield_table[COLOUR_N][SQ_N];
 	
 		constexpr Bitboard file_masks[SQ_N] =  {
 			0x101010101010101ULL,  0x202020202020202ULL,  0x404040404040404ULL,  0x808080808080808ULL, 

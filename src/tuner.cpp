@@ -1,7 +1,6 @@
 #include "tuner.h"
 
 using namespace std;
-using namespace eval;
 
 namespace Clovis {
 
@@ -296,6 +295,8 @@ namespace Clovis {
 			// point weights to the variables in the evaluation function
 			
 			vector<short*> weights;
+
+			using namespace Eval;
 			
 			add_weight(weights, weak_queen_penalty);
 			add_weight(weights, tempo_bonus);
@@ -320,9 +321,12 @@ namespace Clovis {
 				{
 					add_weight(weights, pawn_table[sq]);
 					
-					if(Rank(sq / 4) != RANK_2)
+					if (Rank(sq / 4) != RANK_2)
 						add_weight(weights, passed_pawn_bonus[sq]);
 				}
+
+				if (Rank(sq / 4) > RANK_4)
+					add_weight(weights, pawn_shield[sq]);
 
 				add_weight(weights, knight_table[sq]);
 				//add_weight(weights, bishop_table[sq]);
@@ -358,6 +362,7 @@ namespace Clovis {
 				add_weight(weights, outer_ring_attack[i]);
 			}
 
+
 			return weights;		
 		}
 
@@ -377,6 +382,8 @@ namespace Clovis {
 		void print_params()
 		{
 			// print the tuned weights so they can be copy pasted into evaluation file
+            
+			using namespace Eval;
 			
 			print_score_table("pawn_table",   pawn_table,   sizeof(pawn_table)   / sizeof(Score), 4);
 			print_score_table("knight_table", knight_table, sizeof(knight_table) / sizeof(Score), 4);
@@ -384,7 +391,8 @@ namespace Clovis {
 			print_score_table("rook_table",   rook_table,   sizeof(rook_table)   / sizeof(Score), 4);
 			print_score_table("queen_table",  queen_table,  sizeof(queen_table)  / sizeof(Score), 4);
 			print_score_table("king_table",   king_table,   sizeof(king_table)   / sizeof(Score), 4);
-			print_score_table("passed_pawn_bonus", passed_pawn_bonus, 32, 4);
+			print_score_table("passed_pawn_bonus", passed_pawn_bonus, sizeof(passed_pawn_bonus) / sizeof(Score), 4);
+			print_score_table("pawn_shield",  pawn_shield,  sizeof(pawn_shield) / sizeof(Score), 4);
 			print_score_table("mobility", mobility, PIECETYPE_N, PIECETYPE_N);
 			print_score_table("inner_ring_attack", inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
 			print_score_table("outer_ring_attack", outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
