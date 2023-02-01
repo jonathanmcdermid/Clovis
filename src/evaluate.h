@@ -17,30 +17,30 @@ namespace Clovis {
 		extern Score king_table[16];
 		extern Score double_pawn_penalty;
 		extern Score isolated_pawn_penalty;
-		extern Score passed_pawn_bonus[32];
-		extern Score pawn_shield[32];
+		extern Score passed_pawn[32];
+		extern short pawn_shield[32];
 		extern Score bishop_pair_bonus;
 		extern Score rook_open_file_bonus;
 		extern Score rook_semi_open_file_bonus;
 		extern Score rook_closed_file_penalty;
 		extern Score tempo_bonus;
 		extern Score mobility[7];
-		extern Score outer_ring_attack[7];
-		extern Score inner_ring_attack[7];
+		extern short outer_ring_attack[7];
+		extern short inner_ring_attack[7];
 		extern Score knight_outpost_bonus;
 		extern Score bishop_outpost_bonus;
 		extern Score king_full_open_penalty;
 		extern Score king_semi_open_penalty;
 		extern Score king_adjacent_full_open_penalty;
 		extern Score king_adjacent_semi_open_penalty;
-		extern Score virtual_king_m;
-		extern Score virtual_king_b;
+		extern short virtual_king_m;
+		extern short virtual_king_b;
 		extern Score weak_queen_penalty;
 
 		extern const Score* piece_table[7];
 		extern const Score* score_table[15][SQ_N];
 		extern const Score* passed_table[COLOUR_N][SQ_N];
-		extern const Score* shield_table[COLOUR_N][SQ_N];
+		extern const short* shield_table[COLOUR_N][SQ_N];
 	
 		constexpr Bitboard file_masks[SQ_N] =  {
 			0x101010101010101ULL,  0x202020202020202ULL,  0x404040404040404ULL,  0x808080808080808ULL, 
@@ -211,24 +211,24 @@ namespace Clovis {
 		void init_values();
 		template<bool USE_TT> int evaluate(const Position& pos);
 		
-		inline bool doubled_pawn(Bitboard bb, Square sq) 
+		inline bool is_doubled_pawn(Bitboard bb, Square sq) 
 		{
 			return popcnt(bb & file_masks[sq]) >= 2;
 		}
 		
-		constexpr bool isolated_pawn(Bitboard bb, Square sq) 
+		constexpr bool is_isolated_pawn(Bitboard bb, Square sq) 
 		{
 			return !(bb & isolated_masks[sq]);
 		}
 
 		template<Colour US>
-		constexpr bool passed_pawn(Bitboard bb, Square sq) 
+		constexpr bool is_passed_pawn(Bitboard bb, Square sq) 
 		{
 			return !(bb & passed_masks[US][sq]);
 		}
 
 		template<Colour US>
-		constexpr bool outpost(const Position& pos, Square sq) 
+		constexpr bool is_outpost(const Position& pos, Square sq) 
 		{
 			return (Bitboards::pawn_attacks[~US][sq] & pos.pc_bb[make_piece(PAWN, US)]) 
 				&& (outpost_masks[US] & sq) 

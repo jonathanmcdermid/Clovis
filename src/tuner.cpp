@@ -308,8 +308,6 @@ namespace Clovis {
 			add_weight(weights, knight_outpost_bonus);
 			add_weight(weights, bishop_outpost_bonus);
 			add_weight(weights, rook_closed_file_penalty);
-			add_weight(weights, virtual_king_m);
-			add_weight(weights, virtual_king_b);
 			add_weight(weights, king_full_open_penalty);
 			add_weight(weights, king_semi_open_penalty);
 			add_weight(weights, king_adjacent_full_open_penalty);
@@ -322,11 +320,8 @@ namespace Clovis {
 					add_weight(weights, pawn_table[sq]);
 					
 					if (Rank(sq / 4) != RANK_2)
-						add_weight(weights, passed_pawn_bonus[sq]);
+						add_weight(weights, passed_pawn[sq]);
 				}
-
-				if (Rank(sq / 4) > RANK_4)
-					add_weight(weights, pawn_shield[sq]);
 
 				add_weight(weights, knight_table[sq]);
 				//add_weight(weights, bishop_table[sq]);
@@ -352,14 +347,28 @@ namespace Clovis {
 					}
 				}
 			}
-
+			
 			for (int i = PAWN; i < KING; ++i)
 			{
 				if (i > PAWN)
 					add_weight(weights, mobility[i]);
+			}
+			
+			// king safety terms only affect middlegame
+			
+			weights.push_back(&virtual_king_m);
+			weights.push_back(&virtual_king_b);
+			
+			for (Square sq = SQ_ZERO; sq < 32; ++sq)
+			{
+				if (Rank(sq / 4) > RANK_4)
+					weights.push_back(&pawn_shield[sq]);
+			}
 
-				add_weight(weights, inner_ring_attack[i]);
-				add_weight(weights, outer_ring_attack[i]);
+			for (int i = PAWN; i < KING; ++i)
+			{
+				weights.push_back(&inner_ring_attack[i]);
+				weights.push_back(&outer_ring_attack[i]);
 			}
 
 
@@ -369,6 +378,19 @@ namespace Clovis {
 		void print_score_table(string name, Score* begin, int size, int cols) 
 		{
 			cout << "\t\tScore " << name << "[] = {" << endl << "\t\t";
+
+			for (int i = 0; i < size; ++i) {
+				if (!(i % cols))
+					cout << '\t';
+				cout << *begin++ << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+			}
+
+			cout << "};" << endl << endl;
+		}
+		
+		void print_short_table(string name, short* begin, int size, int cols) 
+		{
+			cout << "\t\tshort " << name << "[] = {" << endl << "\t\t";
 
 			for (int i = 0; i < size; ++i) {
 				if (!(i % cols))
@@ -391,11 +413,11 @@ namespace Clovis {
 			print_score_table("rook_table",   rook_table,   sizeof(rook_table)   / sizeof(Score), 4);
 			print_score_table("queen_table",  queen_table,  sizeof(queen_table)  / sizeof(Score), 4);
 			print_score_table("king_table",   king_table,   sizeof(king_table)   / sizeof(Score), 4);
-			print_score_table("passed_pawn_bonus", passed_pawn_bonus, sizeof(passed_pawn_bonus) / sizeof(Score), 4);
-			print_score_table("pawn_shield",  pawn_shield,  sizeof(pawn_shield) / sizeof(Score), 4);
+			print_score_table("passed_pawn",  passed_pawn,  sizeof(passed_pawn)  / sizeof(Score), 4);
+			print_short_table("pawn_shield",  pawn_shield,  sizeof(pawn_shield)  / sizeof(short), 4);
 			print_score_table("mobility", mobility, PIECETYPE_N, PIECETYPE_N);
-			print_score_table("inner_ring_attack", inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
-			print_score_table("outer_ring_attack", outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
+			print_short_table("inner_ring_attack", inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
+			print_short_table("outer_ring_attack", outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
 
 			cout << "\t\tScore double_pawn_penalty = "        << double_pawn_penalty             << ";" << endl
 			<< "\t\tScore isolated_pawn_penalty = "           << isolated_pawn_penalty           << ";" << endl
@@ -409,8 +431,8 @@ namespace Clovis {
 			<< "\t\tScore king_adjacent_semi_open_penalty = " << king_adjacent_semi_open_penalty << ";" << endl
 			<< "\t\tScore knight_outpost_bonus = "            << knight_outpost_bonus            << ";" << endl
 			<< "\t\tScore bishop_outpost_bonus = "            << bishop_outpost_bonus            << ";" << endl
-			<< "\t\tScore virtual_king_m = "                  << virtual_king_m                  << ";" << endl
-			<< "\t\tScore virtual_king_b = "                  << virtual_king_b                  << ";" << endl
+			<< "\t\tshort virtual_king_m = "                  << virtual_king_m                  << ";" << endl
+			<< "\t\tshort virtual_king_b = "                  << virtual_king_b                  << ";" << endl
 			<< "\t\tScore rook_closed_file_penalty = "        << rook_closed_file_penalty        << ";" << endl
 			<< "\t\tScore weak_queen_penalty = "              << weak_queen_penalty              << ";" << endl;			
 		}

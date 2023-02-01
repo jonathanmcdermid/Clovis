@@ -47,8 +47,8 @@ namespace Clovis {
 		void clear() { 
 			key = 0ULL;
 			score = Score();
-			weight[WHITE] = Score();
-			weight[BLACK] = Score();
+			weight[WHITE] = 0;
+			weight[BLACK] = 0;
 			attacks[WHITE] = 0ULL;
 			attacks[BLACK] = 0ULL;
 			n_att[WHITE] = 0;
@@ -58,7 +58,7 @@ namespace Clovis {
 		} 
 		Key key;
 		Score score;
-		Score weight[COLOUR_N];
+		short weight[COLOUR_N];
 		Bitboard attacks[COLOUR_N];
 		int n_att[COLOUR_N];
 		Square ksq[COLOUR_N];
