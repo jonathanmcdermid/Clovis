@@ -55,6 +55,8 @@ namespace Clovis {
 			n_att[BLACK] = 0;
 			ksq[WHITE] = SQ_NONE;
 			ksq[BLACK] = SQ_NONE;
+			passers[WHITE] = 0ULL;
+			passers[BLACK] = 0ULL;
 		} 
 		Key key;
 		Score score;
@@ -62,6 +64,7 @@ namespace Clovis {
 		Bitboard attacks[COLOUR_N];
 		int n_att[COLOUR_N];
 		Square ksq[COLOUR_N];
+		Bitboard passers[COLOUR_N];
 	};
 
 	class TTable {

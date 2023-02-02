@@ -298,6 +298,8 @@ namespace Clovis {
 
 			using namespace Eval;
 			
+			add_weight(weights, rook_on_our_passer_file);
+			add_weight(weights, rook_on_their_passer_file);
 			add_weight(weights, weak_queen_penalty);
 			add_weight(weights, tempo_bonus);
 			add_weight(weights, double_pawn_penalty);
@@ -355,7 +357,8 @@ namespace Clovis {
 			}
 			
 			// king safety terms only affect middlegame
-			
+		
+			weights.push_back(&safety_threshold);
 			weights.push_back(&virtual_king_m);
 			weights.push_back(&virtual_king_b);
 			
@@ -434,7 +437,10 @@ namespace Clovis {
 			<< "\t\tshort virtual_king_m = "                  << virtual_king_m                  << ";" << endl
 			<< "\t\tshort virtual_king_b = "                  << virtual_king_b                  << ";" << endl
 			<< "\t\tScore rook_closed_file_penalty = "        << rook_closed_file_penalty        << ";" << endl
-			<< "\t\tScore weak_queen_penalty = "              << weak_queen_penalty              << ";" << endl;			
+			<< "\t\tScore weak_queen_penalty = "              << weak_queen_penalty              << ";" << endl
+			<< "\t\tScore rook_on_our_passer_file = "         << rook_on_our_passer_file         << ";" << endl
+			<< "\t\tScore rook_on_their_passer_file = "       << rook_on_their_passer_file       << ";" << endl
+			<< "\t\tshort safety_threshold = "                << safety_threshold                << ";" << endl;		
 		}
 
 	} // namespace Tuner
