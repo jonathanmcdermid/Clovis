@@ -82,8 +82,8 @@ namespace Clovis {
 			0, 0, 0, 0,
 			0, 0, 0, 2,
 			0, 0, 0, 0,
-			0, 2, 4, 1,
-			2, 1, 0, 0,
+			0, 2, 5, 1,
+			2, 2, 1, 0,
 		};
 
 		Score mobility[] = {
@@ -91,11 +91,11 @@ namespace Clovis {
 		};
 
 		short inner_ring_attack[] = {
-			0, 1, 2, 4, 2, 4,
+			0, 2, 2, 4, 4, 3,
 		};
 
 		short outer_ring_attack[] = {
-			0, 0, 3, 0, 1, 2,
+			0, 0, 3, 1, 1, 2,
 		};
 
 		Score double_pawn_penalty = S(1, 8);
@@ -111,7 +111,7 @@ namespace Clovis {
 		Score knight_outpost_bonus = S(38, 14);
 		Score bishop_outpost_bonus = S(45, 0);
 		short virtual_king_m = 2;
-		short virtual_king_b = 1;
+		short virtual_king_b = 0;
 		Score rook_closed_file_penalty = S(15, 1);
 		Score weak_queen_penalty = S(37, 2);
 		Score rook_on_our_passer_file = S(7, 7);
@@ -295,7 +295,7 @@ namespace Clovis {
 			
 			Score score;
 
-			if (pos.get_game_phase() > safety_threshold)
+			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > safety_threshold)
 			{
 				score += evaluate_majors<US, KNIGHT, false>(pos, pte);
 				score += evaluate_majors<US, BISHOP, false>(pos, pte);
