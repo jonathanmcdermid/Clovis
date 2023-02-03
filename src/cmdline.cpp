@@ -44,7 +44,7 @@ namespace Clovis {
 
 			if (!strcmp(argv[1], "tune"))
 			{
-				Tuner::tune_eval();
+				Tuner::tune_eval(argc > 2 && !strcmp(argv[2], "safety"));
 				exit(EXIT_SUCCESS);
 			}
 

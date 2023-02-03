@@ -14,7 +14,7 @@ namespace Clovis {
 		constexpr int n_cores = 8;
 		long double answers = 0;
 	
-		void tune_eval()
+		void tune_eval(bool safety_only)
 		{
 			// load positions and results from file
 			string file_name = "src/tuner.epd";
@@ -47,7 +47,7 @@ namespace Clovis {
 
 			cout << "positions done loading " << positions.size() << endl;
 
-			vector<short*> weights = map_weights_to_params();
+			vector<short*> weights = map_weights_to_params(safety_only);
 
 			bool improved;
 
@@ -290,70 +290,73 @@ namespace Clovis {
 			weights.push_back(&s.eg);
 		}
 
-		vector<short*> map_weights_to_params()
+		vector<short*> map_weights_to_params(bool safety_only)
 		{
 			// point weights to the variables in the evaluation function
 			
 			vector<short*> weights;
 
 			using namespace Eval;
-			
-			add_weight(weights, rook_on_our_passer_file);
-			add_weight(weights, rook_on_their_passer_file);
-			add_weight(weights, weak_queen_penalty);
-			add_weight(weights, tempo_bonus);
-			add_weight(weights, double_pawn_penalty);
-			add_weight(weights, isolated_pawn_penalty);
-			add_weight(weights, bishop_pair_bonus);
-			add_weight(weights, rook_open_file_bonus);
-			add_weight(weights, rook_semi_open_file_bonus);
-			add_weight(weights, knight_outpost_bonus);
-			add_weight(weights, bishop_outpost_bonus);
-			add_weight(weights, rook_closed_file_penalty);
-			add_weight(weights, king_full_open_penalty);
-			add_weight(weights, king_semi_open_penalty);
-			add_weight(weights, king_adjacent_full_open_penalty);
-			add_weight(weights, king_adjacent_semi_open_penalty);
 
-			for (Square sq = SQ_ZERO; sq < 32; ++sq)
+			if (!safety_only)
 			{
-				if ((Rank(sq / 4) != RANK_1 && Rank(sq / 4) != RANK_8))
-				{
-					add_weight(weights, pawn_table[sq]);
-					
-					if (Rank(sq / 4) != RANK_2)
-						add_weight(weights, passed_pawn[sq]);
-				}
+				add_weight(weights, rook_on_our_passer_file);
+				add_weight(weights, rook_on_their_passer_file);
+				add_weight(weights, weak_queen_penalty);
+				add_weight(weights, tempo_bonus);
+				add_weight(weights, double_pawn_penalty);
+				add_weight(weights, isolated_pawn_penalty);
+				add_weight(weights, bishop_pair_bonus);
+				add_weight(weights, rook_open_file_bonus);
+				add_weight(weights, rook_semi_open_file_bonus);
+				add_weight(weights, knight_outpost_bonus);
+				add_weight(weights, bishop_outpost_bonus);
+				add_weight(weights, rook_closed_file_penalty);
+				add_weight(weights, king_full_open_penalty);
+				add_weight(weights, king_semi_open_penalty);
+				add_weight(weights, king_adjacent_full_open_penalty);
+				add_weight(weights, king_adjacent_semi_open_penalty);
 
-				add_weight(weights, knight_table[sq]);
-				//add_weight(weights, bishop_table[sq]);
-				add_weight(weights, rook_table[sq]);
-				add_weight(weights, queen_table[sq]);
-				//add_weight(weights, king_table[sq]);
-				
-				if (sq < 16)
+				for (Square sq = SQ_ZERO; sq < 32; ++sq)
 				{
-					//add_weight(weights, knight_table[sq]);
-					add_weight(weights, bishop_table[sq]);
-					//add_weight(weights, rook_table[sq]);
-					//add_weight(weights, queen_table[sq]);
-					add_weight(weights, king_table[sq]);
+					if ((Rank(sq / 4) != RANK_1 && Rank(sq / 4) != RANK_8))
+					{
+						add_weight(weights, pawn_table[sq]);
 					
-					if (sq / 4 >= (sq & 3))
+						if (Rank(sq / 4) != RANK_2)
+							add_weight(weights, passed_pawn[sq]);
+					}
+
+					add_weight(weights, knight_table[sq]);
+					//add_weight(weights, bishop_table[sq]);
+					add_weight(weights, rook_table[sq]);
+					add_weight(weights, queen_table[sq]);
+					//add_weight(weights, king_table[sq]);
+				
+					if (sq < 16)
 					{
 						//add_weight(weights, knight_table[sq]);
-						//add_weight(weights, bishop_table[sq]);
+						add_weight(weights, bishop_table[sq]);
 						//add_weight(weights, rook_table[sq]);
 						//add_weight(weights, queen_table[sq]);
-						//add_weight(weights, king_table[sq]);
+						add_weight(weights, king_table[sq]);
+					
+						if (sq / 4 >= (sq & 3))
+						{
+							//add_weight(weights, knight_table[sq]);
+							//add_weight(weights, bishop_table[sq]);
+							//add_weight(weights, rook_table[sq]);
+							//add_weight(weights, queen_table[sq]);
+							//add_weight(weights, king_table[sq]);
+						}
 					}
 				}
-			}
 			
-			for (int i = PAWN; i < KING; ++i)
-			{
-				if (i > PAWN)
-					add_weight(weights, mobility[i]);
+				for (int i = PAWN; i < KING; ++i)
+				{
+					if (i > PAWN)
+						add_weight(weights, mobility[i]);
+				}
 			}
 			
 			// king safety terms only affect middlegame
