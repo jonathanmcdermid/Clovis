@@ -23,6 +23,7 @@ namespace Clovis {
 	typedef U64 Key;
 	typedef U64 Bitboard;
 
+	constexpr int MAX_SCALING = 32;
 	constexpr int MAX_GAMEPHASE = 24;
 	constexpr int MAX_PLY = 64;
 	constexpr int MAX_MOVES = 256;
@@ -32,6 +33,9 @@ namespace Clovis {
 	constexpr int DEFAULT_BENCH_MB = 16;
 	constexpr int DEFAULT_BENCH_DEPTH = 13;
 	constexpr int DEFAULT_BENCH_THREADS = 1;
+
+	constexpr int game_phase_inc[15] = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
+	constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
 	struct Score {
 	public:

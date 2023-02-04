@@ -41,6 +41,7 @@ namespace Clovis {
 		extern short safety_threshold;
 		extern Score tall_pawn_penalty;
 		extern short opposite_bishops_scaling;
+		extern Score fianchetto_bonus;
 
 		extern const Score* piece_table[7];
 		extern const Score* score_table[15][SQ_N];
@@ -211,6 +212,12 @@ namespace Clovis {
 		constexpr Bitboard light_mask = 0x55aa55aa55aa55aaULL;
 
 		constexpr Bitboard dark_mask = 0xaa55aa55aa55aa55ULL;
+
+		constexpr Bitboard fianchetto_bishop_mask[COLOUR_N] = { 0x4200ULL, 0x42000000000000ULL };
+
+		constexpr Bitboard fianchetto_pawn_mask[COLOUR_N] = { 0x42a500ULL, 0xa5420000000000ULL };
+
+		constexpr Bitboard center_mask = 0x1818000000ULL;
 
 #define KZ(out, in) KingZone(out, in)
 

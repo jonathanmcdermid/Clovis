@@ -300,6 +300,7 @@ namespace Clovis {
 
 			if (!safety_only)
 			{
+				add_weight(weights, fianchetto_bonus);
 				add_weight(weights, tall_pawn_penalty);
 				add_weight(weights, rook_on_our_passer_file);
 				add_weight(weights, rook_on_their_passer_file);
@@ -446,6 +447,7 @@ namespace Clovis {
 			<< "\t\tScore rook_on_our_passer_file = "         << rook_on_our_passer_file         << ";" << endl
 			<< "\t\tScore rook_on_their_passer_file = "       << rook_on_their_passer_file       << ";" << endl
 			<< "\t\tScore tall_pawn_penalty = "               << tall_pawn_penalty               << ";" << endl
+			<< "\t\tScore fianchetto_bonus = "                << fianchetto_bonus                << ";" << endl
 			<< "\t\tshort safety_threshold = "                << safety_threshold                << ";" << endl
 			<< "\t\tshort opposite_bishops_scaling = "        << opposite_bishops_scaling        << ";" << endl;		
 		}

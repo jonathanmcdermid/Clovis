@@ -5,8 +5,6 @@ using namespace std;
 namespace Clovis {
 
 	const extern string piece_str = " PNBRQK  pnbrqk";
-	constexpr int game_phase_inc[15] = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
-	constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
 	// castling rights lookup table
 	constexpr int castling_rights[SQ_N] = {
