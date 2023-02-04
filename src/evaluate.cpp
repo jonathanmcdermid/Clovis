@@ -83,7 +83,7 @@ namespace Clovis {
 			0, 0, 0, 3,
 			0, 0, 0, 0,
 			0, 2, 6, 2,
-			4, 3, 1, 0,
+			3, 3, 1, 0,
 		};
 
 		Score mobility[] = {
@@ -91,11 +91,11 @@ namespace Clovis {
 		};
 
 		short inner_ring_attack[] = {
-			0, 2, 3, 5, 5, 4,
+			0, 6, 3, 5, 5, 4,
 		};
 
 		short outer_ring_attack[] = {
-			0, 0, 5, 1, 2, 3,
+			0, 1, 5, 1, 1, 3,
 		};
 
 		Score double_pawn_penalty = S(1, 8);
@@ -365,7 +365,7 @@ namespace Clovis {
 
 				Bitboard attacks = Bitboards::pawn_attacks[US][sq];
 
-				king_danger<US, PAWN>(attacks, pte);
+				king_danger<US, PAWN>(sqbb(sq + pawn_push(US)), pte);
 
 				pte.attacks[US] |= attacks;
 			}
