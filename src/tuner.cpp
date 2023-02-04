@@ -377,7 +377,8 @@ namespace Clovis {
 				weights.push_back(&inner_ring_attack[i]);
 				weights.push_back(&outer_ring_attack[i]);
 			}
-
+			
+			weights.push_back(&opposite_bishops_scaling);
 
 			return weights;		
 		}
@@ -445,7 +446,8 @@ namespace Clovis {
 			<< "\t\tScore rook_on_our_passer_file = "         << rook_on_our_passer_file         << ";" << endl
 			<< "\t\tScore rook_on_their_passer_file = "       << rook_on_their_passer_file       << ";" << endl
 			<< "\t\tScore tall_pawn_penalty = "               << tall_pawn_penalty               << ";" << endl
-			<< "\t\tshort safety_threshold = "                << safety_threshold                << ";" << endl;		
+			<< "\t\tshort safety_threshold = "                << safety_threshold                << ";" << endl
+			<< "\t\tshort opposite_bishops_scaling = "        << opposite_bishops_scaling        << ";" << endl;		
 		}
 
 	} // namespace Tuner

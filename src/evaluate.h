@@ -40,6 +40,7 @@ namespace Clovis {
 		extern Score rook_on_their_passer_file;
 		extern short safety_threshold;
 		extern Score tall_pawn_penalty;
+		extern short opposite_bishops_scaling;
 
 		extern const Score* piece_table[7];
 		extern const Score* score_table[15][SQ_N];
@@ -206,6 +207,10 @@ namespace Clovis {
 			0x1010101010101ULL, 0x2020202020202ULL, 0x4040404040404ULL, 0x8080808080808ULL, 
 			0x10101010101010ULL, 0x20202020202020ULL, 0x40404040404040ULL, 0x80808080808080ULL,
 		};
+		
+		constexpr Bitboard light_mask = 0x55aa55aa55aa55aaULL;
+
+		constexpr Bitboard dark_mask = 0xaa55aa55aa55aa55ULL;
 
 #define KZ(out, in) KingZone(out, in)
 
@@ -243,7 +248,7 @@ namespace Clovis {
 			KZ(0x44447c0000000000ULL, 0x2838000000000000ULL), KZ(0x8888f80000000000ULL, 0x5070000000000000ULL), 
 			KZ(0x1010f00000000000ULL, 0xa0e0000000000000ULL), KZ(0x2020e00000000000ULL, 0x40c0000000000000ULL),
 		};
-
+		
 #undef KZ
 
 		void init_eval();
