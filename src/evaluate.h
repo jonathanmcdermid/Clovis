@@ -39,6 +39,7 @@ namespace Clovis {
 		extern Score rook_on_our_passer_file;
 		extern Score rook_on_their_passer_file;
 		extern short safety_threshold;
+		extern Score tall_pawn_penalty;
 
 		extern const Score* piece_table[7];
 		extern const Score* score_table[15][SQ_N];

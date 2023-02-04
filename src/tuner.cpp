@@ -300,6 +300,7 @@ namespace Clovis {
 
 			if (!safety_only)
 			{
+				add_weight(weights, tall_pawn_penalty);
 				add_weight(weights, rook_on_our_passer_file);
 				add_weight(weights, rook_on_their_passer_file);
 				add_weight(weights, weak_queen_penalty);
@@ -443,6 +444,7 @@ namespace Clovis {
 			<< "\t\tScore weak_queen_penalty = "              << weak_queen_penalty              << ";" << endl
 			<< "\t\tScore rook_on_our_passer_file = "         << rook_on_our_passer_file         << ";" << endl
 			<< "\t\tScore rook_on_their_passer_file = "       << rook_on_their_passer_file       << ";" << endl
+			<< "\t\tScore tall_pawn_penalty = "               << tall_pawn_penalty               << ";" << endl
 			<< "\t\tshort safety_threshold = "                << safety_threshold                << ";" << endl;		
 		}
 

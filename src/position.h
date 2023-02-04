@@ -76,20 +76,20 @@ namespace Clovis {
 	template<Colour US>
 	inline bool Position::is_attacked(Square sq) const
 	{
-		return ((pc_bb[make_piece(PAWN, ~US)]   & Bitboards::pawn_attacks[US][sq])
+		return ((pc_bb[make_piece(PAWN,   ~US)] & Bitboards::pawn_attacks[US][sq])
 			 || (pc_bb[make_piece(KNIGHT, ~US)] & Bitboards::knight_attacks[sq])
 			 || (pc_bb[make_piece(BISHOP, ~US)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
-			 || (pc_bb[make_piece(ROOK, ~US)]   & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
-			 || (pc_bb[make_piece(QUEEN, ~US)]  & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
-			 || (pc_bb[make_piece(KING, ~US)]   & Bitboards::king_attacks[sq]));
+			 || (pc_bb[make_piece(ROOK,   ~US)] & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
+			 || (pc_bb[make_piece(QUEEN,  ~US)] & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
+			 || (pc_bb[make_piece(KING,   ~US)] & Bitboards::king_attacks[sq]));
 	}
 	
 	template <Colour US>
 	inline bool Position::is_insufficient() const 
 	{
-		return (popcnt(pc_bb[make_piece(PAWN, US)])  == 0
-			&& (popcnt(pc_bb[make_piece(ROOK, US)])  == 0)
-			&& (popcnt(pc_bb[make_piece(QUEEN, US)]) == 0)
+		return (popcnt(pc_bb[make_piece(PAWN,   US)]) == 0
+			&& (popcnt(pc_bb[make_piece(ROOK,   US)]) == 0)
+			&& (popcnt(pc_bb[make_piece(QUEEN,  US)]) == 0)
 			&& (popcnt(pc_bb[make_piece(KNIGHT, US)]) < 3)
 			&& (popcnt(pc_bb[make_piece(BISHOP, US)]) + popcnt(pc_bb[make_piece(KNIGHT, US)])  < 2));
 	}
