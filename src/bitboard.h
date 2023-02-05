@@ -115,6 +115,10 @@ namespace Clovis {
 		return sq;
 	}
 
+	constexpr bool multiple_bits(Bitboard bb) {
+		return bb & (bb - 1);
+	}
+
 	template<Direction D>
 	constexpr Bitboard shift(Bitboard bb)
 	{
