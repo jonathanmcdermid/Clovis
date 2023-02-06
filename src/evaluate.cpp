@@ -266,7 +266,7 @@ namespace Clovis {
 						score += bishop_outpost_bonus;
 					if (bb)
 						score += bishop_pair_bonus;
-					if (popcnt(Bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)]) == 2)
+					if (multiple_bits(Bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)]))
 						score -= tall_pawn_penalty;
 					if (fianchetto_bishop_mask[US] & sq
 						&& multiple_bits(center_mask & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq)))

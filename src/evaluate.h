@@ -267,7 +267,7 @@ namespace Clovis {
 		
 		inline bool is_doubled_pawn(Bitboard bb, Square sq) 
 		{
-			return popcnt(bb & file_masks[sq]) >= 2;
+			return multiple_bits(bb & file_masks[sq]);
 		}
 		
 		constexpr bool is_isolated_pawn(Bitboard bb, Square sq) 
