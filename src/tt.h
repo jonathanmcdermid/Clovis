@@ -51,6 +51,8 @@ namespace Clovis {
 			weight[BLACK] = 0;
 			attacks[WHITE] = 0ULL;
 			attacks[BLACK] = 0ULL;
+			potential_attacks[WHITE] = 0ULL;
+			potential_attacks[BLACK] = 0ULL;
 			n_att[WHITE] = 0;
 			n_att[BLACK] = 0;
 			ksq[WHITE] = SQ_NONE;
@@ -62,6 +64,7 @@ namespace Clovis {
 		Score score;
 		short weight[COLOUR_N];
 		Bitboard attacks[COLOUR_N];
+		Bitboard potential_attacks[COLOUR_N];
 		int n_att[COLOUR_N];
 		Square ksq[COLOUR_N];
 		Bitboard passers[COLOUR_N];

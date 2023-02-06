@@ -172,6 +172,9 @@ namespace Clovis {
 			0x202020202ULL,        0x505050505ULL,        0xa0a0a0a0aULL,        0x1414141414ULL, 
 			0x2828282828ULL,       0x5050505050ULL,       0xa0a0a0a0a0ULL,       0x4040404040ULL, 
 			0x20202020202ULL,      0x50505050505ULL,      0xa0a0a0a0a0aULL,      0x141414141414ULL, 
+			0x282828282828ULL,     0x505050505050ULL,     0xa0a0a0a0a0a0ULL,     0x404040404040ULL, 
+			0x2020202020202ULL,    0x5050505050505ULL,    0xa0a0a0a0a0a0aULL,    0x14141414141414ULL, 
+			0x28282828282828ULL,   0x50505050505050ULL,   0xa0a0a0a0a0a0a0ULL,   0x40404040404040ULL,
 		};
 
 		constexpr Bitboard rook_on_passer_masks[COLOUR_N][SQ_N] = {
@@ -279,11 +282,9 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		constexpr bool is_outpost(const Position& pos, Square sq) 
+		constexpr bool is_outpost(Square sq, PTEntry& pte) 
 		{
-			return (Bitboards::pawn_attacks[~US][sq] & pos.pc_bb[make_piece(PAWN, US)]) 
-				&& (outpost_masks[US] & sq) 
-				&& !(pos.pc_bb[make_piece(PAWN, ~US)] & outpost_pawn_masks[US][sq]);
+			return (outpost_masks[US] & sq & ~pte.potential_attacks[~US] & pte.attacks[US]);
 		}
 		
 		template<Colour US, PieceType PT>

@@ -257,12 +257,12 @@ namespace Clovis {
 
 				if constexpr (PT == KNIGHT)
 				{
-					if (is_outpost<US>(pos, sq))
+					if (is_outpost<US>(sq, pte))
 						score += knight_outpost_bonus;
 				}
 				if constexpr (PT == BISHOP)
 				{
-					if (is_outpost<US>(pos, sq))
+					if (is_outpost<US>(sq, pte))
 						score += bishop_outpost_bonus;
 					if (bb)
 						score += bishop_pair_bonus;
@@ -366,6 +366,8 @@ namespace Clovis {
 				king_danger<US, PAWN>(sqbb(sq + pawn_push(US)), pte);
 
 				pte.attacks[US] |= Bitboards::pawn_attacks[US][sq];
+
+				pte.potential_attacks[US] |= outpost_pawn_masks[US][sq];
 			}
 			
 			File kf = file_of(pte.ksq[US]);
