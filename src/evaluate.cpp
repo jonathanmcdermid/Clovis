@@ -121,6 +121,10 @@ namespace Clovis {
 		short safety_threshold = 8;
 		short opposite_bishops_scaling = 15;
 
+		Score knight_behind_pawn_bonus = S(5, 5);
+		Score bishop_behind_pawn_bonus = S(7, 7);
+		Score rook_on_seventh = S(6, 12);
+
 #undef S
 
 		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
@@ -259,6 +263,8 @@ namespace Clovis {
 				{
 					if (is_outpost<US>(sq, pte))
 						score += knight_outpost_bonus;
+					//if (pos.pc_bb[make_piece(PAWN, US)] & (sq + pawn_push(US)))
+					//    score += knight_behind_pawn_bonus;
 				}
 				if constexpr (PT == BISHOP)
 				{
@@ -271,6 +277,8 @@ namespace Clovis {
 					if (fianchetto_bishop_mask[US] & sq
 						&& multiple_bits(center_mask & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq)))
 						score += fianchetto_bonus;
+						//if (pos.pc_bb[make_piece(PAWN, US)] & (sq + pawn_push(US)))
+						//    score += bishop_behind_pawn_bonus;
 				}
 				if constexpr (PT == ROOK)
 				{
@@ -284,6 +292,8 @@ namespace Clovis {
 						score += rook_on_our_passer_file;
 					if (safe_attacks & rook_on_passer_masks[~US][sq] & pte.passers[THEM])
 						score += rook_on_their_passer_file;
+					//if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[THEM])) == RANK_8)
+					//    score += rook_on_seventh;
 				}
 				if constexpr (PT == QUEEN)
 				{

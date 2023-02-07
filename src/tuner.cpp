@@ -300,6 +300,9 @@ namespace Clovis {
 
 			if (!safety_only)
 			{
+				//add_weight(weights, rook_on_seventh);
+				//add_weight(weights, knight_behind_pawn_bonus);
+				//add_weight(weights, bishop_behind_pawn_bonus);
 				add_weight(weights, fianchetto_bonus);
 				add_weight(weights, tall_pawn_penalty);
 				add_weight(weights, rook_on_our_passer_file);
@@ -424,7 +427,8 @@ namespace Clovis {
 			print_score_table("king_table",   king_table,   sizeof(king_table)   / sizeof(Score), 4);
 			print_score_table("passed_pawn",  passed_pawn,  sizeof(passed_pawn)  / sizeof(Score), 4);
 			print_short_table("pawn_shield",  pawn_shield,  sizeof(pawn_shield)  / sizeof(short), 4);
-			print_score_table("mobility", mobility, PIECETYPE_N, PIECETYPE_N);
+			
+			print_score_table("mobility",          mobility,          PIECETYPE_N, PIECETYPE_N);
 			print_short_table("inner_ring_attack", inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
 			print_short_table("outer_ring_attack", outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
 
@@ -446,6 +450,9 @@ namespace Clovis {
 			<< "\t\tScore weak_queen_penalty = "              << weak_queen_penalty              << ";" << endl
 			<< "\t\tScore rook_on_our_passer_file = "         << rook_on_our_passer_file         << ";" << endl
 			<< "\t\tScore rook_on_their_passer_file = "       << rook_on_their_passer_file       << ";" << endl
+			<< "\t\tScore knight_behind_pawn_bonus = "        << knight_behind_pawn_bonus        << ";" << endl
+			<< "\t\tScore bishop_behind_pawn_bonus = "        << bishop_behind_pawn_bonus        << ";" << endl
+			<< "\t\tScore rook_on_seventh = "                 << rook_on_seventh                 << ";" << endl
 			<< "\t\tScore tall_pawn_penalty = "               << tall_pawn_penalty               << ";" << endl
 			<< "\t\tScore fianchetto_bonus = "                << fianchetto_bonus                << ";" << endl
 			<< "\t\tshort safety_threshold = "                << safety_threshold                << ";" << endl
