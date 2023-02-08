@@ -267,42 +267,6 @@ namespace Clovis {
 		void init_eval();
 		void init_values();
 		template<bool USE_TT> int evaluate(const Position& pos);
-		
-		inline bool is_doubled_pawn(Bitboard bb, Square sq) 
-		{
-			return multiple_bits(bb & file_masks[sq]);
-		}
-		
-		constexpr bool is_isolated_pawn(Bitboard bb, Square sq) 
-		{
-			return !(bb & isolated_masks[sq]);
-		}
-
-		template<Colour US>
-		constexpr bool is_passed_pawn(Bitboard bb, Square sq) 
-		{
-			return !(bb & passed_masks[US][sq]);
-		}
-
-		template<Colour US>
-		constexpr bool is_outpost(Square sq, PTEntry& pte) 
-		{
-			return (outpost_masks[US] & sq & ~pte.potential_attacks[~US] & pte.attacks[US]);
-		}
-		
-		template<Colour US, PieceType PT>
-		inline void king_danger(Bitboard attacks, PTEntry& pte)
-		{
-			Bitboard or_att_bb = attacks & king_zones[pte.ksq[~US]].outer_ring;
-			Bitboard ir_att_bb = attacks & king_zones[pte.ksq[~US]].inner_ring;
-		
-			if (or_att_bb || ir_att_bb)
-			{
-				pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
-				if constexpr (PT != PAWN)
-					++pte.n_att[US];
-			}
-		}
 
 	} // namespace Eval
 

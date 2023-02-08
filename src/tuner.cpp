@@ -301,8 +301,8 @@ namespace Clovis {
 			if (!safety_only)
 			{
 				//add_weight(weights, rook_on_seventh);
-				//add_weight(weights, knight_behind_pawn_bonus);
-				//add_weight(weights, bishop_behind_pawn_bonus);
+				add_weight(weights, knight_behind_pawn_bonus);
+				add_weight(weights, bishop_behind_pawn_bonus);
 				add_weight(weights, fianchetto_bonus);
 				add_weight(weights, tall_pawn_penalty);
 				add_weight(weights, rook_on_our_passer_file);
