@@ -10,6 +10,7 @@ namespace Clovis {
 		vector<double> results;
 		long double best_mse;
 		long double k;
+		size_t safety_index;
 
 		constexpr int n_cores = 8;
 		long double answers = 0;
@@ -61,19 +62,19 @@ namespace Clovis {
 
 				long double mse = tune_loop(weights);
 
-				for (short step = 1; step < 5; ++step)
+				for (short step = 0; step < 10; ++step)
 				{
 					cout << "step: " << step << endl;
-					for (size_t index = 0; index < weights.size() - 1; index += 2)
+					for (size_t index = 0; index < safety_index; index += 2)
 					{
 						short best_val_mg = *weights[index];
 						short best_val_eg = *weights[index + 1];
 
 						*weights[index] += step;
 
-						for (int i = 0; i < 5 && mse >= best_mse && *weights[index + 1] > 0; ++i)
+						for (int i = 0; i < 10 && mse >= best_mse && *weights[index + 1] > 0; ++i)
 						{
-							*weights[index + 1] -= 1;
+							*weights[index + 1] = best_val_eg - i;
 							*weights[index + 1] = max(short(0), *weights[index + 1]);
 
 							mse = mean_squared_error(k);
@@ -106,7 +107,7 @@ namespace Clovis {
 
 						for (int i = 0; i < 10 && mse >= best_mse; ++i)
 						{
-							*weights[index + 1] += 1;
+							*weights[index + 1] = best_val_eg + i;
 							mse = mean_squared_error(k);
 
 							// if a thread fails we catch it here
@@ -365,6 +366,8 @@ namespace Clovis {
 			}
 			
 			// king safety terms only affect middlegame
+            
+			safety_index = weights.size();
 		
 			weights.push_back(&safety_threshold);
 			weights.push_back(&virtual_king_m);
@@ -428,9 +431,9 @@ namespace Clovis {
 			print_score_table("passed_pawn",  passed_pawn,  sizeof(passed_pawn)  / sizeof(Score), 4);
 			print_short_table("pawn_shield",  pawn_shield,  sizeof(pawn_shield)  / sizeof(short), 4);
 			
-			print_score_table("mobility",          mobility,          PIECETYPE_N, PIECETYPE_N);
-			print_short_table("inner_ring_attack", inner_ring_attack, PIECETYPE_N, PIECETYPE_N);
-			print_short_table("outer_ring_attack", outer_ring_attack, PIECETYPE_N, PIECETYPE_N);
+			print_score_table("mobility",          mobility,          7, 7);
+			print_short_table("inner_ring_attack", inner_ring_attack, 7, 7);
+			print_short_table("outer_ring_attack", outer_ring_attack, 7, 7);
 
 			cout << "\t\tScore double_pawn_penalty = "        << double_pawn_penalty             << ";" << endl
 			<< "\t\tScore isolated_pawn_penalty = "           << isolated_pawn_penalty           << ";" << endl
