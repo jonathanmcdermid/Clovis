@@ -62,7 +62,7 @@ namespace Clovis {
 
 				long double mse = tune_loop(weights);
 
-				for (short step = 0; step < 10; ++step)
+				for (short step = 0; step < 25; ++step)
 				{
 					cout << "step: " << step << endl;
 					for (size_t index = 0; index < safety_index; index += 2)
@@ -72,7 +72,7 @@ namespace Clovis {
 
 						*weights[index] += step;
 
-						for (int i = 0; i < 10 && mse >= best_mse && *weights[index + 1] > 0; ++i)
+						for (int i = 0; i < 25 && mse >= best_mse && *weights[index + 1] > 0; ++i)
 						{
 							*weights[index + 1] = best_val_eg - i;
 							*weights[index + 1] = max(short(0), *weights[index + 1]);
@@ -105,7 +105,7 @@ namespace Clovis {
 						*weights[index] -= step;
 						*weights[index] = max(short(0), *weights[index]);
 
-						for (int i = 0; i < 10 && mse >= best_mse; ++i)
+						for (int i = 0; i < 25 && mse >= best_mse; ++i)
 						{
 							*weights[index + 1] = best_val_eg + i;
 							mse = mean_squared_error(k);
@@ -302,8 +302,8 @@ namespace Clovis {
 			if (!safety_only)
 			{
 				//add_weight(weights, rook_on_seventh);
-				add_weight(weights, knight_behind_pawn_bonus);
-				add_weight(weights, bishop_behind_pawn_bonus);
+				//add_weight(weights, knight_behind_pawn_bonus);
+				//add_weight(weights, bishop_behind_pawn_bonus);
 				add_weight(weights, fianchetto_bonus);
 				add_weight(weights, tall_pawn_penalty);
 				add_weight(weights, rook_on_our_passer_file);
