@@ -43,20 +43,18 @@ namespace Clovis {
 	template<Colour US>
 	bool Position::discovery_threat(Square sq) const 
 	{
-		constexpr Colour THEM = ~US;
-
 		// pawn is moveless if it attacks no enemies and is blocked by a piece
 		// we dont have to worry about shift because discovery pawns will never be on outer files
 		Bitboard their_moveless_pawns = 
-		 (shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, THEM)]) & 
+		 (shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) & 
 		~(shift<pawn_push(US) + EAST>(occ_bb[US]) | shift<pawn_push(US) + WEST>(occ_bb[US]));
 
-		if (side == THEM && bs->enpassant != SQ_NONE)
+		if (side == ~US && bs->enpassant != SQ_NONE)
 			their_moveless_pawns &= ~(shift<pawn_push(US) + EAST>(sqbb(bs->enpassant)) | shift<pawn_push(US) + WEST>(sqbb(bs->enpassant)));
 
 		Bitboard candidates = 
-		 ((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, THEM)])) 
-		| (Bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_moveless_pawns, sq) & (pc_bb[make_piece(BISHOP, THEM)])));
+		 ((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) 
+		| (Bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_moveless_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
         
 		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 

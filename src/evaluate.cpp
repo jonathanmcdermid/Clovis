@@ -278,8 +278,6 @@ namespace Clovis {
 		template<Colour US, PieceType PT, bool SAFE>
 		Score evaluate_majors(const Position& pos, PTEntry& pte)
 		{
-			constexpr Colour THEM = ~US;
-
 			static_assert(PT >= KNIGHT && PT < KING);
 
 			Score score;
@@ -287,7 +285,7 @@ namespace Clovis {
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
 			Bitboard transparent_occ =
-				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, THEM)]
+				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)]
 				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, US)]
 				: pos.occ_bb[BOTH];
 
@@ -296,7 +294,7 @@ namespace Clovis {
 				sq = pop_lsb(bb);
 				score += *score_table[make_piece(PT, US)][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
-				Bitboard safe_attacks = attacks & ~pte.attacks[THEM];
+				Bitboard safe_attacks = attacks & ~pte.attacks[~US];
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
@@ -326,13 +324,13 @@ namespace Clovis {
 						score += rook_open_file_bonus;
 					else if (!(file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)]))
 						score += rook_semi_open_file_bonus;
-					else if (file_masks[sq] & pos.pc_bb[make_piece(PAWN, THEM)])
+					else if (file_masks[sq] & pos.pc_bb[make_piece(PAWN, ~US)])
 						score -= rook_closed_file_penalty;
 					if (safe_attacks & rook_on_passer_masks[US][sq] & pte.passers[US])
 						score += rook_on_our_passer_file;
-					if (safe_attacks & rook_on_passer_masks[~US][sq] & pte.passers[THEM])
+					if (safe_attacks & rook_on_passer_masks[~US][sq] & pte.passers[~US])
 						score += rook_on_their_passer_file;
-					//if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[THEM])) == RANK_8)
+					//if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
 					//    score += rook_on_seventh;
 				}
 				if constexpr (PT == QUEEN)
@@ -384,10 +382,8 @@ namespace Clovis {
 		template<Colour US>
 		Score evaluate_pawns(const Position& pos, PTEntry& pte)
 		{
-			constexpr Colour THEM = ~US;
-
 			constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
-			constexpr Piece THEIR_PAWN = make_piece(PAWN, THEM);
+			constexpr Piece THEIR_PAWN = make_piece(PAWN, ~US);
 
 			Score score;
 
@@ -446,9 +442,9 @@ namespace Clovis {
 				Bitboard fp = pos.pc_bb[OUR_PAWN] & file_masks[f];
 
 				if (fp)
-					pte.weight[THEM] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
+					pte.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
 				else
-					pte.weight[THEM] += *shield_table[0][f];
+					pte.weight[~US] += *shield_table[0][f];
 			}
 
 			score += *score_table[make_piece(KING, US)][pte.ksq[US]];
