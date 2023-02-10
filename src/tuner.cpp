@@ -301,6 +301,7 @@ namespace Clovis {
 
 			if (!safety_only)
 			{
+                /*
 				//add_weight(weights, rook_on_seventh);
 				//add_weight(weights, knight_behind_pawn_bonus);
 				//add_weight(weights, bishop_behind_pawn_bonus);
@@ -363,8 +364,10 @@ namespace Clovis {
 					if (i > PAWN)
 						add_weight(weights, mobility[i]);
 				}
+                */
 			}
-			
+
+            /*
 			// king safety terms only affect middlegame
             
 			safety_index = weights.size();
@@ -386,11 +389,12 @@ namespace Clovis {
 			}
 			
 			weights.push_back(&opposite_bishops_scaling);
+            */
 
 			return weights;		
 		}
 
-		void print_score_table(string name, Score* begin, int size, int cols) 
+		void print_score_table(string name, const Score* begin, int size, int cols) 
 		{
 			cout << "\t\tScore " << name << "[] = {" << endl << "\t\t";
 
@@ -403,7 +407,7 @@ namespace Clovis {
 			cout << "};" << endl << endl;
 		}
 		
-		void print_short_table(string name, short* begin, int size, int cols) 
+		void print_short_table(string name, const short* begin, int size, int cols) 
 		{
 			cout << "\t\tshort " << name << "[] = {" << endl << "\t\t";
 

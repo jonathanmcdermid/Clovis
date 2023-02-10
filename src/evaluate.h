@@ -8,49 +8,129 @@ namespace Clovis {
 	struct Position;
 
 	namespace Eval {
-
-		extern Score pawn_table[32];
-		extern Score knight_table[32];
-		extern Score bishop_table[16];
-		extern Score rook_table[32];
-		extern Score queen_table[32];
-		extern Score king_table[16];
-		extern Score double_pawn_penalty;
-		extern Score isolated_pawn_penalty;
-		extern Score passed_pawn[32];
-		extern short pawn_shield[32];
-		extern Score bishop_pair_bonus;
-		extern Score rook_open_file_bonus;
-		extern Score rook_semi_open_file_bonus;
-		extern Score rook_closed_file_penalty;
-		extern Score tempo_bonus;
-		extern Score mobility[7];
-		extern short outer_ring_attack[7];
-		extern short inner_ring_attack[7];
-		extern Score knight_outpost_bonus;
-		extern Score bishop_outpost_bonus;
-		extern Score king_full_open_penalty;
-		extern Score king_semi_open_penalty;
-		extern Score king_adjacent_full_open_penalty;
-		extern Score king_adjacent_semi_open_penalty;
-		extern short virtual_king_m;
-		extern short virtual_king_b;
-		extern Score weak_queen_penalty;
-		extern Score rook_on_our_passer_file;
-		extern Score rook_on_their_passer_file;
-		extern short safety_threshold;
-		extern Score tall_pawn_penalty;
-		extern short opposite_bishops_scaling;
-		extern Score fianchetto_bonus;
-		extern Score knight_behind_pawn_bonus;
-		extern Score bishop_behind_pawn_bonus;
-		extern Score rook_on_seventh;
-
-		extern const Score* piece_table[7];
-		extern const Score* score_table[15][SQ_N];
-		extern const Score* passed_table[COLOUR_N][SQ_N];
-		extern const short* shield_table[COLOUR_N][SQ_N];
 	
+#define S(mg, eg) Score(mg, eg)
+
+		constexpr Score pawn_table[] = {
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+			S(128, 340), S(175, 314), S(187, 281), S(198, 266),
+			S(92, 113), S(112, 108), S(143, 98), S(129, 100),
+			S(76, 98), S(95, 93), S(98, 93), S(113, 81),
+			S(65, 88), S(74, 89), S(94, 83), S(102, 83),
+			S(73, 81), S(85, 82), S(91, 86), S(93, 90),
+			S(67, 83), S(90, 81), S(81, 95), S(81, 98),
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+		};
+
+		constexpr Score knight_table[] = {
+			S(184, 239), S(248, 264), S(240, 290), S(317, 279),
+			S(285, 271), S(314, 290), S(402, 273), S(344, 303),
+			S(325, 271), S(377, 283), S(369, 309), S(378, 307),
+			S(350, 283), S(354, 302), S(362, 319), S(364, 325),
+			S(339, 283), S(357, 301), S(363, 316), S(362, 320),
+			S(333, 281), S(360, 290), S(363, 299), S(367, 314),
+			S(335, 259), S(336, 280), S(351, 291), S(362, 293),
+			S(305, 258), S(336, 253), S(322, 283), S(338, 284),
+		};
+
+		constexpr Score bishop_table[] = {
+			S(317, 292), S(334, 299), S(335, 296), S(334, 302),
+			S(318, 296), S(357, 282), S(350, 302), S(348, 305),
+			S(325, 305), S(348, 306), S(359, 309), S(346, 315),
+			S(325, 307), S(330, 307), S(333, 315), S(351, 315),
+		};
+
+		constexpr Score rook_table[] = {
+			S(471, 538), S(488, 533), S(451, 544), S(501, 531),
+			S(478, 538), S(474, 542), S(512, 531), S(521, 524),
+			S(463, 535), S(494, 532), S(480, 533), S(476, 534),
+			S(453, 538), S(462, 534), S(489, 536), S(481, 530),
+			S(450, 534), S(471, 531), S(468, 533), S(479, 526),
+			S(452, 524), S(473, 525), S(480, 519), S(474, 521),
+			S(444, 526), S(474, 517), S(477, 520), S(484, 519),
+			S(477, 514), S(469, 522), S(485, 518), S(484, 516),
+		};
+
+		constexpr Score queen_table[] = {
+			S(931, 980), S(913, 1009), S(922, 1018), S(950, 996),
+			S(929, 973), S(874, 1020), S(896, 1028), S(864, 1061),
+			S(937, 979), S(922, 1001), S(922, 1009), S(892, 1050),
+			S(915, 1015), S(909, 1027), S(903, 1022), S(900, 1036),
+			S(932, 988), S(918, 1027), S(925, 1010), S(921, 1027),
+			S(927, 997), S(947, 980), S(935, 1004), S(935, 1000),
+			S(927, 976), S(942, 962), S(957, 962), S(952, 976),
+			S(945, 952), S(936, 957), S(937, 959), S(951, 948),
+		};
+
+		constexpr Score king_table[] = {
+			S(69, 1), S(105, 26), S(62, 53), S(69, 48),
+			S(73, 37), S(111, 49), S(78, 73), S(52, 84),
+			S(45, 52), S(97, 66), S(87, 80), S(80, 89),
+			S(10, 54), S(76, 75), S(67, 92), S(52, 102),
+		};
+
+		constexpr Score passed_pawn[] = {
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+			S(16, 137), S(0, 133), S(5, 107), S(8, 79),
+			S(15, 71), S(4, 68), S(8, 45), S(6, 37),
+			S(11, 38), S(0, 37), S(0, 22), S(0, 17),
+			S(4, 10), S(0, 13), S(0, 2), S(0, 0),
+			S(0, 10), S(0, 9), S(0, 0), S(0, 0),
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+		};
+
+		constexpr short pawn_shield[] = {
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 3,
+			0, 0, 0, 0,
+			0, 2, 6, 2,
+			3, 3, 1, 0,
+		};
+
+		constexpr Score mobility[] = {
+			S(0, 0), S(0, 0), S(5, 0), S(7, 2), S(4, 3), S(2, 5),
+		};
+
+		constexpr short inner_ring_attack[] = {
+			0, 6, 3, 5, 5, 4,
+		};
+
+		constexpr short outer_ring_attack[] = {
+			0, 1, 5, 1, 1, 3,
+		};
+
+		constexpr Score double_pawn_penalty = S(1, 8);
+		constexpr Score isolated_pawn_penalty = S(17, 8);
+		constexpr Score bishop_pair_bonus = S(40, 43);
+		constexpr Score rook_open_file_bonus = S(32, 0);
+		constexpr Score rook_semi_open_file_bonus = S(8, 13);
+		constexpr Score tempo_bonus = S(19, 19);
+		constexpr Score king_full_open_penalty = S(41, 8);
+		constexpr Score king_semi_open_penalty = S(7, 0);
+		constexpr Score king_adjacent_full_open_penalty = S(5, 10);
+		constexpr Score king_adjacent_semi_open_penalty = S(10, 0);
+		constexpr Score knight_outpost_bonus = S(38, 14);
+		constexpr Score bishop_outpost_bonus = S(45, 0);
+		constexpr short virtual_king_m = 3;
+		constexpr short virtual_king_b = 1;
+		constexpr Score rook_closed_file_penalty = S(14, 1);
+		constexpr Score weak_queen_penalty = S(39, 0);
+		constexpr Score rook_on_our_passer_file = S(8, 10);
+		constexpr Score rook_on_their_passer_file = S(7, 38);
+		constexpr Score tall_pawn_penalty = S(10, 32);
+		constexpr Score fianchetto_bonus = S(17, 17);
+		constexpr short safety_threshold = 8;
+		constexpr short opposite_bishops_scaling = 15;
+		constexpr Score rook_on_seventh = S(0, 0);
+		constexpr Score bishop_behind_pawn_bonus = S(0, 0);
+		constexpr Score knight_behind_pawn_bonus = S(0, 0);
+
+#undef S
+
 		constexpr Bitboard file_masks[SQ_N] =  {
 			0x101010101010101ULL,  0x202020202020202ULL,  0x404040404040404ULL,  0x808080808080808ULL, 
 			0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL, 
