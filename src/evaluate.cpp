@@ -278,13 +278,7 @@ namespace Clovis {
 		template<Colour US, PieceType PT, bool SAFE>
 		Score evaluate_majors(const Position& pos, PTEntry& pte)
 		{
-<<<<<<< HEAD
-			constexpr Colour THEM = ~US;
-
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
-=======
-			static_assert(PT >= KNIGHT && PT < KING);
->>>>>>> 5d2ae71328b3ce02813b57596fa438be61770fe0
 
 			Score score;
 			Square sq;
