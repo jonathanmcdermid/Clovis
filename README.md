@@ -33,7 +33,7 @@ Commands for the engine can be issued using the standard [UCI format](http://pag
 
 ### Rankings
 
-Clovis is currently estimated to have an Elo rating of ~2900
+Clovis is currently estimated to have an Elo rating of ~2850
 
 - [CCRL 40/15](https://ccrl.chessdom.com/ccrl/4040/) **Clovis II 2815 Elo**
 - [CCRL Blitz](https://ccrl.chessdom.com/ccrl/404/) **Clovisv II N/A**
