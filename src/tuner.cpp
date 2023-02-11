@@ -14,6 +14,10 @@ namespace Clovis {
 
 		constexpr int n_cores = 8;
 		long double answers = 0;
+
+		double sigmoid(double K, double E) {
+			return 1.0 / (1.0 + exp(-K * E / 400.0));
+		}
 	
 		void tune_eval(bool safety_only)
 		{
@@ -233,17 +237,14 @@ namespace Clovis {
 			// thread process for calculating the mse of the divided set
 
 			long double error_sum = 0;
-			long double sigmoid = 0;
-			int eval;
 
 			for (int i = start; i < end; ++i)
 			{
-				eval = Eval::evaluate<false>(positions[i]);
-				// all evaluations need to be from white perspective
-				if (positions[i].side == BLACK)
-					eval = -eval;
-				sigmoid = 1 / (1 + pow(10, -K * eval / 400));
-				error_sum += pow(results[i] - sigmoid, 2);
+				int E = (positions[i].side == WHITE)
+					? Eval::evaluate<false>(positions[i])
+					:-Eval::evaluate<false>(positions[i]);
+
+				error_sum += pow(results[i] - sigmoid(K, E), 2);
 			}
 
 			answers += error_sum;
