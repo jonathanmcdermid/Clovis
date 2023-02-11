@@ -53,7 +53,7 @@ namespace Clovis {
 			bool improved;
 
 			// compute scaling constant k
-			k = 1.68;//find_k();
+			k = find_k();
 
 			do {
 				improved = false;
@@ -242,7 +242,7 @@ namespace Clovis {
 				// all evaluations need to be from white perspective
 				if (positions[i].side == BLACK)
 					eval = -eval;
-				sigmoid = 1 / (1 + pow(10, -K * eval / 400));
+				sigmoid = 1 / (1 + exp(-K * eval));
 				error_sum += pow(results[i] - sigmoid, 2);
 			}
 
