@@ -11,9 +11,36 @@ namespace Clovis {
 
 		constexpr int N_CORES = 8;
 		constexpr int N_POSITIONS = 75000;
+		
+		int n_terms;
+		int psqt_index;
+		int passers_index;
+		int double_pawn_penalty_index;
+		int isolated_pawn_penalty_index;
+		int bishop_pair_bonus_index;
+		int rook_open_file_bonus_index;
+		int rook_semi_open_file_bonus_index;
+		int tempo_bonus_index;
+		int king_full_open_penalty_index;
+		int king_semi_open_penalty_index;
+		int king_adjacent_full_open_penalty_index;
+		int king_adjacent_semi_open_penalty_index;
+		int knight_outpost_bonus_index;
+		int bishop_outpost_bonus_index;
+		int rook_closed_file_penalty_index;
+		int weak_queen_penalty_index;
+		int rook_on_our_passer_file_index;
+		int rook_on_their_passer_file_index;
+		int tall_pawn_penalty_index;
+		int fianchetto_bonus_index;
 
 		double sigmoid(double K, double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
+		}
+		
+		void initTuples() 
+		{
+			
 		}
 	
 		void tune_eval()
@@ -52,6 +79,7 @@ namespace Clovis {
 					if (pos.side == BLACK)
 						entries[i].seval = -entries[i].seval;
 					entries[i].stm = pos.side;
+					
 					
 				}
 			}

@@ -343,60 +343,35 @@ namespace Clovis {
 		};
 		
 #undef KZ
-
-		struct EvalTrace {
-			EvalTrace() {
-				clear();
-			}
-			void clear() {
-				memset(psqt, 0, sizeof(psqt));
-				memset(passers, 0, sizeof(passers));
-				memset(double_pawn_penalty, 0, sizeof(double_pawn_penalty));
-				memset(isolated_pawn_penalty, 0, sizeof(isolated_pawn_penalty));
-				memset(bishop_pair_bonus, 0, sizeof(bishop_pair_bonus));
-				memset(rook_open_file_bonus, 0, sizeof(rook_open_file_bonus));
-				memset(rook_semi_open_file_bonus, 0, sizeof(rook_semi_open_file_bonus));
-				memset(tempo_bonus, 0, sizeof(tempo_bonus));
-				memset(king_full_open_penalty, 0, sizeof(king_full_open_penalty));
-				memset(king_semi_open_penalty, 0, sizeof(king_semi_open_penalty));
-				memset(king_adjacent_full_open_penalty, 0, sizeof(king_adjacent_full_open_penalty));
-				memset(king_adjacent_semi_open_penalty, 0, sizeof(king_adjacent_semi_open_penalty));
-				memset(knight_outpost_bonus, 0, sizeof(knight_outpost_bonus));
-				memset(bishop_outpost_bonus, 0, sizeof(bishop_outpost_bonus));
-				memset(rook_closed_file_penalty, 0, sizeof(rook_closed_file_penalty));
-				memset(weak_queen_penalty, 0, sizeof(weak_queen_penalty));
-				memset(rook_on_our_passer_file, 0, sizeof(rook_on_our_passer_file));
-				memset(rook_on_their_passer_file, 0, sizeof(rook_on_their_passer_file));
-				memset(tall_pawn_penalty, 0, sizeof(tall_pawn_penalty));
-				memset(fianchetto_bonus, 0, sizeof(fianchetto_bonus));
-			}
-			int psqt[7][COLOUR_N][SQ_N];
-			int passers[COLOUR_N][SQ_N];
-			int double_pawn_penalty[COLOUR_N];
-			int isolated_pawn_penalty[COLOUR_N];
-			int bishop_pair_bonus[COLOUR_N];
-			int rook_open_file_bonus[COLOUR_N];
-			int rook_semi_open_file_bonus[COLOUR_N];
-			int tempo_bonus[COLOUR_N];
-			int king_full_open_penalty[COLOUR_N];
-			int king_semi_open_penalty[COLOUR_N];
-			int king_adjacent_full_open_penalty[COLOUR_N];
-			int king_adjacent_semi_open_penalty[COLOUR_N];
-			int knight_outpost_bonus[COLOUR_N];
-			int bishop_outpost_bonus[COLOUR_N];
-			int rook_closed_file_penalty[COLOUR_N];
-			int weak_queen_penalty[COLOUR_N];
-			int rook_on_our_passer_file[COLOUR_N];
-			int rook_on_their_passer_file[COLOUR_N];
-			int tall_pawn_penalty[COLOUR_N];
-			int fianchetto_bonus[COLOUR_N];
+		enum TraceIndex : int {
+			PSQT,
+			PASSED_PAWN = PSQT + 6 * SQ_N,
+			DOUBLE_PAWN = PASSED_PAWN + SQ_N,
+			ISOLATED_PAWN,
+			BISHOP_PAIR,
+			ROOK_FULL,
+			ROOK_SEMI,
+			ROOK_CLOSED,
+			TEMPO,
+			KING_FULL,
+			KING_SEMI,
+			KING_ADJ_FULL,
+			KING_ADJ_SEMI,
+			KNIGHT_OUTPOST,
+			BISHOP_OUTPOST,
+			WEAK_QUEEN,
+			ROOK_OUR_PASSER,
+			ROOK_THEIR_PASSER,
+			TALL_PAWN,
+			FIANCHETTO,
+			TI_N
 		};
 
 		void init_eval();
 		void init_values();
 		template<bool TRACE> int evaluate(const Position& pos);
 		
-		extern EvalTrace T;
+		extern vector<array<int, 2>> T;
 
 	} // namespace Eval
 
