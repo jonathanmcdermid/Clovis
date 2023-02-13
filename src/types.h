@@ -97,11 +97,6 @@ namespace Clovis {
 		PIECETYPE_NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,
 		PIECETYPE_N = 6
 	};
-	
-	enum Phase : int {
-		MG, EG, 
-		PHASE_N = 2
-	};
 
 	enum Piece {
 		NO_PIECE,

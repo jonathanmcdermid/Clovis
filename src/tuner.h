@@ -33,14 +33,10 @@ namespace Clovis {
 			vector<TTuple> tuples;
 		};
 
-		void tune_eval(bool safety_only);
-		long double tune_loop(vector<short*> weights);
+		void tune_eval();
 		long double find_k();
 		long double mean_squared_error(long double K);
-		void processor(int start, int end, long double K);
-		vector<short*> map_weights_to_params(bool safety_only);
-		void print_params();
-	
+
 	} // namespace Tuner
 
 } // namespace Clovis

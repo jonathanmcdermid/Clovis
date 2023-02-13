@@ -344,9 +344,34 @@ namespace Clovis {
 		
 #undef KZ
 
+		struct EvalTrace {
+			int psqt[7][COLOUR_N][SQ_N];
+			int passers[COLOUR_N][SQ_N];
+			int double_pawn_penalty[COLOUR_N];
+			int isolated_pawn_penalty[COLOUR_N];
+			int bishop_pair_bonus[COLOUR_N];
+			int rook_open_file_bonus[COLOUR_N];
+			int rook_semi_open_file_bonus[COLOUR_N];
+			int tempo_bonus[COLOUR_N];
+			int king_full_open_penalty[COLOUR_N];
+			int king_semi_open_penalty[COLOUR_N];
+			int king_adjacent_full_open_penalty[COLOUR_N];
+			int king_adjacent_semi_open_penalty[COLOUR_N];
+			int knight_outpost_bonus[COLOUR_N];
+			int bishop_outpost_bonus[COLOUR_N];
+			int rook_closed_file_penalty[COLOUR_N];
+			int weak_queen_penalty[COLOUR_N];
+			int rook_on_our_passer_file[COLOUR_N];
+			int rook_on_their_passer_file[COLOUR_N];
+			int tall_pawn_penalty[COLOUR_N];
+			int fianchetto_bonus[COLOUR_N];
+		};
+
 		void init_eval();
 		void init_values();
-		template<bool USE_TT> int evaluate(const Position& pos);
+		template<bool TRACE> int evaluate(const Position& pos);
+		
+		extern EvalTrace T;
 
 	} // namespace Eval
 
