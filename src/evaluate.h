@@ -80,27 +80,8 @@ namespace Clovis {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
-		constexpr short pawn_shield[] = {
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 3,
-			0, 0, 0, 0,
-			0, 2, 6, 2,
-			3, 3, 1, 0,
-		};
-
 		constexpr Score mobility[] = {
 			S(0, 0), S(0, 0), S(5, 0), S(7, 2), S(4, 3), S(2, 5),
-		};
-
-		constexpr short inner_ring_attack[] = {
-			0, 6, 3, 5, 5, 4,
-		};
-
-		constexpr short outer_ring_attack[] = {
-			0, 1, 5, 1, 1, 3,
 		};
 
 		constexpr Score double_pawn_penalty = S(1, 8);
@@ -115,19 +96,39 @@ namespace Clovis {
 		constexpr Score king_adjacent_semi_open_penalty = S(10, 0);
 		constexpr Score knight_outpost_bonus = S(38, 14);
 		constexpr Score bishop_outpost_bonus = S(45, 0);
-		constexpr short virtual_king_m = 3;
-		constexpr short virtual_king_b = 1;
 		constexpr Score rook_closed_file_penalty = S(14, 1);
 		constexpr Score weak_queen_penalty = S(39, 0);
 		constexpr Score rook_on_our_passer_file = S(8, 10);
 		constexpr Score rook_on_their_passer_file = S(7, 38);
 		constexpr Score tall_pawn_penalty = S(10, 32);
 		constexpr Score fianchetto_bonus = S(17, 17);
-		constexpr short safety_threshold = 8;
-		constexpr short opposite_bishops_scaling = 15;
 		constexpr Score rook_on_seventh = S(0, 0);
 		constexpr Score bishop_behind_pawn_bonus = S(0, 0);
 		constexpr Score knight_behind_pawn_bonus = S(0, 0);
+		
+		constexpr short pawn_shield[] = {
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 3,
+			0, 0, 0, 0,
+			0, 2, 6, 2,
+			3, 3, 1, 0,
+		};
+
+		constexpr short inner_ring_attack[] = {
+			0, 6, 3, 5, 5, 4,
+		};
+
+		constexpr short outer_ring_attack[] = {
+			0, 1, 5, 1, 1, 3,
+		};
+		
+		constexpr short virtual_king_m = 3;
+		constexpr short virtual_king_b = 1;
+		constexpr short safety_threshold = 8;
+		constexpr short opposite_bishops_scaling = 15;
 
 #undef S
 

@@ -189,7 +189,11 @@ namespace Clovis {
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
-				if constexpr (TRACE) psqt_trace<US, PT>(sq);
+				if constexpr (TRACE) 
+				{
+					psqt_trace<US, PT>(sq);
+					T[MOBILITY + PT - KNIGHT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
+				}
 
 				if constexpr (PT == KNIGHT)
 				{

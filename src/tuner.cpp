@@ -38,6 +38,8 @@ namespace Clovis {
 				params[i++] = { (double) king_table[sq].mg, (double) king_table[sq].eg };
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 				params[i++] = { (double) passed_pawn[sq].mg, (double) passed_pawn[sq].eg };
+			for (PieceType pt = KNIGHT; pt < KING; ++pt)
+				params[i++] = { (double) mobility[pt].mg, (double) mobility[pt].eg };
 			
 			params[i++] = { double_pawn_penalty.mg, double_pawn_penalty.eg };
 			params[i++] = { isolated_pawn_penalty.mg, isolated_pawn_penalty.eg };
