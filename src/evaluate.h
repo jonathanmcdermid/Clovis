@@ -343,28 +343,27 @@ namespace Clovis {
 		};
 		
 #undef KZ
-		enum TraceIndex : int {
-			PSQT,
-			PASSED_PAWN = PSQT + 6 * SQ_N,
-			DOUBLE_PAWN = PASSED_PAWN + SQ_N,
-			ISOLATED_PAWN,
-			BISHOP_PAIR,
-			ROOK_FULL,
-			ROOK_SEMI,
-			ROOK_CLOSED,
-			TEMPO,
-			KING_FULL,
-			KING_SEMI,
-			KING_ADJ_FULL,
-			KING_ADJ_SEMI,
-			KNIGHT_OUTPOST,
-			BISHOP_OUTPOST,
-			WEAK_QUEEN,
-			ROOK_OUR_PASSER,
-			ROOK_THEIR_PASSER,
-			TALL_PAWN,
-			FIANCHETTO,
-			TI_N
+		
+		constexpr int source32[] = {
+			 0,  1,  2,  3,  3,  2,  1,  0,
+			 4,  5,  6,  7,  7,  6,  5,  4,
+			 8,  9, 10, 11, 11, 10,  9,  8,
+			12, 13, 14, 15, 15, 14, 13, 12,
+			16, 17, 18, 19, 19, 18, 17, 16,
+			20, 21, 22, 23, 23, 22, 21, 20,
+			24, 25, 26, 27, 27, 26, 25, 24,
+			28, 29, 30, 31, 31, 30, 29, 28,
+		};
+		
+		constexpr int source16[] = {
+			 0,  1,  2,  3,  3,  2,  1,  0,
+			 4,  5,  6,  7,  7,  6,  5,  4,
+			 8,  9, 10, 11, 11, 10,  9,  8,
+			12, 13, 14, 15, 15, 14, 13, 12,
+			12, 13, 14, 15, 15, 14, 13, 12,
+			 8,  9, 10, 11, 11, 10,  9,  8,
+			 4,  5,  6,  7,  7,  6,  5,  4,
+			 0,  1,  2,  3,  3,  2,  1,  0,
 		};
 
 		void init_eval();

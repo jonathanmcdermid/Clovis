@@ -19,6 +19,11 @@ namespace Clovis {
 	namespace Tuner {
 	
 		struct TTuple {
+			TTuple(int i, int wc, int bc) { 
+				index = i; 
+				coefficient[WHITE] = wc; 
+				coefficient[BLACK] = bc; 
+			}
 			int index;
 			int coefficient[COLOUR_N];
 		};
@@ -26,7 +31,6 @@ namespace Clovis {
 		struct TEntry {
 			Colour stm;
 			int seval;
-			int eval;
 			int safety[COLOUR_N];
 			double result;
 			double rho[PHASE_N];

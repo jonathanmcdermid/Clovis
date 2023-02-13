@@ -154,7 +154,18 @@ namespace Clovis {
 					++pte.n_att[US];
 			}
 		}
-        
+		
+		template<Colour US, PieceType PT>
+		void psqt_trace(Square sq)
+		{
+			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[relative_square(US, sq)]][US];
+			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[relative_square(US, sq)]][US];
+		}
+		
 		template<Colour US, PieceType PT, bool SAFE, bool TRACE>
 		Score evaluate_majors(const Position& pos, PTEntry& pte)
 		{
@@ -178,7 +189,7 @@ namespace Clovis {
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
-				if constexpr (TRACE) ++T[PSQT + (PT - 1) * SQ_N + relative_square(US, sq)][US];
+				if constexpr (TRACE) psqt_trace<US, PT>(sq);
 
 				if constexpr (PT == KNIGHT)
 				{
@@ -308,7 +319,7 @@ namespace Clovis {
 			{
 				Square sq = pop_lsb(bb);
 
-				if constexpr (TRACE) ++T[PSQT + relative_square(US, sq)][US];
+				if constexpr (TRACE) psqt_trace<US, PAWN>(sq);
 
 				score += *score_table[OUR_PAWN][sq];
 
@@ -328,7 +339,7 @@ namespace Clovis {
 				{
 					score += *passed_table[US][sq];
 					pte.passers[US] |= sq;
-					if constexpr (TRACE) ++T[PASSED_PAWN + relative_square(US, sq)][US];
+					if constexpr (TRACE) ++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
 				}
 
 				king_danger<US, PAWN>(sqbb(sq + pawn_push(US)), pte);
@@ -394,7 +405,7 @@ namespace Clovis {
 
 			score += *score_table[make_piece(KING, US)][pte.ksq[US]];
 			
-			if constexpr (TRACE) ++T[PSQT + (KING - 1) * SQ_N + relative_square(US, pte.ksq[US])][US];
+			if constexpr (TRACE) psqt_trace<US, KING>(pte.ksq[US]);
 
 			return score;
 		}
