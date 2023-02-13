@@ -345,6 +345,31 @@ namespace Clovis {
 #undef KZ
 
 		struct EvalTrace {
+			EvalTrace() {
+				clear();
+			}
+			void clear() {
+				memset(psqt, 0, sizeof(psqt));
+				memset(passers, 0, sizeof(passers));
+				memset(double_pawn_penalty, 0, sizeof(double_pawn_penalty));
+				memset(isolated_pawn_penalty, 0, sizeof(isolated_pawn_penalty));
+				memset(bishop_pair_bonus, 0, sizeof(bishop_pair_bonus));
+				memset(rook_open_file_bonus, 0, sizeof(rook_open_file_bonus));
+				memset(rook_semi_open_file_bonus, 0, sizeof(rook_semi_open_file_bonus));
+				memset(tempo_bonus, 0, sizeof(tempo_bonus));
+				memset(king_full_open_penalty, 0, sizeof(king_full_open_penalty));
+				memset(king_semi_open_penalty, 0, sizeof(king_semi_open_penalty));
+				memset(king_adjacent_full_open_penalty, 0, sizeof(king_adjacent_full_open_penalty));
+				memset(king_adjacent_semi_open_penalty, 0, sizeof(king_adjacent_semi_open_penalty));
+				memset(knight_outpost_bonus, 0, sizeof(knight_outpost_bonus));
+				memset(bishop_outpost_bonus, 0, sizeof(bishop_outpost_bonus));
+				memset(rook_closed_file_penalty, 0, sizeof(rook_closed_file_penalty));
+				memset(weak_queen_penalty, 0, sizeof(weak_queen_penalty));
+				memset(rook_on_our_passer_file, 0, sizeof(rook_on_our_passer_file));
+				memset(rook_on_their_passer_file, 0, sizeof(rook_on_their_passer_file));
+				memset(tall_pawn_penalty, 0, sizeof(tall_pawn_penalty));
+				memset(fianchetto_bonus, 0, sizeof(fianchetto_bonus));
+			}
 			int psqt[7][COLOUR_N][SQ_N];
 			int passers[COLOUR_N][SQ_N];
 			int double_pawn_penalty[COLOUR_N];

@@ -44,12 +44,15 @@ namespace Clovis {
 					
 					Position pos = Position(line.substr(0, idx).c_str());
 					
+					Eval::T.clear();
+					
 					entries[i].rho[MG] = 1.0 - pos.get_game_phase() / MAX_GAMEPHASE;
 					entries[i].rho[EG] = 0.0 + pos.get_game_phase() / MAX_GAMEPHASE;
 					entries[i].seval = Eval::evaluate<true>(pos);
 					if (pos.side == BLACK)
 						entries[i].seval = -entries[i].seval;
 					entries[i].stm = pos.side;
+					
 				}
 			}
 
