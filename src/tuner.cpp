@@ -6,14 +6,10 @@ namespace Clovis {
 
 	namespace Tuner {
 
-		vector<Position> positions;
-		vector<double> results;
-		long double best_mse;
-		long double k;
-		size_t safety_index;
+		vector<TEntry> entries;
 
-		constexpr int n_cores = 8;
-		long double answers = 0;
+		constexpr int N_CORES = 8;
+		constexpr int N_POSITIONS = 75000;
 
 		double sigmoid(double K, double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
@@ -26,8 +22,9 @@ namespace Clovis {
 			ifstream ifs;
 			ifs.open(file_name.c_str(), ifstream::in);
 			string line;
+			Position pos;
 
-			while (true)
+			for(int i = 0; i < N_POSITIONS; ++i)
 			{
 				if (ifs.eof())
 					break;
@@ -38,172 +35,25 @@ namespace Clovis {
 					size_t idx_end = line.find("\"", idx + 1);
 					string res = line.substr(idx + 1, idx_end - idx - 1);
 					if (res == "1-0")
-						results.push_back(1.0);
+						entries[i].result = 1.0;
 					else if (res == "0-1")
-						results.push_back(0.0);
+						entries[i].result = 0.0;
 					else if (res == "1/2-1/2")
-						results.push_back(0.5);
-					else return;
-					positions.push_back(Position(line.substr(0, idx).c_str()));
+						entries[i].result = 0.5;
+					else exit(EXIT_FAILURE);
+					
+					pos.set(line.substr(0, idx).c_str())));
+					
+					entries[i].rho[MG] = 1.0 - pos.get_game_phase() / MAX_GAMEPHASE;
+					entries[i].rho[EG] = 0.0 + pos.get_game_phase() / MAX_GAMEPHASE;
+					entries[i].seval = Eval::Evaluate<false>(pos);
+					if (pos.stm == BLACK)
+						entries[i].seval = -entries[i].seval;
+					entries[i].stm = pos.stm;
 				}
 			}
 
 			ifs.close();
-
-			cout << "positions done loading " << positions.size() << endl;
-
-			vector<short*> weights = map_weights_to_params(safety_only);
-
-			bool improved;
-
-			// compute scaling constant k
-			k = 1.68;//find_k();
-
-			do {
-				improved = false;
-
-				best_mse = mean_squared_error(k);
-
-				long double mse = tune_loop(weights);
-
-				for (short step = 0; step < 25; ++step)
-				{
-					cout << "step: " << step << endl;
-					for (size_t index = 0; index < safety_index; index += 2)
-					{
-						short best_val_mg = *weights[index];
-						short best_val_eg = *weights[index + 1];
-
-						*weights[index] += step;
-
-						for (int i = 0; i < 25 && mse >= best_mse && *weights[index + 1] > 0; ++i)
-						{
-							*weights[index + 1] = best_val_eg - i;
-							*weights[index + 1] = max(short(0), *weights[index + 1]);
-
-							mse = mean_squared_error(k);
-
-							// if a thread fails we catch it here
-							while (best_mse - mse > best_mse / (n_cores + 1))
-								mse = mean_squared_error(k);
-						}
-
-						if (mse < best_mse)
-						{
-							best_val_mg = *weights[index];
-							best_val_eg = *weights[index + 1];
-							best_mse = mse;
-							print_params();
-							cout << mse << endl;
-							improved = true;
-						}
-						else
-						{
-							*weights[index]     = best_val_mg;
-							*weights[index + 1] = best_val_eg;
-						}
-
-						if (*weights[index] == 0)
-							continue;
-
-						*weights[index] -= step;
-						*weights[index] = max(short(0), *weights[index]);
-
-						for (int i = 0; i < 25 && mse >= best_mse; ++i)
-						{
-							*weights[index + 1] = best_val_eg + i;
-							mse = mean_squared_error(k);
-
-							// if a thread fails we catch it here
-							while (best_mse - mse > best_mse / (n_cores + 1))
-								mse = mean_squared_error(k);
-						}
-
-						if (mse < best_mse)
-						{
-							best_mse = mse;
-							print_params();
-							cout << mse << endl;
-							improved = true;
-						}
-						else
-						{
-							*weights[index]     = best_val_mg;
-							*weights[index + 1] = best_val_eg;
-						}
-					}
-				}
-			} while (improved);
-
-			print_params();
-
-		}
-
-		long double tune_loop(vector<short*> weights)
-		{
-			long double mse;
-
-			vector<int> direction(weights.size(), 1);
-
-			bool improved = true;
-
-			for (unsigned iterations = 0; improved; ++iterations)
-			{
-				improved = false;
-				for (size_t index = 0; index < weights.size(); ++index)
-				{
-					short old_val = *weights[index];
-
-					// increase weight
-					*weights[index] += direction[index];
-
-					*weights[index] = max(short(0), *weights[index]);
-
-					mse = mean_squared_error(k);
-
-					// if a thread fails we catch it here
-					while (best_mse - mse > best_mse / (n_cores + 1))
-						mse = mean_squared_error(k);
-
-					if (mse < best_mse)
-					{
-						best_mse = mse;
-						improved = true;
-					}
-					else
-					{
-						*weights[index] = old_val;
-
-						// decrease weight
-						*weights[index] -= direction[index];
-
-						*weights[index] = max(short(0), *weights[index]);
-
-						mse = mean_squared_error(k);
-
-						// if a thread fails we catch it here
-						while (best_mse - mse > best_mse / (n_cores + 1))
-							mse = mean_squared_error(k);
-
-						if (mse < best_mse)
-						{
-							direction[index] = -direction[index];
-							best_mse = mse;
-							improved = true;
-						}
-						else
-							// reset weight, no improvements
-							*weights[index] = old_val;
-					}
-					cout << "weight " << index << " mse: " << best_mse << endl;
-				}
-				
-				print_params();
-				cout << "iteration " << iterations << " complete" << endl;
-			}
-			cout << "\ndone!\n";
-
-			return best_mse;
 		}
 
 		long double mean_squared_error(long double K)

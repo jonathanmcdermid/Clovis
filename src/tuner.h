@@ -25,11 +25,11 @@ namespace Clovis {
 		
 		struct TEntry {
 			Colour stm;
-			int phase;
+			int seval;
 			int eval;
 			int safety[COLOUR_N];
 			double result;
-			double rho[2];
+			double rho[PHASE_N];
 			vector<TTuple> tuples;
 		};
 
