@@ -17,6 +17,21 @@
 namespace Clovis {
 
 	namespace Tuner {
+	
+		struct TTuple {
+			int index;
+			int coefficient[COLOUR_N];
+		};
+		
+		struct TEntry {
+			Colour stm;
+			int phase;
+			int eval;
+			int safety[COLOUR_N];
+			double result;
+			double rho[2];
+			vector<TTuple> tuples;
+		};
 
 		void tune_eval(bool safety_only);
 		long double tune_loop(vector<short*> weights);
