@@ -98,7 +98,7 @@ namespace Clovis {
 			params[ROOK_THEIR_PASSER][EG] = rook_on_their_passer_file.eg;
 			params[TALL_PAWN][MG] = -tall_pawn_penalty.mg;
 			params[TALL_PAWN][EG] = -tall_pawn_penalty.eg;
-			params[TALL_PAWN][MG] = fianchetto_bonus.mg;
+			params[FIANCHETTO][MG] = fianchetto_bonus.mg;
 			params[FIANCHETTO][EG] = fianchetto_bonus.eg;
 			
 			for (Square sq = Square(16); sq < 32; ++sq)
@@ -251,20 +251,12 @@ namespace Clovis {
 					entries[i].seval = Eval::evaluate<true>(pos);
 					if (pos.side == BLACK) entries[i].seval = -entries[i].seval;
 					
-					cout << "static " << entries[i].seval << endl;
 					entries[i].stm = pos.side;
 					
 					for (int j = 0; j < TI_N; ++j)
 						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
 							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
 							entries[i].tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
-					
-					cout << "linear " << linear_eval(&entries[i], NULL) << endl;
-					if(entries[i].seval != linear_eval(&entries[i], NULL))
-					{
-						cout << i << endl;
-						exit(1);
-					}
 				}
 			}
 

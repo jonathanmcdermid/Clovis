@@ -426,7 +426,7 @@ namespace Clovis {
 				return DRAW_SCORE;
 
 			Colour us = pos.side;
-			Colour them = ~us;
+			//Colour them = ~us;
 
 			int game_phase = pos.get_game_phase();
 
@@ -474,7 +474,7 @@ namespace Clovis {
 				eval = eval * scaling / MAX_SCALING;
 			*/
 
-			return insufficient[us] ? min(DRAW_SCORE, eval) : insufficient[them] ? max(DRAW_SCORE, eval) : eval;
+			return eval;//insufficient[us] ? min(DRAW_SCORE, eval) : insufficient[them] ? max(DRAW_SCORE, eval) : eval;
 		}
 		
 		// explicit template instantiations
