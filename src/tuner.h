@@ -38,7 +38,7 @@ namespace Clovis {
 			int seval;
 			int safety[COLOUR_N];
 			double result;
-			double rho[PHASE_N];
+			double phase;
 			vector<TTuple> tuples;
 		};
 

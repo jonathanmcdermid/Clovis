@@ -13,6 +13,7 @@ namespace Clovis {
 
 		void init_eval()
 		{
+			T.resize(TI_N, {0,0});
 			init_values();
 		}
 
@@ -280,7 +281,7 @@ namespace Clovis {
 		{
 			Score score;
 
-			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > safety_threshold)
+			if (0)//pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > safety_threshold)
 			{
 				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, pte);
 				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, pte);
@@ -434,13 +435,17 @@ namespace Clovis {
 			
 			if constexpr (TRACE) 
 			{
-				T.resize(TI_N, {0,0});
+				for(int i=0;i<TI_N;++i)
+				{
+					T[i][0] = 0;
+					T[i][1] = 0;
+				}
 				++T[TEMPO][us];
 			}
 
 			PTEntry pte = tt.probe_pawn(pos.bs->pkey);
 
-			if (pte.key != pos.bs->pkey)
+			if (TRACE || pte.key != pos.bs->pkey)
 			{
 				pte.clear();
 				pte.key = pos.bs->pkey;

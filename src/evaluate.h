@@ -89,6 +89,7 @@ namespace Clovis {
 		constexpr Score bishop_pair_bonus = S(40, 43);
 		constexpr Score rook_open_file_bonus = S(32, 0);
 		constexpr Score rook_semi_open_file_bonus = S(8, 13);
+		constexpr Score rook_closed_file_penalty = S(14, 1);
 		constexpr Score tempo_bonus = S(19, 19);
 		constexpr Score king_full_open_penalty = S(41, 8);
 		constexpr Score king_semi_open_penalty = S(7, 0);
@@ -96,7 +97,6 @@ namespace Clovis {
 		constexpr Score king_adjacent_semi_open_penalty = S(10, 0);
 		constexpr Score knight_outpost_bonus = S(38, 14);
 		constexpr Score bishop_outpost_bonus = S(45, 0);
-		constexpr Score rook_closed_file_penalty = S(14, 1);
 		constexpr Score weak_queen_penalty = S(39, 0);
 		constexpr Score rook_on_our_passer_file = S(8, 10);
 		constexpr Score rook_on_their_passer_file = S(7, 38);
@@ -346,14 +346,14 @@ namespace Clovis {
 #undef KZ
 		
 		constexpr int source32[] = {
-			 0,  1,  2,  3,  3,  2,  1,  0,
-			 4,  5,  6,  7,  7,  6,  5,  4,
-			 8,  9, 10, 11, 11, 10,  9,  8,
-			12, 13, 14, 15, 15, 14, 13, 12,
-			16, 17, 18, 19, 19, 18, 17, 16,
-			20, 21, 22, 23, 23, 22, 21, 20,
-			24, 25, 26, 27, 27, 26, 25, 24,
 			28, 29, 30, 31, 31, 30, 29, 28,
+			24, 25, 26, 27, 27, 26, 25, 24,
+			20, 21, 22, 23, 23, 22, 21, 20,
+			16, 17, 18, 19, 19, 18, 17, 16,
+			12, 13, 14, 15, 15, 14, 13, 12,
+			 8,  9, 10, 11, 11, 10,  9,  8,
+			 4,  5,  6,  7,  7,  6,  5,  4,
+			 0,  1,  2,  3,  3,  2,  1,  0,
 		};
 		
 		constexpr int source16[] = {

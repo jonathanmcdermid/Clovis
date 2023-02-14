@@ -13,7 +13,7 @@ namespace Clovis {
 
 		constexpr int N_CORES = 8;
 		constexpr int N_POSITIONS = 725000;
-		constexpr int MAX_EPOCHS = 1000;
+		constexpr int MAX_EPOCHS = 100000;
 
 		inline double sigmoid(double K, double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
@@ -44,23 +44,23 @@ namespace Clovis {
 			for (PieceType pt = KNIGHT; pt < KING; ++pt)
 				params[i++] = { (double) mobility[pt].mg, (double) mobility[pt].eg };
 			
-			params[i++] = { double_pawn_penalty.mg, double_pawn_penalty.eg };
-			params[i++] = { isolated_pawn_penalty.mg, isolated_pawn_penalty.eg };
+			params[i++] = { -double_pawn_penalty.mg, -double_pawn_penalty.eg };
+			params[i++] = { -isolated_pawn_penalty.mg, -isolated_pawn_penalty.eg };
 			params[i++] = { bishop_pair_bonus.mg, bishop_pair_bonus.eg };
 			params[i++] = { rook_open_file_bonus.mg, rook_open_file_bonus.eg };
 			params[i++] = { rook_semi_open_file_bonus.mg, rook_semi_open_file_bonus.eg };
-			params[i++] = { rook_closed_file_penalty.mg, rook_closed_file_penalty.eg };
+			params[i++] = { -rook_closed_file_penalty.mg, -rook_closed_file_penalty.eg };
 			params[i++] = { tempo_bonus.mg, tempo_bonus.eg };
-			params[i++] = { king_full_open_penalty.mg, king_full_open_penalty.eg };
-			params[i++] = { king_semi_open_penalty.mg, king_semi_open_penalty.eg };
-			params[i++] = { king_adjacent_full_open_penalty.mg, king_adjacent_full_open_penalty.eg };
-			params[i++] = { king_adjacent_semi_open_penalty.mg, king_adjacent_semi_open_penalty.eg };
+			params[i++] = { -king_full_open_penalty.mg, -king_full_open_penalty.eg };
+			params[i++] = { -king_semi_open_penalty.mg, -king_semi_open_penalty.eg };
+			params[i++] = { -king_adjacent_full_open_penalty.mg, -king_adjacent_full_open_penalty.eg };
+			params[i++] = { -king_adjacent_semi_open_penalty.mg, -king_adjacent_semi_open_penalty.eg };
 			params[i++] = { knight_outpost_bonus.mg, knight_outpost_bonus.eg };
 			params[i++] = { bishop_outpost_bonus.mg, bishop_outpost_bonus.eg };
-			params[i++] = { weak_queen_penalty.mg, weak_queen_penalty.eg };
+			params[i++] = { -weak_queen_penalty.mg, -weak_queen_penalty.eg };
 			params[i++] = { rook_on_our_passer_file.mg, rook_on_our_passer_file.eg };
 			params[i++] = { rook_on_their_passer_file.mg, rook_on_their_passer_file.eg };
-			params[i++] = { tall_pawn_penalty.mg, tall_pawn_penalty.eg };
+			params[i++] = { -tall_pawn_penalty.mg, -tall_pawn_penalty.eg };
 			params[i++] = { fianchetto_bonus.mg, fianchetto_bonus.eg };
 			
 			assert(i == TI_SAFETY);
@@ -102,12 +102,12 @@ namespace Clovis {
 			
 			if (tg)
 			{
-				tg->eval = (normal[MG] * entry->rho[MG] + normal[EG] * entry->rho[EG]) / MAX_GAMEPHASE;
+				tg->eval = (normal[MG] * entry->phase + normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
 				tg->safety[WHITE] = mg[SAFETY][WHITE];
 				tg->safety[BLACK] = mg[SAFETY][BLACK];
 			}
 
-			return (normal[MG] * entry->rho[MG] +  normal[EG] * entry->rho[EG]) / MAX_GAMEPHASE;
+			return (normal[MG] * entry->phase +  normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
 		}
 		
 		long double mse(long double K)
@@ -144,8 +144,8 @@ namespace Clovis {
 			{
 				if (it.index < TI_SAFETY)
 				{
-					gradient[it.index][MG] += A * entry->rho[MG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
-					gradient[it.index][EG] += A * entry->rho[EG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
+					gradient[it.index][MG] += A * entry->phase * (it.coefficient[WHITE] - it.coefficient[BLACK]);
+					gradient[it.index][EG] += A * (MAX_GAMEPHASE - entry->phase) * (it.coefficient[WHITE] - it.coefficient[BLACK]);
 				}
 			}
 		}
@@ -182,6 +182,11 @@ namespace Clovis {
 				getline(ifs, line);
 				if (line.length())
 				{
+					for(int j=0;j<TI_N;++j)
+					{
+						Eval::T[j][0] = 0;
+						Eval::T[j][1] = 0;
+					}
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
 					string res = line.substr(idx + 1, idx_end - idx - 1);
@@ -195,8 +200,7 @@ namespace Clovis {
 					
 					Position pos = Position(line.substr(0, idx).c_str());
 					
-					entries[i].rho[MG] = 1.0 - pos.get_game_phase() / MAX_GAMEPHASE;
-					entries[i].rho[EG] = 0.0 + pos.get_game_phase() / MAX_GAMEPHASE;
+					entries[i].phase = pos.get_game_phase();
 					
 					entries[i].seval = Eval::evaluate<true>(pos);
 					if (pos.side == BLACK) entries[i].seval = -entries[i].seval;
@@ -247,7 +251,7 @@ namespace Clovis {
 			long double error;
 			long double best = static_mse(start);
 			
-			for (int i = 0; i < k_precision; ++i)
+			for (int epoch = 0; epoch < k_precision; ++epoch)
 			{
 				curr = start - step;
 
@@ -264,7 +268,7 @@ namespace Clovis {
 				}
 
 				cout.precision(17);
-				cout << "epoch " << i << " K = " << start << " E = " << best << endl;
+				cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]" << endl;
 
 				end = start + step;
 				start -= step;
