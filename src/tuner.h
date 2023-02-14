@@ -28,6 +28,11 @@ namespace Clovis {
 			int coefficient[COLOUR_N];
 		};
 		
+		struct TGradient {
+			double eval;
+			double safety[COLOUR_N];
+		};
+		
 		struct TEntry {
 			Colour stm;
 			int seval;

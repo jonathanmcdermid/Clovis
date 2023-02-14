@@ -5,12 +5,15 @@ using namespace std;
 namespace Clovis {
 
 	namespace Tuner {
+	
+		typedef double TVector[TI_N][PHASE_N];
 
 		vector<TEntry> entries;
 		vector<array<double, 2>> params;
 
 		constexpr int N_CORES = 8;
 		constexpr int N_POSITIONS = 725000;
+		constexpr int MAX_EPOCHS = 1000;
 
 		inline double sigmoid(double K, double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
@@ -76,9 +79,93 @@ namespace Clovis {
 			assert(i == TI_N);
 		}
 		
+		double linear_eval(TEntry* entry, TGradient* tg) 
+		{
+			double normal[PHASE_N];
+			double mg[EVALTYPE_N][COLOUR_N] = {0};
+			double eg[EVALTYPE_N][COLOUR_N] = {0};
+
+			int count = 0;
+			
+			for (auto& it : entry->tuples)
+			{
+				EvalType et = count++ >= TI_SAFETY ? SAFETY : NORMAL;
+				
+				mg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][MG];
+				mg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][MG];
+				eg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][EG];
+				eg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][EG];
+			}
+
+			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
+			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
+			
+			if (tg)
+			{
+				tg->eval = (normal[MG] * entry->rho[MG] + normal[EG] * entry->rho[EG]) / MAX_GAMEPHASE;
+				tg->safety[WHITE] = mg[SAFETY][WHITE];
+				tg->safety[BLACK] = mg[SAFETY][BLACK];
+			}
+
+			return (normal[MG] * entry->rho[MG] +  normal[EG] * entry->rho[EG]) / MAX_GAMEPHASE;
+		}
+		
+		long double mse(long double K)
+		{
+			long double total = 0;
+			int start = 0;
+			int end = entries.size();
+
+			for (int i = start; i < end; ++i)
+				total += pow(entries[i].result - sigmoid(K, linear_eval(&entries[i], NULL)), 2);
+
+			return total / (double) entries.size();
+		}
+		
+		double static_mse(double K) 
+		{
+			double total = 0.0;
+		
+			for (int i = 0; i < N_POSITIONS; i++)
+				total += pow(entries[i].result - sigmoid(K, entries[i].seval), 2);
+			
+			return total / (double) N_POSITIONS;
+		}
+		
+		void update_single_gradient(TEntry *entry, TVector gradient, double K) 
+		{
+			TGradient tg;
+			
+			double E = linear_eval(entry, &tg);
+			double S = sigmoid(K, E);
+			double A = (entry->result - S) * S * (1 - S);
+
+			for (auto& it : entry->tuples)
+			{
+				if (it.index < TI_SAFETY)
+				{
+					gradient[it.index][MG] += A * entry->rho[MG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
+					gradient[it.index][EG] += A * entry->rho[EG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
+				}
+			}
+		}
+		
+		void compute_gradient(TVector gradient, double K) 
+		{
+			TVector local = {0};
+
+			for (int i = 0; i < N_POSITIONS; ++i)
+				update_single_gradient(&entries[i], local, K);
+
+			for (int i = 0; i < TI_N; ++i) {
+				gradient[i][MG] += local[i][MG];
+				gradient[i][EG] += local[i][EG];
+			}
+		}
 		
 		void tune_eval()
 		{
+			TVector adagrad = {0};
 			init_params();
 			
 			string file_name = "src/tuner.epd";
@@ -124,53 +211,30 @@ namespace Clovis {
 
 			ifs.close();
 			
-			find_k();
-		}
-		
-		double linear_eval(int i) 
-		{
-			double normal[PHASE_N];
-			double mg[EVALTYPE_N][COLOUR_N] = {0};
-			double eg[EVALTYPE_N][COLOUR_N] = {0};
-
-			int count = 0;
+			long double K = find_k();
+			double rate = 0.10;
 			
-			for (auto& it : entries[i].tuples)
+			for (int epoch = 0; epoch < MAX_EPOCHS; ++epoch) 
 			{
-				EvalType et = count++ >= TI_SAFETY ? SAFETY : NORMAL;
+				TVector gradient = {0};
+				compute_gradient(gradient, K);
+
+				for (int i = 0; i < TI_N; ++i) 
+				{
+					adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / 16384, 2.0);
+					adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / 16384, 2.0);
+					
+					params[i][MG] += (K / 200.0) * (gradient[i][MG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][MG]));
+					params[i][EG] += (K / 200.0) * (gradient[i][EG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][EG]));
+				}
+
+				long double error = mse(K);
 				
-				mg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][MG];
-				mg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][MG];
-				eg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][EG];
-				eg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][EG];
+				if (epoch && epoch % 250 == 0) 
+					rate = rate / 1.00;
+
+				cout << "Epoch [" << epoch << "] Error = [" << error << "], Rate = [" << rate << "]" << endl;
 			}
-
-			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
-			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
-
-			return (normal[MG] * entries[i].rho[MG] +  normal[EG] * entries[i].rho[EG]) / 24.0;
-		}
-
-		long double mse(long double K)
-		{
-			long double total = 0;
-			int start = 0;
-			int end = entries.size();
-
-			for (int i = start; i < end; ++i)
-				total += pow(entries[i].result - sigmoid(K, linear_eval(i)), 2);
-
-			return total / (double) entries.size();
-		}
-		
-		double static_mse(double K) 
-		{
-			double total = 0.0;
-		
-			for (int i = 0; i < N_POSITIONS; i++)
-				total += pow(entries[i].result - sigmoid(K, entries[i].seval), 2);
-			
-			return total / (double) N_POSITIONS;
 		}
 
 		long double find_k()
