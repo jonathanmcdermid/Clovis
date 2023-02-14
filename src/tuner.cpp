@@ -9,7 +9,7 @@ namespace Clovis {
 		typedef double TVector[TI_N][PHASE_N];
 
 		vector<TEntry> entries;
-		vector<array<double, 2>> params;
+		TVector params;
 
 		constexpr int N_CORES = 8;
 		constexpr int N_POSITIONS = 725000;
@@ -21,65 +21,111 @@ namespace Clovis {
 		
 		void init_params()
 		{
-			params.resize(TI_N);
-			
-			int i = 0;
-			
 			using namespace Eval;
 			
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-				params[i++] = { (double) pawn_table[sq].mg, (double) pawn_table[sq].eg };
+			{
+				params[PAWN_PSQT + sq][MG] = (double) pawn_table[sq].mg;
+				params[PAWN_PSQT + sq][EG] = (double) pawn_table[sq].eg;
+			}
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-				params[i++] = { (double) knight_table[sq].mg, (double) knight_table[sq].eg };
+			{
+				params[KNIGHT_PSQT + sq][MG] = (double) knight_table[sq].mg;
+				params[KNIGHT_PSQT + sq][EG] = (double) knight_table[sq].eg;
+			}
 			for (Square sq = SQ_ZERO; sq < 16; ++sq)
-				params[i++] = { (double) bishop_table[sq].mg, (double) bishop_table[sq].eg };
+			{
+				params[BISHOP_PSQT + sq][MG] = (double) bishop_table[sq].mg;
+				params[BISHOP_PSQT + sq][EG] = (double) bishop_table[sq].eg;
+			}
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-				params[i++] = { (double) rook_table[sq].mg, (double) rook_table[sq].eg };
+			{
+				params[ROOK_PSQT + sq][MG] = (double) rook_table[sq].mg;
+				params[ROOK_PSQT + sq][EG] = (double) rook_table[sq].eg;
+			}
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-				params[i++] = { (double) queen_table[sq].mg, (double) queen_table[sq].eg };
+			{
+				params[QUEEN_PSQT + sq][MG] = (double) queen_table[sq].mg;
+				params[QUEEN_PSQT + sq][EG] = (double) queen_table[sq].eg;
+			}
 			for (Square sq = SQ_ZERO; sq < 16; ++sq)
-				params[i++] = { (double) king_table[sq].mg, (double) king_table[sq].eg };
+			{
+				params[KING_PSQT + sq][MG] = (double) king_table[sq].mg;
+				params[KING_PSQT + sq][EG] = (double) king_table[sq].eg;
+			}
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-				params[i++] = { (double) passed_pawn[sq].mg, (double) passed_pawn[sq].eg };
+			{
+				params[PASSED_PAWN + sq][MG] = (double) passed_pawn[sq].mg;
+				params[PASSED_PAWN + sq][EG] = (double) passed_pawn[sq].eg;
+			}
 			for (PieceType pt = KNIGHT; pt < KING; ++pt)
-				params[i++] = { (double) mobility[pt].mg, (double) mobility[pt].eg };
+			{
+				params[MOBILITY + pt - KNIGHT][MG] = (double) mobility[pt].mg;
+				params[MOBILITY + pt - KNIGHT][EG] = (double) mobility[pt].eg;
+			}
 			
-			params[i++] = { -double_pawn_penalty.mg, -double_pawn_penalty.eg };
-			params[i++] = { -isolated_pawn_penalty.mg, -isolated_pawn_penalty.eg };
-			params[i++] = { bishop_pair_bonus.mg, bishop_pair_bonus.eg };
-			params[i++] = { rook_open_file_bonus.mg, rook_open_file_bonus.eg };
-			params[i++] = { rook_semi_open_file_bonus.mg, rook_semi_open_file_bonus.eg };
-			params[i++] = { -rook_closed_file_penalty.mg, -rook_closed_file_penalty.eg };
-			params[i++] = { tempo_bonus.mg, tempo_bonus.eg };
-			params[i++] = { -king_full_open_penalty.mg, -king_full_open_penalty.eg };
-			params[i++] = { -king_semi_open_penalty.mg, -king_semi_open_penalty.eg };
-			params[i++] = { -king_adjacent_full_open_penalty.mg, -king_adjacent_full_open_penalty.eg };
-			params[i++] = { -king_adjacent_semi_open_penalty.mg, -king_adjacent_semi_open_penalty.eg };
-			params[i++] = { knight_outpost_bonus.mg, knight_outpost_bonus.eg };
-			params[i++] = { bishop_outpost_bonus.mg, bishop_outpost_bonus.eg };
-			params[i++] = { -weak_queen_penalty.mg, -weak_queen_penalty.eg };
-			params[i++] = { rook_on_our_passer_file.mg, rook_on_our_passer_file.eg };
-			params[i++] = { rook_on_their_passer_file.mg, rook_on_their_passer_file.eg };
-			params[i++] = { -tall_pawn_penalty.mg, -tall_pawn_penalty.eg };
-			params[i++] = { fianchetto_bonus.mg, fianchetto_bonus.eg };
-			
-			assert(i == TI_SAFETY);
+			params[DOUBLE_PAWN][MG] = -double_pawn_penalty.mg;
+			params[DOUBLE_PAWN][EG] = -double_pawn_penalty.eg;
+			params[ISOLATED_PAWN][MG] = -isolated_pawn_penalty.mg;
+			params[ISOLATED_PAWN][EG] = -isolated_pawn_penalty.eg;
+			params[BISHOP_PAIR][MG] = bishop_pair_bonus.mg;
+			params[BISHOP_PAIR][EG] = bishop_pair_bonus.eg;
+			params[ROOK_FULL][MG] = rook_open_file_bonus.mg;
+			params[ROOK_FULL][EG] = rook_open_file_bonus.eg;
+			params[ROOK_SEMI][MG] = rook_semi_open_file_bonus.mg;
+			params[ROOK_SEMI][EG] = rook_semi_open_file_bonus.eg;
+			params[ROOK_CLOSED][MG] = -rook_closed_file_penalty.mg;
+			params[ROOK_CLOSED][EG] = -rook_closed_file_penalty.eg;
+			params[TEMPO][MG] = tempo_bonus.mg;
+			params[TEMPO][EG] = tempo_bonus.eg;
+			params[KING_FULL][MG] = -king_full_open_penalty.mg;
+			params[KING_FULL][EG] = -king_full_open_penalty.eg;
+			params[KING_SEMI][MG] = -king_semi_open_penalty.mg;
+			params[KING_SEMI][EG] = -king_semi_open_penalty.eg;
+			params[KING_ADJ_FULL][MG] = -king_adjacent_full_open_penalty.mg;
+			params[KING_ADJ_FULL][EG] = -king_adjacent_full_open_penalty.eg;
+			params[KING_ADJ_SEMI][MG] = -king_adjacent_semi_open_penalty.mg;
+			params[KING_ADJ_SEMI][EG] = -king_adjacent_semi_open_penalty.eg;
+			params[KNIGHT_OUTPOST][MG] = knight_outpost_bonus.mg;
+			params[KNIGHT_OUTPOST][EG] = knight_outpost_bonus.eg;
+			params[BISHOP_OUTPOST][MG] = bishop_outpost_bonus.mg;
+			params[BISHOP_OUTPOST][EG] = bishop_outpost_bonus.eg;
+			params[WEAK_QUEEN][MG] = -weak_queen_penalty.mg;
+			params[WEAK_QUEEN][EG] = -weak_queen_penalty.eg;
+			params[ROOK_OUR_PASSER][MG] = rook_on_our_passer_file.mg;
+			params[ROOK_OUR_PASSER][EG] = rook_on_our_passer_file.eg;
+			params[ROOK_THEIR_PASSER][MG] = rook_on_their_passer_file.mg;
+			params[ROOK_THEIR_PASSER][EG] = rook_on_their_passer_file.eg;
+			params[TALL_PAWN][MG] = -tall_pawn_penalty.mg;
+			params[TALL_PAWN][EG] = -tall_pawn_penalty.eg;
+			params[TALL_PAWN][MG] = fianchetto_bonus.mg;
+			params[FIANCHETTO][EG] = fianchetto_bonus.eg;
 			
 			for (Square sq = Square(16); sq < 32; ++sq)
-				params[i++] = { (double) pawn_shield[sq], 0 };
+			{
+				params[PAWN_SHIELD + sq - 16][MG] = (double) pawn_shield[sq];
+				params[PAWN_SHIELD + sq - 16][EG] = 0.0;
+			}
 			for (PieceType pt = PAWN; pt < KING; ++pt)
-				params[i++] = { (double) inner_ring_attack[pt], 0 };
+			{
+				params[INNER_RING + pt - PAWN][MG] = (double) inner_ring_attack[pt];
+				params[INNER_RING + pt - PAWN][EG] = 0.0;
+			}
 			for (PieceType pt = PAWN; pt < KING; ++pt)
-				params[i++] = { (double) inner_ring_attack[pt], 0 };
+			{
+				params[OUTER_RING + pt - PAWN][MG] = (double) outer_ring_attack[pt];
+				params[OUTER_RING + pt - PAWN][EG] = 0.0;
+			}
 			
-			params[i++] = { virtual_king_m, 0 };
-			params[i++] = { virtual_king_b, 0 };
-			params[i++] = { safety_threshold, 0 };
-			
-			assert(i == TI_N);
+			params[VIRTUAL_KING_M][MG] = virtual_king_m;
+			params[VIRTUAL_KING_M][EG] = 0.0;
+			params[VIRTUAL_KING_B][MG] = virtual_king_b;
+			params[VIRTUAL_KING_B][EG] = 0.0;
+			params[SAFETY_THRESHOLD][MG] = safety_threshold;
+			params[SAFETY_THRESHOLD][EG] = 0.0;
 		}
 		
-		double linear_eval(TEntry* entry, TGradient* tg) 
+		int linear_eval(TEntry* entry, TGradient* tg) 
 		{
 			double normal[PHASE_N];
 			double mg[EVALTYPE_N][COLOUR_N] = {0};
@@ -204,12 +250,21 @@ namespace Clovis {
 					
 					entries[i].seval = Eval::evaluate<true>(pos);
 					if (pos.side == BLACK) entries[i].seval = -entries[i].seval;
+					
+					cout << "static " << entries[i].seval << endl;
 					entries[i].stm = pos.side;
 					
 					for (int j = 0; j < TI_N; ++j)
 						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
 							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
 							entries[i].tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
+					
+					cout << "linear " << linear_eval(&entries[i], NULL) << endl;
+					if(entries[i].seval != linear_eval(&entries[i], NULL))
+					{
+						cout << i << endl;
+						exit(1);
+					}
 				}
 			}
 

@@ -371,7 +371,7 @@ namespace Clovis {
 		void init_values();
 		template<bool TRACE> int evaluate(const Position& pos);
 		
-		extern vector<array<int, 2>> T;
+		extern int T[TI_N][PHASE_N];
 
 	} // namespace Eval
 

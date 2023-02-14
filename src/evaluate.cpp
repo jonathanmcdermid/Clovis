@@ -9,11 +9,10 @@ namespace Clovis {
 		const short* shield_table[COLOUR_N][SQ_N];
 		const Score* score_table[15][SQ_N];
 
-		vector<array<int, 2>> T;
+		int T[TI_N][PHASE_N];
 
 		void init_eval()
 		{
-			T.resize(TI_N, {0,0});
 			init_values();
 		}
 
