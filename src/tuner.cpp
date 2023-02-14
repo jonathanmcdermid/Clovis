@@ -12,7 +12,7 @@ namespace Clovis {
 		constexpr int N_CORES = 8;
 		constexpr int N_POSITIONS = 725000;
 
-		double sigmoid(double K, double E) {
+		inline double sigmoid(double K, double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
 		}
 		
@@ -60,6 +60,19 @@ namespace Clovis {
 			params[i++] = { tall_pawn_penalty.mg, tall_pawn_penalty.eg };
 			params[i++] = { fianchetto_bonus.mg, fianchetto_bonus.eg };
 			
+			assert(i == TI_SAFETY);
+			
+			for (Square sq = Square(16); sq < 32; ++sq)
+				params[i++] = { (double) pawn_shield[sq], 0 };
+			for (PieceType pt = PAWN; pt < KING; ++pt)
+				params[i++] = { (double) inner_ring_attack[pt], 0 };
+			for (PieceType pt = PAWN; pt < KING; ++pt)
+				params[i++] = { (double) inner_ring_attack[pt], 0 };
+			
+			params[i++] = { virtual_king_m, 0 };
+			params[i++] = { virtual_king_b, 0 };
+			params[i++] = { safety_threshold, 0 };
+			
 			assert(i == TI_N);
 		}
 		
@@ -103,7 +116,8 @@ namespace Clovis {
 					entries[i].stm = pos.side;
 					
 					for (int j = 0; j < TI_N; ++j)
-						if (Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
+						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
+							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
 							entries[i].tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
 				}
 			}
@@ -119,12 +133,16 @@ namespace Clovis {
 			double mg[EVALTYPE_N][COLOUR_N] = {0};
 			double eg[EVALTYPE_N][COLOUR_N] = {0};
 
+			int count = 0;
+			
 			for (auto& it : entries[i].tuples)
 			{
-				mg[NORMAL][WHITE] += (double) it.coefficient[WHITE] * params[it.index][MG];
-				mg[NORMAL][BLACK] += (double) it.coefficient[BLACK] * params[it.index][MG];
-				eg[NORMAL][WHITE] += (double) it.coefficient[WHITE] * params[it.index][EG];
-				eg[NORMAL][BLACK] += (double) it.coefficient[BLACK] * params[it.index][EG];
+				EvalType et = count++ >= TI_SAFETY ? SAFETY : NORMAL;
+				
+				mg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][MG];
+				mg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][MG];
+				eg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][EG];
+				eg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][EG];
 			}
 
 			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];

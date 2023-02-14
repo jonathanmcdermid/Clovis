@@ -175,7 +175,10 @@ namespace Clovis {
 	};
 	
 	enum TraceIndex : int {
-		PAWN_PSQT,
+	
+		TI_NORMAL,
+		
+		PAWN_PSQT = TI_NORMAL,
 		KNIGHT_PSQT = PAWN_PSQT + 32,
 		BISHOP_PSQT = KNIGHT_PSQT + 32,
 		ROOK_PSQT = BISHOP_PSQT + 16,
@@ -201,6 +204,18 @@ namespace Clovis {
 		ROOK_THEIR_PASSER,
 		TALL_PAWN,
 		FIANCHETTO,
+		
+		TI_SAFETY,
+		
+		PAWN_SHIELD = TI_SAFETY,
+		INNER_RING = PAWN_SHIELD + 16,
+		OUTER_RING = INNER_RING + 5,
+		VIRTUAL_KING_M = OUTER_RING + 5,
+		VIRTUAL_KING_B,
+		SAFETY_THRESHOLD,
+		
+		// opposite_bishops_scaling;
+		
 		TI_N
 	};
 	
