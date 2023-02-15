@@ -13,7 +13,7 @@ namespace Clovis {
 
 		constexpr int N_CORES = 8;
 		constexpr int N_POSITIONS = 725000;
-		constexpr int MAX_EPOCHS = 100000;
+		constexpr int MAX_EPOCHS = 1000000;
 
 		inline double sigmoid(double K, double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
@@ -103,39 +103,36 @@ namespace Clovis {
 			
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
-				params[PAWN_SHIELD + sq][MG] = (double) pawn_shield[sq];
-				params[PAWN_SHIELD + sq][EG] = 0.0;
+				params[SAFETY_PAWN_SHIELD + sq][MG] = (double) pawn_shield[sq];
+				params[SAFETY_PAWN_SHIELD + sq][EG] = 0.0;
 			}
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 			{
-				params[INNER_RING + pt][MG] = (double) inner_ring_attack[pt];
-				params[INNER_RING + pt][EG] = 0.0;
+				params[SAFETY_INNER_RING + pt][MG] = (double) inner_ring_attack[pt];
+				params[SAFETY_INNER_RING + pt][EG] = 0.0;
 			}
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 			{
-				params[OUTER_RING + pt][MG] = (double) outer_ring_attack[pt];
-				params[OUTER_RING + pt][EG] = 0.0;
+				params[SAFETY_OUTER_RING + pt][MG] = (double) outer_ring_attack[pt];
+				params[SAFETY_OUTER_RING + pt][EG] = 0.0;
 			}
 			
-			params[VIRTUAL_KING_M][MG] = virtual_king_m;
-			params[VIRTUAL_KING_M][EG] = 0.0;
-			params[VIRTUAL_KING_B][MG] = virtual_king_b;
-			params[VIRTUAL_KING_B][EG] = 0.0;
-			params[SAFETY_THRESHOLD][MG] = safety_threshold;
-			params[SAFETY_THRESHOLD][EG] = 0.0;
+			params[SAFETY_VIRTUAL_KING_M][MG] = virtual_king_m;
+			params[SAFETY_VIRTUAL_KING_M][EG] = 0.0;
+			params[SAFETY_VIRTUAL_KING_B][MG] = virtual_king_b;
+			params[SAFETY_VIRTUAL_KING_B][EG] = 0.0;
 		}
 		
 		double linear_eval(TEntry* entry, TGradient* tg) 
 		{
 			double normal[PHASE_N];
+			double safety = 0;
 			double mg[EVALTYPE_N][COLOUR_N] = {0};
 			double eg[EVALTYPE_N][COLOUR_N] = {0};
-
-			int count = 0;
 			
 			for (auto& it : entry->tuples)
 			{
-				EvalType et = count++ >= TI_SAFETY ? SAFETY : NORMAL;
+				EvalType et = it.index >= TI_SAFETY ? SAFETY : NORMAL;
 				
 				mg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][MG];
 				mg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][MG];
@@ -146,33 +143,29 @@ namespace Clovis {
 			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
 			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
 			
+			if (mg[SAFETY][WHITE] > 0)
+				safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / 720;
+			if (mg[SAFETY][BLACK] > 0)
+				safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / 720;
+			
 			if (tg)
 			{
-				tg->eval = (normal[MG] * entry->phase + normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
+				tg->eval = ((normal[MG] + safety) * entry->phase + normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
 				tg->safety[WHITE] = mg[SAFETY][WHITE];
 				tg->safety[BLACK] = mg[SAFETY][BLACK];
 			}
 
-			return (normal[MG] * entry->phase +  normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
+			return ((normal[MG] + safety) * entry->phase +  normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
 		}
 		
+		template<bool STATIC>
 		double mse(long double K)
 		{
 			double total = 0.0;
 
 			for (int i = 0; i < N_POSITIONS; ++i)
-				total += pow(entries[i].result - sigmoid(K, linear_eval(&entries[i], NULL)), 2);
+				total += pow(entries[i].result - sigmoid(K, (STATIC ? entries[i].seval : linear_eval(&entries[i], NULL))), 2);
 
-			return total / (double) entries.size();
-		}
-		
-		double static_mse(double K) 
-		{
-			double total = 0.0;
-		
-			for (int i = 0; i < N_POSITIONS; ++i)
-				total += pow(entries[i].result - sigmoid(K, entries[i].seval), 2);
-			
 			return total / (double) N_POSITIONS;
 		}
 		
@@ -183,13 +176,19 @@ namespace Clovis {
 			double E = linear_eval(entry, &tg);
 			double S = sigmoid(K, E);
 			double A = (entry->result - S) * S * (1 - S);
+			
+			double base[PHASE_N] = { A * entry->phase, A * (MAX_GAMEPHASE - entry->phase) };
 
 			for (auto& it : entry->tuples)
 			{
 				if (it.index < TI_SAFETY)
 				{
-					gradient[it.index][MG] += A * entry->phase * (it.coefficient[WHITE] - it.coefficient[BLACK]);
-					gradient[it.index][EG] += A * (MAX_GAMEPHASE - entry->phase) * (it.coefficient[WHITE] - it.coefficient[BLACK]);
+					gradient[it.index][MG] += base[MG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
+					gradient[it.index][EG] += base[EG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
+				}
+				else
+				{
+					gradient[it.index][MG] += (base[MG] / 360.0) * ((max(tg.safety[WHITE], 0.0) * it.coefficient[WHITE]) - (max(tg.safety[BLACK], 0.0) * it.coefficient[BLACK]));
 				}
 			}
 		}
@@ -201,7 +200,8 @@ namespace Clovis {
 			for (int i = 0; i < N_POSITIONS; ++i)
 				update_single_gradient(&entries[i], local, K);
 
-			for (int i = 0; i < TI_N; ++i) {
+			for (int i = 0; i < TI_N; ++i) 
+			{
 				gradient[i][MG] += local[i][MG];
 				gradient[i][EG] += local[i][EG];
 			}
@@ -211,13 +211,14 @@ namespace Clovis {
 		{
 			cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name << "[] = {" << endl << "\t\t";
 
-			for (int i = 0; i < size; ++i) {
+			for (int i = 0; i < size; ++i) 
+			{
 				if (!(i % cols))
 					cout << '\t';
 				if (index < TI_SAFETY)
 					cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 				else
-					cout << params[index + i][MG] << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+					cout << (int) params[index + i][MG] << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 			}
 
 			cout << "};" << endl << endl;
@@ -255,19 +256,18 @@ namespace Clovis {
 			<< "\t\tconstexpr Score tall_pawn_penalty = "               << Score(params[TALL_PAWN])         << ";" << endl
 			<< "\t\tconstexpr Score fianchetto_bonus = "                << Score(params[FIANCHETTO])        << ";" << endl << endl;
 			
-			print_table("pawn_shield",   PAWN_SHIELD,   sizeof(pawn_shield)   / sizeof(short), 4);
-			print_table("inner_ring_attack", INNER_RING, 7, 7);
-			print_table("outer_ring_attack", OUTER_RING, 7, 7);
+			print_table("pawn_shield",   SAFETY_PAWN_SHIELD,   sizeof(pawn_shield)   / sizeof(short), 4);
+			print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
+			print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 			
-			cout << "\t\tconstexpr virtual_king_m = "   << params[VIRTUAL_KING_M][MG]   << ";" << endl
-			<< "\t\tconstexpr virtual_king_b = "        << params[VIRTUAL_KING_B][MG]   << ";" << endl
-			<< "\t\tconstexpr safety_threshold = "      << params[SAFETY_THRESHOLD][MG] << ";" << endl;
+			cout << "\t\tconstexpr short virtual_king_m = " << (int) params[SAFETY_VIRTUAL_KING_M][MG] << ";" << endl
+			<< "\t\tconstexpr short virtual_king_b = "      << (int) params[SAFETY_VIRTUAL_KING_B][MG] << ";" << endl;
 		}
 		
 		double find_k()
 		{
 			double start = -10, end = 10, step = 1;
-			double curr = start, error, best = static_mse(start);
+			double curr = start, error, best = mse<true>(start);
 
 			for (int epoch = 0; epoch < 10; ++epoch) 
 			{
@@ -276,7 +276,7 @@ namespace Clovis {
 				while (curr < end) 
 				{
 					curr = curr + step;
-					error = static_mse(curr);
+					error = mse<true>(curr);
 					
 					if (error <= best)
 						best = error, start = curr;
@@ -309,13 +309,10 @@ namespace Clovis {
 				if (ifs.eof())
 					break;
 				getline(ifs, line);
+				
 				if (line.length())
 				{
-					for(int j=0;j<TI_N;++j)
-					{
-						Eval::T[j][0] = 0;
-						Eval::T[j][1] = 0;
-					}
+					memset(Eval::T, 0, sizeof(Eval::T));
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
 					string res = line.substr(idx + 1, idx_end - idx - 1);
@@ -337,26 +334,21 @@ namespace Clovis {
 					entries[i].stm = pos.side;
 					
 					for (int j = 0; j < TI_N; ++j)
+					{
 						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
 							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
 							entries[i].tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
-					//cout << "static " << entries[i].seval << endl;
-					//cout << "linear " << (int) linear_eval(&entries[i], NULL) << endl;
-					//if(entries[i].seval != (int) linear_eval(&entries[i], NULL))
-					//{
-					//	cout << i << endl;
-					//	exit(1);
-					//}
+					}
 				}
 			}
 
 			ifs.close();
 			
 			double K = find_k();
-			double rate = 0.10;
+			double rate = 1.0;
 			
-			cout << mse(K) << endl;
-			cout << static_mse(K) << endl;
+			cout << mse<true>(K) << endl;
+			cout << mse<false>(K) << endl;
 			
 			for (int epoch = 0; epoch < MAX_EPOCHS; ++epoch) 
 			{
@@ -374,15 +366,13 @@ namespace Clovis {
 					params[i][MG] = max(0.0, params[i][MG]);
 					params[i][EG] = max(0.0, params[i][EG]);
 				}
-
-				double error = mse(K);
 				
 				if (epoch && epoch % 250 == 0) 
 					rate = rate / 1.00;
 				if (epoch % 100 == 0)
 					print_params();
 
-				cout << "Epoch [" << epoch << "] Error = [" << error << "], Rate = [" << rate << "]" << endl;
+				cout << "Epoch [" << epoch << "] Error = [" << mse<false>(K) << "], Rate = [" << rate << "]" << endl;
 			}
 		}
 
