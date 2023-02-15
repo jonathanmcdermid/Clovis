@@ -209,12 +209,15 @@ namespace Clovis {
 		
 		void print_table(string name, int index, int size, int cols) 
 		{
-			cout << "\t\tconstexpr Score " << name << "[] = {" << endl << "\t\t";
+			cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name << "[] = {" << endl << "\t\t";
 
 			for (int i = 0; i < size; ++i) {
 				if (!(i % cols))
 					cout << '\t';
-				cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+				if (index < TI_SAFETY)
+					cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+				else
+					cout << params[index + i][MG] << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 			}
 
 			cout << "};" << endl << endl;
@@ -250,7 +253,15 @@ namespace Clovis {
 			<< "\t\tconstexpr Score rook_on_our_passer_file = "         << Score(params[ROOK_OUR_PASSER])   << ";" << endl
 			<< "\t\tconstexpr Score rook_on_their_passer_file = "       << Score(params[ROOK_THEIR_PASSER]) << ";" << endl
 			<< "\t\tconstexpr Score tall_pawn_penalty = "               << Score(params[TALL_PAWN])         << ";" << endl
-			<< "\t\tconstexpr Score fianchetto_bonus = "                << Score(params[FIANCHETTO])        << ";" << endl;
+			<< "\t\tconstexpr Score fianchetto_bonus = "                << Score(params[FIANCHETTO])        << ";" << endl << endl;
+			
+			print_table("pawn_shield",   PAWN_SHIELD,   sizeof(pawn_shield)   / sizeof(short), 4);
+			print_table("inner_ring_attack", INNER_RING, 7, 7);
+			print_table("outer_ring_attack", OUTER_RING, 7, 7);
+			
+			cout << "\t\tconstexpr virtual_king_m = "   << params[VIRTUAL_KING_M][MG]   << ";" << endl
+			<< "\t\tconstexpr virtual_king_b = "        << params[VIRTUAL_KING_B][MG]   << ";" << endl
+			<< "\t\tconstexpr safety_threshold = "      << params[SAFETY_THRESHOLD][MG] << ";" << endl;
 		}
 		
 		double find_k()
@@ -368,7 +379,7 @@ namespace Clovis {
 				
 				if (epoch && epoch % 250 == 0) 
 					rate = rate / 1.00;
-				if (epoch && epoch % 100 == 0)
+				if (epoch % 100 == 0)
 					print_params();
 
 				cout << "Epoch [" << epoch << "] Error = [" << error << "], Rate = [" << rate << "]" << endl;
