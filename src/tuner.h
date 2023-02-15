@@ -43,8 +43,6 @@ namespace Clovis {
 		};
 
 		void tune_eval();
-		long double find_k();
-		long double mean_squared_error(long double K);
 
 	} // namespace Tuner
 

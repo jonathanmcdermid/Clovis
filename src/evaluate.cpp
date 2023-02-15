@@ -192,7 +192,7 @@ namespace Clovis {
 				if constexpr (TRACE) 
 				{
 					psqt_trace<US, PT>(sq);
-					T[MOBILITY + PT - KNIGHT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
+					T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
 				}
 
 				if constexpr (PT == KNIGHT)
@@ -225,7 +225,7 @@ namespace Clovis {
 					if (multiple_bits(Bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)]))
 					{
 						score -= tall_pawn_penalty;
-						if constexpr (TRACE) ++T[TALL_PAWN][US];
+						if constexpr (TRACE) --T[TALL_PAWN][US];
 					}
 					//if (pos.pc_bb[make_piece(PAWN, US)] & (sq + pawn_push(US)))
 					//	score += bishop_behind_pawn_bonus;
@@ -245,7 +245,7 @@ namespace Clovis {
 					else if (file_masks[sq] & pos.pc_bb[make_piece(PAWN, ~US)])
 					{
 						score -= rook_closed_file_penalty;
-						if constexpr (TRACE) ++T[ROOK_CLOSED][US];
+						if constexpr (TRACE) --T[ROOK_CLOSED][US];
 					}
 					if (safe_attacks & rook_on_passer_masks[US][sq] & pte.passers[US])
 					{
@@ -265,7 +265,7 @@ namespace Clovis {
 					if (pos.discovery_threat<US>(sq))
 					{
 						score -= weak_queen_penalty;
-						if constexpr (TRACE) ++T[WEAK_QUEEN][US];
+						if constexpr (TRACE) --T[WEAK_QUEEN][US];
 					}
 				}
 				if constexpr (!SAFE)
@@ -330,13 +330,13 @@ namespace Clovis {
 				if (is_doubled_pawn(pos.pc_bb[OUR_PAWN], sq))
 				{
 					score -= double_pawn_penalty;
-					if constexpr (TRACE) ++T[DOUBLE_PAWN][US];
+					if constexpr (TRACE) --T[DOUBLE_PAWN][US];
 				}
 
 				if (is_isolated_pawn(pos.pc_bb[OUR_PAWN], sq))
 				{
 					score -= isolated_pawn_penalty;
-					if constexpr (TRACE) ++T[ISOLATED_PAWN][US];
+					if constexpr (TRACE) --T[ISOLATED_PAWN][US];
 				}
 
 				if (is_passed_pawn<US>(pos.pc_bb[THEIR_PAWN], sq))
@@ -360,12 +360,12 @@ namespace Clovis {
 				if (file_masks[pte.ksq[US]] & pos.pc_bb[THEIR_PAWN])
 				{
 					score -= king_semi_open_penalty;
-					if constexpr (TRACE) ++T[KING_SEMI][US];
+					if constexpr (TRACE) --T[KING_SEMI][US];
 				}
 				else
 				{
 					score -= king_full_open_penalty;
-					if constexpr (TRACE) ++T[KING_FULL][US];
+					if constexpr (TRACE) --T[KING_FULL][US];
 				}
 			}
 			if (kf != FILE_A && !(file_masks[pte.ksq[US] + WEST] & pos.pc_bb[OUR_PAWN]))
@@ -373,12 +373,12 @@ namespace Clovis {
 				if (file_masks[pte.ksq[US] + WEST] & pos.pc_bb[THEIR_PAWN])
 				{
 					score -= king_adjacent_semi_open_penalty;
-					if constexpr (TRACE) ++T[KING_ADJ_SEMI][US];
+					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
 				}
 				else
 				{
 					score -= king_adjacent_full_open_penalty;
-					if constexpr (TRACE) ++T[KING_ADJ_FULL][US];
+					if constexpr (TRACE) --T[KING_ADJ_FULL][US];
 				}
 			}
 			if (kf != FILE_H && !(file_masks[pte.ksq[US] + EAST] & pos.pc_bb[OUR_PAWN]))
@@ -386,12 +386,12 @@ namespace Clovis {
 				if (file_masks[pte.ksq[US] + EAST] & pos.pc_bb[THEIR_PAWN])
 				{
 					score -= king_adjacent_semi_open_penalty;
-					if constexpr (TRACE) ++T[KING_ADJ_SEMI][US];
+					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
 				}
 				else
 				{
 					score -= king_adjacent_full_open_penalty;
-					if constexpr (TRACE) ++T[KING_ADJ_FULL][US];
+					if constexpr (TRACE) --T[KING_ADJ_FULL][US];
 				}
 			}
 			

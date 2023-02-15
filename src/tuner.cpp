@@ -58,63 +58,63 @@ namespace Clovis {
 				params[PASSED_PAWN + sq][MG] = (double) passed_pawn[sq].mg;
 				params[PASSED_PAWN + sq][EG] = (double) passed_pawn[sq].eg;
 			}
-			for (PieceType pt = KNIGHT; pt < KING; ++pt)
+			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 			{
-				params[MOBILITY + pt - KNIGHT][MG] = (double) mobility[pt].mg;
-				params[MOBILITY + pt - KNIGHT][EG] = (double) mobility[pt].eg;
+				params[MOBILITY + pt][MG] = (double) mobility[pt].mg;
+				params[MOBILITY + pt][EG] = (double) mobility[pt].eg;
 			}
 			
-			params[DOUBLE_PAWN][MG] = -double_pawn_penalty.mg;
-			params[DOUBLE_PAWN][EG] = -double_pawn_penalty.eg;
-			params[ISOLATED_PAWN][MG] = -isolated_pawn_penalty.mg;
-			params[ISOLATED_PAWN][EG] = -isolated_pawn_penalty.eg;
+			params[DOUBLE_PAWN][MG] = double_pawn_penalty.mg;
+			params[DOUBLE_PAWN][EG] = double_pawn_penalty.eg;
+			params[ISOLATED_PAWN][MG] = isolated_pawn_penalty.mg;
+			params[ISOLATED_PAWN][EG] = isolated_pawn_penalty.eg;
 			params[BISHOP_PAIR][MG] = bishop_pair_bonus.mg;
 			params[BISHOP_PAIR][EG] = bishop_pair_bonus.eg;
 			params[ROOK_FULL][MG] = rook_open_file_bonus.mg;
 			params[ROOK_FULL][EG] = rook_open_file_bonus.eg;
 			params[ROOK_SEMI][MG] = rook_semi_open_file_bonus.mg;
 			params[ROOK_SEMI][EG] = rook_semi_open_file_bonus.eg;
-			params[ROOK_CLOSED][MG] = -rook_closed_file_penalty.mg;
-			params[ROOK_CLOSED][EG] = -rook_closed_file_penalty.eg;
+			params[ROOK_CLOSED][MG] = rook_closed_file_penalty.mg;
+			params[ROOK_CLOSED][EG] = rook_closed_file_penalty.eg;
 			params[TEMPO][MG] = tempo_bonus.mg;
 			params[TEMPO][EG] = tempo_bonus.eg;
-			params[KING_FULL][MG] = -king_full_open_penalty.mg;
-			params[KING_FULL][EG] = -king_full_open_penalty.eg;
-			params[KING_SEMI][MG] = -king_semi_open_penalty.mg;
-			params[KING_SEMI][EG] = -king_semi_open_penalty.eg;
-			params[KING_ADJ_FULL][MG] = -king_adjacent_full_open_penalty.mg;
-			params[KING_ADJ_FULL][EG] = -king_adjacent_full_open_penalty.eg;
-			params[KING_ADJ_SEMI][MG] = -king_adjacent_semi_open_penalty.mg;
-			params[KING_ADJ_SEMI][EG] = -king_adjacent_semi_open_penalty.eg;
+			params[KING_FULL][MG] = king_full_open_penalty.mg;
+			params[KING_FULL][EG] = king_full_open_penalty.eg;
+			params[KING_SEMI][MG] = king_semi_open_penalty.mg;
+			params[KING_SEMI][EG] = king_semi_open_penalty.eg;
+			params[KING_ADJ_FULL][MG] = king_adjacent_full_open_penalty.mg;
+			params[KING_ADJ_FULL][EG] = king_adjacent_full_open_penalty.eg;
+			params[KING_ADJ_SEMI][MG] = king_adjacent_semi_open_penalty.mg;
+			params[KING_ADJ_SEMI][EG] = king_adjacent_semi_open_penalty.eg;
 			params[KNIGHT_OUTPOST][MG] = knight_outpost_bonus.mg;
 			params[KNIGHT_OUTPOST][EG] = knight_outpost_bonus.eg;
 			params[BISHOP_OUTPOST][MG] = bishop_outpost_bonus.mg;
 			params[BISHOP_OUTPOST][EG] = bishop_outpost_bonus.eg;
-			params[WEAK_QUEEN][MG] = -weak_queen_penalty.mg;
-			params[WEAK_QUEEN][EG] = -weak_queen_penalty.eg;
+			params[WEAK_QUEEN][MG] = weak_queen_penalty.mg;
+			params[WEAK_QUEEN][EG] = weak_queen_penalty.eg;
 			params[ROOK_OUR_PASSER][MG] = rook_on_our_passer_file.mg;
 			params[ROOK_OUR_PASSER][EG] = rook_on_our_passer_file.eg;
 			params[ROOK_THEIR_PASSER][MG] = rook_on_their_passer_file.mg;
 			params[ROOK_THEIR_PASSER][EG] = rook_on_their_passer_file.eg;
-			params[TALL_PAWN][MG] = -tall_pawn_penalty.mg;
-			params[TALL_PAWN][EG] = -tall_pawn_penalty.eg;
+			params[TALL_PAWN][MG] = tall_pawn_penalty.mg;
+			params[TALL_PAWN][EG] = tall_pawn_penalty.eg;
 			params[FIANCHETTO][MG] = fianchetto_bonus.mg;
 			params[FIANCHETTO][EG] = fianchetto_bonus.eg;
 			
-			for (Square sq = Square(16); sq < 32; ++sq)
+			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
-				params[PAWN_SHIELD + sq - 16][MG] = (double) pawn_shield[sq];
-				params[PAWN_SHIELD + sq - 16][EG] = 0.0;
+				params[PAWN_SHIELD + sq][MG] = (double) pawn_shield[sq];
+				params[PAWN_SHIELD + sq][EG] = 0.0;
 			}
-			for (PieceType pt = PAWN; pt < KING; ++pt)
+			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 			{
-				params[INNER_RING + pt - PAWN][MG] = (double) inner_ring_attack[pt];
-				params[INNER_RING + pt - PAWN][EG] = 0.0;
+				params[INNER_RING + pt][MG] = (double) inner_ring_attack[pt];
+				params[INNER_RING + pt][EG] = 0.0;
 			}
-			for (PieceType pt = PAWN; pt < KING; ++pt)
+			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 			{
-				params[OUTER_RING + pt - PAWN][MG] = (double) outer_ring_attack[pt];
-				params[OUTER_RING + pt - PAWN][EG] = 0.0;
+				params[OUTER_RING + pt][MG] = (double) outer_ring_attack[pt];
+				params[OUTER_RING + pt][EG] = 0.0;
 			}
 			
 			params[VIRTUAL_KING_M][MG] = virtual_king_m;
@@ -125,7 +125,7 @@ namespace Clovis {
 			params[SAFETY_THRESHOLD][EG] = 0.0;
 		}
 		
-		int linear_eval(TEntry* entry, TGradient* tg) 
+		double linear_eval(TEntry* entry, TGradient* tg) 
 		{
 			double normal[PHASE_N];
 			double mg[EVALTYPE_N][COLOUR_N] = {0};
@@ -156,13 +156,11 @@ namespace Clovis {
 			return (normal[MG] * entry->phase +  normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
 		}
 		
-		long double mse(long double K)
+		double mse(long double K)
 		{
-			long double total = 0;
-			int start = 0;
-			int end = entries.size();
+			double total = 0.0;
 
-			for (int i = start; i < end; ++i)
+			for (int i = 0; i < N_POSITIONS; ++i)
 				total += pow(entries[i].result - sigmoid(K, linear_eval(&entries[i], NULL)), 2);
 
 			return total / (double) entries.size();
@@ -172,7 +170,7 @@ namespace Clovis {
 		{
 			double total = 0.0;
 		
-			for (int i = 0; i < N_POSITIONS; i++)
+			for (int i = 0; i < N_POSITIONS; ++i)
 				total += pow(entries[i].result - sigmoid(K, entries[i].seval), 2);
 			
 			return total / (double) N_POSITIONS;
@@ -207,6 +205,80 @@ namespace Clovis {
 				gradient[i][MG] += local[i][MG];
 				gradient[i][EG] += local[i][EG];
 			}
+		}
+		
+		void print_table(string name, int index, int size, int cols) 
+		{
+			cout << "\t\tconstexpr Score " << name << "[] = {" << endl << "\t\t";
+
+			for (int i = 0; i < size; ++i) {
+				if (!(i % cols))
+					cout << '\t';
+				cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+			}
+
+			cout << "};" << endl << endl;
+		}
+		
+		void print_params()
+		{
+			using namespace Eval;
+			
+			print_table("pawn_table",   PAWN_PSQT,   sizeof(pawn_table)   / sizeof(Score), 4);
+			print_table("knight_table", KNIGHT_PSQT, sizeof(knight_table) / sizeof(Score), 4);
+			print_table("bishop_table", BISHOP_PSQT, sizeof(bishop_table) / sizeof(Score), 4);
+			print_table("rook_table",   ROOK_PSQT,   sizeof(rook_table)   / sizeof(Score), 4);
+			print_table("queen_table",  QUEEN_PSQT,  sizeof(queen_table)  / sizeof(Score), 4);
+			print_table("king_table",   KING_PSQT,   sizeof(king_table)   / sizeof(Score), 4);
+			print_table("passed_pawn",  PASSED_PAWN, sizeof(passed_pawn)  / sizeof(Score), 4);
+			print_table("mobility", MOBILITY, 7, 7);
+			
+			cout << "\t\tconstexpr Score double_pawn_penalty = "        << Score(params[DOUBLE_PAWN])       << ";" << endl
+			<< "\t\tconstexpr Score isolated_pawn_penalty = "           << Score(params[ISOLATED_PAWN])     << ";" << endl
+			<< "\t\tconstexpr Score bishop_pair_bonus = "               << Score(params[BISHOP_PAIR])       << ";" << endl
+			<< "\t\tconstexpr Score rook_open_file_bonus = "	    << Score(params[ROOK_FULL])         << ";" << endl
+			<< "\t\tconstexpr Score rook_semi_open_file_bonus = "       << Score(params[ROOK_SEMI])         << ";" << endl
+			<< "\t\tconstexpr Score rook_closed_file_penalty = "        << Score(params[ROOK_CLOSED])       << ";" << endl
+			<< "\t\tconstexpr Score tempo_bonus = "                     << Score(params[TEMPO])             << ";" << endl
+			<< "\t\tconstexpr Score king_full_open_penalty = "          << Score(params[KING_FULL])         << ";" << endl
+			<< "\t\tconstexpr Score king_semi_open_penalty = "          << Score(params[KING_SEMI])         << ";" << endl
+			<< "\t\tconstexpr Score king_adjacent_full_open_penalty = " << Score(params[KING_ADJ_FULL])     << ";" << endl
+			<< "\t\tconstexpr Score king_adjacent_semi_open_penalty = " << Score(params[KING_ADJ_SEMI])     << ";" << endl
+			<< "\t\tconstexpr Score knight_outpost_bonus = "            << Score(params[KNIGHT_OUTPOST])    << ";" << endl
+			<< "\t\tconstexpr Score bishop_outpost_bonus = "            << Score(params[BISHOP_OUTPOST])    << ";" << endl
+			<< "\t\tconstexpr Score weak_queen_penalty = "              << Score(params[WEAK_QUEEN])        << ";" << endl
+			<< "\t\tconstexpr Score rook_on_our_passer_file = "         << Score(params[ROOK_OUR_PASSER])   << ";" << endl
+			<< "\t\tconstexpr Score rook_on_their_passer_file = "       << Score(params[ROOK_THEIR_PASSER]) << ";" << endl
+			<< "\t\tconstexpr Score tall_pawn_penalty = "               << Score(params[TALL_PAWN])         << ";" << endl
+			<< "\t\tconstexpr Score fianchetto_bonus = "                << Score(params[FIANCHETTO])        << ";" << endl;
+		}
+		
+		double find_k()
+		{
+			double start = -10, end = 10, step = 1;
+			double curr = start, error, best = static_mse(start);
+
+			for (int epoch = 0; epoch < 10; ++epoch) 
+			{
+				curr = start - step;
+				
+				while (curr < end) 
+				{
+					curr = curr + step;
+					error = static_mse(curr);
+					
+					if (error <= best)
+						best = error, start = curr;
+				}
+				cout.precision(17);
+				cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]" << endl;
+
+				end = start + step;
+				start -= step;
+				step /= 10.0;
+			}
+
+			return start;
 		}
 		
 		void tune_eval()
@@ -257,13 +329,23 @@ namespace Clovis {
 						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
 							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
 							entries[i].tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
+					//cout << "static " << entries[i].seval << endl;
+					//cout << "linear " << (int) linear_eval(&entries[i], NULL) << endl;
+					//if(entries[i].seval != (int) linear_eval(&entries[i], NULL))
+					//{
+					//	cout << i << endl;
+					//	exit(1);
+					//}
 				}
 			}
 
 			ifs.close();
 			
-			long double K = find_k();
+			double K = find_k();
 			double rate = 0.10;
+			
+			cout << mse(K) << endl;
+			cout << static_mse(K) << endl;
 			
 			for (int epoch = 0; epoch < MAX_EPOCHS; ++epoch) 
 			{
@@ -277,52 +359,20 @@ namespace Clovis {
 					
 					params[i][MG] += (K / 200.0) * (gradient[i][MG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][MG]));
 					params[i][EG] += (K / 200.0) * (gradient[i][EG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][EG]));
+					
+					params[i][MG] = max(0.0, params[i][MG]);
+					params[i][EG] = max(0.0, params[i][EG]);
 				}
 
-				long double error = mse(K);
+				double error = mse(K);
 				
 				if (epoch && epoch % 250 == 0) 
 					rate = rate / 1.00;
+				if (epoch && epoch % 100 == 0)
+					print_params();
 
 				cout << "Epoch [" << epoch << "] Error = [" << error << "], Rate = [" << rate << "]" << endl;
 			}
-		}
-
-		long double find_k()
-		{
-			int k_precision = 10;
-			long double start = -10;
-			long double end = 10;
-			long double step = 1;
-			long double curr = start;
-			long double error;
-			long double best = static_mse(start);
-			
-			for (int epoch = 0; epoch < k_precision; ++epoch)
-			{
-				curr = start - step;
-
-				while (curr < end)
-				{
-					curr += step;
-					error = static_mse(curr);
-					
-					if (error < best)
-					{
-						best = error;
-						start = curr;
-					}
-				}
-
-				cout.precision(17);
-				cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]" << endl;
-
-				end = start + step;
-				start -= step;
-				step /= 10.0;
-			}
-			
-			return start;
 		}
 
 	} // namespace Tuner

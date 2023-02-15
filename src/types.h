@@ -40,6 +40,7 @@ namespace Clovis {
 	struct Score {
 	public:
 		Score() : mg(0), eg(0) {}
+		Score(double* param) : mg((short) abs(param[0])), eg((short) abs(param[1])) {}
 		constexpr Score(int m, int e) : mg(m), eg(e) {}
 		void operator+=(const Score& rhs) {
 			this->mg += rhs.mg;
@@ -186,7 +187,7 @@ namespace Clovis {
 		KING_PSQT = QUEEN_PSQT + 32,
 		PASSED_PAWN = KING_PSQT + 16,
 		MOBILITY = PASSED_PAWN + 32,
-		DOUBLE_PAWN = MOBILITY + 4,
+		DOUBLE_PAWN = MOBILITY + 7,
 		ISOLATED_PAWN,
 		BISHOP_PAIR,
 		ROOK_FULL,
@@ -208,9 +209,9 @@ namespace Clovis {
 		TI_SAFETY,
 		
 		PAWN_SHIELD = TI_SAFETY,
-		INNER_RING = PAWN_SHIELD + 16,
-		OUTER_RING = INNER_RING + 5,
-		VIRTUAL_KING_M = OUTER_RING + 5,
+		INNER_RING = PAWN_SHIELD + 32,
+		OUTER_RING = INNER_RING + 7,
+		VIRTUAL_KING_M = OUTER_RING + 7,
 		VIRTUAL_KING_B,
 		SAFETY_THRESHOLD,
 		
