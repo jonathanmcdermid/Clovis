@@ -100,6 +100,8 @@ namespace Clovis {
 			params[TALL_PAWN][EG] = tall_pawn_penalty.eg;
 			params[FIANCHETTO][MG] = fianchetto_bonus.mg;
 			params[FIANCHETTO][EG] = fianchetto_bonus.eg;
+			params[ROOK_ON_SEVENTH][MG] = rook_on_seventh.mg;
+			params[ROOK_ON_SEVENTH][EG] = rook_on_seventh.eg;
 			
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
@@ -252,7 +254,8 @@ namespace Clovis {
 			<< "\t\tconstexpr Score rook_on_our_passer_file = "         << Score(params[ROOK_OUR_PASSER])   << ";" << endl
 			<< "\t\tconstexpr Score rook_on_their_passer_file = "       << Score(params[ROOK_THEIR_PASSER]) << ";" << endl
 			<< "\t\tconstexpr Score tall_pawn_penalty = "               << Score(params[TALL_PAWN])         << ";" << endl
-			<< "\t\tconstexpr Score fianchetto_bonus = "                << Score(params[FIANCHETTO])        << ";" << endl << endl;
+			<< "\t\tconstexpr Score fianchetto_bonus = "                << Score(params[FIANCHETTO])        << ";" << endl
+			<< "\t\tconstexpr Score rook_on_seventh = "                 << Score(params[ROOK_ON_SEVENTH])   << ";" << endl << endl;
 			
 			print_table("pawn_shield",   SAFETY_PAWN_SHIELD,   sizeof(pawn_shield)   / sizeof(short), 4);
 			print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);

@@ -261,8 +261,11 @@ namespace Clovis {
 						score += rook_on_their_passer_file;
 						if constexpr (TRACE) ++T[ROOK_THEIR_PASSER][US];
 					}
-					//if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
-					//    score += rook_on_seventh;
+					if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
+					{
+						score += rook_on_seventh;
+						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
+					}
 				}
 				if constexpr (PT == QUEEN)
 				{
