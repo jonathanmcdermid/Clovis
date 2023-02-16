@@ -18,7 +18,7 @@ namespace Clovis {
 
 		void init_values()
 		{
-			for (auto pt : {PAWN, KNIGHT, ROOK, QUEEN})
+			for (auto pt : {PAWN, KNIGHT, ROOK})
 			{
  				for (Square sq = SQ_ZERO; sq < 32; ++sq)
 				{
@@ -34,7 +34,7 @@ namespace Clovis {
 				}
 			}
 			
-			for (auto pt : {BISHOP, KING})
+			for (auto pt : {BISHOP, QUEEN, KING})
 			{
  				for (Square sq = SQ_ZERO; sq < 16; ++sq)
 				{
@@ -166,7 +166,7 @@ namespace Clovis {
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[relative_square(US, sq)]][US];
 			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source32[relative_square(US, sq)]][US];
-			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source16[relative_square(US, sq)]][US];
 			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[relative_square(US, sq)]][US];
 		}
 		
@@ -284,7 +284,7 @@ namespace Clovis {
 		{
 			Score score;
 
-			if (pos.pc_bb[make_piece(QUEEN, US)])
+			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8)
 			{
 				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, pte);
 				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, pte);
@@ -294,12 +294,16 @@ namespace Clovis {
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(pte.n_att[US] < 10);
 
-				//int virtual_mobility = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], pte.ksq[~US]) & ~pte.attacks[~US]);
+				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], pte.ksq[~US]) & ~pte.attacks[~US]);
 
-				//if (virtual_mobility > 4)
-				//	pte.weight[US] += virtual_king_m * min(13, virtual_mobility) - virtual_king_b;
+				if (mob > 4)
+				{
+					pte.weight[US] += virtual_mobility * min(13, mob);
+					
+					if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = min(13, mob);
+				}
 				
-				if (pte.weight[US] > 0) score.mg += pte.weight[US] * pte.weight[US] / 720;
+				if (pte.weight[US] > 0) score.mg += pte.weight[US] * pte.weight[US] / (720);
 			}
 			else
 			{
@@ -310,14 +314,16 @@ namespace Clovis {
 				
 				if constexpr (TRACE)
 				{
-					T[SAFETY_PAWN_SHIELD][US] = 0;
+					for (Square sq = SQ_ZERO; sq < 32; ++sq)
+						T[SAFETY_PAWN_SHIELD + sq][US] = 0;
+					
 					for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 					{
 						T[SAFETY_INNER_RING + pt][US] = 0;
 						T[SAFETY_OUTER_RING + pt][US] = 0;
 					}
-					T[SAFETY_VIRTUAL_KING_M][US] = 0;
-					T[SAFETY_VIRTUAL_KING_B][US] = 0;
+					T[SAFETY_VIRTUAL_MOBILITY][US] = 0;
+					T[SAFETY_VIRTUAL_MOBILITY][US] = 0;
 				}
 			}
 
@@ -417,11 +423,17 @@ namespace Clovis {
 				Bitboard fp = pos.pc_bb[OUR_PAWN] & file_masks[f];
 
 				if (fp)
-					pte.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
+				{
+					//pte.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
+					//if constexpr (TRACE) --T[SAFETY_PAWN_SHIELD + source32[relative_square(US, US == WHITE ? lsb(fp) : msb(fp))]][~US];
+				}
 				else
+				{
 					pte.weight[~US] += *shield_table[0][f];
+					if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
+				}
 			}*/
-
+			
 			score += *score_table[make_piece(KING, US)][pte.ksq[US]];
 			
 			if constexpr (TRACE) psqt_trace<US, KING>(pte.ksq[US]);

@@ -43,7 +43,7 @@ namespace Clovis {
 				params[ROOK_PSQT + sq][MG] = (double) rook_table[sq].mg;
 				params[ROOK_PSQT + sq][EG] = (double) rook_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < 32; ++sq)
+			for (Square sq = SQ_ZERO; sq < 16; ++sq)
 			{
 				params[QUEEN_PSQT + sq][MG] = (double) queen_table[sq].mg;
 				params[QUEEN_PSQT + sq][EG] = (double) queen_table[sq].eg;
@@ -117,10 +117,8 @@ namespace Clovis {
 				params[SAFETY_OUTER_RING + pt][EG] = 0.0;
 			}
 			
-			params[SAFETY_VIRTUAL_KING_M][MG] = virtual_king_m;
-			params[SAFETY_VIRTUAL_KING_M][EG] = 0.0;
-			params[SAFETY_VIRTUAL_KING_B][MG] = virtual_king_b;
-			params[SAFETY_VIRTUAL_KING_B][EG] = 0.0;
+			params[SAFETY_VIRTUAL_MOBILITY][MG] = virtual_mobility;
+			params[SAFETY_VIRTUAL_MOBILITY][EG] = 0.0;
 		}
 		
 		double linear_eval(TEntry* entry, TGradient* tg) 
@@ -218,7 +216,7 @@ namespace Clovis {
 				if (index < TI_SAFETY)
 					cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 				else
-					cout << (int) params[index + i][MG] << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+					cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 			}
 
 			cout << "};" << endl << endl;
@@ -260,8 +258,7 @@ namespace Clovis {
 			print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
 			print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 			
-			cout << "\t\tconstexpr short virtual_king_m = " << (int) params[SAFETY_VIRTUAL_KING_M][MG] << ";" << endl
-			<< "\t\tconstexpr short virtual_king_b = "      << (int) params[SAFETY_VIRTUAL_KING_B][MG] << ";" << endl;
+			cout << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << endl;
 		}
 		
 		double find_k()
@@ -368,7 +365,7 @@ namespace Clovis {
 				}
 				
 				if (epoch && epoch % 250 == 0) 
-					rate = rate / 1.00;
+					rate = rate / 1.10;
 				if (epoch % 100 == 0)
 					print_params();
 

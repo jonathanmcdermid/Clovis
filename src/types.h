@@ -10,6 +10,7 @@
 #include <climits>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 #define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -40,7 +41,7 @@ namespace Clovis {
 	struct Score {
 	public:
 		Score() : mg(0), eg(0) {}
-		Score(double* param) : mg((short) abs(param[0])), eg((short) abs(param[1])) {}
+		Score(double* param) : mg((short) round(param[0])), eg((short) round(param[1])) {}
 		constexpr Score(int m, int e) : mg(m), eg(e) {}
 		void operator+=(const Score& rhs) {
 			this->mg += rhs.mg;
@@ -184,7 +185,7 @@ namespace Clovis {
 		BISHOP_PSQT = KNIGHT_PSQT + 32,
 		ROOK_PSQT = BISHOP_PSQT + 16,
 		QUEEN_PSQT = ROOK_PSQT + 32,
-		KING_PSQT = QUEEN_PSQT + 32,
+		KING_PSQT = QUEEN_PSQT + 16,
 		PASSED_PAWN = KING_PSQT + 16,
 		MOBILITY = PASSED_PAWN + 32,
 		DOUBLE_PAWN = MOBILITY + 7,
@@ -211,8 +212,7 @@ namespace Clovis {
 		SAFETY_PAWN_SHIELD = TI_SAFETY,
 		SAFETY_INNER_RING = SAFETY_PAWN_SHIELD + 32,
 		SAFETY_OUTER_RING = SAFETY_INNER_RING + 7,
-		SAFETY_VIRTUAL_KING_M = SAFETY_OUTER_RING + 7,
-		SAFETY_VIRTUAL_KING_B,
+		SAFETY_VIRTUAL_MOBILITY = SAFETY_OUTER_RING + 7,
 		
 		TI_N
 	};
