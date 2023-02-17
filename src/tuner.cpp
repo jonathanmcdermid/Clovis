@@ -38,7 +38,7 @@ namespace Clovis {
 				params[BISHOP_PSQT + sq][MG] = (double) bishop_table[sq].mg;
 				params[BISHOP_PSQT + sq][EG] = (double) bishop_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < 32; ++sq)
+			for (Square sq = SQ_ZERO; sq < 16; ++sq)
 			{
 				params[ROOK_PSQT + sq][MG] = (double) rook_table[sq].mg;
 				params[ROOK_PSQT + sq][EG] = (double) rook_table[sq].eg;
