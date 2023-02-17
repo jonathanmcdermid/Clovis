@@ -315,18 +315,8 @@ namespace Clovis {
 				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, pte);
 				
 				if constexpr (TRACE)
-				{
-					for (Square sq = SQ_ZERO; sq < 32; ++sq)
-						T[SAFETY_PAWN_SHIELD + sq][US] = 0;
-					
-					for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-					{
-						T[SAFETY_INNER_RING + pt][US] = 0;
-						T[SAFETY_OUTER_RING + pt][US] = 0;
-					}
-					T[SAFETY_VIRTUAL_MOBILITY][US] = 0;
-					T[SAFETY_VIRTUAL_MOBILITY][US] = 0;
-				}
+					for (int i = TI_SAFETY; i < TI_N; ++i)
+						T[i][US] = 0;
 			}
 
 			return score;
