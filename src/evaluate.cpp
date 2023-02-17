@@ -286,7 +286,7 @@ namespace Clovis {
 		{
 			Score score;
 
-			if (0)//pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8)
+			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8)
 			{
 				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, pte);
 				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, pte);
