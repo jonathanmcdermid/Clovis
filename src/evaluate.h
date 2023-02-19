@@ -8,49 +8,121 @@ namespace Clovis {
 	struct Position;
 
 	namespace Eval {
-
-		extern Score pawn_table[32];
-		extern Score knight_table[32];
-		extern Score bishop_table[16];
-		extern Score rook_table[32];
-		extern Score queen_table[32];
-		extern Score king_table[16];
-		extern Score double_pawn_penalty;
-		extern Score isolated_pawn_penalty;
-		extern Score passed_pawn[32];
-		extern short pawn_shield[32];
-		extern Score bishop_pair_bonus;
-		extern Score rook_open_file_bonus;
-		extern Score rook_semi_open_file_bonus;
-		extern Score rook_closed_file_penalty;
-		extern Score tempo_bonus;
-		extern Score mobility[7];
-		extern short outer_ring_attack[7];
-		extern short inner_ring_attack[7];
-		extern Score knight_outpost_bonus;
-		extern Score bishop_outpost_bonus;
-		extern Score king_full_open_penalty;
-		extern Score king_semi_open_penalty;
-		extern Score king_adjacent_full_open_penalty;
-		extern Score king_adjacent_semi_open_penalty;
-		extern short virtual_king_m;
-		extern short virtual_king_b;
-		extern Score weak_queen_penalty;
-		extern Score rook_on_our_passer_file;
-		extern Score rook_on_their_passer_file;
-		extern short safety_threshold;
-		extern Score tall_pawn_penalty;
-		extern short opposite_bishops_scaling;
-		extern Score fianchetto_bonus;
-		extern Score knight_behind_pawn_bonus;
-		extern Score bishop_behind_pawn_bonus;
-		extern Score rook_on_seventh;
-
-		extern const Score* piece_table[7];
-		extern const Score* score_table[15][SQ_N];
-		extern const Score* passed_table[COLOUR_N][SQ_N];
-		extern const short* shield_table[COLOUR_N][SQ_N];
 	
+#define S(mg, eg) Score(mg, eg)
+
+        constexpr Score pawn_table[] = {
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+			S(102, 281), S(145, 259), S(153, 231), S(161, 219),
+			S(78, 90), S(97, 87), S(119, 82), S(113, 82),
+			S(62, 80), S(81, 75), S(84, 75), S(95, 68),
+			S(54, 72), S(64, 72), S(79, 69), S(90, 68),
+			S(60, 66), S(73, 66), S(78, 70), S(76, 76),
+			S(56, 67), S(78, 66), S(73, 78), S(68, 82),
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+		};
+
+		constexpr Score knight_table[] = {
+			S(180, 186), S(246, 205), S(225, 231), S(303, 218),
+			S(271, 214), S(296, 230), S(376, 212), S(323, 238),
+			S(308, 212), S(350, 223), S(340, 244), S(353, 241),
+			S(327, 224), S(327, 241), S(335, 253), S(334, 259),
+			S(318, 224), S(333, 238), S(337, 250), S(337, 254),
+			S(313, 222), S(335, 230), S(337, 235), S(341, 248),
+			S(313, 206), S(307, 224), S(326, 231), S(335, 234),
+			S(289, 203), S(317, 195), S(303, 222), S(319, 223),
+		};
+
+		constexpr Score bishop_table[] = {
+			S(313, 228), S(330, 233), S(330, 230), S(327, 236),
+			S(315, 232), S(346, 221), S(344, 235), S(343, 236),
+			S(322, 239), S(343, 238), S(353, 239), S(342, 245),
+			S(322, 239), S(328, 239), S(331, 245), S(347, 244),
+		};
+
+		constexpr Score rook_table[] = {
+			S(439, 432), S(432, 440), S(442, 437), S(442, 436),
+			S(414, 444), S(432, 439), S(439, 438), S(447, 433),
+			S(418, 442), S(438, 441), S(439, 437), S(435, 438),
+			S(417, 446), S(433, 441), S(439, 444), S(440, 438),
+		};
+
+		constexpr Score queen_table[] = {
+			S(887, 798), S(870, 823), S(871, 836), S(890, 818),
+			S(885, 798), S(837, 838), S(859, 841), S(829, 870),
+			S(898, 797), S(886, 816), S(884, 823), S(858, 856),
+			S(881, 824), S(873, 837), S(872, 829), S(863, 845),
+			S(897, 795), S(883, 832), S(887, 822), S(887, 832),
+			S(890, 808), S(909, 793), S(898, 814), S(898, 809),
+			S(890, 792), S(905, 777), S(917, 778), S(910, 794),
+			S(906, 771), S(898, 775), S(897, 779), S(911, 767),
+		};
+
+		constexpr Score king_table[] = {
+			S(66, 18), S(104, 37), S(70, 61), S(76, 58),
+			S(75, 43), S(105, 55), S(77, 76), S(58, 86),
+			S(49, 56), S(91, 70), S(80, 83), S(74, 91),
+			S(18, 59), S(66, 78), S(56, 93), S(43, 102),
+		};
+
+		constexpr Score passed_pawn[] = {
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+			S(8, 4), S(5, 4), S(6, 3), S(7, 3),
+			S(10, 121), S(0, 113), S(11, 88), S(4, 67),
+			S(13, 61), S(4, 58), S(8, 39), S(7, 31),
+			S(10, 34), S(0, 32), S(0, 18), S(0, 14),
+			S(6, 11), S(0, 13), S(0, 3), S(0, 0),
+			S(0, 11), S(3, 8), S(5, 0), S(0, 0),
+			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
+		};
+
+		constexpr Score mobility[] = {
+			S(0, 0), S(0, 0), S(5, 0), S(4, 2), S(4, 2), S(2, 4), S(0, 0),
+		};
+
+		constexpr Score double_pawn_penalty = S(0, 6);
+		constexpr Score isolated_pawn_penalty = S(15, 7);
+		constexpr Score bishop_pair_bonus = S(23, 42);
+		constexpr Score rook_open_file_bonus = S(25, 0);
+		constexpr Score rook_semi_open_file_bonus = S(2, 7);
+		constexpr Score rook_closed_file_penalty = S(15, 5);
+		constexpr Score tempo_bonus = S(17, 15);
+		constexpr Score king_full_open_penalty = S(38, 7);
+		constexpr Score king_semi_open_penalty = S(11, 0);
+		constexpr Score king_adjacent_full_open_penalty = S(7, 8);
+		constexpr Score king_adjacent_semi_open_penalty = S(15, 0);
+		constexpr Score knight_outpost_bonus = S(35, 12);
+		constexpr Score bishop_outpost_bonus = S(38, 0);
+		constexpr Score weak_queen_penalty = S(32, 1);
+		constexpr Score rook_on_our_passer_file = S(7, 5);
+		constexpr Score rook_on_their_passer_file = S(0, 43);
+		constexpr Score tall_pawn_penalty = S(12, 24);
+		constexpr Score fianchetto_bonus = S(19, 12);
+		constexpr Score rook_on_seventh = S(0, 25);
+
+		constexpr short pawn_shield[] = {
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			21, 27, 24, 0,
+		};
+
+		constexpr short inner_ring_attack[] = {
+			0, 38, 21, 37, 37, 25, 0,
+		};
+
+		constexpr short outer_ring_attack[] = {
+			0, 4, 35, 15, 15, 25, 0,
+		};
+
+		constexpr short virtual_mobility = 15;
+
+#undef S
+
 		constexpr Bitboard file_masks[SQ_N] =  {
 			0x101010101010101ULL,  0x202020202020202ULL,  0x404040404040404ULL,  0x808080808080808ULL, 
 			0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL, 
@@ -263,10 +335,45 @@ namespace Clovis {
 		};
 		
 #undef KZ
+		
+		constexpr int source32[] = {
+			28, 29, 30, 31, 31, 30, 29, 28,
+			24, 25, 26, 27, 27, 26, 25, 24,
+			20, 21, 22, 23, 23, 22, 21, 20,
+			16, 17, 18, 19, 19, 18, 17, 16,
+			12, 13, 14, 15, 15, 14, 13, 12,
+			 8,  9, 10, 11, 11, 10,  9,  8,
+			 4,  5,  6,  7,  7,  6,  5,  4,
+			 0,  1,  2,  3,  3,  2,  1,  0,
+		};
+		
+		constexpr int source16[] = {
+			 0,  1,  2,  3,  3,  2,  1,  0,
+			 4,  5,  6,  7,  7,  6,  5,  4,
+			 8,  9, 10, 11, 11, 10,  9,  8,
+			12, 13, 14, 15, 15, 14, 13, 12,
+			12, 13, 14, 15, 15, 14, 13, 12,
+			 8,  9, 10, 11, 11, 10,  9,  8,
+			 4,  5,  6,  7,  7,  6,  5,  4,
+			 0,  1,  2,  3,  3,  2,  1,  0,
+		};
+		
+		constexpr int source10[] = {
+			 0,  1,  2,  3,  3,  2,  1,  0,
+			 1,  4,  5,  6,  6,  5,  4,  1,
+			 2,  9,  7,  8,  8,  7,  9,  2,
+			 3,  6,  8,  9,  9,  8,  6,  3,
+			 3,  6,  8,  9,  9,  8,  6,  3,
+			 2,  9,  7,  8,  8,  7,  9,  2,
+			 1,  4,  5,  6,  6,  5,  4,  1,
+			 0,  1,  2,  3,  3,  2,  1,  0,
+		};
 
 		void init_eval();
 		void init_values();
-		template<bool USE_TT> int evaluate(const Position& pos);
+		template<bool TRACE> int evaluate(const Position& pos);
+		
+		extern int T[TI_N][PHASE_N];
 
 	} // namespace Eval
 

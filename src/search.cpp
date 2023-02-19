@@ -90,7 +90,7 @@ namespace Clovis {
 			++nodes;
 
 			if (ply >= MAX_PLY)
-				return Eval::evaluate<true>(pos);
+				return Eval::evaluate<false>(pos);
 
 			TTEntry* tte = tt.probe(pos.bs->key);
 
@@ -107,7 +107,7 @@ namespace Clovis {
 
 			if (!in_check)
 			{
-				eval = Eval::evaluate<true>(pos);
+				eval = Eval::evaluate<false>(pos);
 	
 				// use TT score instead of static eval if conditions are right
 				// conditions: valid TTE and either 
@@ -184,7 +184,7 @@ namespace Clovis {
 
 			// avoid overflow
 			if (ply >= MAX_PLY)
-				return Eval::evaluate<true>(pos);
+				return Eval::evaluate<false>(pos);
 
 			// mate distance pruning
 			// if me have found a mate, no point in finding a longer mate
@@ -222,7 +222,7 @@ namespace Clovis {
 
 			if (!in_check)
 			{
-				score = tte ? tte->eval : Eval::evaluate<true>(pos);
+				score = tte ? tte->eval : Eval::evaluate<false>(pos);
 
 				// reverse futility pruning
 				// if evaluation is above a certain threshold, we can trust that it will maintain it in the future

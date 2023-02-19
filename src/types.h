@@ -10,6 +10,7 @@
 #include <climits>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 #define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -40,6 +41,7 @@ namespace Clovis {
 	struct Score {
 	public:
 		Score() : mg(0), eg(0) {}
+		Score(double* param) : mg((short) round(param[0])), eg((short) round(param[1])) {}
 		constexpr Score(int m, int e) : mg(m), eg(e) {}
 		void operator+=(const Score& rhs) {
 			this->mg += rhs.mg;
@@ -172,6 +174,53 @@ namespace Clovis {
 	enum Rank : int {
 		RANK_NONE = -1,
 		RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_N
+	};
+	
+	enum TraceIndex : int {
+	
+		TI_NORMAL,
+		
+		PAWN_PSQT = TI_NORMAL,
+		KNIGHT_PSQT = PAWN_PSQT + 32,
+		BISHOP_PSQT = KNIGHT_PSQT + 32,
+		ROOK_PSQT = BISHOP_PSQT + 16,
+		QUEEN_PSQT = ROOK_PSQT + 16,
+		KING_PSQT = QUEEN_PSQT + 32,
+		PASSED_PAWN = KING_PSQT + 16,
+		MOBILITY = PASSED_PAWN + 32,
+		DOUBLE_PAWN = MOBILITY + 7,
+		ISOLATED_PAWN,
+		BISHOP_PAIR,
+		ROOK_FULL,
+		ROOK_SEMI,
+		ROOK_CLOSED,
+		TEMPO,
+		KING_FULL,
+		KING_SEMI,
+		KING_ADJ_FULL,
+		KING_ADJ_SEMI,
+		KNIGHT_OUTPOST,
+		BISHOP_OUTPOST,
+		WEAK_QUEEN,
+		ROOK_OUR_PASSER,
+		ROOK_THEIR_PASSER,
+		TALL_PAWN,
+		FIANCHETTO,
+		ROOK_ON_SEVENTH,
+		
+		TI_SAFETY,
+		
+		SAFETY_PAWN_SHIELD = TI_SAFETY,
+		SAFETY_INNER_RING = SAFETY_PAWN_SHIELD + 32,
+		SAFETY_OUTER_RING = SAFETY_INNER_RING + 7,
+		SAFETY_VIRTUAL_MOBILITY = SAFETY_OUTER_RING + 7,
+		
+		TI_N
+	};
+	
+	enum  EvalType : int {
+		NORMAL, 
+		SAFETY, EVALTYPE_N
 	};
 
 	enum CastleRights {

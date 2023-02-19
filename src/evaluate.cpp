@@ -4,132 +4,12 @@ namespace Clovis {
 
 	namespace Eval {
 
-#define S(mg, eg) Score(mg, eg)
-
-		Score pawn_table[] = {
-			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(128, 340), S(175, 314), S(187, 281), S(198, 266),
-			S(92, 113), S(112, 108), S(143, 98), S(129, 100),
-			S(76, 98), S(95, 93), S(98, 93), S(113, 81),
-			S(65, 88), S(74, 89), S(94, 83), S(102, 83),
-			S(73, 81), S(85, 82), S(91, 86), S(93, 90),
-			S(67, 83), S(90, 81), S(81, 95), S(81, 98),
-			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-		};
-
-		Score knight_table[] = {
-			S(184, 239), S(248, 264), S(240, 290), S(317, 279),
-			S(285, 271), S(314, 290), S(402, 273), S(344, 303),
-			S(325, 271), S(377, 283), S(369, 309), S(378, 307),
-			S(350, 283), S(354, 302), S(362, 319), S(364, 325),
-			S(339, 283), S(357, 301), S(363, 316), S(362, 320),
-			S(333, 281), S(360, 290), S(363, 299), S(367, 314),
-			S(335, 259), S(336, 280), S(351, 291), S(362, 293),
-			S(305, 258), S(336, 253), S(322, 283), S(338, 284),
-		};
-
-		Score bishop_table[] = {
-			S(317, 292), S(334, 299), S(335, 296), S(334, 302),
-			S(318, 296), S(357, 282), S(350, 302), S(348, 305),
-			S(325, 305), S(348, 306), S(359, 309), S(346, 315),
-			S(325, 307), S(330, 307), S(333, 315), S(351, 315),
-		};
-
-		Score rook_table[] = {
-			S(471, 538), S(488, 533), S(451, 544), S(501, 531),
-			S(478, 538), S(474, 542), S(512, 531), S(521, 524),
-			S(463, 535), S(494, 532), S(480, 533), S(476, 534),
-			S(453, 538), S(462, 534), S(489, 536), S(481, 530),
-			S(450, 534), S(471, 531), S(468, 533), S(479, 526),
-			S(452, 524), S(473, 525), S(480, 519), S(474, 521),
-			S(444, 526), S(474, 517), S(477, 520), S(484, 519),
-			S(477, 514), S(469, 522), S(485, 518), S(484, 516),
-		};
-
-		Score queen_table[] = {
-			S(931, 980), S(913, 1009), S(922, 1018), S(950, 996),
-			S(929, 973), S(874, 1020), S(896, 1028), S(864, 1061),
-			S(937, 979), S(922, 1001), S(922, 1009), S(892, 1050),
-			S(915, 1015), S(909, 1027), S(903, 1022), S(900, 1036),
-			S(932, 988), S(918, 1027), S(925, 1010), S(921, 1027),
-			S(927, 997), S(947, 980), S(935, 1004), S(935, 1000),
-			S(927, 976), S(942, 962), S(957, 962), S(952, 976),
-			S(945, 952), S(936, 957), S(937, 959), S(951, 948),
-		};
-
-		Score king_table[] = {
-			S(69, 1), S(105, 26), S(62, 53), S(69, 48),
-			S(73, 37), S(111, 49), S(78, 73), S(52, 84),
-			S(45, 52), S(97, 66), S(87, 80), S(80, 89),
-			S(10, 54), S(76, 75), S(67, 92), S(52, 102),
-		};
-
-		Score passed_pawn[] = {
-			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(16, 137), S(0, 133), S(5, 107), S(8, 79),
-			S(15, 71), S(4, 68), S(8, 45), S(6, 37),
-			S(11, 38), S(0, 37), S(0, 22), S(0, 17),
-			S(4, 10), S(0, 13), S(0, 2), S(0, 0),
-			S(0, 10), S(0, 9), S(0, 0), S(0, 0),
-			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-		};
-
-		short pawn_shield[] = {
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 3,
-			0, 0, 0, 0,
-			0, 2, 6, 2,
-			3, 3, 1, 0,
-		};
-
-		Score mobility[] = {
-			S(0, 0), S(0, 0), S(5, 0), S(7, 2), S(4, 3), S(2, 5),
-		};
-
-		short inner_ring_attack[] = {
-			0, 6, 3, 5, 5, 4,
-		};
-
-		short outer_ring_attack[] = {
-			0, 1, 5, 1, 1, 3,
-		};
-
-		Score double_pawn_penalty = S(1, 8);
-		Score isolated_pawn_penalty = S(17, 8);
-		Score bishop_pair_bonus = S(40, 43);
-		Score rook_open_file_bonus = S(32, 0);
-		Score rook_semi_open_file_bonus = S(8, 13);
-		Score tempo_bonus = S(19, 19);
-		Score king_full_open_penalty = S(41, 8);
-		Score king_semi_open_penalty = S(7, 0);
-		Score king_adjacent_full_open_penalty = S(5, 10);
-		Score king_adjacent_semi_open_penalty = S(10, 0);
-		Score knight_outpost_bonus = S(38, 14);
-		Score bishop_outpost_bonus = S(45, 0);
-		short virtual_king_m = 3;
-		short virtual_king_b = 1;
-		Score rook_closed_file_penalty = S(14, 1);
-		Score weak_queen_penalty = S(39, 0);
-		Score rook_on_our_passer_file = S(8, 10);
-		Score rook_on_their_passer_file = S(7, 38);
-		Score tall_pawn_penalty = S(10, 32);
-		Score fianchetto_bonus = S(17, 17);
-		short safety_threshold = 8;
-		short opposite_bishops_scaling = 15;
-		Score rook_on_seventh = S(0, 0);
-		Score bishop_behind_pawn_bonus = S(0, 0);
-		Score knight_behind_pawn_bonus = S(0, 0);
-
-#undef S
-
 		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
 		const Score* passed_table[COLOUR_N][SQ_N];
 		const short* shield_table[COLOUR_N][SQ_N];
 		const Score* score_table[15][SQ_N];
+
+		int T[TI_N][PHASE_N];
 
 		void init_eval()
 		{
@@ -138,7 +18,7 @@ namespace Clovis {
 
 		void init_values()
 		{
-			for (auto pt : {PAWN, KNIGHT, ROOK, QUEEN})
+			for (auto pt : {PAWN, KNIGHT, QUEEN})
 			{
  				for (Square sq = SQ_ZERO; sq < 32; ++sq)
 				{
@@ -154,7 +34,7 @@ namespace Clovis {
 				}
 			}
 			
-			for (auto pt : {BISHOP, KING})
+			for (auto pt : {BISHOP, ROOK, KING})
 			{
  				for (Square sq = SQ_ZERO; sq < 16; ++sq)
 				{
@@ -177,8 +57,7 @@ namespace Clovis {
 				}
 			}
 			
-			/*
-			for (auto pt : {})
+			/*for (auto pt : {})
 			{
 				for (Square sq = SQ_ZERO; sq < 16; ++sq)
 				{
@@ -261,7 +140,7 @@ namespace Clovis {
 			return fianchetto_bishop_mask[US] & sq && multiple_bits(center_mask & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq));
 		}
 		
-		template<Colour US, PieceType PT>
+		template<Colour US, PieceType PT, bool TRACE>
 		inline void king_danger(Bitboard attacks, PTEntry& pte)
 		{
 			Bitboard or_att_bb = attacks & king_zones[pte.ksq[~US]].outer_ring;
@@ -270,12 +149,27 @@ namespace Clovis {
 			if (or_att_bb || ir_att_bb)
 			{
 				pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
-				if constexpr (PT != PAWN)
-					++pte.n_att[US];
+				if constexpr (PT != PAWN) ++pte.n_att[US];
+				if constexpr (TRACE) 
+				{
+					T[SAFETY_INNER_RING + PT][US] += popcnt(ir_att_bb);
+					T[SAFETY_OUTER_RING + PT][US] += popcnt(or_att_bb);
+				}
 			}
 		}
-        
-		template<Colour US, PieceType PT, bool SAFE>
+		
+		template<Colour US, PieceType PT>
+		void psqt_trace(Square sq)
+		{
+			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[relative_square(US, sq)]][US];
+			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[relative_square(US, sq)]][US];
+			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[relative_square(US, sq)]][US];
+		}
+		
+		template<Colour US, PieceType PT, bool SAFE, bool TRACE>
 		Score evaluate_majors(const Position& pos, PTEntry& pte)
 		{
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
@@ -298,88 +192,137 @@ namespace Clovis {
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
+				if constexpr (TRACE) 
+				{
+					psqt_trace<US, PT>(sq);
+					T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
+				}
+
 				if constexpr (PT == KNIGHT)
 				{
 					if (is_outpost<US>(sq, pte))
+					{
 						score += knight_outpost_bonus;
+						if constexpr (TRACE) ++T[KNIGHT_OUTPOST][US];
+					}
 					//if (pos.pc_bb[make_piece(PAWN, US)] & (sq + pawn_push(US)))
 					//    score += knight_behind_pawn_bonus;
 				}
 				if constexpr (PT == BISHOP)
 				{
 					if (is_outpost<US>(sq, pte))
+					{
 						score += bishop_outpost_bonus;
+						if constexpr (TRACE) ++T[BISHOP_OUTPOST][US];
+					}
 					if (is_fianchetto<US>(pos, sq))
+					{
 						score += fianchetto_bonus;
+						if constexpr (TRACE) ++T[FIANCHETTO][US];
+					}
 					if (bb)
+					{
 						score += bishop_pair_bonus;
+						if constexpr (TRACE) ++T[BISHOP_PAIR][US];
+					}
 					if (multiple_bits(Bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)]))
+					{
 						score -= tall_pawn_penalty;
+						if constexpr (TRACE) --T[TALL_PAWN][US];
+					}
 					//if (pos.pc_bb[make_piece(PAWN, US)] & (sq + pawn_push(US)))
 					//	score += bishop_behind_pawn_bonus;
 				}
 				if constexpr (PT == ROOK)
 				{
 					if (!(file_masks[sq] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN])))
+					{
 						score += rook_open_file_bonus;
+						if constexpr (TRACE) ++T[ROOK_FULL][US];
+					}
 					else if (!(file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)]))
+					{
 						score += rook_semi_open_file_bonus;
+						if constexpr (TRACE) ++T[ROOK_SEMI][US];
+					}
 					else if (file_masks[sq] & pos.pc_bb[make_piece(PAWN, ~US)])
+					{
 						score -= rook_closed_file_penalty;
+						if constexpr (TRACE) --T[ROOK_CLOSED][US];
+					}
 					if (safe_attacks & rook_on_passer_masks[US][sq] & pte.passers[US])
+					{
 						score += rook_on_our_passer_file;
+						if constexpr (TRACE) ++T[ROOK_OUR_PASSER][US];
+					}
 					if (safe_attacks & rook_on_passer_masks[~US][sq] & pte.passers[~US])
+					{
 						score += rook_on_their_passer_file;
-					//if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
-					//    score += rook_on_seventh;
+						if constexpr (TRACE) ++T[ROOK_THEIR_PASSER][US];
+					}
+					if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
+					{
+						score += rook_on_seventh;
+						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
+					}
 				}
 				if constexpr (PT == QUEEN)
 				{
 					if (pos.discovery_threat<US>(sq))
+					{
 						score -= weak_queen_penalty;
+						if constexpr (TRACE) --T[WEAK_QUEEN][US];
+					}
 				}
 				if constexpr (!SAFE)
-					king_danger<US, PT>(safe_attacks, pte);
+					king_danger<US, PT, TRACE>(safe_attacks, pte);
 			}
 
 			return score;
 		}
 
-		template<Colour US>
+		template<Colour US, bool TRACE>
 		Score evaluate_all(const Position& pos, PTEntry& pte)
 		{
 			Score score;
 
-			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > safety_threshold)
+			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8)
 			{
-				score += evaluate_majors<US, KNIGHT, false>(pos, pte);
-				score += evaluate_majors<US, BISHOP, false>(pos, pte);
-				score += evaluate_majors<US, ROOK,   false>(pos, pte);
-				score += evaluate_majors<US, QUEEN,  false>(pos, pte);
+				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, pte);
+				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, pte);
+				score += evaluate_majors<US, ROOK,   false, TRACE>(pos, pte);
+				score += evaluate_majors<US, QUEEN,  false, TRACE>(pos, pte);
 
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(pte.n_att[US] < 10);
 
-				int virtual_mobility = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], pte.ksq[~US]) & ~pte.attacks[~US]);
+				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], pte.ksq[~US]) & ~pte.attacks[~US]);
 
-				if (virtual_mobility > 4)
-					pte.weight[US] += virtual_king_m * min(13, virtual_mobility) - virtual_king_b;
-
-				if (pte.weight[US] > 0)
-				    score.mg += pte.weight[US] * pte.weight[US] / (20 - 2 * pte.n_att[US]);
+				if (mob > 4)
+				{
+					pte.weight[US] += virtual_mobility * min(13, mob);
+					
+					if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = min(13, mob);
+				}
+				
+				if (pte.weight[US] > 0) score.mg += pte.weight[US] * pte.weight[US] / (720);
 			}
 			else
 			{
-				score += evaluate_majors<US, KNIGHT, true>(pos, pte);
-				score += evaluate_majors<US, BISHOP, true>(pos, pte);
-				score += evaluate_majors<US, ROOK,   true>(pos, pte);
-				score += evaluate_majors<US, QUEEN,  true>(pos, pte);
+				score += evaluate_majors<US, KNIGHT, true, TRACE>(pos, pte);
+				score += evaluate_majors<US, BISHOP, true, TRACE>(pos, pte);
+				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, pte);
+				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, pte);
+				
+				if constexpr (TRACE)
+					for (int i = TI_SAFETY; i < TI_N; ++i)
+						T[i][US] = 0;
 			}
 
 			return score;
 		}
 
-		template<Colour US>
+		template<Colour US, bool TRACE>
 		Score evaluate_pawns(const Position& pos, PTEntry& pte)
 		{
 			constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
@@ -393,21 +336,30 @@ namespace Clovis {
 			{
 				Square sq = pop_lsb(bb);
 
+				if constexpr (TRACE) psqt_trace<US, PAWN>(sq);
+
 				score += *score_table[OUR_PAWN][sq];
 
 				if (is_doubled_pawn(pos.pc_bb[OUR_PAWN], sq))
+				{
 					score -= double_pawn_penalty;
+					if constexpr (TRACE) --T[DOUBLE_PAWN][US];
+				}
 
 				if (is_isolated_pawn(pos.pc_bb[OUR_PAWN], sq))
+				{
 					score -= isolated_pawn_penalty;
+					if constexpr (TRACE) --T[ISOLATED_PAWN][US];
+				}
 
 				if (is_passed_pawn<US>(pos.pc_bb[THEIR_PAWN], sq))
 				{
 					score += *passed_table[US][sq];
 					pte.passers[US] |= sq;
+					if constexpr (TRACE) ++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
 				}
 
-				king_danger<US, PAWN>(sqbb(sq + pawn_push(US)), pte);
+				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), pte);
 
 				pte.attacks[US] |= Bitboards::pawn_attacks[US][sq];
 
@@ -418,41 +370,70 @@ namespace Clovis {
 
 			if (!(file_masks[pte.ksq[US]] & pos.pc_bb[OUR_PAWN]))
 			{
-				score -= (file_masks[pte.ksq[US]] & pos.pc_bb[THEIR_PAWN])
-					? king_semi_open_penalty
-					: king_full_open_penalty;
+				if (file_masks[pte.ksq[US]] & pos.pc_bb[THEIR_PAWN])
+				{
+					score -= king_semi_open_penalty;
+					if constexpr (TRACE) --T[KING_SEMI][US];
+				}
+				else
+				{
+					score -= king_full_open_penalty;
+					if constexpr (TRACE) --T[KING_FULL][US];
+				}
 			}
 			if (kf != FILE_A && !(file_masks[pte.ksq[US] + WEST] & pos.pc_bb[OUR_PAWN]))
 			{
-				score -= (file_masks[pte.ksq[US] + WEST] & pos.pc_bb[THEIR_PAWN])
-					? king_adjacent_semi_open_penalty
-					: king_adjacent_full_open_penalty;
+				if (file_masks[pte.ksq[US] + WEST] & pos.pc_bb[THEIR_PAWN])
+				{
+					score -= king_adjacent_semi_open_penalty;
+					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
+				}
+				else
+				{
+					score -= king_adjacent_full_open_penalty;
+					if constexpr (TRACE) --T[KING_ADJ_FULL][US];
+				}
 			}
 			if (kf != FILE_H && !(file_masks[pte.ksq[US] + EAST] & pos.pc_bb[OUR_PAWN]))
 			{
-				score -= (file_masks[pte.ksq[US] + EAST] & pos.pc_bb[THEIR_PAWN])
-					? king_adjacent_semi_open_penalty
-					: king_adjacent_full_open_penalty;
+				if (file_masks[pte.ksq[US] + EAST] & pos.pc_bb[THEIR_PAWN])
+				{
+					score -= king_adjacent_semi_open_penalty;
+					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
+				}
+				else
+				{
+					score -= king_adjacent_full_open_penalty;
+					if constexpr (TRACE) --T[KING_ADJ_FULL][US];
+				}
 			}
 			
-			File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
+			/*File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
 			
 			for (File f = cf - 1; f <= cf + 1; ++f)
 			{
 				Bitboard fp = pos.pc_bb[OUR_PAWN] & file_masks[f];
 
 				if (fp)
-					pte.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
+				{
+					//pte.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
+					//if constexpr (TRACE) --T[SAFETY_PAWN_SHIELD + source32[relative_square(US, US == WHITE ? lsb(fp) : msb(fp))]][~US];
+				}
 				else
+				{
 					pte.weight[~US] += *shield_table[0][f];
-			}
-
+					if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
+				}
+			}*/
+			
 			score += *score_table[make_piece(KING, US)][pte.ksq[US]];
+			
+			if constexpr (TRACE) psqt_trace<US, KING>(pte.ksq[US]);
 
 			return score;
 		}
 
-		template<bool USE_TT>
+		template<bool TRACE>
 		int evaluate(const Position& pos)
 		{
 			bool insufficient[COLOUR_N] = { 
@@ -464,31 +445,37 @@ namespace Clovis {
 				return DRAW_SCORE;
 
 			Colour us = pos.side;
-			Colour them = ~us;
 
 			int game_phase = pos.get_game_phase();
 
 			Score score = (us == WHITE) ? tempo_bonus : -tempo_bonus;
+			
+			if constexpr (TRACE) 
+			{
+				memset(T, 0, sizeof(T));
+				++T[TEMPO][us];
+			}
 
 			PTEntry pte = tt.probe_pawn(pos.bs->pkey);
 
-			if (!USE_TT || pte.key != pos.bs->pkey)
+			if (TRACE || pte.key != pos.bs->pkey)
 			{
 				pte.clear();
 				pte.key = pos.bs->pkey;
 				pte.ksq[WHITE] = lsb(pos.pc_bb[W_KING]);
 				pte.ksq[BLACK] = lsb(pos.pc_bb[B_KING]);
-				pte.score = evaluate_pawns<WHITE>(pos, pte) - evaluate_pawns<BLACK>(pos, pte);
+				pte.score = evaluate_pawns<WHITE, TRACE>(pos, pte) - evaluate_pawns<BLACK, TRACE>(pos, pte);
 				tt.new_pawn_entry(pte);
 			}
 
-			score += pte.score + evaluate_all<WHITE>(pos, pte) - evaluate_all<BLACK>(pos, pte);
+			score += pte.score + evaluate_all<WHITE, TRACE>(pos, pte) - evaluate_all<BLACK, TRACE>(pos, pte);
 
 			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
 			
 			if (us == BLACK)
 				eval = -eval;
 
+			/*
 			int scaling;
 
 			if (game_phase == 2 && popcnt(pos.pc_bb[W_BISHOP]) == 1 && popcnt(pos.pc_bb[B_BISHOP]) == 1 
@@ -499,8 +486,9 @@ namespace Clovis {
 
 			if (scaling < MAX_SCALING)
 				eval = eval * scaling / MAX_SCALING;
+			*/
 
-			return insufficient[us] ? min(DRAW_SCORE, eval) : insufficient[them] ? max(DRAW_SCORE, eval) : eval;
+			return eval;//insufficient[us] ? min(DRAW_SCORE, eval) : insufficient[them] ? max(DRAW_SCORE, eval) : eval;
 		}
 		
 		// explicit template instantiations

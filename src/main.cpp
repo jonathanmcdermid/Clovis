@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 	Search::init_search();
 	Eval::init_eval();
 	Zobrist::init_zobrist();
-
+	
 	CMDLine::handle_cmd(argc, argv);
 
 	return EXIT_SUCCESS;

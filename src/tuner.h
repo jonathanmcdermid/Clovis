@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 #include "position.h"
 #include "evaluate.h"
@@ -17,15 +18,33 @@
 namespace Clovis {
 
 	namespace Tuner {
-
-		void tune_eval(bool safety_only);
-		long double tune_loop(vector<short*> weights);
-		long double find_k();
-		long double mean_squared_error(long double K);
-		void processor(int start, int end, long double K);
-		vector<short*> map_weights_to_params(bool safety_only);
-		void print_params();
 	
+		struct TTuple {
+			TTuple(int i, int wc, int bc) { 
+				index = i; 
+				coefficient[WHITE] = wc; 
+				coefficient[BLACK] = bc; 
+			}
+			int index;
+			int coefficient[COLOUR_N];
+		};
+		
+		struct TGradient {
+			double eval;
+			double safety[COLOUR_N];
+		};
+		
+		struct TEntry {
+			Colour stm;
+			int seval;
+			int safety[COLOUR_N];
+			double result;
+			double phase;
+			vector<TTuple> tuples;
+		};
+
+		void tune_eval();
+
 	} // namespace Tuner
 
 } // namespace Clovis
