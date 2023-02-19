@@ -23,37 +23,37 @@ namespace Clovis {
 		{
 			using namespace Eval;
 			
-			for (Square sq = SQ_ZERO; sq < sizeof(pawn_table) / sizeof(Score); ++sq)
+			for (Square sq = SQ_ZERO; sq < int(sizeof(pawn_table) / sizeof(Score)); ++sq)
 			{
 				params[PAWN_PSQT + sq][MG] = (double) pawn_table[sq].mg;
 				params[PAWN_PSQT + sq][EG] = (double) pawn_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < sizeof(knight_table) / sizeof(Score); ++sq)
+			for (Square sq = SQ_ZERO; sq < int(sizeof(knight_table) / sizeof(Score)); ++sq)
 			{
 				params[KNIGHT_PSQT + sq][MG] = (double) knight_table[sq].mg;
 				params[KNIGHT_PSQT + sq][EG] = (double) knight_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < sizeof(bishop_table) / sizeof(Score); ++sq)
+			for (Square sq = SQ_ZERO; sq < int(sizeof(bishop_table) / sizeof(Score)); ++sq)
 			{
 				params[BISHOP_PSQT + sq][MG] = (double) bishop_table[sq].mg;
 				params[BISHOP_PSQT + sq][EG] = (double) bishop_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < sizeof(rook_table) / sizeof(Score); ++sq)
+			for (Square sq = SQ_ZERO; sq < int(sizeof(rook_table) / sizeof(Score)); ++sq)
 			{
 				params[ROOK_PSQT + sq][MG] = (double) rook_table[sq].mg;
 				params[ROOK_PSQT + sq][EG] = (double) rook_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < sizeof(queen_table) / sizeof(Score); ++sq)
+			for (Square sq = SQ_ZERO; sq < int(sizeof(queen_table) / sizeof(Score)); ++sq)
 			{
 				params[QUEEN_PSQT + sq][MG] = (double) queen_table[sq].mg;
 				params[QUEEN_PSQT + sq][EG] = (double) queen_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < sizeof(king_table) / sizeof(Score); ++sq)
+			for (Square sq = SQ_ZERO; sq < int(sizeof(king_table) / sizeof(Score)); ++sq)
 			{
 				params[KING_PSQT + sq][MG] = (double) king_table[sq].mg;
 				params[KING_PSQT + sq][EG] = (double) king_table[sq].eg;
 			}
-			for (Square sq = SQ_ZERO; sq < sizeof(passed_pawn) / sizeof(Score); ++sq)
+			for (Square sq = SQ_ZERO; sq < int(sizeof(passed_pawn) / sizeof(Score)); ++sq)
 			{
 				params[PASSED_PAWN + sq][MG] = (double) passed_pawn[sq].mg;
 				params[PASSED_PAWN + sq][EG] = (double) passed_pawn[sq].eg;
