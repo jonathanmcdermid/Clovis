@@ -436,13 +436,10 @@ namespace Clovis {
 		template<bool TRACE>
 		int evaluate(const Position& pos)
 		{
-			bool insufficient[COLOUR_N] = { 
+			/*bool insufficient[COLOUR_N] = { 
 				pos.is_insufficient<WHITE>(), 
 				pos.is_insufficient<BLACK>() 
-			};
-			
-			if (insufficient[WHITE] && insufficient[BLACK])
-				return DRAW_SCORE;
+			};*/
 
 			Colour us = pos.side;
 

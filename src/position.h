@@ -51,6 +51,7 @@ namespace Clovis {
 		bool see_ge(Move move, int threshold) const;
 		bool do_move(Move move);
 		void undo_move(Move move);
+		bool is_draw() const;
 		bool is_repeat() const;
 		void print_position() const;
 		void print_bitboards();
@@ -92,6 +93,11 @@ namespace Clovis {
 			&& (popcnt(pc_bb[make_piece(QUEEN,  US)]) == 0)
 			&& (popcnt(pc_bb[make_piece(KNIGHT, US)]) < 3)
 			&& (popcnt(pc_bb[make_piece(BISHOP, US)]) + popcnt(pc_bb[make_piece(KNIGHT, US)])  < 2));
+	}
+
+	inline bool Position::is_draw() const
+	{
+		return is_repeat() || is_material_draw() || is_draw_50();
 	}
 
 	inline bool Position::is_king_in_check() const 

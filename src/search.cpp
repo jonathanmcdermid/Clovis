@@ -89,6 +89,9 @@ namespace Clovis {
 
 			++nodes;
 
+			if (pos.is_draw())
+				return DRAW_SCORE;
+
 			if (ply >= MAX_PLY)
 				return Eval::evaluate<false>(pos);
 
@@ -182,7 +185,6 @@ namespace Clovis {
 
 			++nodes;
 
-			// avoid overflow
 			if (ply >= MAX_PLY)
 				return Eval::evaluate<false>(pos);
 
@@ -283,7 +285,7 @@ namespace Clovis {
 
 				++moves_searched;
 
-				if (pos.is_repeat() || pos.is_draw_50() || pos.is_material_draw())
+				if (pos.is_draw())
 					score = DRAW_SCORE;
 				else if (moves_searched > 1
 				&& depth > lmr_depth
