@@ -370,7 +370,6 @@ namespace Clovis {
 		};
 
 		void init_eval();
-		void init_values();
 		template<bool TRACE> int evaluate(const Position& pos);
 		
 		extern int T[TI_N][PHASE_N];

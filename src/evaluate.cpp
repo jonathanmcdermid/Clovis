@@ -13,11 +13,6 @@ namespace Clovis {
 
 		void init_eval()
 		{
-			init_values();
-		}
-
-		void init_values()
-		{
 			for (auto pt : {PAWN, KNIGHT, QUEEN})
 			{
  				for (Square sq = SQ_ZERO; sq < 32; ++sq)
