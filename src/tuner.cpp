@@ -368,7 +368,7 @@ namespace Clovis {
 				}
 				
 				if (epoch && epoch % 250 == 0) 
-					rate = rate / 1.10;
+					rate = rate / 1.01;
 				if (epoch % 100 == 0)
 					print_params();
 
