@@ -403,7 +403,7 @@ namespace Clovis {
 				}
 			}
 			
-			/*File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
+			File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
 			
 			for (File f = cf - 1; f <= cf + 1; ++f)
 			{
@@ -419,7 +419,7 @@ namespace Clovis {
 					pte.weight[~US] += *shield_table[0][f];
 					if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
 				}
-			}*/
+			}
 			
 			score += *score_table[make_piece(KING, US)][pte.ksq[US]];
 			
