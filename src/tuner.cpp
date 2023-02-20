@@ -13,6 +13,7 @@ namespace Clovis {
 
 		constexpr int N_CORES = 8;
 		constexpr int N_POSITIONS = 725000;
+		constexpr int CHUNK_SIZE = N_POSITIONS / N_CORES;
 		constexpr int MAX_EPOCHS = 1000000;
 
 		inline double sigmoid(double K, double E) {
@@ -163,8 +164,12 @@ namespace Clovis {
 		{
 			double total = 0.0;
 
-			for (int i = 0; i < N_POSITIONS; ++i)
-				total += pow(entries[i].result - sigmoid(K, (STATIC ? entries[i].seval : linear_eval(&entries[i], NULL))), 2);
+			#pragma omp parallel shared(total)
+			{
+				#pragma omp for schedule(static, CHUNK_SIZE) reduction(+:total)
+				for (int i = 0; i < N_POSITIONS; ++i)
+					total += pow(entries[i].result - sigmoid(K, (STATIC ? entries[i].seval : linear_eval(&entries[i], NULL))), 2);
+			}
 
 			return total / (double) N_POSITIONS;
 		}
