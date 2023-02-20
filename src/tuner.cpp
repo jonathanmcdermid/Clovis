@@ -144,10 +144,7 @@ namespace Clovis {
 			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
 			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
 			
-			if (mg[SAFETY][WHITE] > 0)
-				safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / 720;
-			if (mg[SAFETY][BLACK] > 0)
-				safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / 720;
+			safety = (mg[SAFETY][WHITE] * mg[SAFETY][WHITE] - mg[SAFETY][BLACK] * mg[SAFETY][BLACK]) / 720.0;
 			
 			if (tg)
 			{
@@ -193,7 +190,7 @@ namespace Clovis {
 				}
 				else
 				{
-					gradient[it.index][MG] += (base[MG] / 360.0) * ((max(tg.safety[WHITE], 0.0) * it.coefficient[WHITE]) - (max(tg.safety[BLACK], 0.0) * it.coefficient[BLACK]));
+					gradient[it.index][MG] += (base[MG] / 360.0) * ((tg.safety[WHITE] * it.coefficient[WHITE]) - (tg.safety[BLACK] * it.coefficient[BLACK]));
 				}
 			}
 		}

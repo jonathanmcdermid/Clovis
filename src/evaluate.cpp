@@ -301,6 +301,7 @@ namespace Clovis {
 				}
 				
 				if (pte.weight[US] > 0) score.mg += pte.weight[US] * pte.weight[US] / (720);
+				else if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
 			}
 			else
 			{
@@ -309,9 +310,7 @@ namespace Clovis {
 				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, pte);
 				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, pte);
 				
-				if constexpr (TRACE)
-					for (int i = TI_SAFETY; i < TI_N; ++i)
-						T[i][US] = 0;
+				if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
 			}
 
 			return score;
