@@ -349,9 +349,10 @@ namespace Clovis {
 
 				if (is_passed_pawn<US>(pos.pc_bb[THEIR_PAWN], sq))
 				{
-					score += *passed_table[US][sq];
 					pte.passers[US] |= sq;
-					if constexpr (TRACE) ++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
+					score += *passed_table[US][sq];
+					if (TRACE && relative_rank(US, rank_of(sq)) != RANK_7) 
+						++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
 				}
 
 				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), pte);
