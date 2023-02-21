@@ -18,7 +18,7 @@ Named after the first king of the Franks and the paleoamerican mammoth slayers, 
 
 ### Build from source
 
-Clovis requires `cmake` and a compiler with C++17 support.
+Clovis requires `make` and a compiler with C++17 support.
 
 ```
 git clone https://github.com/jonathanmcdermid/Clovis
