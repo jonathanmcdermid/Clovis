@@ -215,7 +215,11 @@ namespace Clovis {
 		SAFETY_OUTER_RING = SAFETY_INNER_RING + 7,
 		SAFETY_VIRTUAL_MOBILITY = SAFETY_OUTER_RING + 7,
 		
-		TI_N
+		TI_N,
+
+		SAFETY_N_ATT,
+
+		TI_MISC
 	};
 	
 	enum  EvalType : int {

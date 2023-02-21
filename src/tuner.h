@@ -40,6 +40,7 @@ namespace Clovis {
 			int safety[COLOUR_N];
 			double result;
 			double phase;
+			int n_att[COLOUR_N];
 			vector<TTuple> tuples;
 		};
 

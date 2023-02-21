@@ -9,7 +9,7 @@ namespace Clovis {
 		const short* shield_table[COLOUR_N][SQ_N];
 		const Score* score_table[15][SQ_N];
 
-		int T[TI_N][PHASE_N];
+		int T[TI_MISC][PHASE_N];
 
 		void init_eval()
 		{
@@ -300,7 +300,11 @@ namespace Clovis {
 					if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = min(13, mob);
 				}
 				
-				if (pte.weight[US] > 0) score.mg += pte.weight[US] * pte.weight[US] / (720);
+				if (pte.weight[US] > 0) 
+				{
+					score.mg += pte.weight[US] * pte.weight[US] / (720 - attack_factor * pte.n_att[US]);
+					if constexpr (TRACE) T[SAFETY_N_ATT][US] = pte.n_att[US];
+				}
 				else if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
 			}
 			else

@@ -127,7 +127,7 @@ namespace Clovis {
 		double linear_eval(TEntry* entry, TGradient* tg) 
 		{
 			double normal[PHASE_N];
-			double safety = 0;
+			double safety = 0.0;
 			double mg[EVALTYPE_N][COLOUR_N] = {0};
 			double eg[EVALTYPE_N][COLOUR_N] = {0};
 			
@@ -144,7 +144,8 @@ namespace Clovis {
 			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
 			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
 			
-			safety = (mg[SAFETY][WHITE] * mg[SAFETY][WHITE] - mg[SAFETY][BLACK] * mg[SAFETY][BLACK]) / 720.0;
+			safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - Eval::attack_factor * entry->n_att[WHITE]);
+			safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - Eval::attack_factor * entry->n_att[BLACK]);
 			
 			if (tg)
 			{
@@ -190,7 +191,8 @@ namespace Clovis {
 				}
 				else
 				{
-					gradient[it.index][MG] += (base[MG] / 360.0) * ((tg.safety[WHITE] * it.coefficient[WHITE]) - (tg.safety[BLACK] * it.coefficient[BLACK]));
+					gradient[it.index][MG] += (2 * base[MG] / (720.0 - Eval::attack_factor * entry->n_att[WHITE])) * (tg.safety[WHITE] * it.coefficient[WHITE]);
+					gradient[it.index][MG] -= (2 * base[MG] / (720.0 - Eval::attack_factor * entry->n_att[BLACK])) * (tg.safety[BLACK] * it.coefficient[BLACK]);
 				}
 			}
 		}
@@ -334,6 +336,9 @@ namespace Clovis {
 					if (pos.side == BLACK) entries[i].seval = -entries[i].seval;
 					
 					entries[i].stm = pos.side;
+
+					entries[i].n_att[WHITE] = Eval::T[SAFETY_N_ATT][WHITE];
+					entries[i].n_att[BLACK] = Eval::T[SAFETY_N_ATT][BLACK];
 					
 					for (int j = 0; j < TI_N; ++j)
 					{
