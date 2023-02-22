@@ -11,94 +11,94 @@ namespace Clovis {
 	
 #define S(mg, eg) Score(mg, eg)
 
-        constexpr Score pawn_table[] = {
+        	constexpr Score pawn_table[] = {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(113, 284), S(153, 262), S(161, 235), S(169, 222),
-			S(77, 90), S(98, 88), S(118, 83), S(117, 82),
-			S(61, 81), S(81, 76), S(83, 76), S(97, 68),
-			S(53, 73), S(63, 73), S(77, 70), S(93, 68),
-			S(59, 67), S(72, 67), S(76, 71), S(80, 76),
-			S(55, 68), S(78, 67), S(72, 80), S(72, 81),
+			S(110, 281), S(150, 259), S(159, 232), S(168, 219),
+			S(78, 89), S(98, 86), S(118, 82), S(117, 80),
+			S(61, 79), S(80, 75), S(83, 75), S(96, 67),
+			S(52, 72), S(62, 72), S(77, 70), S(92, 67),
+			S(59, 66), S(72, 66), S(76, 70), S(79, 75),
+			S(54, 67), S(77, 66), S(71, 78), S(72, 80),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score knight_table[] = {
-			S(181, 188), S(252, 205), S(226, 232), S(303, 218),
-			S(275, 214), S(299, 230), S(379, 212), S(329, 238),
-			S(310, 212), S(357, 222), S(346, 243), S(357, 240),
-			S(332, 223), S(333, 240), S(341, 251), S(342, 257),
-			S(323, 223), S(338, 238), S(343, 249), S(342, 253),
-			S(318, 221), S(340, 229), S(342, 235), S(346, 247),
-			S(319, 206), S(315, 223), S(331, 230), S(341, 233),
-			S(293, 203), S(322, 196), S(309, 222), S(324, 222),
+			S(178, 185), S(249, 202), S(223, 229), S(302, 215),
+			S(273, 211), S(296, 227), S(374, 210), S(325, 234),
+			S(307, 210), S(354, 219), S(342, 240), S(353, 237),
+			S(329, 220), S(330, 236), S(338, 248), S(338, 253),
+			S(320, 220), S(335, 234), S(340, 246), S(339, 249),
+			S(315, 218), S(337, 226), S(339, 231), S(344, 244),
+			S(316, 203), S(313, 220), S(329, 227), S(338, 230),
+			S(291, 200), S(320, 193), S(307, 219), S(322, 219),
 		};
 
 		constexpr Score bishop_table[] = {
-			S(318, 228), S(334, 233), S(335, 230), S(333, 235),
-			S(320, 231), S(352, 221), S(349, 235), S(348, 236),
-			S(327, 238), S(348, 238), S(358, 239), S(347, 245),
-			S(327, 239), S(333, 239), S(337, 245), S(353, 243),
+			S(316, 225), S(332, 229), S(333, 226), S(331, 232),
+			S(317, 228), S(349, 217), S(346, 231), S(346, 232),
+			S(325, 235), S(345, 234), S(356, 235), S(345, 241),
+			S(324, 235), S(331, 235), S(334, 241), S(350, 239),
 		};
 
 		constexpr Score rook_table[] = {
-			S(448, 431), S(441, 439), S(451, 436), S(451, 435),
-			S(422, 443), S(440, 439), S(447, 437), S(457, 432),
-			S(426, 441), S(446, 441), S(447, 437), S(444, 437),
-			S(425, 445), S(441, 441), S(448, 443), S(449, 438),
+			S(445, 424), S(438, 431), S(448, 429), S(449, 427),
+			S(420, 435), S(437, 431), S(445, 429), S(455, 424),
+			S(424, 434), S(444, 433), S(445, 429), S(442, 429),
+			S(422, 438), S(439, 433), S(445, 436), S(447, 430),
 		};
 
 		constexpr Score queen_table[] = {
-			S(893, 804), S(875, 829), S(876, 842), S(903, 821),
-			S(889, 804), S(845, 841), S(864, 846), S(836, 874),
-			S(900, 804), S(889, 822), S(889, 827), S(864, 861),
-			S(882, 831), S(876, 843), S(874, 836), S(868, 850),
-			S(900, 801), S(885, 838), S(890, 828), S(889, 838),
-			S(893, 815), S(912, 798), S(901, 821), S(901, 815),
-			S(893, 798), S(909, 783), S(920, 784), S(914, 800),
-			S(911, 776), S(901, 781), S(902, 784), S(915, 775),
+			S(892, 790), S(872, 816), S(870, 830), S(897, 809),
+			S(889, 790), S(846, 825), S(863, 832), S(835, 860),
+			S(899, 790), S(887, 808), S(887, 815), S(862, 848),
+			S(883, 817), S(877, 828), S(874, 822), S(868, 836),
+			S(901, 786), S(886, 823), S(891, 813), S(891, 823),
+			S(894, 801), S(913, 784), S(902, 806), S(902, 801),
+			S(894, 783), S(910, 769), S(921, 770), S(915, 786),
+			S(912, 761), S(902, 767), S(903, 770), S(916, 761),
 		};
 
 		constexpr Score king_table[] = {
-			S(72, 17), S(105, 37), S(67, 61), S(72, 58),
-			S(81, 42), S(109, 54), S(76, 75), S(51, 86),
-			S(55, 55), S(94, 68), S(77, 83), S(65, 91),
-			S(24, 58), S(69, 77), S(53, 93), S(37, 102),
+			S(72, 18), S(105, 37), S(67, 61), S(72, 58),
+			S(82, 42), S(109, 54), S(75, 76), S(51, 86),
+			S(55, 55), S(93, 69), S(76, 83), S(65, 91),
+			S(24, 58), S(69, 77), S(53, 93), S(37, 101),
 		};
 
 		constexpr Score passed_pawn[] = {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(10, 121), S(0, 112), S(11, 87), S(2, 68),
-			S(14, 61), S(5, 58), S(10, 38), S(6, 32),
-			S(11, 34), S(0, 32), S(0, 18), S(0, 15),
+			S(9, 120), S(0, 111), S(10, 86), S(1, 67),
+			S(14, 60), S(5, 57), S(10, 38), S(6, 31),
+			S(11, 33), S(0, 32), S(0, 18), S(0, 15),
 			S(5, 11), S(0, 13), S(0, 3), S(0, 0),
 			S(0, 11), S(0, 9), S(3, 0), S(0, 0),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score mobility[] = {
-			S(0, 0), S(0, 0), S(5, 0), S(4, 2), S(4, 2), S(2, 4), S(0, 0),
+			S(0, 0), S(0, 0), S(5, 0), S(4, 2), S(4, 2), S(2, 3), S(0, 0),
 		};
 
 		constexpr Score double_pawn_penalty = S(0, 6);
-		constexpr Score isolated_pawn_penalty = S(15, 7);
+		constexpr Score isolated_pawn_penalty = S(14, 7);
 		constexpr Score bishop_pair_bonus = S(23, 42);
-		constexpr Score rook_open_file_bonus = S(25, 0);
+		constexpr Score rook_open_file_bonus = S(24, 0);
 		constexpr Score rook_semi_open_file_bonus = S(1, 7);
 		constexpr Score rook_closed_file_penalty = S(15, 5);
 		constexpr Score tempo_bonus = S(17, 15);
 		constexpr Score king_full_open_penalty = S(33, 7);
 		constexpr Score king_semi_open_penalty = S(5, 0);
-		constexpr Score king_adjacent_full_open_penalty = S(2, 9);
+		constexpr Score king_adjacent_full_open_penalty = S(1, 9);
 		constexpr Score king_adjacent_semi_open_penalty = S(8, 0);
-		constexpr Score knight_outpost_bonus = S(35, 12);
+		constexpr Score knight_outpost_bonus = S(35, 11);
 		constexpr Score bishop_outpost_bonus = S(38, 0);
-		constexpr Score weak_queen_penalty = S(32, 2);
+		constexpr Score weak_queen_penalty = S(32, 4);
 		constexpr Score rook_on_our_passer_file = S(7, 5);
-		constexpr Score rook_on_their_passer_file = S(0, 43);
+		constexpr Score rook_on_their_passer_file = S(0, 42);
 		constexpr Score tall_pawn_penalty = S(12, 24);
 		constexpr Score fianchetto_bonus = S(18, 12);
-		constexpr Score rook_on_seventh = S(1, 25);
+		constexpr Score rook_on_seventh = S(0, 25);
 
 		constexpr short pawn_shield[] = {
 			0, 0, 0, 0,
@@ -108,20 +108,19 @@ namespace Clovis {
 			0, 0, 0, 0,
 			0, 0, 0, 0,
 			0, 0, 0, 0,
-			26, 29, 26, 0,
+			26, 29, 25, 0,
 		};
 
 		constexpr short inner_ring_attack[] = {
-			0, 28, 13, 24, 25, 19, 0,
+			0, 23, 16, 29, 29, 22, 0,
 		};
 
 		constexpr short outer_ring_attack[] = {
-			0, 3, 21, 3, 6, 18, 0,
+			0, 3, 24, 5, 7, 18, 0,
 		};
 
 		constexpr short virtual_mobility = 14;
-
-		constexpr short attack_factor = 100;
+		constexpr short attack_factor = 85;
 
 #undef S
 
@@ -299,41 +298,79 @@ namespace Clovis {
 
 		constexpr Bitboard center_mask = 0x1818000000ULL;
 
+		constexpr Bitboard inner_ring[SQ_N] = {
+			0x303ULL,              0x707ULL,              0xe0eULL,              0x1c1cULL, 
+			0x3838ULL,             0x7070ULL,             0xe0e0ULL,             0xc0c0ULL, 
+			0x30303ULL,            0x70707ULL,            0xe0e0eULL,            0x1c1c1cULL, 
+			0x383838ULL,           0x707070ULL,           0xe0e0e0ULL,           0xc0c0c0ULL, 
+			0x3030300ULL,          0x7070700ULL,          0xe0e0e00ULL,          0x1c1c1c00ULL, 
+			0x38383800ULL,         0x70707000ULL,         0xe0e0e000ULL,         0xc0c0c000ULL, 
+			0x303030000ULL,        0x707070000ULL,        0xe0e0e0000ULL,        0x1c1c1c0000ULL, 
+			0x3838380000ULL,       0x7070700000ULL,       0xe0e0e00000ULL,       0xc0c0c00000ULL, 
+			0x30303000000ULL,      0x70707000000ULL,      0xe0e0e000000ULL,      0x1c1c1c000000ULL, 
+			0x383838000000ULL,     0x707070000000ULL,     0xe0e0e0000000ULL,     0xc0c0c0000000ULL, 
+			0x3030300000000ULL,    0x7070700000000ULL,    0xe0e0e00000000ULL,    0x1c1c1c00000000ULL, 
+			0x38383800000000ULL,   0x70707000000000ULL,   0xe0e0e000000000ULL,   0xc0c0c000000000ULL, 
+			0x303030000000000ULL,  0x707070000000000ULL,  0xe0e0e0000000000ULL,  0x1c1c1c0000000000ULL, 
+			0x3838380000000000ULL, 0x7070700000000000ULL, 0xe0e0e00000000000ULL, 0xc0c0c00000000000ULL, 
+			0x303000000000000ULL,  0x707000000000000ULL,  0xe0e000000000000ULL,  0x1c1c000000000000ULL, 
+			0x3838000000000000ULL, 0x7070000000000000ULL, 0xe0e0000000000000ULL, 0xc0c0000000000000ULL, 
+		};
+		
+		constexpr Bitboard outer_ring[SQ_N] = {
+			0x70404ULL,            0xf0808ULL,            0x1f1111ULL,           0x3e2222ULL,
+			0x7c4444ULL,           0xf88888ULL,           0xf01010ULL,           0xe02020ULL,
+			0x7040404ULL,          0xf080808ULL,          0x1f111111ULL,         0x3e222222ULL,
+			0x7c444444ULL,         0xf8888888ULL,         0xf0101010ULL,         0xe0202020ULL,
+			0x704040407ULL,        0xf0808080fULL,        0x1f1111111fULL,       0x3e2222223eULL,
+			0x7c4444447cULL,       0xf8888888f8ULL,       0xf0101010f0ULL,       0xe0202020e0ULL,
+			0x70404040700ULL,      0xf0808080f00ULL,      0x1f1111111f00ULL,     0x3e2222223e00ULL,
+			0x7c4444447c00ULL,     0xf8888888f800ULL,     0xf0101010f000ULL,     0xe0202020e000ULL,
+			0x7040404070000ULL,    0xf0808080f0000ULL,    0x1f1111111f0000ULL,   0x3e2222223e0000ULL,
+			0x7c4444447c0000ULL,   0xf8888888f80000ULL,   0xf0101010f00000ULL,   0xe0202020e00000ULL,
+			0x704040407000000ULL,  0xf0808080f000000ULL,  0x1f1111111f000000ULL, 0x3e2222223e000000ULL,
+			0x7c4444447c000000ULL, 0xf8888888f8000000ULL, 0xf0101010f0000000ULL, 0xe0202020e0000000ULL,
+			0x404040700000000ULL,  0x808080f00000000ULL,  0x1111111f00000000ULL, 0x2222223e00000000ULL,
+			0x4444447c00000000ULL, 0x888888f800000000ULL, 0x101010f000000000ULL, 0x202020e000000000ULL,
+			0x404070000000000ULL,  0x8080f0000000000ULL,  0x11111f0000000000ULL, 0x22223e0000000000ULL,
+			0x44447c0000000000ULL, 0x8888f80000000000ULL, 0x1010f00000000000ULL, 0x2020e00000000000ULL, 
+		};
+
 #define KZ(out, in) KingZone(out, in)
 
 		constexpr KingZone king_zones[SQ_N] = {
-			KZ(0x70404ULL,            0x302ULL),              KZ(0xf0808ULL,            0x705ULL), 
-			KZ(0x1f1111ULL,           0xe0aULL),              KZ(0x3e2222ULL,           0x1c14ULL), 
-			KZ(0x7c4444ULL,           0x3828ULL),             KZ(0xf88888ULL,           0x7050ULL), 
-			KZ(0xf01010ULL,           0xe0a0ULL),             KZ(0xe02020ULL,           0xc040ULL), 
-			KZ(0x7040404ULL,          0x30203ULL),            KZ(0xf080808ULL,          0x70507ULL), 
-			KZ(0x1f111111ULL,         0xe0a0eULL),            KZ(0x3e222222ULL,         0x1c141cULL), 
-			KZ(0x7c444444ULL,         0x382838ULL),           KZ(0xf8888888ULL,         0x705070ULL), 
-			KZ(0xf0101010ULL,         0xe0a0e0ULL),           KZ(0xe0202020ULL,         0xc040c0ULL), 
-			KZ(0x704040407ULL,        0x3020300ULL),          KZ(0xf0808080fULL,        0x7050700ULL), 
-			KZ(0x1f1111111fULL,       0xe0a0e00ULL),          KZ(0x3e2222223eULL,       0x1c141c00ULL), 
-			KZ(0x7c4444447cULL,       0x38283800ULL),         KZ(0xf8888888f8ULL,       0x70507000ULL), 
-			KZ(0xf0101010f0ULL,       0xe0a0e000ULL),         KZ(0xe0202020e0ULL,       0xc040c000ULL), 
-			KZ(0x70404040700ULL,      0x302030000ULL),        KZ(0xf0808080f00ULL,      0x705070000ULL), 
-			KZ(0x1f1111111f00ULL,     0xe0a0e0000ULL),        KZ(0x3e2222223e00ULL,     0x1c141c0000ULL), 
-			KZ(0x7c4444447c00ULL,     0x3828380000ULL),       KZ(0xf8888888f800ULL,     0x7050700000ULL), 
-			KZ(0xf0101010f000ULL,     0xe0a0e00000ULL),       KZ(0xe0202020e000ULL,     0xc040c00000ULL), 
-			KZ(0x7040404070000ULL,    0x30203000000ULL),      KZ(0xf0808080f0000ULL,    0x70507000000ULL), 
-			KZ(0x1f1111111f0000ULL,   0xe0a0e000000ULL),      KZ(0x3e2222223e0000ULL,   0x1c141c000000ULL), 
-			KZ(0x7c4444447c0000ULL,   0x382838000000ULL),     KZ(0xf8888888f80000ULL,   0x705070000000ULL), 
-			KZ(0xf0101010f00000ULL,   0xe0a0e0000000ULL),     KZ(0xe0202020e00000ULL,   0xc040c0000000ULL), 
-			KZ(0x704040407000000ULL,  0x3020300000000ULL),    KZ(0xf0808080f000000ULL,  0x7050700000000ULL), 
-			KZ(0x1f1111111f000000ULL, 0xe0a0e00000000ULL),    KZ(0x3e2222223e000000ULL, 0x1c141c00000000ULL), 
-			KZ(0x7c4444447c000000ULL, 0x38283800000000ULL),   KZ(0xf8888888f8000000ULL, 0x70507000000000ULL), 
-			KZ(0xf0101010f0000000ULL, 0xe0a0e000000000ULL),   KZ(0xe0202020e0000000ULL, 0xc040c000000000ULL), 
-			KZ(0x404040700000000ULL,  0x302030000000000ULL),  KZ(0x808080f00000000ULL,  0x705070000000000ULL), 
-			KZ(0x1111111f00000000ULL, 0xe0a0e0000000000ULL),  KZ(0x2222223e00000000ULL, 0x1c141c0000000000ULL), 
-			KZ(0x4444447c00000000ULL, 0x3828380000000000ULL), KZ(0x888888f800000000ULL, 0x7050700000000000ULL), 
-			KZ(0x101010f000000000ULL, 0xe0a0e00000000000ULL), KZ(0x202020e000000000ULL, 0xc040c00000000000ULL), 
-			KZ(0x404070000000000ULL,  0x203000000000000ULL),  KZ(0x8080f0000000000ULL,  0x507000000000000ULL), 
-			KZ(0x11111f0000000000ULL, 0xa0e000000000000ULL),  KZ(0x22223e0000000000ULL, 0x141c000000000000ULL), 
-			KZ(0x44447c0000000000ULL, 0x2838000000000000ULL), KZ(0x8888f80000000000ULL, 0x5070000000000000ULL), 
-			KZ(0x1010f00000000000ULL, 0xa0e0000000000000ULL), KZ(0x2020e00000000000ULL, 0x40c0000000000000ULL),
+			KZ(outer_ring[0],  inner_ring[0]),  KZ(outer_ring[1],  inner_ring[1]), 
+			KZ(outer_ring[2],  inner_ring[2]),  KZ(outer_ring[3],  inner_ring[3]), 
+			KZ(outer_ring[4],  inner_ring[4]),  KZ(outer_ring[5],  inner_ring[5]), 
+			KZ(outer_ring[6],  inner_ring[6]),  KZ(outer_ring[7],  inner_ring[7]), 
+			KZ(outer_ring[8],  inner_ring[8]),  KZ(outer_ring[9],  inner_ring[9]), 
+			KZ(outer_ring[10], inner_ring[10]), KZ(outer_ring[11], inner_ring[11]), 
+			KZ(outer_ring[12], inner_ring[12]), KZ(outer_ring[13], inner_ring[13]), 
+			KZ(outer_ring[14], inner_ring[14]), KZ(outer_ring[15], inner_ring[15]), 
+			KZ(outer_ring[16], inner_ring[16]), KZ(outer_ring[17], inner_ring[17]), 
+			KZ(outer_ring[18], inner_ring[18]), KZ(outer_ring[19], inner_ring[19]), 
+			KZ(outer_ring[20], inner_ring[20]), KZ(outer_ring[21], inner_ring[21]), 
+			KZ(outer_ring[22], inner_ring[22]), KZ(outer_ring[23], inner_ring[23]), 
+			KZ(outer_ring[24], inner_ring[24]), KZ(outer_ring[25], inner_ring[25]), 
+			KZ(outer_ring[26], inner_ring[26]), KZ(outer_ring[27], inner_ring[27]), 
+			KZ(outer_ring[28], inner_ring[28]), KZ(outer_ring[29], inner_ring[29]), 
+			KZ(outer_ring[30], inner_ring[30]), KZ(outer_ring[31], inner_ring[31]), 
+			KZ(outer_ring[32], inner_ring[32]), KZ(outer_ring[33], inner_ring[33]), 
+			KZ(outer_ring[34], inner_ring[34]), KZ(outer_ring[35], inner_ring[35]), 
+			KZ(outer_ring[36], inner_ring[36]), KZ(outer_ring[37], inner_ring[37]), 
+			KZ(outer_ring[38], inner_ring[38]), KZ(outer_ring[39], inner_ring[39]), 
+			KZ(outer_ring[40], inner_ring[40]), KZ(outer_ring[41], inner_ring[41]), 
+			KZ(outer_ring[42], inner_ring[42]), KZ(outer_ring[43], inner_ring[43]), 
+			KZ(outer_ring[44], inner_ring[44]), KZ(outer_ring[45], inner_ring[45]), 
+			KZ(outer_ring[46], inner_ring[46]), KZ(outer_ring[47], inner_ring[47]), 
+			KZ(outer_ring[48], inner_ring[48]), KZ(outer_ring[49], inner_ring[49]), 
+			KZ(outer_ring[50], inner_ring[50]), KZ(outer_ring[51], inner_ring[51]), 
+			KZ(outer_ring[52], inner_ring[52]), KZ(outer_ring[53], inner_ring[53]), 
+			KZ(outer_ring[54], inner_ring[54]), KZ(outer_ring[55], inner_ring[55]), 
+			KZ(outer_ring[56], inner_ring[56]), KZ(outer_ring[57], inner_ring[57]), 
+			KZ(outer_ring[58], inner_ring[58]), KZ(outer_ring[59], inner_ring[59]), 
+			KZ(outer_ring[60], inner_ring[60]), KZ(outer_ring[61], inner_ring[61]), 
+			KZ(outer_ring[62], inner_ring[62]), KZ(outer_ring[63], inner_ring[63]),
 		};
 		
 #undef KZ
