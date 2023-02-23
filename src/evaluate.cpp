@@ -216,33 +216,32 @@ namespace Clovis {
 						score += knight_outpost_bonus;
 						if constexpr (TRACE) ++T[KNIGHT_OUTPOST][US];
 					}
-					//if (pos.pc_bb[make_piece(PAWN, US)] & (sq + pawn_push(US)))
-					//    score += knight_behind_pawn_bonus;
 				}
 				if constexpr (PT == BISHOP)
 				{
-					if (is_outpost<US>(sq, pte))
+					if (bb)
 					{
-						score += bishop_outpost_bonus;
-						if constexpr (TRACE) ++T[BISHOP_OUTPOST][US];
+						score += bishop_pair_bonus;
+						if constexpr (TRACE) ++T[BISHOP_PAIR][US];
 					}
 					if (is_fianchetto<US>(pos, sq))
 					{
 						score += fianchetto_bonus;
 						if constexpr (TRACE) ++T[FIANCHETTO][US];
 					}
-					if (bb)
+					else 
 					{
-						score += bishop_pair_bonus;
-						if constexpr (TRACE) ++T[BISHOP_PAIR][US];
+						if (is_outpost<US>(sq, pte))
+						{
+							score += bishop_outpost_bonus;
+							if constexpr (TRACE) ++T[BISHOP_OUTPOST][US];
+						}
+						if (multiple_bits(Bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)]))
+						{
+							score -= tall_pawn_penalty;
+							if constexpr (TRACE) --T[TALL_PAWN][US];
+						}
 					}
-					if (multiple_bits(Bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)]))
-					{
-						score -= tall_pawn_penalty;
-						if constexpr (TRACE) --T[TALL_PAWN][US];
-					}
-					//if (pos.pc_bb[make_piece(PAWN, US)] & (sq + pawn_push(US)))
-					//	score += bishop_behind_pawn_bonus;
 				}
 				if constexpr (PT == ROOK)
 				{
