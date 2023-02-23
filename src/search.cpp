@@ -356,7 +356,11 @@ namespace Clovis {
 					}
 				}
 
-				move_count_pruning = (moves_searched < (4 + depth * depth));
+				if (!ROOT_NODE 
+					&& pos.stm_has_promoted()
+					&& best_score > - CHECKMATE_SCORE + MAX_PLY
+					&& moves_searched < (4 + depth * depth))
+					move_count_pruning = true;
 			}
 
 			// no legal moves
@@ -423,6 +427,9 @@ namespace Clovis {
 					<< " time "      << setw(6) << tm.get_time_elapsed()
 					<< " nps "       << setw(8) << 1000ULL * nodes / (time + 1)
 					<< " pv "        << pline.moves[0];
+
+					//for (auto& it : pline)
+					//	cout << it << " ";
 
 					cout << endl;
 
