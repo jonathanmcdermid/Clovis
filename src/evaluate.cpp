@@ -161,11 +161,8 @@ namespace Clovis {
 			{
 				pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
 				if constexpr (PT != PAWN) ++pte.n_att[US];
-				if constexpr (TRACE) 
-				{
-					T[SAFETY_INNER_RING + PT][US] += popcnt(ir_att_bb);
-					T[SAFETY_OUTER_RING + PT][US] += popcnt(or_att_bb);
-				}
+				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += popcnt(ir_att_bb);
+				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcnt(or_att_bb);
 			}
 		}
 		
@@ -191,7 +188,7 @@ namespace Clovis {
 
 			Bitboard transparent_occ =
 				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)] ^ pte.ksq[~US]
-				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, US)]  ^ pte.ksq[~US]
+				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK,  US)] ^ pte.ksq[~US]
 				: pos.occ_bb[BOTH];
 
 			while (bb)
@@ -203,11 +200,8 @@ namespace Clovis {
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
-				if constexpr (TRACE) 
-				{
-					psqt_trace<US, PT>(sq);
-					T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
-				}
+				if constexpr (TRACE) psqt_trace<US, PT>(sq);
+				if constexpr (TRACE) T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
 
 				if constexpr (PT == KNIGHT)
 				{
@@ -314,7 +308,6 @@ namespace Clovis {
 				if (mob > 4)
 				{
 					pte.weight[US] += virtual_mobility * min(13, mob);
-					
 					if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = min(13, mob);
 				}
 				
@@ -469,11 +462,8 @@ namespace Clovis {
 
 			Score score = (us == WHITE) ? tempo_bonus : -tempo_bonus;
 			
-			if constexpr (TRACE) 
-			{
-				memset(T, 0, sizeof(T));
-				++T[TEMPO][us];
-			}
+			if constexpr (TRACE) memset(T, 0, sizeof(T));
+			if constexpr (TRACE) ++T[TEMPO][us];
 
 			PTEntry pte = tt.probe_pawn(pos.bs->pkey);
 
