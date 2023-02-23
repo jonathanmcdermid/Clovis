@@ -261,7 +261,12 @@ namespace Clovis {
 						score -= rook_closed_file_penalty;
 						if constexpr (TRACE) --T[ROOK_CLOSED][US];
 					}
-					if (safe_attacks & rook_on_passer_masks[US][sq] & pte.passers[US])
+					if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
+					{
+						score += rook_on_seventh;
+						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
+					}
+					else if (safe_attacks & rook_on_passer_masks[US][sq] & pte.passers[US])
 					{
 						score += rook_on_our_passer_file;
 						if constexpr (TRACE) ++T[ROOK_OUR_PASSER][US];
@@ -270,11 +275,6 @@ namespace Clovis {
 					{
 						score += rook_on_their_passer_file;
 						if constexpr (TRACE) ++T[ROOK_THEIR_PASSER][US];
-					}
-					if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
-					{
-						score += rook_on_seventh;
-						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
 					}
 				}
 				if constexpr (PT == QUEEN)
