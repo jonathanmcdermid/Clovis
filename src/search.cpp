@@ -275,9 +275,9 @@ namespace Clovis {
 
 			HashFlag eval_type = HASH_ALPHA;
 
-			bool move_count_pruning = true;
+			bool play_quiets = true;
 
-			while ((curr_move = mp.get_next(move_count_pruning)) != MOVE_NONE)
+			while ((curr_move = mp.get_next(play_quiets)) != MOVE_NONE)
 			{
 				// illegal move
 				if (!pos.do_move(curr_move))
@@ -356,7 +356,8 @@ namespace Clovis {
 					}
 				}
 
-				move_count_pruning = (moves_searched < (4 + depth * depth));
+				if (moves_searched >= (4 + depth * depth))
+					play_quiets = false;
 			}
 
 			// no legal moves
@@ -439,10 +440,7 @@ namespace Clovis {
 				best_move = pline.moves[0];
 			}
 			else
-			{
-				assert(ml.size() == 1);
 				best_move = *ml.begin();
-			}
 
 			// extract ponder move if one exists
 			pos.do_move(best_move);

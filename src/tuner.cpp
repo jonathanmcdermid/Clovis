@@ -59,6 +59,11 @@ namespace Clovis {
 				params[PASSED_PAWN + sq][MG] = (double) passed_pawn[sq].mg;
 				params[PASSED_PAWN + sq][EG] = (double) passed_pawn[sq].eg;
 			}
+			for (Rank r = RANK_1; r < int(sizeof(candidate_passer) / sizeof(Score)); ++r)
+			{
+				params[CANDIDATE_PASSER + r][MG] = (double) candidate_passer[r].mg;
+				params[CANDIDATE_PASSER + r][EG] = (double) candidate_passer[r].eg;
+			}
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 			{
 				params[MOBILITY + pt][MG] = (double) mobility[pt].mg;
@@ -232,13 +237,14 @@ namespace Clovis {
 		{
 			using namespace Eval;
 			
-			print_table("pawn_table",   PAWN_PSQT,   sizeof(pawn_table)   / sizeof(Score), 4);
-			print_table("knight_table", KNIGHT_PSQT, sizeof(knight_table) / sizeof(Score), 4);
-			print_table("bishop_table", BISHOP_PSQT, sizeof(bishop_table) / sizeof(Score), 4);
-			print_table("rook_table",   ROOK_PSQT,   sizeof(rook_table)   / sizeof(Score), 4);
-			print_table("queen_table",  QUEEN_PSQT,  sizeof(queen_table)  / sizeof(Score), 4);
-			print_table("king_table",   KING_PSQT,   sizeof(king_table)   / sizeof(Score), 4);
-			print_table("passed_pawn",  PASSED_PAWN, sizeof(passed_pawn)  / sizeof(Score), 4);
+			print_table("pawn_table",       PAWN_PSQT,        sizeof(pawn_table)       / sizeof(Score), 4);
+			print_table("knight_table",     KNIGHT_PSQT,      sizeof(knight_table)     / sizeof(Score), 4);
+			print_table("bishop_table",     BISHOP_PSQT,      sizeof(bishop_table)     / sizeof(Score), 4);
+			print_table("rook_table",       ROOK_PSQT,        sizeof(rook_table)       / sizeof(Score), 4);
+			print_table("queen_table",      QUEEN_PSQT,       sizeof(queen_table)      / sizeof(Score), 4);
+			print_table("king_table",       KING_PSQT,        sizeof(king_table)       / sizeof(Score), 4);
+			print_table("passed_pawn",      PASSED_PAWN,      sizeof(passed_pawn)      / sizeof(Score), 4);
+			print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
 			print_table("mobility", MOBILITY, 7, 7);
 			
 			cout << "\t\tconstexpr Score double_pawn_penalty = "        << Score(params[DOUBLE_PAWN])       << ";" << endl

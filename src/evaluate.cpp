@@ -124,6 +124,22 @@ namespace Clovis {
 		}
 
 		template<Colour US>
+		constexpr bool is_candidate_passer(Bitboard our_pawns, Bitboard their_pawns, Square sq)
+		{
+			if (file_masks[file_of(sq)] & their_pawns)
+				return false;
+			do {
+				int support = popcnt(Bitboards::pawn_attacks[~US][sq + pawn_push(US)] & our_pawns);
+				int danger  = popcnt(Bitboards::pawn_attacks[ US][sq + pawn_push(US)] & their_pawns);
+				if (danger > support)
+					return false;
+				sq += pawn_push(US);
+			} while (relative_rank(US, rank_of(sq)) != RANK_7);
+			
+			return true;
+		}
+
+		template<Colour US>
 		constexpr bool is_outpost(Square sq, PTEntry& pte) 
 		{
 			return (outpost_masks[US] & sq & ~pte.potential_attacks[~US] & pte.attacks[US]);
@@ -356,6 +372,11 @@ namespace Clovis {
 					score += *passed_table[US][sq];
 					if (TRACE && relative_rank(US, rank_of(sq)) != RANK_7) 
 						++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
+				}
+				else if (is_candidate_passer<US>(pos.pc_bb[OUR_PAWN], pos.pc_bb[THEIR_PAWN], sq))
+				{
+					score += candidate_passer[relative_rank(US, rank_of(sq))];
+					if constexpr (TRACE) ++T[CANDIDATE_PASSER + relative_rank(US, rank_of(sq))][US];
 				}
 
 				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), pte);
