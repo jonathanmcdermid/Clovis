@@ -346,8 +346,8 @@ namespace Clovis {
 						pline.last = pline.moves;
 						*pline.last++ = curr_move;
                         
-						for (const auto& m : lline)
-							*pline.last++ = m;
+						//for (const auto& m : lline)
+						//	*pline.last++ = m;
 
 						eval_type = HASH_EXACT;
 
@@ -423,7 +423,10 @@ namespace Clovis {
 					<< " nodes "     << setw(8) << nodes
 					<< " time "      << setw(6) << tm.get_time_elapsed()
 					<< " nps "       << setw(8) << 1000ULL * nodes / (time + 1)
-					<< " pv "        << pline.moves[0];
+					<< " pv ";
+
+					for (auto& it : pline)
+						cout << it << " ";
 
 					cout << endl;
 
