@@ -140,9 +140,9 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		constexpr bool is_outpost(Square sq, PTEntry& pte) 
+		constexpr bool is_outpost(Square sq, EvalInfo& ei) 
 		{
-			return (outpost_masks[US] & sq & ~pte.potential_attacks[~US] & pte.attacks[US]);
+			return (outpost_masks[US] & sq & ~ei.potential_attacks[~US] & ei.attacks[US]);
 		}
 		
 		template<Colour US>
@@ -152,15 +152,15 @@ namespace Clovis {
 		}
 		
 		template<Colour US, PieceType PT, bool TRACE>
-		inline void king_danger(Bitboard attacks, PTEntry& pte)
+		inline void king_danger(Bitboard attacks, EvalInfo& ei)
 		{
-			Bitboard or_att_bb = attacks & king_zones[pte.ksq[~US]].outer_ring;
-			Bitboard ir_att_bb = attacks & king_zones[pte.ksq[~US]].inner_ring;
+			Bitboard or_att_bb = attacks & king_zones[ei.ksq[~US]].outer_ring;
+			Bitboard ir_att_bb = attacks & king_zones[ei.ksq[~US]].inner_ring;
 		
 			if (or_att_bb || ir_att_bb)
 			{
-				pte.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
-				if constexpr (PT != PAWN) ++pte.n_att[US];
+				ei.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
+				if constexpr (PT != PAWN) ++ei.n_att[US];
 				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += popcnt(ir_att_bb);
 				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcnt(or_att_bb);
 			}
@@ -178,7 +178,7 @@ namespace Clovis {
 		}
 		
 		template<Colour US, PieceType PT, bool SAFE, bool TRACE>
-		Score evaluate_majors(const Position& pos, PTEntry& pte)
+		Score evaluate_majors(const Position& pos, EvalInfo& ei)
 		{
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
 
@@ -187,8 +187,8 @@ namespace Clovis {
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
 			Bitboard transparent_occ =
-				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)] ^ pte.ksq[~US]
-				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK,  US)] ^ pte.ksq[~US]
+				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)] ^ ei.ksq[~US]
+				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK,  US)] ^ ei.ksq[~US]
 				: pos.occ_bb[BOTH];
 
 			while (bb)
@@ -196,7 +196,7 @@ namespace Clovis {
 				sq = pop_lsb(bb);
 				score += *score_table[make_piece(PT, US)][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
-				Bitboard safe_attacks = attacks & ~pte.attacks[~US];
+				Bitboard safe_attacks = attacks & ~ei.attacks[~US];
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
@@ -205,7 +205,7 @@ namespace Clovis {
 
 				if constexpr (PT == KNIGHT)
 				{
-					if (is_outpost<US>(sq, pte))
+					if (is_outpost<US>(sq, ei))
 					{
 						score += knight_outpost_bonus;
 						if constexpr (TRACE) ++T[KNIGHT_OUTPOST][US];
@@ -225,7 +225,7 @@ namespace Clovis {
 					}
 					else 
 					{
-						if (is_outpost<US>(sq, pte))
+						if (is_outpost<US>(sq, ei))
 						{
 							score += bishop_outpost_bonus;
 							if constexpr (TRACE) ++T[BISHOP_OUTPOST][US];
@@ -256,18 +256,18 @@ namespace Clovis {
 							score -= rook_closed_file_penalty;
 							if constexpr (TRACE) --T[ROOK_CLOSED][US];
 						}
-						if (safe_attacks & rook_on_passer_masks[US][sq] & pte.passers[US])
+						if (safe_attacks & rook_on_passer_masks[US][sq] & ei.passers[US])
 						{
 							score += rook_on_our_passer_file;
 							if constexpr (TRACE) ++T[ROOK_OUR_PASSER][US];
 						}
-						if (safe_attacks & rook_on_passer_masks[~US][sq] & pte.passers[~US])
+						if (safe_attacks & rook_on_passer_masks[~US][sq] & ei.passers[~US])
 						{
 							score += rook_on_their_passer_file;
 							if constexpr (TRACE) ++T[ROOK_THEIR_PASSER][US];
 						}
 					}
-					if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(pte.ksq[~US])) == RANK_8)
+					if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(ei.ksq[~US])) == RANK_8)
 					{
 						score += rook_on_seventh;
 						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
@@ -282,48 +282,48 @@ namespace Clovis {
 					}
 				}
 				if constexpr (!SAFE)
-					king_danger<US, PT, TRACE>(safe_attacks, pte);
+					king_danger<US, PT, TRACE>(safe_attacks, ei);
 			}
 
 			return score;
 		}
 
 		template<Colour US, bool TRACE>
-		Score evaluate_all(const Position& pos, PTEntry& pte)
+		Score evaluate_all(const Position& pos, EvalInfo& ei)
 		{
 			Score score;
 
 			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8)
 			{
-				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, pte);
-				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, pte);
-				score += evaluate_majors<US, ROOK,   false, TRACE>(pos, pte);
-				score += evaluate_majors<US, QUEEN,  false, TRACE>(pos, pte);
+				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, ei);
+				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, ei);
+				score += evaluate_majors<US, ROOK,   false, TRACE>(pos, ei);
+				score += evaluate_majors<US, QUEEN,  false, TRACE>(pos, ei);
 
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
-				assert(pte.n_att[US] < 10);
+				assert(ei.n_att[US] < 10);
 
-				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], pte.ksq[~US]) & ~pte.attacks[~US]);
+				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.attacks[~US]);
 
 				if (mob > 4)
 				{
-					pte.weight[US] += virtual_mobility * min(13, mob);
+					ei.weight[US] += virtual_mobility * min(13, mob);
 					if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = min(13, mob);
 				}
 				
-				if (pte.weight[US] > 0) 
+				if (ei.weight[US] > 0) 
 				{
-					score.mg += pte.weight[US] * pte.weight[US] / (720 - attack_factor * pte.n_att[US]);
-					if constexpr (TRACE) T[SAFETY_N_ATT][US] = pte.n_att[US];
+					score.mg += ei.weight[US] * ei.weight[US] / (720 - attack_factor * ei.n_att[US]);
+					if constexpr (TRACE) T[SAFETY_N_ATT][US] = ei.n_att[US];
 				}
 				else if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
 			}
 			else
 			{
-				score += evaluate_majors<US, KNIGHT, true, TRACE>(pos, pte);
-				score += evaluate_majors<US, BISHOP, true, TRACE>(pos, pte);
-				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, pte);
-				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, pte);
+				score += evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei);
+				score += evaluate_majors<US, BISHOP, true, TRACE>(pos, ei);
+				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, ei);
+				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, ei);
 				
 				if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
 			}
@@ -332,7 +332,7 @@ namespace Clovis {
 		}
 
 		template<Colour US, bool TRACE>
-		Score evaluate_pawns(const Position& pos, PTEntry& pte)
+		Score evaluate_pawns(const Position& pos, EvalInfo& ei)
 		{
 			constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
 			constexpr Piece THEIR_PAWN = make_piece(PAWN, ~US);
@@ -363,7 +363,7 @@ namespace Clovis {
 
 				if (is_passed_pawn<US>(pos.pc_bb[THEIR_PAWN], sq))
 				{
-					pte.passers[US] |= sq;
+					ei.passers[US] |= sq;
 					score += *passed_table[US][sq];
 					if (TRACE && relative_rank(US, rank_of(sq)) != RANK_7) 
 						++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
@@ -374,18 +374,18 @@ namespace Clovis {
 					if constexpr (TRACE) ++T[CANDIDATE_PASSER + relative_rank(US, rank_of(sq))][US];
 				}
 
-				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), pte);
+				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), ei);
 
-				pte.attacks[US] |= Bitboards::pawn_attacks[US][sq];
+				ei.attacks[US] |= Bitboards::pawn_attacks[US][sq];
 
-				pte.potential_attacks[US] |= outpost_pawn_masks[US][sq];
+				ei.potential_attacks[US] |= outpost_pawn_masks[US][sq];
 			}
 			
-			File kf = file_of(pte.ksq[US]);
+			File kf = file_of(ei.ksq[US]);
 
-			if (!(file_masks[pte.ksq[US]] & pos.pc_bb[OUR_PAWN]))
+			if (!(file_masks[ei.ksq[US]] & pos.pc_bb[OUR_PAWN]))
 			{
-				if (file_masks[pte.ksq[US]] & pos.pc_bb[THEIR_PAWN])
+				if (file_masks[ei.ksq[US]] & pos.pc_bb[THEIR_PAWN])
 				{
 					score -= king_semi_open_penalty;
 					if constexpr (TRACE) --T[KING_SEMI][US];
@@ -396,9 +396,9 @@ namespace Clovis {
 					if constexpr (TRACE) --T[KING_FULL][US];
 				}
 			}
-			if (kf != FILE_A && !(file_masks[pte.ksq[US] + WEST] & pos.pc_bb[OUR_PAWN]))
+			if (kf != FILE_A && !(file_masks[ei.ksq[US] + WEST] & pos.pc_bb[OUR_PAWN]))
 			{
-				if (file_masks[pte.ksq[US] + WEST] & pos.pc_bb[THEIR_PAWN])
+				if (file_masks[ei.ksq[US] + WEST] & pos.pc_bb[THEIR_PAWN])
 				{
 					score -= king_adjacent_semi_open_penalty;
 					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
@@ -409,9 +409,9 @@ namespace Clovis {
 					if constexpr (TRACE) --T[KING_ADJ_FULL][US];
 				}
 			}
-			if (kf != FILE_H && !(file_masks[pte.ksq[US] + EAST] & pos.pc_bb[OUR_PAWN]))
+			if (kf != FILE_H && !(file_masks[ei.ksq[US] + EAST] & pos.pc_bb[OUR_PAWN]))
 			{
-				if (file_masks[pte.ksq[US] + EAST] & pos.pc_bb[THEIR_PAWN])
+				if (file_masks[ei.ksq[US] + EAST] & pos.pc_bb[THEIR_PAWN])
 				{
 					score -= king_adjacent_semi_open_penalty;
 					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
@@ -431,19 +431,19 @@ namespace Clovis {
 
 				if (fp)
 				{
-					//pte.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
+					//ei.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
 					//if constexpr (TRACE) --T[SAFETY_PAWN_SHIELD + source32[relative_square(US, US == WHITE ? lsb(fp) : msb(fp))]][~US];
 				}
 				else
 				{
-					pte.weight[~US] += *shield_table[0][f];
+					ei.weight[~US] += *shield_table[0][f];
 					if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
 				}
 			}
 			
-			score += *score_table[make_piece(KING, US)][pte.ksq[US]];
+			score += *score_table[make_piece(KING, US)][ei.ksq[US]];
 			
-			if constexpr (TRACE) psqt_trace<US, KING>(pte.ksq[US]);
+			if constexpr (TRACE) psqt_trace<US, KING>(ei.ksq[US]);
 
 			return score;
 		}
@@ -465,19 +465,19 @@ namespace Clovis {
 			if constexpr (TRACE) memset(T, 0, sizeof(T));
 			if constexpr (TRACE) ++T[TEMPO][us];
 
-			PTEntry pte = tt.probe_pawn(pos.bs->pkey);
+			EvalInfo ei = EvalInfo(tt.probe_pawn(pos.bs->pkey));
 
-			if (TRACE || pte.key != pos.bs->pkey)
+			if (TRACE || ei.key != pos.bs->pkey)
 			{
-				pte = {};
-				pte.key = pos.bs->pkey;
-				pte.ksq[WHITE] = lsb(pos.pc_bb[W_KING]);
-				pte.ksq[BLACK] = lsb(pos.pc_bb[B_KING]);
-				pte.score = evaluate_pawns<WHITE, TRACE>(pos, pte) - evaluate_pawns<BLACK, TRACE>(pos, pte);
-				tt.new_pawn_entry(pte);
+				ei.clear();
+				ei.key = pos.bs->pkey;
+				ei.ksq[WHITE] = lsb(pos.pc_bb[W_KING]);
+				ei.ksq[BLACK] = lsb(pos.pc_bb[B_KING]);
+				ei.score = evaluate_pawns<WHITE, TRACE>(pos, ei) - evaluate_pawns<BLACK, TRACE>(pos, ei);
+				tt.new_pawn_entry(ei);
 			}
 
-			score += pte.score + evaluate_all<WHITE, TRACE>(pos, pte) - evaluate_all<BLACK, TRACE>(pos, pte);
+			score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
 
 			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
 			

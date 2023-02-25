@@ -8,6 +8,19 @@ namespace Clovis {
 	struct Position;
 
 	namespace Eval {
+
+		struct EvalInfo : public PTEntry {
+			EvalInfo(PTEntry pte) : PTEntry(pte) {
+				n_att[WHITE] = 0;
+				n_att[BLACK] = 0;
+			}
+			void clear() { 
+				PTEntry::clear();
+				n_att[WHITE] = 0;
+				n_att[BLACK] = 0;
+			}
+			short n_att[COLOUR_N] = {0};
+		};
 	
 #define S(mg, eg) Score(mg, eg)
 

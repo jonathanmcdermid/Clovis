@@ -32,6 +32,7 @@ namespace Clovis {
 	};
 
 	struct PTEntry {
+		void clear() { *this = {}; }
 		Score score;
 		Key key = 0ULL;
 		Bitboard attacks[COLOUR_N] = {0ULL};
@@ -39,7 +40,6 @@ namespace Clovis {
 		Bitboard potential_attacks[COLOUR_N] = {0ULL};
 		Square ksq [COLOUR_N] = {SQ_NONE};
 		short weight[COLOUR_N] = {0};
-		short n_att [COLOUR_N] = {0};
 	};
 
 	class TTable {
