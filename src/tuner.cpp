@@ -89,7 +89,8 @@ namespace Clovis {
 				add_param<short>(outer_ring_attack[pt], TraceIndex(SAFETY_OUTER_RING + pt));
 			
 			add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
-			add_param<short>(weak_square, SAFETY_WEAK_SQUARE);
+			add_param<short>(weak_inner_square, SAFETY_WEAK_INNER_SQUARE);
+			add_param<short>(weak_outer_square, SAFETY_WEAK_OUTER_SQUARE);
 		}
 		
 		double linear_eval(TEntry* entry, TGradient* tg) 
@@ -234,8 +235,9 @@ namespace Clovis {
 			print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
 			print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 			
-			cout << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << endl
-			<< "\t\tconstexpr short weak_square = "           << round(params[SAFETY_WEAK_SQUARE][MG])      << ";" << endl;
+			cout << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG])  << ";" << endl
+			<< "\t\tconstexpr short weak_inner_square = "     << round(params[SAFETY_WEAK_INNER_SQUARE][MG]) << ";" << endl
+			<< "\t\tconstexpr short weak_outer_square = "     << round(params[SAFETY_WEAK_OUTER_SQUARE][MG]) << ";" << endl;
 		}
 		
 		double find_k()
