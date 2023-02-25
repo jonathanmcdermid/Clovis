@@ -469,7 +469,7 @@ namespace Clovis {
 
 			if (TRACE || pte.key != pos.bs->pkey)
 			{
-				pte.clear();
+				pte = {};
 				pte.key = pos.bs->pkey;
 				pte.ksq[WHITE] = lsb(pos.pc_bb[W_KING]);
 				pte.ksq[BLACK] = lsb(pos.pc_bb[B_KING]);

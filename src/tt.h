@@ -43,31 +43,14 @@ namespace Clovis {
 	};
 
 	struct PTEntry {
-		PTEntry() { clear(); }
-		void clear() { 
-			key = 0ULL;
-			score = Score();
-			weight[WHITE] = 0;
-			weight[BLACK] = 0;
-			attacks[WHITE] = 0ULL;
-			attacks[BLACK] = 0ULL;
-			potential_attacks[WHITE] = 0ULL;
-			potential_attacks[BLACK] = 0ULL;
-			n_att[WHITE] = 0;
-			n_att[BLACK] = 0;
-			ksq[WHITE] = SQ_NONE;
-			ksq[BLACK] = SQ_NONE;
-			passers[WHITE] = 0ULL;
-			passers[BLACK] = 0ULL;
-		} 
-		Key key;
 		Score score;
-		short weight[COLOUR_N];
-		Bitboard attacks[COLOUR_N];
-		Bitboard potential_attacks[COLOUR_N];
-		int n_att[COLOUR_N];
-		Square ksq[COLOUR_N];
-		Bitboard passers[COLOUR_N];
+		Key key = 0ULL;
+		Bitboard attacks[COLOUR_N] = {0ULL};
+		Bitboard passers[COLOUR_N] = {0ULL};
+		Bitboard potential_attacks[COLOUR_N] = {0ULL};
+		Square ksq [COLOUR_N] = {SQ_NONE};
+		short weight[COLOUR_N] = {0};
+		short n_att [COLOUR_N] = {0};
 	};
 
 	class TTable {
