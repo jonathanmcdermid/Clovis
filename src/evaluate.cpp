@@ -198,16 +198,13 @@ namespace Clovis {
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
 				Bitboard safe_attacks = attacks & ~ei.pawn_attacks[~US];
 				
+				ei.attacked_twice[US] |= attacks & ei.attacked[US];
+				ei.attacked[US] |= attacks;
+				ei.attacked_by[US][PT] |= attacks;
+				
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
-				if constexpr (!SAFE)
-				{
-					/*ei.attacked_twice[US] |= attacks & ei.attacked[US];
-					ei.attacked[US] |= attacks;
-					ei.attacked_by[US][PT] |= attacks;*/
-					king_danger<US, PT, TRACE>(safe_attacks, ei);
-				}
-
+				if constexpr (!SAFE) king_danger<US, PT, TRACE>(safe_attacks, ei);
 				if constexpr (TRACE) psqt_trace<US, PT>(sq);
 				if constexpr (TRACE) T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
 
@@ -327,13 +324,13 @@ namespace Clovis {
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(ei.n_att[US] < 10);
 
-				/*Bitboard weak = ei.attacked[US]
+				Bitboard weak = ei.attacked[US]
                       		&  ~ei.attacked_twice[~US]
                       		& (~ei.attacked[~US] | ei.attacked_by[~US][QUEEN] | Bitboards::king_attacks[ei.ksq[~US]]);
 				
 				ei.weight[US] += + weak_square * popcnt(weak & king_zones[ei.ksq[~US]].inner_ring);
 
-				if constexpr (TRACE) T[SAFETY_WEAK_SQUARE][US] = popcnt(weak & king_zones[ei.ksq[~US]].inner_ring);*/
+				if constexpr (TRACE) T[SAFETY_WEAK_SQUARE][US] = popcnt(weak & king_zones[ei.ksq[~US]].inner_ring);
 
 				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
 
@@ -363,7 +360,7 @@ namespace Clovis {
 
 			Score score;
 
-			/*ei.attacked[US] = Bitboards::king_attacks[ei.ksq[US]];*/
+			ei.attacked[US] = Bitboards::king_attacks[ei.ksq[US]];
 
 			Bitboard bb = pos.pc_bb[OUR_PAWN];
 
@@ -404,8 +401,8 @@ namespace Clovis {
 
 				ei.pawn_attacks[US] |= Bitboards::pawn_attacks[US][sq];
 				ei.potential_pawn_attacks[US] |= outpost_pawn_masks[US][sq];
-				/*ei.attacked_twice[US] |= ei.attacked[US] & Bitboards::pawn_attacks[US][sq];
-				ei.attacked[US] |= Bitboards::pawn_attacks[US][sq];*/
+				ei.attacked_twice[US] |= ei.attacked[US] & Bitboards::pawn_attacks[US][sq];
+				ei.attacked[US] |= Bitboards::pawn_attacks[US][sq];
 			}
 			
 			File kf = file_of(ei.ksq[US]);
