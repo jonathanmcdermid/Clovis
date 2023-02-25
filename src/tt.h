@@ -23,13 +23,6 @@ namespace Clovis {
 
 	struct TTEntry {
 		TTEntry(Key k = 0ULL, int d = 0, HashFlag f = HASH_NONE, int e = 0, Move m = MOVE_NONE) : key(k), depth(d), flags(f), eval(e), move(m) {};
-		void operator=(const TTEntry& rhs){
-			key = rhs.key;
-			depth = rhs.depth;
-			eval = rhs.eval;
-			flags = rhs.flags;
-			move = rhs.move;
-		};
 		Key key;        // 8 bytes
 		uint8_t depth;  // 1 byte
 		uint8_t flags;  // 1 byte
