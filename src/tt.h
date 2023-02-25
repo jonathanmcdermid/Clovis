@@ -13,10 +13,6 @@ namespace Clovis {
 	struct KingZone {
 		KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
 		constexpr KingZone(Bitboard outer, Bitboard inner) : outer_ring(outer), inner_ring(inner) { ; }
-		void operator=(const KingZone& rhs) {
-			this->outer_ring = rhs.outer_ring;
-			this->inner_ring = rhs.inner_ring;
-		}
 		Bitboard outer_ring;
 		Bitboard inner_ring;
 	};
