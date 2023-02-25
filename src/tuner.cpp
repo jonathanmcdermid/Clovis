@@ -19,114 +19,76 @@ namespace Clovis {
 		inline double sigmoid(double K, double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
 		}
+
+		template<typename T>
+		void add_param(T t, TraceIndex ti)
+		{
+			if constexpr (is_same<T, Score>())
+			{
+				assert(ti < TI_SAFETY);
+				params[ti][MG] = (double) t.mg;
+				params[ti][EG] = (double) t.eg;
+			}
+			else
+			{
+				static_assert(is_same<T, short>());
+				assert(ti >= TI_SAFETY);
+				params[ti][MG] = (double) t;
+				params[ti][EG] = 0.0;
+			}
+		}
 		
 		void init_params()
 		{
 			using namespace Eval;
 			
 			for (Square sq = SQ_ZERO; sq < int(sizeof(pawn_table) / sizeof(Score)); ++sq)
-			{
-				params[PAWN_PSQT + sq][MG] = (double) pawn_table[sq].mg;
-				params[PAWN_PSQT + sq][EG] = (double) pawn_table[sq].eg;
-			}
+				add_param<Score>(pawn_table[sq], TraceIndex(PAWN_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(knight_table) / sizeof(Score)); ++sq)
-			{
-				params[KNIGHT_PSQT + sq][MG] = (double) knight_table[sq].mg;
-				params[KNIGHT_PSQT + sq][EG] = (double) knight_table[sq].eg;
-			}
+				add_param<Score>(knight_table[sq], TraceIndex(KNIGHT_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(bishop_table) / sizeof(Score)); ++sq)
-			{
-				params[BISHOP_PSQT + sq][MG] = (double) bishop_table[sq].mg;
-				params[BISHOP_PSQT + sq][EG] = (double) bishop_table[sq].eg;
-			}
+				add_param<Score>(bishop_table[sq], TraceIndex(BISHOP_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(rook_table) / sizeof(Score)); ++sq)
-			{
-				params[ROOK_PSQT + sq][MG] = (double) rook_table[sq].mg;
-				params[ROOK_PSQT + sq][EG] = (double) rook_table[sq].eg;
-			}
+				add_param<Score>(rook_table[sq], TraceIndex(ROOK_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(queen_table) / sizeof(Score)); ++sq)
-			{
-				params[QUEEN_PSQT + sq][MG] = (double) queen_table[sq].mg;
-				params[QUEEN_PSQT + sq][EG] = (double) queen_table[sq].eg;
-			}
+				add_param<Score>(queen_table[sq], TraceIndex(QUEEN_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(king_table) / sizeof(Score)); ++sq)
-			{
-				params[KING_PSQT + sq][MG] = (double) king_table[sq].mg;
-				params[KING_PSQT + sq][EG] = (double) king_table[sq].eg;
-			}
+				add_param<Score>(king_table[sq], TraceIndex(KING_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(passed_pawn) / sizeof(Score)); ++sq)
-			{
-				params[PASSED_PAWN + sq][MG] = (double) passed_pawn[sq].mg;
-				params[PASSED_PAWN + sq][EG] = (double) passed_pawn[sq].eg;
-			}
+				add_param<Score>(passed_pawn[sq], TraceIndex(PASSED_PAWN + sq));
 			for (Rank r = RANK_1; r < int(sizeof(candidate_passer) / sizeof(Score)); ++r)
-			{
-				params[CANDIDATE_PASSER + r][MG] = (double) candidate_passer[r].mg;
-				params[CANDIDATE_PASSER + r][EG] = (double) candidate_passer[r].eg;
-			}
+				add_param<Score>(candidate_passer[r], TraceIndex(CANDIDATE_PASSER + r));
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-			{
-				params[MOBILITY + pt][MG] = (double) mobility[pt].mg;
-				params[MOBILITY + pt][EG] = (double) mobility[pt].eg;
-			}
+				add_param<Score>(mobility[pt], TraceIndex(MOBILITY + pt));
 			
-			params[DOUBLE_PAWN][MG] = double_pawn_penalty.mg;
-			params[DOUBLE_PAWN][EG] = double_pawn_penalty.eg;
-			params[ISOLATED_PAWN][MG] = isolated_pawn_penalty.mg;
-			params[ISOLATED_PAWN][EG] = isolated_pawn_penalty.eg;
-			params[BISHOP_PAIR][MG] = bishop_pair_bonus.mg;
-			params[BISHOP_PAIR][EG] = bishop_pair_bonus.eg;
-			params[ROOK_FULL][MG] = rook_open_file_bonus.mg;
-			params[ROOK_FULL][EG] = rook_open_file_bonus.eg;
-			params[ROOK_SEMI][MG] = rook_semi_open_file_bonus.mg;
-			params[ROOK_SEMI][EG] = rook_semi_open_file_bonus.eg;
-			params[ROOK_CLOSED][MG] = rook_closed_file_penalty.mg;
-			params[ROOK_CLOSED][EG] = rook_closed_file_penalty.eg;
-			params[TEMPO][MG] = tempo_bonus.mg;
-			params[TEMPO][EG] = tempo_bonus.eg;
-			params[KING_FULL][MG] = king_full_open_penalty.mg;
-			params[KING_FULL][EG] = king_full_open_penalty.eg;
-			params[KING_SEMI][MG] = king_semi_open_penalty.mg;
-			params[KING_SEMI][EG] = king_semi_open_penalty.eg;
-			params[KING_ADJ_FULL][MG] = king_adjacent_full_open_penalty.mg;
-			params[KING_ADJ_FULL][EG] = king_adjacent_full_open_penalty.eg;
-			params[KING_ADJ_SEMI][MG] = king_adjacent_semi_open_penalty.mg;
-			params[KING_ADJ_SEMI][EG] = king_adjacent_semi_open_penalty.eg;
-			params[KNIGHT_OUTPOST][MG] = knight_outpost_bonus.mg;
-			params[KNIGHT_OUTPOST][EG] = knight_outpost_bonus.eg;
-			params[BISHOP_OUTPOST][MG] = bishop_outpost_bonus.mg;
-			params[BISHOP_OUTPOST][EG] = bishop_outpost_bonus.eg;
-			params[WEAK_QUEEN][MG] = weak_queen_penalty.mg;
-			params[WEAK_QUEEN][EG] = weak_queen_penalty.eg;
-			params[ROOK_OUR_PASSER][MG] = rook_on_our_passer_file.mg;
-			params[ROOK_OUR_PASSER][EG] = rook_on_our_passer_file.eg;
-			params[ROOK_THEIR_PASSER][MG] = rook_on_their_passer_file.mg;
-			params[ROOK_THEIR_PASSER][EG] = rook_on_their_passer_file.eg;
-			params[TALL_PAWN][MG] = tall_pawn_penalty.mg;
-			params[TALL_PAWN][EG] = tall_pawn_penalty.eg;
-			params[FIANCHETTO][MG] = fianchetto_bonus.mg;
-			params[FIANCHETTO][EG] = fianchetto_bonus.eg;
-			params[ROOK_ON_SEVENTH][MG] = rook_on_seventh.mg;
-			params[ROOK_ON_SEVENTH][EG] = rook_on_seventh.eg;
+			add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
+			add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
+			add_param<Score>(bishop_pair_bonus, BISHOP_PAIR);
+			add_param<Score>(rook_open_file_bonus, ROOK_FULL);
+			add_param<Score>(rook_semi_open_file_bonus, ROOK_SEMI);
+			add_param<Score>(rook_closed_file_penalty, ROOK_CLOSED);
+			add_param<Score>(tempo_bonus, TEMPO);
+			add_param<Score>(king_full_open_penalty, KING_FULL);
+			add_param<Score>(king_semi_open_penalty, KING_SEMI);
+			add_param<Score>(king_adjacent_full_open_penalty, KING_ADJ_FULL);
+			add_param<Score>(king_adjacent_semi_open_penalty, KING_ADJ_SEMI);
+			add_param<Score>(knight_outpost_bonus, KNIGHT_OUTPOST);
+			add_param<Score>(bishop_outpost_bonus, BISHOP_OUTPOST);
+			add_param<Score>(weak_queen_penalty, WEAK_QUEEN);
+			add_param<Score>(rook_on_our_passer_file, ROOK_OUR_PASSER);
+			add_param<Score>(rook_on_their_passer_file, ROOK_THEIR_PASSER);
+			add_param<Score>(tall_pawn_penalty, TALL_PAWN);
+			add_param<Score>(fianchetto_bonus, FIANCHETTO);
+			add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
 			
 			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-			{
-				params[SAFETY_PAWN_SHIELD + sq][MG] = (double) pawn_shield[sq];
-				params[SAFETY_PAWN_SHIELD + sq][EG] = 0.0;
-			}
+				add_param<short>(pawn_shield[sq], TraceIndex(SAFETY_PAWN_SHIELD + sq));
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-			{
-				params[SAFETY_INNER_RING + pt][MG] = (double) inner_ring_attack[pt];
-				params[SAFETY_INNER_RING + pt][EG] = 0.0;
-			}
+				add_param<short>(inner_ring_attack[pt], TraceIndex(SAFETY_INNER_RING + pt));
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-			{
-				params[SAFETY_OUTER_RING + pt][MG] = (double) outer_ring_attack[pt];
-				params[SAFETY_OUTER_RING + pt][EG] = 0.0;
-			}
+				add_param<short>(outer_ring_attack[pt], TraceIndex(SAFETY_OUTER_RING + pt));
 			
-			params[SAFETY_VIRTUAL_MOBILITY][MG] = virtual_mobility;
-			params[SAFETY_VIRTUAL_MOBILITY][EG] = 0.0;
+			add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
 		}
 		
 		double linear_eval(TEntry* entry, TGradient* tg) 
