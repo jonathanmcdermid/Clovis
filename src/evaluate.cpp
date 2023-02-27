@@ -328,12 +328,9 @@ namespace Clovis {
                       		&  ~ei.attacked_twice[~US]
                       		& (~ei.attacked[~US] | ei.attacked_by[~US][QUEEN] | Bitboards::king_attacks[ei.ksq[~US]]);
 				
-				ei.weight[US] += + weak_inner_square * popcnt(weak & king_zones[ei.ksq[~US]].inner_ring);
-				ei.weight[US] += + weak_outer_square * popcnt(weak & king_zones[ei.ksq[~US]].outer_ring);
+				ei.weight[US] += + weak_square * popcnt(weak & king_zones[ei.ksq[~US]].inner_ring);
 
-
-				if constexpr (TRACE) T[SAFETY_WEAK_INNER_SQUARE][US] = popcnt(weak & king_zones[ei.ksq[~US]].inner_ring);
-				if constexpr (TRACE) T[SAFETY_WEAK_OUTER_SQUARE][US] = popcnt(weak & king_zones[ei.ksq[~US]].outer_ring);
+				if constexpr (TRACE) T[SAFETY_WEAK_SQUARE][US] = popcnt(weak & king_zones[ei.ksq[~US]].inner_ring);
 
 				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
 
