@@ -11,25 +11,14 @@ namespace Clovis {
 
 		struct EvalInfo : public PTEntry {
 			EvalInfo(PTEntry pte) : PTEntry(pte) {
-				attacked[WHITE] = pawn_attacks[WHITE] | Bitboards::king_attacks[ksq[WHITE]];
-				attacked[BLACK] = pawn_attacks[BLACK] | Bitboards::king_attacks[ksq[BLACK]];
+				n_att[WHITE] = 0;
+				n_att[BLACK] = 0;
 			}
 			void clear() { 
 				PTEntry::clear();
 				n_att[WHITE] = 0;
 				n_att[BLACK] = 0;
-				attacked[WHITE] = 0ULL;
-				attacked[BLACK] = 0ULL;
-				attacked_twice[WHITE] = 0ULL;
-				attacked_twice[BLACK] = 0ULL;
-				for (PieceType pt = PAWN; pt <= KING; ++pt)
-				{
-					attacked_by[WHITE][pt] = 0ULL;
-					attacked_by[BLACK][pt] = 0ULL;
-				}
 			}
-			Bitboard attacked[COLOUR_N] = {0ULL};
-			Bitboard attacked_by[COLOUR_N][7] = {0};
 			short n_att[COLOUR_N] = {0};
 		};
 	
@@ -147,8 +136,7 @@ namespace Clovis {
 			0, 3, 24, 5, 7, 18, 0,
 		};
 
-		constexpr short virtual_mobility = 14;
-		constexpr short weak_square = 0;
+		constexpr short virtual_mobility = 14;	
 		constexpr short attack_factor = 85;
 
 #undef S
