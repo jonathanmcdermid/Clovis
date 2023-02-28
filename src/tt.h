@@ -35,10 +35,9 @@ namespace Clovis {
 		void clear() { *this = {}; }
 		Score score;
 		Key key = 0ULL;
-		Bitboard pawn_attacks[COLOUR_N] = {0ULL};
+		Bitboard attacks[COLOUR_N] = {0ULL};
 		Bitboard passers[COLOUR_N] = {0ULL};
-		Bitboard potential_pawn_attacks[COLOUR_N] = {0ULL};
-		Bitboard attacked_twice[COLOUR_N] = {0ULL};
+		Bitboard potential_attacks[COLOUR_N] = {0ULL};
 		Square ksq [COLOUR_N] = {SQ_NONE};
 		short weight[COLOUR_N] = {0};
 	};
