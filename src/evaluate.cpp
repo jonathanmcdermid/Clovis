@@ -142,7 +142,7 @@ namespace Clovis {
 		template<Colour US>
 		constexpr bool is_outpost(Square sq, EvalInfo& ei) 
 		{
-			return (outpost_masks[US] & sq & ~ei.potential_attacks[~US] & ei.attacks[US]);
+			return (outpost_masks[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US]);
 		}
 		
 		template<Colour US>
@@ -177,7 +177,7 @@ namespace Clovis {
 			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[relative_square(US, sq)]][US];
 		}
 		
-		template<Colour US, PieceType PT, bool SAFE, bool TRACE>
+		template<Colour US, PieceType PT, bool SAFETY, bool TRACE>
 		Score evaluate_majors(const Position& pos, EvalInfo& ei)
 		{
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
@@ -196,13 +196,13 @@ namespace Clovis {
 				sq = pop_lsb(bb);
 				score += *score_table[make_piece(PT, US)][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
-				Bitboard safe_attacks = attacks & ~ei.attacks[~US];
+				Bitboard safe_attacks = attacks & ~ei.pawn_attacks[~US];
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
 				if constexpr (TRACE) psqt_trace<US, PT>(sq);
+				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
 				if constexpr (TRACE) T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
-
 				if constexpr (PT == KNIGHT)
 				{
 					if (is_outpost<US>(sq, ei))
@@ -281,8 +281,6 @@ namespace Clovis {
 						if constexpr (TRACE) --T[WEAK_QUEEN][US];
 					}
 				}
-				if constexpr (!SAFE)
-					king_danger<US, PT, TRACE>(safe_attacks, ei);
 			}
 
 			return score;
@@ -295,15 +293,15 @@ namespace Clovis {
 
 			if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8)
 			{
-				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, ei);
-				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, ei);
-				score += evaluate_majors<US, ROOK,   false, TRACE>(pos, ei);
-				score += evaluate_majors<US, QUEEN,  false, TRACE>(pos, ei);
+				score += evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei);
+				score += evaluate_majors<US, BISHOP, true, TRACE>(pos, ei);
+				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, ei);
+				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, ei);
 
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(ei.n_att[US] < 10);
 
-				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.attacks[~US]);
+				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
 
 				if (mob > 4)
 				{
@@ -320,10 +318,10 @@ namespace Clovis {
 			}
 			else
 			{
-				score += evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei);
-				score += evaluate_majors<US, BISHOP, true, TRACE>(pos, ei);
-				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, ei);
-				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, ei);
+				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, ei);
+				score += evaluate_majors<US, BISHOP, false, TRACE>(pos, ei);
+				score += evaluate_majors<US, ROOK,   false, TRACE>(pos, ei);
+				score += evaluate_majors<US, QUEEN,  false, TRACE>(pos, ei);
 				
 				if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
 			}
@@ -376,9 +374,8 @@ namespace Clovis {
 
 				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), ei);
 
-				ei.attacks[US] |= Bitboards::pawn_attacks[US][sq];
-
-				ei.potential_attacks[US] |= outpost_pawn_masks[US][sq];
+				ei.pawn_attacks[US] |= Bitboards::pawn_attacks[US][sq];
+				ei.potential_pawn_attacks[US] |= outpost_pawn_masks[US][sq];
 			}
 			
 			File kf = file_of(ei.ksq[US]);
