@@ -91,7 +91,8 @@ namespace Clovis {
 				}
 				
 				cout << passes << " tests passed!" << endl
-					 << fails  << " tests failed!" << endl;
+				     << fails  << " tests failed!" << endl;
+
 				Search::clear();
 			}
 		}

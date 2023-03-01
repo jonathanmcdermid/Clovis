@@ -64,7 +64,7 @@ namespace Clovis {
 					 << " nps: "	 << setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
 			}
 
-			cout << total_nodes << " nodes " << 1000ULL * total_nodes / (total_time + 1) << " nps " << total_time << " ms" << endl;
+			cout << "bench: " << total_nodes << " nps: " << 1000ULL * total_nodes / (total_time + 1) << " time: " << total_time << " ms" << endl;
 
 			return total_time;
 		}
