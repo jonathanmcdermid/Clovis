@@ -6,7 +6,7 @@ namespace Clovis {
 
 	namespace Tuner {
 	
-		typedef double TVector[TI_N][PHASE_N];
+		typedef double TVector[TI_MISC][PHASE_N];
 
 		vector<TEntry> entries;
 		TVector params;
@@ -89,6 +89,7 @@ namespace Clovis {
 				add_param<short>(outer_ring_attack[pt], TraceIndex(SAFETY_OUTER_RING + pt));
 			
 			add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
+			add_param<short>(attack_factor, SAFETY_N_ATT);
 		}
 		
 		double linear_eval(TEntry* entry, TGradient* tg) 
@@ -111,8 +112,8 @@ namespace Clovis {
 			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
 			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
 			
-			safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - Eval::attack_factor * entry->n_att[WHITE]);
-			safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - Eval::attack_factor * entry->n_att[BLACK]);
+			safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE]);
+			safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK]);
 			
 			if (tg)
 			{
@@ -158,10 +159,14 @@ namespace Clovis {
 				}
 				else
 				{
-					gradient[it.index][MG] += (2 * base[MG] / (720.0 - Eval::attack_factor * entry->n_att[WHITE])) * (tg.safety[WHITE] * it.coefficient[WHITE]);
-					gradient[it.index][MG] -= (2 * base[MG] / (720.0 - Eval::attack_factor * entry->n_att[BLACK])) * (tg.safety[BLACK] * it.coefficient[BLACK]);
+					gradient[it.index][MG] += 2 * base[MG] * tg.safety[WHITE] * it.coefficient[WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE]);
+					gradient[it.index][MG] -= 2 * base[MG] * tg.safety[BLACK] * it.coefficient[BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK]);
 				}
 			}
+			
+			gradient[SAFETY_N_ATT][MG] += base[MG] * pow(tg.safety[WHITE], 2.0) / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE], 2.0);
+			gradient[SAFETY_N_ATT][MG] -= base[MG] * pow(tg.safety[BLACK], 2.0) / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK], 2.0);
+			
 		}
 		
 		void compute_gradient(TVector gradient, double K) 
@@ -171,7 +176,7 @@ namespace Clovis {
 			for (int i = 0; i < N_POSITIONS; ++i)
 				update_single_gradient(&entries[i], local, K);
 
-			for (int i = 0; i < TI_N; ++i) 
+			for (int i = 0; i < TI_MISC; ++i) 
 			{
 				gradient[i][MG] += local[i][MG];
 				gradient[i][EG] += local[i][EG];
@@ -233,7 +238,8 @@ namespace Clovis {
 			print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
 			print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 			
-			cout << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << endl;
+			cout << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << endl
+			<< "\t\tconstexpr short attack_factor = "         << round(params[SAFETY_N_ATT][MG])            << ";" << endl;
 		}
 		
 		double find_k()
@@ -325,12 +331,12 @@ namespace Clovis {
 			cout << mse<true>(K) << endl;
 			cout << mse<false>(K) << endl;
 			
-			for (int epoch = 0; epoch < MAX_EPOCHS; ++epoch) 
+			for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch) 
 			{
 				TVector gradient = {0};
 				compute_gradient(gradient, K);
 
-				for (int i = 0; i < TI_N; ++i) 
+				for (int i = 0; i < TI_MISC; ++i) 
 				{
 					adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / 16384, 2.0);
 					adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / 16384, 2.0);

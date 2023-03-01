@@ -218,7 +218,7 @@ namespace Clovis {
 		
 		TI_N,
 
-		SAFETY_N_ATT,
+		SAFETY_N_ATT = TI_N,
 
 		TI_MISC
 	};
