@@ -164,8 +164,8 @@ namespace Clovis {
 				}
 			}
 			
-			gradient[SAFETY_N_ATT][MG] += base[MG] * pow(tg.safety[WHITE], 2.0) / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE], 2.0);
-			gradient[SAFETY_N_ATT][MG] -= base[MG] * pow(tg.safety[BLACK], 2.0) / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK], 2.0);
+			gradient[SAFETY_N_ATT][MG] += base[MG] * pow(tg.safety[WHITE], 2.0) * entry->n_att[WHITE] / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE], 2.0);
+			gradient[SAFETY_N_ATT][MG] -= base[MG] * pow(tg.safety[BLACK], 2.0) * entry->n_att[BLACK] / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK], 2.0);
 			
 		}
 		
