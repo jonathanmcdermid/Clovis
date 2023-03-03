@@ -38,6 +38,30 @@ namespace Clovis {
 		Key side;
 
 	} // namespace Zobrist
+
+	// returns the square that pins a piece if it exists
+	template<Colour US>
+	Square Position::get_pinner(Square sq) const
+	{
+		Square ksq = lsb(pc_bb[make_piece(KING, US)]);
+
+		Bitboard candidates = 
+		 ((Bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) 
+		| (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
+
+		while (candidates)
+		{
+			Square candidate = pop_lsb(candidates);
+			if (between_squares(ksq, candidate) & sq)
+				return candidate;
+		}
+
+		return SQ_NONE;
+	}
+	
+	// explicit template instantiations
+	template Square Position::get_pinner<WHITE>(Square sq) const;
+	template Square Position::get_pinner<BLACK>(Square sq) const;
 	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>

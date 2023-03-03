@@ -206,6 +206,12 @@ namespace Clovis {
 				sq = pop_lsb(bb);
 				score += *score_table[make_piece(PT, US)][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
+
+				Square pinner = pos.get_pinner<US>(sq);
+
+				if (pinner != SQ_NONE)
+					attacks &= between_squares(ei.ksq[US], pinner) | pinner;
+
 				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | worthy_trades<US, PT>(pos));
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
