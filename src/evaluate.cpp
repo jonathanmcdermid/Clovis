@@ -170,11 +170,21 @@ namespace Clovis {
 		void psqt_trace(Square sq)
 		{
 			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
-			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[relative_square(US, sq)]][US];
-			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[relative_square(US, sq)]][US];
-			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[relative_square(US, sq)]][US];
+			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
+			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
+			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[sq]][US];
 			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
-			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[relative_square(US, sq)]][US];
+			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[sq]][US];
+		}
+
+		template<Colour US, PieceType PT>
+		Bitboard worthy_trades(const Position& pos)
+		{
+			static_assert(PT >= KNIGHT && PT <= QUEEN);
+
+			return (PT == QUEEN)  ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US) ]
+			     : (PT == ROOK)   ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)] | pos.pc_bb[make_piece(ROOK, ~US)]
+			     : pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, ~US)];
 		}
 		
 		template<Colour US, PieceType PT, bool SAFETY, bool TRACE>
@@ -196,12 +206,12 @@ namespace Clovis {
 				sq = pop_lsb(bb);
 				score += *score_table[make_piece(PT, US)][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
-				Bitboard safe_attacks = attacks & ~ei.pawn_attacks[~US];
+				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | worthy_trades<US, PT>(pos));
 
 				score += mobility[PT] * popcnt(safe_attacks & ~pos.occ_bb[US]);
 
-				if constexpr (TRACE) psqt_trace<US, PT>(sq);
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
+				if constexpr (TRACE) psqt_trace<US, PT>(sq);
 				if constexpr (TRACE) T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]);
 				if constexpr (PT == KNIGHT)
 				{
