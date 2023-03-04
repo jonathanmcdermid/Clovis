@@ -214,11 +214,11 @@ namespace Clovis {
 
 				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | worthy_trades<US, PT>(pos));
 
-				score += mobility[PT] * (popcnt(safe_attacks & ~pos.occ_bb[US]) + 4 * popcnt(safe_attacks & pos.occ_bb[~US]));
+				score += mobility[PT] * (popcnt(safe_attacks & ~pos.occ_bb[BOTH]) + 5 * popcnt(safe_attacks & pos.occ_bb[~US]));
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
 				if constexpr (TRACE) psqt_trace<US, PT>(sq);
-				if constexpr (TRACE) T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[US]) + 4 * popcnt(safe_attacks & pos.occ_bb[~US]);
+				if constexpr (TRACE) T[MOBILITY + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[BOTH]) + 5 * popcnt(safe_attacks & pos.occ_bb[~US]);
 				if constexpr (PT == KNIGHT)
 				{
 					if (is_outpost<US>(sq, ei))
