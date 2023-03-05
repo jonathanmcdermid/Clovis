@@ -13,7 +13,7 @@ namespace Clovis {
 
 		void init_eval()
 		{
-			for (auto pt : {PAWN, QUEEN})
+			for (auto pt : {PAWN})
 			{
  				for (Square sq = SQ_ZERO; sq < 32; ++sq)
 				{
@@ -29,7 +29,7 @@ namespace Clovis {
 				}
 			}
 			
-			for (auto pt : {KNIGHT, BISHOP, ROOK, KING})
+			for (auto pt : {KNIGHT, BISHOP, ROOK, QUEEN, KING})
 			{
  				for (Square sq = SQ_ZERO; sq < 16; ++sq)
 				{
@@ -173,7 +173,7 @@ namespace Clovis {
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
 			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
 			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[sq]][US];
-			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source16[sq]][US];
 			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[sq]][US];
 		}
 
