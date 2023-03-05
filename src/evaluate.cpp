@@ -4,29 +4,27 @@ namespace Clovis {
 
 	namespace Eval {
 
-		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
+		const Score* piece_table[7] = { NULL, pawn_psqt, knight_psqt, bishop_psqt, rook_psqt, queen_psqt, king_psqt };
 		const Score* passed_table[COLOUR_N][SQ_N];
 		const short* shield_table[COLOUR_N][SQ_N];
-		const Score* score_table[15][SQ_N];
+		const Score* major_table[7][SQ_N];
+		const Score* pawn_table[COLOUR_N][SQ_N];
 
 		int T[TI_MISC][PHASE_N];
 
 		void init_eval()
 		{
-			for (auto pt : {PAWN})
+			for (Square sq = SQ_ZERO; sq < 32; ++sq)
 			{
- 				for (Square sq = SQ_ZERO; sq < 32; ++sq)
-				{
-					int r = sq / 4;
-					int f = sq & 0x3;
-					
-					// horizontal mirror
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
+				int r = sq / 4;
+				int f = sq & 0x3;
+				
+				// horizontal mirror
+				pawn_table[WHITE][((7 - r) << 3) + f]       = &pawn_psqt[sq];
+				pawn_table[WHITE][((7 - r) << 3) + (7 - f)] = &pawn_psqt[sq];
 
-					score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
-					score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
-				}
+				pawn_table[BLACK][(r << 3) + f]             = &pawn_psqt[sq];
+				pawn_table[BLACK][(r << 3) + (7 - f)]       = &pawn_psqt[sq];
 			}
 			
 			for (auto pt : {KNIGHT, BISHOP, ROOK, QUEEN, KING})
@@ -37,18 +35,12 @@ namespace Clovis {
 					int f = sq & 0x3;
 					
 					// horizontal mirror
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
+					major_table[pt][((7 - r) << 3) + f]       = &piece_table[pt][sq];
+					major_table[pt][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
 
-					score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
-					score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
-						
 					// vertical mirror
-					score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + f)]       = &piece_table[pt][sq];
-					score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + (7 - f))] = &piece_table[pt][sq];
-
-					score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + f)]             = &piece_table[pt][sq];
-					score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + (7 - f))]       = &piece_table[pt][sq];
+					major_table[pt][56 ^ (((7 - r) << 3) + f)]       = &piece_table[pt][sq];
+					major_table[pt][56 ^ (((7 - r) << 3) + (7 - f))] = &piece_table[pt][sq];				
 				}
 			}
 			
@@ -62,27 +54,18 @@ namespace Clovis {
 					if (r >= f) 
 					{
 						// horizontal mirror
-						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + f]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + (7 - f)] = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][r * 8 + f]             = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][r * 8 + (7 - f)]       = &piece_table[pt][sq];
+						score_table[pt][(7 - r) * 8 + f]       = &piece_table[pt][sq];
+						score_table[pt][(7 - r) * 8 + (7 - f)] = &piece_table[pt][sq];
 
 						// vertical mirror
-						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + f)]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + (7 - f))] = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + f)]             = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + (7 - f))]       = &piece_table[pt][sq];
+						score_table[pt][56 ^ ((7 - r) * 8 + f)]       = &piece_table[pt][sq];
+						score_table[pt][56 ^ ((7 - r) * 8 + (7 - f))] = &piece_table[pt][sq];
 
 						// diagonal mirror
-						score_table[make_piece(pt, WHITE)][f * 8 + r]           = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
-								
-						score_table[make_piece(pt, BLACK)][f * 8 + r]           = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
+						score_table[pt][f * 8 + r]           = &piece_table[pt][sq];
+						score_table[pt][f * 8 + 7 - r]       = &piece_table[pt][sq];
+						score_table[pt][(7 - f) * 8 + r]     = &piece_table[pt][sq];
+						score_table[pt][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
 					}
 				}
 			}
@@ -204,7 +187,7 @@ namespace Clovis {
 			while (bb)
 			{
 				sq = pop_lsb(bb);
-				score += *score_table[make_piece(PT, US)][sq];
+				score += *major_table[PT][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
 
 				Square pinner = pos.get_pinner<US>(sq);
@@ -361,7 +344,7 @@ namespace Clovis {
 
 				if constexpr (TRACE) psqt_trace<US, PAWN>(sq);
 
-				score += *score_table[OUR_PAWN][sq];
+				score += *pawn_table[US][sq];
 
 				if (is_doubled_pawn(pos.pc_bb[OUR_PAWN], sq))
 				{
@@ -454,7 +437,7 @@ namespace Clovis {
 				}
 			}
 			
-			score += *score_table[make_piece(KING, US)][ei.ksq[US]];
+			score += *major_table[KING][ei.ksq[US]];
 			
 			if constexpr (TRACE) psqt_trace<US, KING>(ei.ksq[US]);
 

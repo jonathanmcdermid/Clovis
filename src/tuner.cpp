@@ -42,18 +42,18 @@ namespace Clovis {
 		{
 			using namespace Eval;
 			
-			for (Square sq = SQ_ZERO; sq < int(sizeof(pawn_table) / sizeof(Score)); ++sq)
-				add_param<Score>(pawn_table[sq], TraceIndex(PAWN_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(knight_table) / sizeof(Score)); ++sq)
-				add_param<Score>(knight_table[sq], TraceIndex(KNIGHT_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(bishop_table) / sizeof(Score)); ++sq)
-				add_param<Score>(bishop_table[sq], TraceIndex(BISHOP_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(rook_table) / sizeof(Score)); ++sq)
-				add_param<Score>(rook_table[sq], TraceIndex(ROOK_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(queen_table) / sizeof(Score)); ++sq)
-				add_param<Score>(queen_table[sq], TraceIndex(QUEEN_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(king_table) / sizeof(Score)); ++sq)
-				add_param<Score>(king_table[sq], TraceIndex(KING_PSQT + sq));
+			for (Square sq = SQ_ZERO; sq < int(sizeof(pawn_psqt) / sizeof(Score)); ++sq)
+				add_param<Score>(pawn_psqt[sq], TraceIndex(PAWN_PSQT + sq));
+			for (Square sq = SQ_ZERO; sq < int(sizeof(knight_psqt) / sizeof(Score)); ++sq)
+				add_param<Score>(knight_psqt[sq], TraceIndex(KNIGHT_PSQT + sq));
+			for (Square sq = SQ_ZERO; sq < int(sizeof(bishop_psqt) / sizeof(Score)); ++sq)
+				add_param<Score>(bishop_psqt[sq], TraceIndex(BISHOP_PSQT + sq));
+			for (Square sq = SQ_ZERO; sq < int(sizeof(rook_psqt) / sizeof(Score)); ++sq)
+				add_param<Score>(rook_psqt[sq], TraceIndex(ROOK_PSQT + sq));
+			for (Square sq = SQ_ZERO; sq < int(sizeof(queen_psqt) / sizeof(Score)); ++sq)
+				add_param<Score>(queen_psqt[sq], TraceIndex(QUEEN_PSQT + sq));
+			for (Square sq = SQ_ZERO; sq < int(sizeof(king_psqt) / sizeof(Score)); ++sq)
+				add_param<Score>(king_psqt[sq], TraceIndex(KING_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(passed_pawn) / sizeof(Score)); ++sq)
 				add_param<Score>(passed_pawn[sq], TraceIndex(PASSED_PAWN + sq));
 			for (Rank r = RANK_1; r < int(sizeof(candidate_passer) / sizeof(Score)); ++r)
@@ -204,12 +204,12 @@ namespace Clovis {
 		{
 			using namespace Eval;
 			
-			print_table("pawn_table",       PAWN_PSQT,        sizeof(pawn_table)       / sizeof(Score), 4);
-			print_table("knight_table",     KNIGHT_PSQT,      sizeof(knight_table)     / sizeof(Score), 4);
-			print_table("bishop_table",     BISHOP_PSQT,      sizeof(bishop_table)     / sizeof(Score), 4);
-			print_table("rook_table",       ROOK_PSQT,        sizeof(rook_table)       / sizeof(Score), 4);
-			print_table("queen_table",      QUEEN_PSQT,       sizeof(queen_table)      / sizeof(Score), 4);
-			print_table("king_table",       KING_PSQT,        sizeof(king_table)       / sizeof(Score), 4);
+			print_table("pawn_psqt",        PAWN_PSQT,        sizeof(pawn_psqt)        / sizeof(Score), 4);
+			print_table("knight_psqt",      KNIGHT_PSQT,      sizeof(knight_psqt)      / sizeof(Score), 4);
+			print_table("bishop_psqt",      BISHOP_PSQT,      sizeof(bishop_psqt)      / sizeof(Score), 4);
+			print_table("rook_psqt",        ROOK_PSQT,        sizeof(rook_psqt)        / sizeof(Score), 4);
+			print_table("queen_psqt",       QUEEN_PSQT,       sizeof(queen_psqt)       / sizeof(Score), 4);
+			print_table("king_psqt",        KING_PSQT,        sizeof(king_psqt)        / sizeof(Score), 4);
 			print_table("passed_pawn",      PASSED_PAWN,      sizeof(passed_pawn)      / sizeof(Score), 4);
 			print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
 			print_table("mobility", MOBILITY, 7, 7);

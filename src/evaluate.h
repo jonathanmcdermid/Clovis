@@ -24,7 +24,7 @@ namespace Clovis {
 	
 #define S(mg, eg) Score(mg, eg)
 
-        	constexpr Score pawn_table[] = {
+        	constexpr Score pawn_psqt[] = {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 			S(119, 297), S(165, 275), S(172, 247), S(183, 234),
 			S(83, 92), S(102, 86), S(125, 81), S(122, 65),
@@ -35,35 +35,35 @@ namespace Clovis {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
-		constexpr Score knight_table[] = {
+		constexpr Score knight_psqt[] = {
 			S(250, 194), S(333, 194), S(314, 222), S(334, 221),
 			S(324, 206), S(319, 227), S(352, 222), S(352, 232),
 			S(337, 212), S(356, 221), S(359, 227), S(363, 236),
 			S(336, 224), S(339, 234), S(356, 239), S(353, 246),
 		};
 
-		constexpr Score bishop_table[] = {
+		constexpr Score bishop_psqt[] = {
 			S(327, 231), S(343, 237), S(345, 234), S(344, 239),
 			S(332, 233), S(364, 221), S(360, 234), S(359, 238),
 			S(338, 240), S(360, 236), S(369, 237), S(359, 242),
 			S(335, 241), S(337, 241), S(349, 241), S(356, 239),
 		};
 
-		constexpr Score rook_table[] = {
+		constexpr Score rook_psqt[] = {
 			S(460, 434), S(451, 443), S(462, 440), S(463, 438),
 			S(432, 444), S(449, 440), S(459, 438), S(468, 433),
 			S(438, 442), S(455, 442), S(458, 437), S(457, 438),
 			S(434, 448), S(447, 443), S(456, 445), S(460, 439),
 		};
 
-		constexpr Score queen_table[] = {
+		constexpr Score queen_psqt[] = {
 			S(878, 849), S(867, 864), S(868, 870), S(883, 857),
 			S(866, 857), S(856, 871), S(893, 854), S(884, 874),
 			S(873, 867), S(887, 857), S(878, 878), S(875, 883),
 			S(869, 873), S(858, 898), S(865, 885), S(864, 897),
 		};
 
-		constexpr Score king_table[] = {
+		constexpr Score king_psqt[] = {
 			S(72, 13), S(106, 35), S(65, 60), S(72, 56),
 			S(83, 40), S(112, 53), S(78, 75), S(50, 87),
 			S(55, 54), S(93, 69), S(76, 84), S(66, 93),
