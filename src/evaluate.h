@@ -26,73 +26,73 @@ namespace Clovis {
 
         	constexpr Score pawn_psqt[] = {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(119, 296), S(164, 275), S(172, 246), S(182, 233),
-			S(82, 92), S(101, 86), S(124, 81), S(119, 65),
-			S(67, 81), S(86, 75), S(89, 75), S(105, 67),
-			S(55, 74), S(66, 74), S(78, 72), S(96, 67),
-			S(61, 68), S(72, 69), S(76, 73), S(77, 77),
-			S(55, 70), S(76, 69), S(71, 81), S(69, 82),
+			S(119, 297), S(165, 275), S(172, 247), S(183, 234),
+			S(83, 92), S(102, 86), S(125, 81), S(122, 65),
+			S(68, 81), S(87, 75), S(91, 75), S(106, 66),
+			S(55, 74), S(66, 74), S(79, 72), S(97, 67),
+			S(62, 68), S(72, 69), S(76, 73), S(77, 78),
+			S(55, 70), S(76, 70), S(70, 82), S(67, 84),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score knight_psqt[] = {
-			S(250, 193), S(333, 195), S(314, 221), S(334, 220),
-			S(324, 205), S(319, 226), S(353, 221), S(354, 230),
-			S(336, 212), S(357, 220), S(359, 226), S(364, 235),
-			S(335, 223), S(339, 234), S(355, 238), S(353, 245),
+			S(250, 194), S(333, 194), S(314, 222), S(334, 221),
+			S(324, 206), S(319, 227), S(352, 222), S(352, 232),
+			S(337, 212), S(356, 221), S(359, 227), S(363, 236),
+			S(336, 224), S(339, 234), S(356, 239), S(353, 246),
 		};
 
 		constexpr Score bishop_psqt[] = {
-			S(327, 231), S(342, 236), S(345, 234), S(344, 238),
-			S(331, 232), S(364, 221), S(361, 233), S(361, 236),
-			S(338, 239), S(360, 235), S(369, 236), S(359, 241),
-			S(334, 241), S(337, 240), S(348, 240), S(356, 238),
+			S(327, 231), S(343, 237), S(345, 234), S(344, 239),
+			S(332, 233), S(364, 221), S(360, 234), S(359, 238),
+			S(338, 240), S(360, 236), S(369, 237), S(359, 242),
+			S(335, 241), S(337, 241), S(349, 241), S(356, 239),
 		};
 
 		constexpr Score rook_psqt[] = {
-			S(460, 433), S(452, 441), S(462, 438), S(464, 436),
-			S(433, 443), S(450, 439), S(460, 436), S(469, 432),
-			S(438, 440), S(456, 441), S(459, 436), S(457, 436),
-			S(434, 447), S(447, 442), S(456, 443), S(461, 438),
+			S(460, 434), S(451, 443), S(462, 440), S(463, 438),
+			S(432, 444), S(449, 440), S(459, 438), S(468, 433),
+			S(438, 442), S(455, 442), S(458, 437), S(457, 438),
+			S(434, 448), S(447, 443), S(456, 445), S(460, 439),
 		};
 
 		constexpr Score queen_psqt[] = {
-			S(878, 847), S(866, 861), S(866, 867), S(880, 854),
-			S(870, 851), S(860, 864), S(893, 850), S(884, 869),
-			S(876, 861), S(889, 851), S(880, 871), S(878, 876),
-			S(875, 864), S(863, 889), S(870, 876), S(868, 886),
+			S(878, 849), S(867, 864), S(868, 870), S(883, 857),
+			S(866, 857), S(856, 871), S(893, 854), S(884, 874),
+			S(873, 867), S(887, 857), S(878, 878), S(875, 883),
+			S(869, 873), S(858, 898), S(865, 885), S(864, 897),
 		};
 
 		constexpr Score king_psqt[] = {
-			S(73, 13), S(106, 35), S(64, 60), S(71, 56),
-			S(83, 40), S(111, 53), S(77, 75), S(50, 87),
-			S(55, 54), S(94, 69), S(76, 84), S(65, 92),
-			S(19, 58), S(68, 78), S(54, 95), S(34, 104),
+			S(72, 13), S(106, 35), S(65, 60), S(72, 56),
+			S(83, 40), S(112, 53), S(78, 75), S(50, 87),
+			S(55, 54), S(93, 69), S(76, 84), S(66, 93),
+			S(19, 58), S(68, 78), S(53, 95), S(34, 104),
 		};
 
 		constexpr Score passed_pawn[] = {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(13, 127), S(2, 122), S(16, 96), S(11, 90),
-			S(13, 65), S(6, 64), S(11, 44), S(5, 36),
-			S(10, 37), S(0, 36), S(0, 20), S(0, 18),
+			S(13, 127), S(2, 123), S(16, 96), S(10, 90),
+			S(13, 66), S(6, 64), S(10, 44), S(5, 36),
+			S(11, 37), S(0, 36), S(0, 20), S(0, 18),
 			S(4, 14), S(0, 16), S(0, 5), S(0, 3),
-			S(0, 14), S(0, 11), S(6, 0), S(0, 4),
+			S(0, 14), S(0, 11), S(6, 0), S(0, 3),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score candidate_passer[] = {
-			S(0, 0), S(0, 2), S(0, 4), S(6, 18), S(12, 38), S(24, 51), S(0, 0), S(0, 0),
+			S(0, 0), S(0, 2), S(0, 4), S(6, 18), S(12, 39), S(24, 51), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score mobility[] = {
-			S(0, 0), S(0, 0), S(3, 4), S(3, 4), S(3, 3), S(0, 3), S(0, 0),
+			S(0, 0), S(0, 0), S(3, 4), S(3, 4), S(3, 3), S(0, 4), S(0, 0),
 		};
 
 		constexpr Score double_pawn_penalty = S(0, 7);
 		constexpr Score isolated_pawn_penalty = S(14, 7);
 		constexpr Score bishop_pair_bonus = S(23, 40);
-		constexpr Score rook_open_file_bonus = S(24, 0);
+		constexpr Score rook_open_file_bonus = S(25, 0);
 		constexpr Score rook_semi_open_file_bonus = S(0, 0);
 		constexpr Score rook_closed_file_penalty = S(14, 3);
 		constexpr Score tempo_bonus = S(21, 19);
@@ -100,15 +100,14 @@ namespace Clovis {
 		constexpr Score king_semi_open_penalty = S(4, 0);
 		constexpr Score king_adjacent_full_open_penalty = S(1, 10);
 		constexpr Score king_adjacent_semi_open_penalty = S(7, 0);
-		constexpr Score knight_outpost_bonus = S(40, 10);
-		constexpr Score bishop_outpost_bonus = S(40, 2);
-		constexpr Score weak_queen_penalty = S(32, 0);
+		constexpr Score knight_outpost_bonus = S(41, 10);
+		constexpr Score bishop_outpost_bonus = S(40, 3);
+		constexpr Score weak_queen_penalty = S(33, 0);
 		constexpr Score rook_on_our_passer_file = S(11, 10);
 		constexpr Score rook_on_their_passer_file = S(0, 38);
 		constexpr Score tall_pawn_penalty = S(14, 12);
-		constexpr Score fianchetto_bonus = S(16, 10);
+		constexpr Score fianchetto_bonus = S(17, 10);
 		constexpr Score rook_on_seventh = S(0, 18);
-		constexpr Score queen_forward_bonus = S(2, 0);
 
 		constexpr short pawn_shield[] = {
 			0, 0, 0, 0,
@@ -118,19 +117,19 @@ namespace Clovis {
 			0, 0, 0, 0,
 			0, 0, 0, 0,
 			0, 0, 0, 0,
-			27, 32, 27, 0,
+			27, 31, 27, 0,
 		};
 
 		constexpr short inner_ring_attack[] = {
-			0, 24, 13, 30, 29, 22, 0,
+			0, 23, 13, 29, 28, 22, 0,
 		};
 
 		constexpr short outer_ring_attack[] = {
-			0, 3, 27, 9, 8, 18, 0,
+			0, 3, 26, 8, 8, 18, 0,
 		};
 
-		constexpr short virtual_mobility = 14;
-		constexpr short attack_factor = 71;
+		constexpr short virtual_mobility = 15;
+		constexpr short attack_factor = 72;
 
 #undef S
 
@@ -296,41 +295,6 @@ namespace Clovis {
 			0x101010101010ULL,     0x202020202020ULL,     0x404040404040ULL,     0x808080808080ULL, 
 			0x1010101010101ULL,    0x2020202020202ULL,    0x4040404040404ULL,    0x8080808080808ULL, 
 			0x10101010101010ULL,   0x20202020202020ULL,   0x40404040404040ULL,   0x80808080808080ULL,
-		};
-
-		constexpr Bitboard forward_masks[COLOUR_N][SQ_N] = {
-			0xffffffffffffff00ULL, 0xffffffffffffff00ULL, 0xffffffffffffff00ULL, 0xffffffffffffff00ULL, 
-			0xffffffffffffff00ULL, 0xffffffffffffff00ULL, 0xffffffffffffff00ULL, 0xffffffffffffff00ULL, 
-			0xffffffffffff0000ULL, 0xffffffffffff0000ULL, 0xffffffffffff0000ULL, 0xffffffffffff0000ULL, 
-			0xffffffffffff0000ULL, 0xffffffffffff0000ULL, 0xffffffffffff0000ULL, 0xffffffffffff0000ULL, 
-			0xffffffffff000000ULL, 0xffffffffff000000ULL, 0xffffffffff000000ULL, 0xffffffffff000000ULL, 
-			0xffffffffff000000ULL, 0xffffffffff000000ULL, 0xffffffffff000000ULL, 0xffffffffff000000ULL, 
-			0xffffffff00000000ULL, 0xffffffff00000000ULL, 0xffffffff00000000ULL, 0xffffffff00000000ULL, 
-			0xffffffff00000000ULL, 0xffffffff00000000ULL, 0xffffffff00000000ULL, 0xffffffff00000000ULL, 
-			0xffffff0000000000ULL, 0xffffff0000000000ULL, 0xffffff0000000000ULL, 0xffffff0000000000ULL, 
-			0xffffff0000000000ULL, 0xffffff0000000000ULL, 0xffffff0000000000ULL, 0xffffff0000000000ULL, 
-			0xffff000000000000ULL, 0xffff000000000000ULL, 0xffff000000000000ULL, 0xffff000000000000ULL, 
-			0xffff000000000000ULL, 0xffff000000000000ULL, 0xffff000000000000ULL, 0xffff000000000000ULL, 
-			0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL, 
-			0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL, 0xff00000000000000ULL, 
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL, 
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL,
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL, 
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL, 
-			0xffULL,               0xffULL,               0xffULL,               0xffULL, 
-			0xffULL,               0xffULL,               0xffULL,               0xffULL, 
-			0xffffULL,             0xffffULL,             0xffffULL,             0xffffULL, 
-			0xffffULL,             0xffffULL,             0xffffULL,             0xffffULL, 
-			0xffffffULL,           0xffffffULL,           0xffffffULL,           0xffffffULL, 
-			0xffffffULL,           0xffffffULL,           0xffffffULL,           0xffffffULL, 
-			0xffffffffULL,         0xffffffffULL,         0xffffffffULL,         0xffffffffULL, 
-			0xffffffffULL,         0xffffffffULL,         0xffffffffULL,         0xffffffffULL, 
-			0xffffffffffULL,       0xffffffffffULL,       0xffffffffffULL,       0xffffffffffULL, 
-			0xffffffffffULL,       0xffffffffffULL,       0xffffffffffULL,       0xffffffffffULL, 
-			0xffffffffffffULL,     0xffffffffffffULL,     0xffffffffffffULL,     0xffffffffffffULL, 
-			0xffffffffffffULL,     0xffffffffffffULL,     0xffffffffffffULL,     0xffffffffffffULL, 
-			0xffffffffffffffULL,   0xffffffffffffffULL,   0xffffffffffffffULL,   0xffffffffffffffULL, 
-			0xffffffffffffffULL,   0xffffffffffffffULL,   0xffffffffffffffULL,   0xffffffffffffffULL,
 		};
 		
 		constexpr Bitboard light_mask = 0x55aa55aa55aa55aaULL;
