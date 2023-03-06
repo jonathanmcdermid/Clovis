@@ -208,6 +208,7 @@ namespace Clovis {
 		TALL_PAWN,
 		FIANCHETTO,
 		ROOK_ON_SEVENTH,
+		QUEEN_FORWARD,
 		
 		TI_SAFETY,
 		

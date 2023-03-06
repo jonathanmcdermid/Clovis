@@ -88,6 +88,23 @@ namespace Clovis {
 				shield_table[BLACK][(r << 3) + f]             = &pawn_shield[sq];
 				shield_table[BLACK][(r << 3) + (7 - f)]       = &pawn_shield[sq];
 			}
+
+			// convenience for making masks
+			/*for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1)
+			{
+				Bitboard bb = 0ULL;
+
+				for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2)
+					if (rank_of(sq2) < rank_of(sq1))
+						bb |= sq2;
+
+				//Bitboards::print_bitboard(bb);
+
+				cout << "0x" << hex << bb << "ULL, ";
+
+				if (!((sq1 + 1) % 4))
+					cout << endl;
+			}*/
 		}
 		
 		inline bool is_doubled_pawn(Bitboard bb, Square sq) 
@@ -274,6 +291,8 @@ namespace Clovis {
 				}
 				if constexpr (PT == QUEEN)
 				{
+					score += queen_forward_bonus * popcnt(safe_attacks & forward_masks[US][sq]);
+					if constexpr (TRACE) T[QUEEN_FORWARD][US] += popcnt(safe_attacks & forward_masks[US][sq]);
 					if (pos.discovery_threat<US>(sq))
 					{
 						score -= weak_queen_penalty;
