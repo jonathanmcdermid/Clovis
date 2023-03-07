@@ -59,7 +59,9 @@ namespace Clovis {
 			for (Rank r = RANK_1; r < int(sizeof(candidate_passer) / sizeof(Score)); ++r)
 				add_param<Score>(candidate_passer[r], TraceIndex(CANDIDATE_PASSER + r));
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-				add_param<Score>(mobility[pt], TraceIndex(MOBILITY + pt));
+				add_param<Score>(quiet_mobility[pt], TraceIndex(QUIET_MOBILITY + pt));
+			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
+				add_param<Score>(capture_mobility[pt], TraceIndex(CAPTURE_MOBILITY + pt));
 			
 			add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
 			add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
@@ -212,7 +214,8 @@ namespace Clovis {
 			print_table("king_table",       KING_PSQT,        sizeof(king_table)       / sizeof(Score), 4);
 			print_table("passed_pawn",      PASSED_PAWN,      sizeof(passed_pawn)      / sizeof(Score), 4);
 			print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
-			print_table("mobility", MOBILITY, 7, 7);
+			print_table("quiet_mobility",   QUIET_MOBILITY,   7, 7);
+			print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
 			
 			cout << "\t\tconstexpr Score double_pawn_penalty = "        << Score(params[DOUBLE_PAWN])       << ";" << endl
 			<< "\t\tconstexpr Score isolated_pawn_penalty = "           << Score(params[ISOLATED_PAWN])     << ";" << endl
