@@ -126,7 +126,7 @@ namespace Clovis {
 		template<Colour US>
 		constexpr bool is_candidate_passer(Bitboard our_pawns, Bitboard their_pawns, Square sq)
 		{
-			if (file_masks[file_of(sq)] & their_pawns)
+			if (their_pawns & rook_on_passer_masks[US][sq])
 				return false;
 			do {
 				int support = popcnt(Bitboards::pawn_attacks[~US][sq + pawn_push(US)] & our_pawns);
@@ -156,10 +156,11 @@ namespace Clovis {
 		{
 			Bitboard or_att_bb = attacks & king_zones[ei.ksq[~US]].outer_ring;
 			Bitboard ir_att_bb = attacks & king_zones[ei.ksq[~US]].inner_ring;
-		
+
 			if (or_att_bb || ir_att_bb)
 			{
 				ei.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
+
 				if constexpr (PT != PAWN) ++ei.n_att[US];
 				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += popcnt(ir_att_bb);
 				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcnt(or_att_bb);
@@ -182,8 +183,8 @@ namespace Clovis {
 		{
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
 
-			return (PT == QUEEN)  ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US) ]
-			     : (PT == ROOK)   ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)] | pos.pc_bb[make_piece(ROOK, ~US)]
+			return (PT == QUEEN)   ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)]
+			     : (PT == ROOK)    ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)] | pos.pc_bb[make_piece(ROOK, ~US)]
 			     : pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, ~US)];
 		}
 		
@@ -219,7 +220,7 @@ namespace Clovis {
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
 				if constexpr (TRACE) psqt_trace<US, PT>(sq);
-				if constexpr (TRACE) T[QUIET_MOBILITY + PT][US]   += popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
+				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
 				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += popcnt(safe_attacks &  pos.occ_bb[~US]);
 				if constexpr (PT == KNIGHT)
 				{

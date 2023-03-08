@@ -79,21 +79,21 @@ namespace Clovis {
 	inline bool Position::is_attacked(Square sq) const
 	{
 		return ((pc_bb[make_piece(PAWN,   ~US)] & Bitboards::pawn_attacks[US][sq])
-			 || (pc_bb[make_piece(KNIGHT, ~US)] & Bitboards::knight_attacks[sq])
-			 || (pc_bb[make_piece(BISHOP, ~US)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
-			 || (pc_bb[make_piece(ROOK,   ~US)] & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
-			 || (pc_bb[make_piece(QUEEN,  ~US)] & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
-			 || (pc_bb[make_piece(KING,   ~US)] & Bitboards::king_attacks[sq]));
+		     || (pc_bb[make_piece(KNIGHT, ~US)] & Bitboards::knight_attacks[sq])
+		     || (pc_bb[make_piece(BISHOP, ~US)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
+		     || (pc_bb[make_piece(ROOK,   ~US)] & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
+		     || (pc_bb[make_piece(QUEEN,  ~US)] & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
+		     || (pc_bb[make_piece(KING,   ~US)] & Bitboards::king_attacks[sq]));
 	}
 	
 	template <Colour US>
 	inline bool Position::is_insufficient() const 
 	{
 		return (popcnt(pc_bb[make_piece(PAWN,   US)]) == 0
-			&& (popcnt(pc_bb[make_piece(ROOK,   US)]) == 0)
-			&& (popcnt(pc_bb[make_piece(QUEEN,  US)]) == 0)
-			&& (popcnt(pc_bb[make_piece(KNIGHT, US)]) < 3)
-			&& (popcnt(pc_bb[make_piece(BISHOP, US)]) + popcnt(pc_bb[make_piece(KNIGHT, US)])  < 2));
+		    && (popcnt(pc_bb[make_piece(ROOK,   US)]) == 0)
+		    && (popcnt(pc_bb[make_piece(QUEEN,  US)]) == 0)
+		    && (popcnt(pc_bb[make_piece(KNIGHT, US)]) < 3)
+		    && (popcnt(pc_bb[make_piece(BISHOP, US)]) + popcnt(pc_bb[make_piece(KNIGHT, US)])  < 2));
 	}
 
 	inline bool Position::is_draw() const
@@ -110,11 +110,10 @@ namespace Clovis {
 
 	inline bool Position::stm_has_promoted() const 
 	{
-		return bool(
-			  pc_bb[make_piece(KNIGHT, side)]
-			| pc_bb[make_piece(BISHOP, side)]
-			| pc_bb[make_piece(ROOK,   side)]
-			| pc_bb[make_piece(QUEEN,  side)]);
+		return bool(pc_bb[make_piece(KNIGHT, side)]
+		          | pc_bb[make_piece(BISHOP, side)]
+		          | pc_bb[make_piece(ROOK,   side)]
+		          | pc_bb[make_piece(QUEEN,  side)]);
 	}
 
 	inline bool Position::is_material_draw() const 

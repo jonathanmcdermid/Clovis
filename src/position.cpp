@@ -46,7 +46,7 @@ namespace Clovis {
 		Square ksq = lsb(pc_bb[make_piece(KING, US)]);
 
 		Bitboard candidates = 
-		 ((Bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) 
+		 ((Bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK,   ~US)])) 
 		| (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
 
 		while (candidates)
