@@ -74,7 +74,7 @@ namespace Clovis {
 		~(shift<pawn_push(US) + EAST>(occ_bb[US]) | shift<pawn_push(US) + WEST>(occ_bb[US]));
 
 		if (side == ~US && bs->enpassant != SQ_NONE)
-			their_moveless_pawns &= ~(shift<pawn_push(US) + EAST>(sqbb(bs->enpassant)) | shift<pawn_push(US) + WEST>(sqbb(bs->enpassant)));
+			their_moveless_pawns &= ~Bitboards::pawn_attacks[US][bs->enpassant];
 
 		Bitboard candidates = 
 		 ((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) 
