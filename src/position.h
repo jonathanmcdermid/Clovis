@@ -44,6 +44,7 @@ namespace Clovis {
 	struct Position {
 		Position(const char* fen) { set(fen); }
 		void set(const char* fen);
+		string get_fen() const;
 		template<Colour US> bool is_attacked(Square sq) const;
 		Bitboard attackers_to(Square sq) const;
 		Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
