@@ -16,7 +16,7 @@ namespace Clovis {
 
 		struct SearchLimits {
 			SearchLimits() {
-				time[WHITE] = time[BLACK] = 100;
+				time[WHITE] = time[BLACK] = 1000;
 				inc[WHITE] = inc[BLACK] = move_time = start_time = 0;
 				moves_left = 20;
 				depth = mate = perft = 0;
