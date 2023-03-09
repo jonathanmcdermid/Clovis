@@ -30,7 +30,6 @@ namespace Clovis {
 			int size() const { return (last - moves); }
 			const Move* begin() const { return moves; }
 			const Move* end()   const { return last;  }
-			void remove_illegal(Position pos);
 		private:
 			Move moves[MAX_MOVES], *last;
 		};

@@ -39,11 +39,6 @@ namespace Clovis {
 
 	} // namespace Zobrist
 
-	string Position::get_fen() const
-	{
-		return "yo";
-	}
-
 	// returns the square that pins a piece if it exists
 	template<Colour US>
 	Square Position::get_pinner(Square sq) const

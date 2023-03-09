@@ -385,7 +385,6 @@ namespace Clovis {
 
 			TTEntry* tte;
 			MoveGen::MoveList ml = MoveGen::MoveList(pos);
-			ml.remove_illegal(pos);
 
 			if (ml.size() > 1)
 			{

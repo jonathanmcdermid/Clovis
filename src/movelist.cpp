@@ -182,17 +182,6 @@ namespace Clovis {
 		template ScoredMove* generate<ScoredMove, ALL_MOVES>(const Position& pos, ScoredMove* moves);
 		template void print_moves<Move>(Move* m, Move* end);
 		template void print_moves<ScoredMove>(ScoredMove* m, ScoredMove* end);
-		
-		void MoveList::remove_illegal(Position pos)
-		{
-			for (Move* m = moves; m < last; ++m)
-			{
-				if (!pos.do_move(*m))
-					*m-- = *--last;
-				else
-					pos.undo_move(*m);
-			}
-		}
     
 	} // namespace MoveGen
 
