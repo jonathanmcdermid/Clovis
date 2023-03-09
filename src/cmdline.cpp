@@ -48,12 +48,6 @@ namespace Clovis {
 				exit(EXIT_SUCCESS);
 			}
 
-			if (!strcmp(argv[1], "generate"))
-			{
-				Generator::generate();
-				exit(EXIT_SUCCESS);
-			}
-
 			exit(EXIT_FAILURE);
 		}
 		

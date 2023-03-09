@@ -5,7 +5,6 @@
 #include "tuner.h"
 #include "benchmark.h"
 #include "iq.h"
-#include "generate.h"
 
 using namespace std;
 
