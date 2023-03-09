@@ -443,9 +443,13 @@ namespace Clovis {
 
 				best_move = pline.moves[0];
 			}
-			else
+			else if (ml.size() == 1)
 				best_move = *ml.begin();
-
+			else
+			{
+				best_move = MOVE_NONE;
+				return;
+			}
 			// extract ponder move if one exists
 			pos.do_move(best_move);
 			tte = tt.probe(pos.bs->key);
