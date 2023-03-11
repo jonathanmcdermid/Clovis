@@ -46,6 +46,7 @@ namespace Clovis {
 			for (auto& it : iq)
 			{
 				Position pos(it.fen.c_str());
+				pos.print_position();
 				Move best_move, ponder_move;
 				int score;
 				U64 nodes;

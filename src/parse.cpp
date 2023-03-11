@@ -23,15 +23,15 @@ namespace Clovis {
 					: encode_move(E8, G8, B_KING, NO_PIECE, 0, 0, 0, 1);
 			}
 
-			Piece promotion = make_piece(move[move.length() - 2] == '='
+			Piece promotion = move[move.length() - 2] == '='
 				? move[move.length() - 1] == 'Q' 
-				? QUEEN
+				? make_piece(QUEEN, pos.side)
 				: move[move.length() - 1] == 'R'
-				? ROOK
+				? make_piece(ROOK, pos.side)
 				: move[move.length() - 1] == 'B'
-				? BISHOP
-				: KNIGHT
-				: PIECETYPE_NONE, pos.side);
+				? make_piece(BISHOP, pos.side)
+				: make_piece(KNIGHT, pos.side)
+				: NO_PIECE;
 
 			if (islower(move[0]))
 			{
@@ -65,13 +65,13 @@ namespace Clovis {
 			if (move[1] == 'x')
 			{
 				Square to = str2sq(move.substr(2, 2));
-				Square from = lsb(Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to));
+				Square from = lsb(Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece]);
 				return encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0);
 			}
 			else if (move[2] == 'x')
 			{
 				Square to = str2sq(move.substr(3, 2));
-				Bitboard bb = Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to);
+				Bitboard bb = Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece];
 				Square from = pop_lsb(bb);
 				if (isdigit(move[1]))
 					while (rank_of(from) != Rank(move[1] - '1'))
@@ -84,13 +84,13 @@ namespace Clovis {
 			else if (move.length() == 3)
 			{
 				Square to = str2sq(move.substr(1, 2));
-				Square from = lsb(Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to));
+				Square from = lsb(Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece]);
 				return encode_move(from, to, piece, NO_PIECE, 0, 0, 0, 0);
 			}
 			else if (move.length() == 4)
 			{
 				Square to = str2sq(move.substr(2, 2));
-				Bitboard bb = Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to);
+				Bitboard bb = Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece];
 				Square from = pop_lsb(bb);
 				while (file_of(from) != File(move[1] - 'a'))
 					from = pop_lsb(bb);
