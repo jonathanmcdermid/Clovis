@@ -30,9 +30,7 @@ namespace Clovis {
 					Position pos = Position(fen.c_str());
 
 					while (is >> token)
-					{
 						moves.push_back(Parse::parse(pos, token));
-					}
 
 					iq.push_back(IQPosition(fen, moves));
 				}
@@ -70,7 +68,10 @@ namespace Clovis {
 				}
 				else	
 				{
-					cout << "FAIL!" << endl;
+					cout << "FAIL! best move: ";
+					for (auto& move : it.moves)
+						cout << move << " ";
+					cout << endl;
 					++fails;
 				}
 				

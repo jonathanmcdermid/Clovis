@@ -52,13 +52,13 @@ namespace Clovis {
 			}
 
 			Piece piece = make_piece( 
-				  move[move.length() - 1] == 'K'
+				  move[0] == 'K'
 				  ? KING
-				  : move[move.length() - 1] == 'Q' 
+				  : move[0] == 'Q' 
 				  ? QUEEN
-				  : move[move.length() - 1] == 'R'
+				  : move[0] == 'R'
 				  ? ROOK
-				  : move[move.length() - 1] == 'B'
+				  : move[0] == 'B'
 				  ? BISHOP
 				  : KNIGHT, pos.side);
 
@@ -73,8 +73,12 @@ namespace Clovis {
 				Square to = str2sq(move.substr(3, 2));
 				Bitboard bb = Bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to);
 				Square from = pop_lsb(bb);
-				while (file_of(from) != File(move[1] - 'a'))
-					from = pop_lsb(bb);
+				if (isdigit(move[1]))
+					while (rank_of(from) != Rank(move[1] - '1'))
+						from = pop_lsb(bb);
+				else
+					while (file_of(from) != File(move[1] - 'a'))
+						from = pop_lsb(bb);
 				return encode_move(from, to, piece, NO_PIECE, 1, 0, 0, 0);
 			}
 			else if (move.length() == 3)
