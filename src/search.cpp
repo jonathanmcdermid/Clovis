@@ -167,7 +167,7 @@ namespace Clovis {
 		}
 
 		template<NodeType N>
-		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline)
+		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line* pline = nullptr)
 		{
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
@@ -201,14 +201,12 @@ namespace Clovis {
 
 			if (tte)
 			{
-				if (tte->move != MOVE_NONE)
+				if (PV_NODE && tte->move != MOVE_NONE)
 				{
-					pline.last = pline.moves;
-					*pline.last++ = tte->move;
+					pline->last = pline->moves;
+					*pline->last++ = tte->move;
 				}
-
-				if (!PV_NODE
-				&& tte->depth >= depth
+				else if (tte->depth >= depth
 				&& (tte->flags == HASH_EXACT
 				|| (tte->flags == HASH_BETA  && tte->eval >= beta)
 				|| (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
@@ -240,9 +238,8 @@ namespace Clovis {
 				&& depth >= null_depth
 				&& pos.stm_has_promoted())
 				{
-					Line lline;
 					pos.do_move(MOVE_NULL);
-					score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, lline);
+					score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes);
 					pos.undo_move(MOVE_NULL);
 
 					if (score >= beta)
@@ -253,13 +250,16 @@ namespace Clovis {
 				if (!tte && depth >= iid_depth[PV_NODE])
 				{
 					Line lline;
-					negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, lline);
+					negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, &lline);
 					tte = tt.probe(pos.bs->key);
 
 					if (tte)
 					{
-						pline.last = pline.moves;
-						*pline.last++ = tte->move;
+						if constexpr (PV_NODE)
+						{
+							pline->last = pline->moves;
+							*pline->last++ = tte->move;
+						}
 						tt_move = tte->move;
 					}
 				}
@@ -309,16 +309,16 @@ namespace Clovis {
 					R = max(0, min(R, depth - lmr_reduction));
 
 					// search current move with reduced depth:
-					score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, lline);
+					score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes);
 
 					if (R && score > alpha)
-						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
+						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes);
 				}
 				else if (!PV_NODE || moves_searched > 1)
-					score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
+					score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes);
                 
 				if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
-					score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, lline);
+					score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, &lline);
 
 				pos.undo_move(curr_move);
 
@@ -347,11 +347,14 @@ namespace Clovis {
                     
 					if (score > alpha)
 					{
-						pline.last = pline.moves;
-						*pline.last++ = curr_move;
-                        
-						for (const auto& m : lline)
-							*pline.last++ = m;
+						if constexpr (PV_NODE)
+						{
+							pline->last = pline->moves;
+							*pline->last++ = curr_move;
+
+							for (const auto& m : lline)
+								*pline->last++ = m;
+						}
 
 						eval_type = HASH_EXACT;
 
@@ -400,7 +403,7 @@ namespace Clovis {
 
 				for (int depth = 1; depth <= MAX_PLY && (lim.depth == 0 || depth <= lim.depth); ++depth)
 				{
-					score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
+					score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, &pline);
 
 					if (stop)
 						break;
