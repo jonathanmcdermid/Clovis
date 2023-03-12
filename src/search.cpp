@@ -160,7 +160,7 @@ namespace Clovis {
 
 			if (in_check && best_eval == INT_MIN)
 				return - CHECKMATE_SCORE + ply;
-
+		
 			tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
 			return alpha;
@@ -201,8 +201,11 @@ namespace Clovis {
 
 			if (tte)
 			{
-				pline.last = pline.moves;
-				*pline.last++ = tte->move;
+				if (tte->move != MOVE_NONE)
+				{
+					pline.last = pline.moves;
+					*pline.last++ = tte->move;
+				}
 
 				if (!PV_NODE
 				&& tte->depth >= depth
@@ -346,8 +349,8 @@ namespace Clovis {
 						pline.last = pline.moves;
 						*pline.last++ = curr_move;
                         
-						//for (const auto& m : lline)
-						//	*pline.last++ = m;
+						for (const auto& m : lline)
+							*pline.last++ = m;
 
 						eval_type = HASH_EXACT;
 
