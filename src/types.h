@@ -12,7 +12,7 @@
 #include <iostream>
 #include <cmath>
 
-#define START_POS "k7/pp6/6r1/8/4Q3/8/K7/8 w - - 0 1"
+#define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 using namespace std;
 

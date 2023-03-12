@@ -219,8 +219,6 @@ namespace Clovis {
 			else
 				tt_move = MOVE_NONE;
 
-			Line lline;
-
 			bool in_check = pos.is_king_in_check();
 
 			int score;
@@ -242,6 +240,7 @@ namespace Clovis {
 				&& depth >= null_depth
 				&& pos.stm_has_promoted())
 				{
+					Line lline;
 					pos.do_move(MOVE_NULL);
 					score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, lline);
 					pos.undo_move(MOVE_NULL);
@@ -253,6 +252,7 @@ namespace Clovis {
 				// internal iterative deepening
 				if (!tte && depth >= iid_depth[PV_NODE])
 				{
+					Line lline;
 					negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, lline);
 					tte = tt.probe(pos.bs->key);
 
@@ -286,6 +286,7 @@ namespace Clovis {
 				if (!pos.do_move(curr_move))
 					continue;
 
+				Line lline;
 				++moves_searched;
 
 				if (pos.is_draw())
