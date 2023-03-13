@@ -1,0 +1,20 @@
+﻿[Event "?"]
+[Site "?"]
+[Date "2023.03.12"]
+[Round "1"]
+[White "Clovis"]
+[Black "Clovis"]
+[Result "1/2-1/2"]
+[FEN "rnb1kbnr/ppqppppp/2p5/8/7P/4P3/PPPP1PP1/RNBQKBNR w KQkq - 0 1"]
+[SetUp "1"]
+
+1. d4 d5 2. c4 Nf6 3. cxd5 cxd5 4. Nc3 Nc6 5. Bd2 Bf5 6. Rc1 Rc8 7. Nf3 h6
+8. Bb5 Bg4 9. O-O a6 10. Be2 g5 11. Ne5 Bxe2 12. Qxe2 gxh4 13. Nxc6 bxc6
+14. Qxa6 Bg7 15. Rfe1 O-O 16. e4 dxe4 17. Nxe4 Ng4 18. Qd3 Qh2+ 19. Kf1 f5
+20. Qb3+ Rf7 21. Nc5 Qh1+ 22. Ke2 Qxg2 23. Be3 h3 24. Rg1 Qd5 25. Qxd5 cxd5
+26. f3 Nxe3 27. Kxe3 Rf6 28. a3 Rb8 29. b4 Rfb6 30. Rg3 h2 31. Nd7 Re6+ 
+32. Kf4
+Ra8 33. Rg2 Rxa3 34. Rxh2 Ree3 35. Kxf5 Kf7 36. f4 Bxd4 37. Rc7 e6+ 38. 
+Kg4 Rg3+
+39. Kh5 Rac3 40. Ne5+ Kf8 41. Rf7+ Ke8 42. Rf6 Ke7 43. Rf7+ Ke8 44. Rf6 Ke7
+45. Rf7+ Ke8 1/2-1/2

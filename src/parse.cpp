@@ -23,18 +23,15 @@ namespace Clovis {
 					: encode_move(E8, G8, B_KING, NO_PIECE, 0, 0, 0, 1);
 			}
 
-			Piece promotion = move[move.length() - 2] == '='
-				? move[move.length() - 1] == 'Q' 
-				? make_piece(QUEEN, pos.side)
-				: move[move.length() - 1] == 'R'
-				? make_piece(ROOK, pos.side)
-				: move[move.length() - 1] == 'B'
-				? make_piece(BISHOP, pos.side)
-				: make_piece(KNIGHT, pos.side)
-				: NO_PIECE;
-
 			if (islower(move[0]))
 			{
+				Piece promotion = 
+					  move[move.length() - 2] == '='
+					? move[move.length() - 1] == 'Q' ? make_piece(QUEEN, pos.side)
+					: move[move.length() - 1] == 'R' ? make_piece(ROOK, pos.side)
+					: move[move.length() - 1] == 'B' ? make_piece(BISHOP, pos.side)
+					: make_piece(KNIGHT, pos.side) : NO_PIECE;
+
 				if (move[1] == 'x')
 				{
 					Square to = str2sq(move.substr(2, 2));
@@ -52,14 +49,10 @@ namespace Clovis {
 			}
 
 			Piece piece = make_piece( 
-				  move[0] == 'K'
-				  ? KING
-				  : move[0] == 'Q' 
-				  ? QUEEN
-				  : move[0] == 'R'
-				  ? ROOK
-				  : move[0] == 'B'
-				  ? BISHOP
+				    move[0] == 'K' ? KING
+				  : move[0] == 'Q' ? QUEEN
+				  : move[0] == 'R' ? ROOK
+				  : move[0] == 'B' ? BISHOP
 				  : KNIGHT, pos.side);
 
 			if (move[1] == 'x')
@@ -104,6 +97,66 @@ namespace Clovis {
 			}
 
 			exit(EXIT_FAILURE);
+		}
+
+		void generate_dataset()
+		{
+			string file_name = "src/games.pgn";
+			ifstream ifs;
+			ifs.open(file_name.c_str(), ifstream::in);
+
+			string line, result, fen;
+			
+			while (!ifs.eof())
+			{
+				while (getline(ifs, line))
+				{
+					if (line.find("Result") != string::npos)
+					{
+						size_t start = line.find("\"") + 1;
+						size_t end   = line.rfind("\"");
+						result = line.substr(start, end - start);
+						break;
+					}
+				}
+
+				while (getline(ifs, line))
+				{
+					if (line.find("FEN") != string::npos)
+					{
+						size_t start = line.find("\"") + 1;
+						size_t end = line.rfind("\"");
+						fen = line.substr(start, end - start);
+						break;
+					}
+				}
+
+				while (getline(ifs, line))
+				{
+					istringstream ss(line);
+					int fmc = 1;
+					Colour turn = WHITE;
+					while (line.find(to_string(fmc) + ". ") != string::npos)
+					{
+						string token;
+						ss >> skipws >> token;
+						if (token == result)
+						{
+							cout << result << token << endl;
+							break;
+						}
+						if (token.find(".") == string::npos)
+						{
+							cout << token << endl;
+							turn = ~turn;
+							if (turn == WHITE)
+								++fmc;
+						}
+					}
+				}
+			}
+
+			ifs.close();
 		}
 
 	} // namespace Parse
