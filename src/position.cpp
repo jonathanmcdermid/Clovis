@@ -93,9 +93,48 @@ namespace Clovis {
 	template bool Position::discovery_threat<WHITE>(Square sq) const;
 	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
-	string Position::get_fen()
+	string Position::get_fen() const
 	{
-		string fen = "ayo";
+		string fen;
+		
+		for (Rank r = RANK_8; r >= RANK_1; --r)
+		{
+			int empty_count = 0;
+			for (File f = FILE_A; f <= FILE_H; ++f)
+			{
+				Square sq = make_square(f, r);
+				if (pc_table[sq] == NO_PIECE)
+					++empty_count;
+				else
+				{
+					if (empty_count)
+					{
+						fen += to_string(empty_count);
+						empty_count = 0;
+					}
+					fen += piece_str[pc_table[sq]];
+				}
+			}
+			if (empty_count)
+				fen += to_string(empty_count);
+			if (r != RANK_1)
+				fen += '/';
+		}
+
+		fen += (side == WHITE) ? " w " : " b " ;
+
+		if (bs->castle == NO_CASTLING)
+			fen += '-';
+		else 
+		{
+			if (bs->castle & WHITE_KS) fen += "K";
+			if (bs->castle & WHITE_QS) fen += "Q";
+			if (bs->castle & BLACK_KS) fen += "k";
+			if (bs->castle & BLACK_QS) fen += "q";
+		}
+
+		fen += " " + (bs->enpassant == SQ_NONE ? "-" : sq2str(bs->enpassant)) + " " + to_string(bs->hmc) + " " + to_string(bs->fmc);
+		
 		return fen;
 	}
 
