@@ -9,8 +9,6 @@ namespace Clovis {
 		// handle any start-up command line arguments
 		void handle_cmd(int argc, char* argv[])
 		{
-			Parse::generate_dataset();
-
 			if (argc < 2)
 			{
 				UCI::loop(argc, argv);
@@ -47,6 +45,12 @@ namespace Clovis {
 			if (!strcmp(argv[1], "tune"))
 			{
 				Tuner::tune_eval();
+				exit(EXIT_SUCCESS);
+			}
+			
+			if (!strcmp(argv[1], "generate"))
+			{
+				Parse::generate_dataset();
 				exit(EXIT_SUCCESS);
 			}
 
