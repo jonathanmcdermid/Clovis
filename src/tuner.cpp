@@ -12,8 +12,6 @@ namespace Clovis {
 		TVector params;
 
 		constexpr int N_CORES = 8;
-		constexpr int N_POSITIONS = 725000;
-		constexpr int CHUNK_SIZE = N_POSITIONS / N_CORES;
 		constexpr int MAX_EPOCHS = 1000000;
 
 		inline double sigmoid(double K, double E) {
@@ -94,7 +92,7 @@ namespace Clovis {
 			add_param<short>(attack_factor, SAFETY_N_ATT);
 		}
 		
-		double linear_eval(TEntry* entry, TGradient* tg) 
+		double linear_eval(const TEntry* entry, TGradient* tg) 
 		{
 			double normal[PHASE_N];
 			double safety = 0.0;
@@ -134,12 +132,12 @@ namespace Clovis {
 
 			#pragma omp parallel shared(total)
 			{
-				#pragma omp for schedule(static, CHUNK_SIZE) reduction(+:total)
-				for (int i = 0; i < N_POSITIONS; ++i)
-					total += pow(entries[i].result - sigmoid(K, (STATIC ? entries[i].seval : linear_eval(&entries[i], NULL))), 2);
+				#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
+				for (const auto& it : entries)
+					total += pow(it.result - sigmoid(K, (STATIC ? it.seval : linear_eval(&it, NULL))), 2);
 			}
 
-			return total / (double) N_POSITIONS;
+			return total / (double) entries.size();
 		}
 		
 		void update_single_gradient(TEntry *entry, TVector gradient, double K) 
@@ -175,7 +173,7 @@ namespace Clovis {
 		{
 			TVector local = {0};
 
-			for (int i = 0; i < N_POSITIONS; ++i)
+			for (size_t i = 0; i < entries.size(); ++i)
 				update_single_gradient(&entries[i], local, K);
 
 			for (int i = 0; i < TI_MISC; ++i) 
@@ -282,47 +280,47 @@ namespace Clovis {
 			ifstream ifs;
 			ifs.open(file_name.c_str(), ifstream::in);
 			string line;
-			
-			entries.resize(N_POSITIONS);
 
-			for(int i = 0; i < N_POSITIONS; ++i)
+			while (!ifs.eof()) 
 			{
-				if (ifs.eof())
-					break;
 				getline(ifs, line);
 				
 				if (line.length())
 				{
+					TEntry entry;
 					memset(Eval::T, 0, sizeof(Eval::T));
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
 					string res = line.substr(idx + 1, idx_end - idx - 1);
+
 					if (res == "1-0")
-						entries[i].result = 1.0;
+						entry.result = 1.0;
 					else if (res == "0-1")
-						entries[i].result = 0.0;
+						entry.result = 0.0;
 					else if (res == "1/2-1/2")
-						entries[i].result = 0.5;
+						entry.result = 0.5;
 					else exit(EXIT_FAILURE);
 					
 					Position pos = Position(line.substr(0, idx).c_str());
 					
-					entries[i].phase = pos.get_game_phase();
+					entry.phase = pos.get_game_phase();
 					
-					entries[i].seval = Eval::evaluate<true>(pos);
-					if (pos.side == BLACK) entries[i].seval = -entries[i].seval;
+					entry.seval = Eval::evaluate<true>(pos);
+					if (pos.side == BLACK) entry.seval = -entry.seval;
 					
-					entries[i].stm = pos.side;
+					entry.stm = pos.side;
 
-					entries[i].n_att[WHITE] = Eval::T[SAFETY_N_ATT][WHITE];
-					entries[i].n_att[BLACK] = Eval::T[SAFETY_N_ATT][BLACK];
+					entry.n_att[WHITE] = Eval::T[SAFETY_N_ATT][WHITE];
+					entry.n_att[BLACK] = Eval::T[SAFETY_N_ATT][BLACK];
 					
 					for (int j = 0; j < TI_N; ++j)
 					{
 						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
 							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
-							entries[i].tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
+							entry.tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
 					}
+
+					entries.push_back(entry);
 				}
 			}
 
