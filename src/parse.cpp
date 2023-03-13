@@ -101,9 +101,14 @@ namespace Clovis {
 
 		void generate_dataset()
 		{
-			string file_name = "src/games.pgn";
+			string i_file_name = "src/games.pgn";
+			string o_file_name = "src/tuner.epd";
+
 			ifstream ifs;
-			ifs.open(file_name.c_str(), ifstream::in);
+			ofstream ofs;
+
+			ifs.open(i_file_name.c_str(), ifstream::in);
+			ofs.open(o_file_name.c_str(), ofstream::out);
 
 			string line, result, fen;
 			
@@ -131,6 +136,8 @@ namespace Clovis {
 					}
 				}
 
+				Position pos(fen.c_str());
+
 				while (getline(ifs, line))
 				{
 					istringstream ss(line);
@@ -147,9 +154,20 @@ namespace Clovis {
 						}
 						if (token.find(".") == string::npos)
 						{
-							cout << token << endl;
-							turn = ~turn;
-							if (turn == WHITE)
+							pos.do_move(parse(pos, token));
+							if (!(Random::random_U64() % 5))
+							{
+								Search::SearchLimits limits;
+								limits.depth = 1;
+								Move best_move, ponder_move;
+								int score;
+								U64 nodes;
+								Search::start_search(pos, limits, best_move, ponder_move, score, nodes);
+								// make moves to get position at the end of pv
+								ofs << pos.get_fen() + " \"" + result + "\";" << endl;
+								// undo pv moves
+							}
+							if ((turn = ~turn) == WHITE)
 								++fmc;
 						}
 					}
@@ -157,6 +175,7 @@ namespace Clovis {
 			}
 
 			ifs.close();
+			ofs.close();
 		}
 
 	} // namespace Parse

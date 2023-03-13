@@ -3,8 +3,10 @@
 #include <string>
 #include <fstream>
 
+#include "search.h"
 #include "position.h"
 #include "types.h"
+#include "random.h"
 
 using namespace std;
 

@@ -93,6 +93,12 @@ namespace Clovis {
 	template bool Position::discovery_threat<WHITE>(Square sq) const;
 	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
+	string Position::get_fen()
+	{
+		string fen = "ayo";
+		return fen;
+	}
+
 	// sets position to the state specified by FEN string
 	void Position::set(const char* fen)
 	{
