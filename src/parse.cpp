@@ -175,6 +175,7 @@ namespace Clovis {
 				int fmc = 1;
 				Colour turn = WHITE;
 				bool live = true;
+				int skip = 0;
 
 				while (live && getline(ifs, line))
 				{
@@ -194,18 +195,27 @@ namespace Clovis {
 						{
 							if (!pos.do_move(parse(pos, token)))
 								exit(EXIT_FAILURE);
-							if (!(Random::random_U64() % 5))
+							if (token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
 							{
-								Search::SearchLimits limits;
-								limits.depth = 1;
-								Move best_move, ponder_move;
-								int score;
-								U64 nodes;
-								Search::start_search(pos, limits, best_move, ponder_move, score, nodes);
-								// make moves to get position at the end of pv
-								ofs << pos.get_fen() + " \"" + result + "\";" << endl;
-								// undo pv moves
+								if (!skip)
+								{
+									Search::SearchLimits limits;
+									limits.depth = 1;
+									Move best_move, ponder_move;
+									int score;
+									U64 nodes;
+									Search::start_search(pos, limits, best_move, ponder_move, score, nodes);
+									pos.do_move(best_move);
+									// make moves to get position at the end of pv
+									ofs << pos.get_fen() + " \"" + result + "\";" << endl;
+									// undo pv moves
+									pos.undo_move(best_move);
+								}
+								else
+									skip--;
 							}
+							else
+								skip = 5;
 							if ((turn = ~turn) == WHITE)
 								++fmc;
 						}
