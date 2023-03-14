@@ -81,7 +81,7 @@ namespace Clovis {
 		}
  
 		template<NodeType N>
-		int quiescence(Position& pos, int alpha, int beta, U64& nodes, int ply)
+		int quiescence(Position& pos, int alpha, int beta, U64& nodes, int ply, Line* pline)
 		{
 			constexpr bool PV_NODE = N != NODE_NON_PV;
 
@@ -102,6 +102,12 @@ namespace Clovis {
 			|| (tte->flags == HASH_BETA  && tte->eval >= beta)
 			|| (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
 				return tte->eval;
+				
+			if (PV_NODE && tte && tte->move != MOVE_NONE)
+			{
+				pline->last = pline->moves;
+				*pline->last++ = tte->move;
+			}
 
 			bool in_check = pos.is_king_in_check();
 
@@ -137,7 +143,8 @@ namespace Clovis {
 				if (!pos.do_move(curr_move))
 					continue;
 
-				eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1);
+				Line lline;
+				eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1, &lline);
 
 				pos.undo_move(curr_move);
 
@@ -154,7 +161,17 @@ namespace Clovis {
 					best_move = curr_move;
 					// new best move found
 					if (eval > alpha)
+					{
+						if constexpr (PV_NODE)
+						{
+							pline->last = pline->moves;
+							*pline->last++ = curr_move;
+
+							for (const auto& m : lline)
+								*pline->last++ = m;
+						}
 						alpha = eval;
+					}
 				}
 			}
 
@@ -181,7 +198,7 @@ namespace Clovis {
 			}
 
 			if (depth <= 0)
-				return quiescence<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes, ply);
+				return quiescence<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes, ply, pline);
 
 			++nodes;
 

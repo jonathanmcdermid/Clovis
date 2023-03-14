@@ -192,9 +192,9 @@ namespace Clovis {
 						}
 						if (token.find(".") == string::npos)
 						{
-							if (!pos.do_move(parse(pos, token)))
-								exit(EXIT_FAILURE);
-							if (fmc > 8 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
+							pos.do_move(parse(pos, token));
+
+							if (fmc > 16 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
 							{
 									Search::SearchLimits limits;
 									limits.depth = 1;
@@ -203,14 +203,18 @@ namespace Clovis {
 									Search::Line pline;
 									Search::start_search(pos, limits, score, nodes, pline);
 
-									for (const auto& it : pline)
-										pos.do_move(it);
+									if (score < MIN_CHECKMATE_SCORE && score > - MIN_CHECKMATE_SCORE)
+									{
+										for (const auto& it : pline)
+											pos.do_move(it);
 									
-									ofs << pos.get_fen() + " \"" + result + "\";" << endl;
+										ofs << pos.get_fen() + " \"" + result + "\";" << endl;
 
-									for (Move* m = pline.last - 1; m >= pline.moves; --m)
-										pos.undo_move(*m);
+										for (Move* m = pline.last - 1; m >= pline.moves; --m)
+											pos.undo_move(*m);
+									}
 							}
+
 							if ((turn = ~turn) == WHITE)
 								++fmc;
 						}
