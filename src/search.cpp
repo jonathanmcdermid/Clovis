@@ -380,7 +380,7 @@ namespace Clovis {
 		}
 
 		// begin search
-		void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes)
+		void start_search(Position& pos, SearchLimits& lim, int& score, U64& nodes, Line& pline)
 		{
 			stop = false;
 			allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side] / (lim.moves_left + 5);
@@ -388,9 +388,7 @@ namespace Clovis {
 
 			int alpha = - CHECKMATE_SCORE;
 			int beta  =   CHECKMATE_SCORE;
-			Line pline;
 
-			TTEntry* tte;
 			MoveGen::MoveList ml = MoveGen::MoveList(pos);
 			ml.remove_illegal(pos);
 
@@ -447,19 +445,11 @@ namespace Clovis {
 						beta  = score + delta;
 					}
 				}
-
-				best_move = pline.moves[0];
 			}
 			else
-				best_move = *ml.begin();
+				*pline.last++ = *ml.begin();
 
-			// extract ponder move if one exists
-			pos.do_move(best_move);
-			tte = tt.probe(pos.bs->key);
-			ponder_move = tte ? tte->move : MOVE_NONE;
-			pos.undo_move(best_move);
-
-			cout << "bestmove " << best_move << endl;
+			cout << "bestmove " << pline.moves[0] << endl;
 		}
  
 	} // namespace Search

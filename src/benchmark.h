@@ -9,14 +9,12 @@ namespace Clovis {
 	namespace Bench {
 
 		struct BenchMark {
-			BenchMark(string f, int s, TimePoint t, U64 n, Move bm, Move pm)
-				: fen(f), score(s), time(t), nodes(n), best_move(bm), ponder_move(pm) {;}
+			BenchMark(string f) : fen(f) {;}
 			string fen;
 			int score;
 			TimePoint time;
 			U64 nodes;
-			Move best_move;
-			Move ponder_move;
+			Search::Line pline;
 		};
 		
 		TimePoint benchmark(int argc, char* argv[]);
