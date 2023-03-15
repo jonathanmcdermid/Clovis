@@ -122,7 +122,7 @@ namespace Clovis {
 				// conditions: valid TTE and either 
 				// 1. alpha flag + lower hash score than static eval
 				// 2. beta flag + higher hash score than static eval
-				if(tte && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
+				if (tte && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
 					eval = tte->eval;
 	
 				if (eval >= beta)
@@ -143,8 +143,8 @@ namespace Clovis {
 				if (!pos.do_move(curr_move))
 					continue;
 
-				Line lline;
-				eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1, &lline);
+				Line line;
+				eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1, &line);
 
 				pos.undo_move(curr_move);
 
@@ -167,7 +167,7 @@ namespace Clovis {
 							pline->last = pline->moves;
 							*pline->last++ = curr_move;
 
-							for (const auto& m : lline)
+							for (const auto& m : line)
 								*pline->last++ = m;
 						}
 						alpha = eval;
@@ -303,7 +303,7 @@ namespace Clovis {
 				if (!pos.do_move(curr_move))
 					continue;
 
-				Line lline;
+				Line line;
 				++moves_searched;
 
 				if (pos.is_draw())
@@ -335,7 +335,7 @@ namespace Clovis {
 					score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes);
                 
 				if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
-					score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, &lline);
+					score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, &line);
 
 				pos.undo_move(curr_move);
 
@@ -369,7 +369,7 @@ namespace Clovis {
 							pline->last = pline->moves;
 							*pline->last++ = curr_move;
 
-							for (const auto& m : lline)
+							for (const auto& m : line)
 								*pline->last++ = m;
 						}
 
@@ -380,7 +380,7 @@ namespace Clovis {
 					}
 				}
 
-				if (moves_searched >= (4 + depth * depth))
+				if (!ROOT_NODE && score > - MIN_CHECKMATE_SCORE && moves_searched >= (4 + depth * depth))
 					play_quiets = false;
 			}
 
