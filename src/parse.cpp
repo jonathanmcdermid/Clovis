@@ -192,11 +192,9 @@ namespace Clovis {
 						}
 						if (token.find(".") == string::npos)
 						{
-							pos.print_position();
-							cout << token << endl;
 							pos.do_move(parse(pos, token));
 
-							if (fmc > 16 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')// && Random::random_U64() % 5 == 0)
+							if (fmc > 16 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
 							{
 									Search::SearchLimits limits;
 									limits.depth = 1;
