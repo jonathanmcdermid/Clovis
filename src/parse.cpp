@@ -175,6 +175,7 @@ namespace Clovis {
 				int fmc = 1;
 				Colour turn = WHITE;
 				bool live = true;
+				vector<Key> keys;
 
 				while (live && getline(ifs, line))
 				{
@@ -192,29 +193,35 @@ namespace Clovis {
 						}
 						if (token.find(".") == string::npos)
 						{
-							pos.print_position();
-							cout << token << endl;
 							pos.do_move(parse(pos, token));
 
-							if (fmc > 16 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')// && Random::random_U64() % 5 == 0)
+							if (fmc > 16 
+								&& token[token.length() - 1] != '#' 
+								&& token[token.length() - 1] != '+'
+								&& Random::random_U64() % 5 == 0)
 							{
-									Search::SearchLimits limits;
-									limits.depth = 1;
-									int score;
-									U64 nodes;
-									Search::Line pline;
-									Search::start_search(pos, limits, score, nodes, pline);
+								Search::SearchLimits limits;
+								limits.depth = 1;
+								int score;
+								U64 nodes;
+								Search::Line pline;
+								Search::start_search(pos, limits, score, nodes, pline);
+								tt.clear();
 
-									if (score < MIN_CHECKMATE_SCORE && score > - MIN_CHECKMATE_SCORE)
+								if (score < MIN_CHECKMATE_SCORE && score > -MIN_CHECKMATE_SCORE)
+								{
+									for (const auto& it : pline)
+										pos.do_move(it);
+
+									if (find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
 									{
-										for (const auto& it : pline)
-											pos.do_move(it);
-									
+										keys.push_back(pos.bs->key);
 										ofs << pos.get_fen() + " \"" + result + "\";" << endl;
-
-										for (Move* m = pline.last - 1; m >= pline.moves; --m)
-											pos.undo_move(*m);
 									}
+
+									for (Move* m = pline.last - 1; m >= pline.moves; --m)
+										pos.undo_move(*m);
+								}
 							}
 
 							if ((turn = ~turn) == WHITE)
