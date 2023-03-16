@@ -37,7 +37,6 @@ namespace Clovis {
 			int mb    = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
 
 			tt.resize(mb);
-			tm.set();
 			
 			Search::SearchLimits limits;
 
@@ -57,13 +56,16 @@ namespace Clovis {
 			for (auto& it : bm) 
 			{
 				cout << "score cp: " << setw(4) << it.score
-					 << " best: "	 << setw(4) << it.pline.moves[0] 
-					 << " ponder: "	 << setw(4) << it.pline.moves[1]
-					 << " nodes: "	 << setw(7) << it.nodes
-					 << " nps: "	 << setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
+				     << " best: "    << setw(4) << it.pline.moves[0] 
+				     << " ponder: "  << setw(4) << it.pline.moves[1]
+				     << " nodes: "   << setw(7) << it.nodes
+				     << " nps: "     << setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
 			}
 
-			cout << "bench: " << total_nodes << " nps: " << 1000ULL * total_nodes / (total_time + 1) << " time: " << total_time << " ms" << endl;
+			cout << "bench: " << total_nodes 
+			     << " nps: "  << 1000ULL * total_nodes / (total_time + 1) 
+			     << " time: " << total_time 
+			     << " ms"     << endl;
 
 			return total_time;
 		}
