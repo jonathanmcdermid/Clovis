@@ -217,13 +217,11 @@ namespace Clovis {
 									{
 										MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
 										Move mm;
-										if((mm = mp.get_next(false)) != MOVE_NONE && pline.last - pline.moves == 1)
+										if((mm = mp.get_next(false)) == MOVE_NONE)
 										{
-											pos.print_position();
-											cout << mm << endl;
+											keys.push_back(pos.bs->key);
+											ofs << pos.get_fen() + " \"" + result + "\";" << endl;
 										}
-										keys.push_back(pos.bs->key);
-										ofs << pos.get_fen() + " \"" + result + "\";" << endl;
 									}
 
 									for (Move* m = pline.last - 1; m >= pline.moves; --m)
