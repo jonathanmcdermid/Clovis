@@ -47,6 +47,12 @@ namespace Clovis {
 				Tuner::tune_eval();
 				exit(EXIT_SUCCESS);
 			}
+			
+			if (!strcmp(argv[1], "generate"))
+			{
+				Parse::generate_dataset();
+				exit(EXIT_SUCCESS);
+			}
 
 			exit(EXIT_FAILURE);
 		}

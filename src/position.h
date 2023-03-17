@@ -43,6 +43,7 @@ namespace Clovis {
 
 	struct Position {
 		Position(const char* fen) { set(fen); }
+		string get_fen() const;
 		void set(const char* fen);
 		template<Colour US> bool is_attacked(Square sq) const;
 		Bitboard attackers_to(Square sq) const;

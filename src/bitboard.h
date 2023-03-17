@@ -324,6 +324,17 @@ namespace Clovis {
 				: king_attacks[sq];
 		}
 
+		inline Bitboard get_attacks(PieceType pt, Bitboard occ, Square sq)
+		{
+			assert(pt != PAWN);
+
+			return pt == KNIGHT ? knight_attacks[sq]
+				: pt == BISHOP ? get_attacks<BISHOP>(occ, sq)
+				: pt == ROOK ? get_attacks<ROOK>(occ, sq)
+				: pt == QUEEN ? get_attacks<QUEEN>(occ, sq)
+				: king_attacks[sq];
+		}
+
 	} // namespace Bitboards
 
 } // namespace Clovis

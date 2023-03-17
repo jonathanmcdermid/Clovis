@@ -343,6 +343,11 @@ namespace Clovis {
 		}
 	}
 
+	inline Square str2sq(string s) {
+		assert(s.length() == 2);
+		return make_square(File(s[0] - 'a'), Rank(s[1] - '1'));
+	}
+
 	constexpr char sq_names[64][3] = {
 		"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 		"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -388,14 +393,14 @@ namespace Clovis {
 
 	constexpr Colour operator~(Colour c) { return Colour(c ^ 1); }
     
-#define INCR_OPERATORS(T)											\
-inline T& operator++(T& d) { return d = T(int(d) + 1); }			\
+#define INCR_OPERATORS(T)						\
+inline T& operator++(T& d) { return d = T(int(d) + 1); }		\
 inline T& operator--(T& d) { return d = T(int(d) - 1); }
 
-#define BASE_OPERATORS(T)											\
+#define BASE_OPERATORS(T)						\
 constexpr T operator+(T d1, int d2) { return T(int(d1) + d2); }		\
 constexpr T operator-(T d1, int d2) { return T(int(d1) - d2); }		\
-constexpr T operator-(T d) { return T(-int(d)); }					\
+constexpr T operator-(T d) { return T(-int(d)); }			\
 inline T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }		\
 inline T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }					
 

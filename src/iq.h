@@ -2,22 +2,17 @@
 
 #include <fstream>
 
+#include "parse.h"
 #include "search.h"
 
 namespace Clovis {
 
 	namespace IQ {
 
-		struct IQMove {
-			IQMove(PieceType p, Square t) : pt(p), to(t) {;}
-			PieceType pt;
-			Square to;
-		};
-
 		struct IQPosition {
-			IQPosition(string f, vector<IQMove> m) : fen(f), moves(m) {;}
+			IQPosition(string f, vector<Move> m) : fen(f), moves(m) {;}
 			string fen;
-			vector<IQMove> moves;
+			vector<Move> moves;
 		};
 
 		void iq_test();

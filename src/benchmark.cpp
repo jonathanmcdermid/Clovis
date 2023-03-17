@@ -24,8 +24,7 @@ namespace Clovis {
 				{
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
-					string fen = line.substr(idx + 1, idx_end - idx - 1);
-					bm.push_back(BenchMark(fen, 0, 0, 0ULL, MOVE_NONE, MOVE_NONE));				
+					bm.push_back(BenchMark(line.substr(idx + 1, idx_end - idx - 1)));				
 				}
 			}
 
@@ -38,7 +37,6 @@ namespace Clovis {
 			int mb    = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
 
 			tt.resize(mb);
-			tm.set();
 			
 			Search::SearchLimits limits;
 
@@ -48,7 +46,7 @@ namespace Clovis {
 			{
 				tm.set();
 				Position pos(it.fen.c_str());
-				Search::start_search(pos, limits, it.best_move, it.ponder_move, it.score, it.nodes);
+				Search::start_search(pos, limits, it.score, it.nodes, it.pline);
 				it.time = tm.get_time_elapsed();
 				total_nodes += it.nodes;
 				total_time += it.time;
@@ -58,13 +56,16 @@ namespace Clovis {
 			for (auto& it : bm) 
 			{
 				cout << "score cp: " << setw(4) << it.score
-					 << " best: "	 << setw(4) << it.best_move 
-					 << " ponder: "	 << setw(4) << it.ponder_move
-					 << " nodes: "	 << setw(7) << it.nodes
-					 << " nps: "	 << setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
+				     << " best: "    << setw(4) << it.pline.moves[0] 
+				     << " ponder: "  << setw(4) << it.pline.moves[1]
+				     << " nodes: "   << setw(7) << it.nodes
+				     << " nps: "     << setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
 			}
 
-			cout << "bench: " << total_nodes << " nps: " << 1000ULL * total_nodes / (total_time + 1) << " time: " << total_time << " ms" << endl;
+			cout << "bench: " << total_nodes 
+			     << " nps: "  << 1000ULL * total_nodes / (total_time + 1) 
+			     << " time: " << total_time 
+			     << " ms"     << endl;
 
 			return total_time;
 		}

@@ -37,7 +37,7 @@ namespace Clovis {
 			Move moves[MAX_PLY] = { MOVE_NONE }, *last;
 		};
 
-		void start_search(Position& pos, SearchLimits& lim, Move& best_move, Move& ponder_move, int& score, U64& nodes);
+		void start_search(Position& pos, SearchLimits& lim, int& score, U64& nodes, Line& pline);
 		void init_search();
 		void init_values();
 		void clear();

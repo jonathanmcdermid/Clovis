@@ -25,30 +25,12 @@ namespace Clovis {
 					size_t idx_end = line.find(",", idx + 1);
 					string fen = line.substr(0, idx);
 					istringstream is(line.substr(idx + 1, idx_end - idx - 1).c_str());
-					vector<IQMove> moves;
+					vector<Move> moves;
+
+					Position pos = Position(fen.c_str());
 
 					while (is >> token)
-					{
-						assert(token.length() == 3);
-						PieceType pt;
-
-						switch(token[0])
-						{
-							case 'P': pt = PAWN;   break;
-							case 'N': pt = KNIGHT; break;
-							case 'B': pt = BISHOP; break;
-							case 'R': pt = ROOK;   break;
-							case 'Q': pt = QUEEN;  break;
-							case 'K': pt = KING;   break;
-							default: exit(EXIT_FAILURE);
-						}
-
-						File f = File(token[1] - 'a');
-						Rank r = Rank(token[2] - '1');
-						Square sq = make_square(f, r);
-						assert(is_valid(sq));
-						moves.push_back(IQMove(pt, sq));
-					}
+						moves.push_back(Parse::parse(pos, token));
 
 					iq.push_back(IQPosition(fen, moves));
 				}
@@ -64,15 +46,16 @@ namespace Clovis {
 			for (auto& it : iq)
 			{
 				Position pos(it.fen.c_str());
-				Move best_move, ponder_move;
+				pos.print_position();
 				int score;
 				U64 nodes;
-				Search::start_search(pos, limits, best_move, ponder_move, score, nodes);
+				Search::Line pline;
+				Search::start_search(pos, limits, score, nodes, pline);
 				bool res = false;
 				
 				for (auto& move : it.moves)
 				{
-					if (move_to_sq(best_move) == move.to && piece_type(move_piece_type(best_move)) == move.pt)
+					if (pline.moves[0] == move)
 					{
 						res = true;
 						break;
@@ -86,7 +69,10 @@ namespace Clovis {
 				}
 				else	
 				{
-					cout << "FAIL!" << endl;
+					cout << "FAIL! best move: ";
+					for (auto& move : it.moves)
+						cout << move << " ";
+					cout << endl;
 					++fails;
 				}
 				
