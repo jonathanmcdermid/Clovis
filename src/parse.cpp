@@ -1,4 +1,5 @@
 #include "parse.h"
+#include "movepicker.h"
 
 namespace Clovis {
 
@@ -206,7 +207,6 @@ namespace Clovis {
 								U64 nodes;
 								Search::Line pline;
 								Search::start_search(pos, limits, score, nodes, pline);
-								tt.clear();
 
 								if (score < MIN_CHECKMATE_SCORE && score > -MIN_CHECKMATE_SCORE)
 								{
@@ -215,6 +215,13 @@ namespace Clovis {
 
 									if (find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
 									{
+										MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
+										Move mm;
+										if((mm = mp.get_next(false)) != MOVE_NONE && pline.last - pline.moves == 1)
+										{
+											pos.print_position();
+											cout << mm << endl;
+										}
 										keys.push_back(pos.bs->key);
 										ofs << pos.get_fen() + " \"" + result + "\";" << endl;
 									}

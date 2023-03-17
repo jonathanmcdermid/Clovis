@@ -26,96 +26,96 @@ namespace Clovis {
 
         	constexpr Score pawn_table[] = {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(119, 291), S(162, 271), S(172, 242), S(182, 230),
-			S(81, 90), S(100, 85), S(119, 81), S(114, 66),
-			S(66, 80), S(85, 74), S(87, 74), S(102, 67),
-			S(56, 72), S(65, 73), S(79, 70), S(96, 67),
-			S(61, 66), S(73, 67), S(77, 71), S(79, 75),
-			S(56, 68), S(79, 67), S(73, 79), S(72, 80),
+			S(155, 275), S(180, 275), S(168, 252), S(213, 226),
+			S(89, 95), S(92, 102), S(116, 90), S(129, 48),
+			S(74, 84), S(89, 80), S(95, 78), S(108, 74),
+			S(62, 77), S(70, 80), S(84, 76), S(101, 72),
+			S(68, 71), S(76, 72), S(81, 76), S(81, 82),
+			S(59, 75), S(84, 75), S(76, 85), S(71, 87),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score knight_table[] = {
-			S(247, 193), S(328, 196), S(310, 223), S(332, 221),
-			S(319, 206), S(314, 228), S(345, 226), S(349, 234),
-			S(329, 215), S(349, 226), S(350, 234), S(355, 242),
-			S(331, 224), S(334, 237), S(347, 244), S(346, 251),
+			S(222, 201), S(301, 193), S(279, 226), S(303, 223),
+			S(303, 207), S(297, 228), S(325, 228), S(325, 235),
+			S(302, 215), S(326, 223), S(332, 234), S(335, 242),
+			S(303, 225), S(314, 234), S(334, 240), S(332, 246),
 		};
 
 		constexpr Score bishop_table[] = {
-			S(327, 227), S(341, 233), S(344, 230), S(343, 235),
-			S(329, 230), S(362, 218), S(358, 231), S(359, 234),
-			S(335, 237), S(357, 233), S(366, 233), S(356, 240),
-			S(332, 238), S(333, 238), S(344, 238), S(353, 236),
+			S(311, 223), S(322, 223), S(321, 227), S(322, 231),
+			S(307, 229), S(339, 213), S(344, 225), S(338, 230),
+			S(317, 232), S(340, 229), S(343, 228), S(345, 233),
+			S(307, 236), S(316, 233), S(327, 230), S(333, 226),
 		};
 
 		constexpr Score rook_table[] = {
-			S(458, 435), S(451, 442), S(461, 439), S(463, 437),
-			S(432, 442), S(449, 438), S(459, 435), S(469, 430),
-			S(437, 439), S(454, 439), S(458, 434), S(456, 435),
-			S(433, 444), S(447, 439), S(456, 441), S(459, 436),
+			S(443, 431), S(438, 435), S(443, 436), S(441, 435),
+			S(415, 438), S(433, 433), S(451, 428), S(449, 427),
+			S(429, 436), S(447, 432), S(444, 431), S(451, 429),
+			S(424, 443), S(442, 436), S(446, 437), S(452, 430),
 		};
 
 		constexpr Score queen_table[] = {
-			S(905, 813), S(885, 840), S(883, 854), S(910, 832),
-			S(908, 808), S(864, 841), S(878, 849), S(851, 876),
-			S(918, 810), S(903, 828), S(902, 834), S(877, 867),
-			S(899, 839), S(890, 853), S(891, 843), S(883, 855),
-			S(914, 815), S(903, 845), S(908, 834), S(908, 846),
-			S(912, 826), S(931, 805), S(920, 829), S(920, 825),
-			S(910, 807), S(927, 795), S(938, 796), S(931, 815),
-			S(927, 788), S(918, 792), S(919, 797), S(932, 788),
+			S(909, 784), S(871, 827), S(864, 839), S(890, 824),
+			S(897, 803), S(869, 837), S(879, 844), S(848, 875),
+			S(915, 803), S(904, 817), S(910, 828), S(882, 858),
+			S(902, 833), S(886, 852), S(893, 840), S(888, 852),
+			S(912, 810), S(906, 837), S(912, 824), S(907, 847),
+			S(908, 813), S(929, 805), S(918, 831), S(919, 830),
+			S(913, 795), S(929, 782), S(937, 791), S(933, 809),
+			S(920, 773), S(909, 787), S(909, 788), S(932, 775),
 		};
 
 		constexpr Score king_table[] = {
-			S(72, 14), S(105, 35), S(65, 60), S(72, 56),
-			S(82, 41), S(111, 53), S(77, 75), S(52, 87),
-			S(55, 55), S(95, 69), S(79, 84), S(68, 92),
-			S(23, 58), S(71, 78), S(57, 94), S(38, 103),
+			S(73, 10), S(108, 32), S(61, 60), S(61, 59),
+			S(85, 40), S(116, 53), S(83, 74), S(54, 87),
+			S(47, 59), S(93, 69), S(74, 86), S(77, 93),
+			S(33, 60), S(79, 81), S(79, 95), S(45, 104),
 		};
 
 		constexpr Score passed_pawn[] = {
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
-			S(14, 124), S(3, 120), S(18, 93), S(14, 87),
-			S(13, 64), S(7, 62), S(11, 43), S(6, 34),
-			S(10, 37), S(0, 35), S(0, 20), S(0, 18),
-			S(4, 14), S(0, 16), S(0, 5), S(0, 3),
-			S(0, 14), S(0, 12), S(5, 0), S(0, 4),
+			S(37, 116), S(26, 110), S(44, 87), S(26, 102),
+			S(28, 65), S(21, 64), S(15, 46), S(8, 35),
+			S(10, 41), S(7, 41), S(0, 24), S(0, 20),
+			S(0, 12), S(0, 20), S(0, 8), S(0, 0),
+			S(2, 15), S(0, 12), S(2, 3), S(0, 1),
 			S(0, 0), S(0, 0), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score candidate_passer[] = {
-			S(0, 0), S(0, 2), S(0, 5), S(5, 18), S(11, 39), S(26, 48), S(0, 0), S(0, 0),
+			S(0, 0), S(0, 6), S(0, 8), S(10, 23), S(0, 45), S(0, 31), S(0, 0), S(0, 0),
 		};
 
 		constexpr Score quiet_mobility[] = {
-			S(0, 0), S(0, 0), S(5, 1), S(4, 3), S(4, 2), S(2, 3), S(0, 0),
+			S(0, 0), S(0, 0), S(4, 1), S(4, 4), S(4, 2), S(2, 1), S(0, 0),
 		};
 
 		constexpr Score capture_mobility[] = {
-			S(0, 0), S(0, 0), S(11, 20), S(11, 21), S(12, 22), S(1, 13), S(0, 0),
+			S(0, 0), S(0, 0), S(12, 24), S(13, 21), S(17, 25), S(4, 14), S(0, 0),
 		};
 
-		constexpr Score double_pawn_penalty = S(0, 7);
-		constexpr Score isolated_pawn_penalty = S(14, 6);
-		constexpr Score bishop_pair_bonus = S(22, 40);
-		constexpr Score rook_open_file_bonus = S(26, 0);
+		constexpr Score double_pawn_penalty = S(0, 10);
+		constexpr Score isolated_pawn_penalty = S(12, 6);
+		constexpr Score bishop_pair_bonus = S(22, 38);
+		constexpr Score rook_open_file_bonus = S(24, 0);
 		constexpr Score rook_semi_open_file_bonus = S(0, 0);
-		constexpr Score rook_closed_file_penalty = S(13, 5);
-		constexpr Score tempo_bonus = S(20, 20);
-		constexpr Score king_full_open_penalty = S(29, 8);
-		constexpr Score king_semi_open_penalty = S(4, 0);
-		constexpr Score king_adjacent_full_open_penalty = S(1, 10);
-		constexpr Score king_adjacent_semi_open_penalty = S(8, 0);
-		constexpr Score knight_outpost_bonus = S(39, 11);
-		constexpr Score bishop_outpost_bonus = S(40, 2);
-		constexpr Score weak_queen_penalty = S(32, 0);
-		constexpr Score rook_on_our_passer_file = S(9, 11);
-		constexpr Score rook_on_their_passer_file = S(0, 32);
-		constexpr Score tall_pawn_penalty = S(13, 13);
-		constexpr Score fianchetto_bonus = S(16, 10);
-		constexpr Score rook_on_seventh = S(0, 16);
+		constexpr Score rook_closed_file_penalty = S(18, 3);
+		constexpr Score tempo_bonus = S(31, 19);
+		constexpr Score king_full_open_penalty = S(33, 9);
+		constexpr Score king_semi_open_penalty = S(0, 0);
+		constexpr Score king_adjacent_full_open_penalty = S(3, 10);
+		constexpr Score king_adjacent_semi_open_penalty = S(2, 0);
+		constexpr Score knight_outpost_bonus = S(38, 16);
+		constexpr Score bishop_outpost_bonus = S(46, 0);
+		constexpr Score weak_queen_penalty = S(40, 0);
+		constexpr Score rook_on_our_passer_file = S(8, 9);
+		constexpr Score rook_on_their_passer_file = S(4, 31);
+		constexpr Score tall_pawn_penalty = S(16, 17);
+		constexpr Score fianchetto_bonus = S(24, 8);
+		constexpr Score rook_on_seventh = S(0, 19);
 
 		constexpr short pawn_shield[] = {
 			0, 0, 0, 0,
@@ -125,20 +125,19 @@ namespace Clovis {
 			0, 0, 0, 0,
 			0, 0, 0, 0,
 			0, 0, 0, 0,
-			27, 30, 26, 0,
+			26, 31, 26, 0,
 		};
 
 		constexpr short inner_ring_attack[] = {
-			0, 24, 14, 29, 28, 23, 0,
+			0, 13, 17, 27, 22, 22, 0,
 		};
 
 		constexpr short outer_ring_attack[] = {
-			0, 2, 26, 7, 7, 19, 0,
+			0, 0, 28, 12, 7, 20, 0,
 		};
 
-		constexpr short virtual_mobility = 14;
-		constexpr short attack_factor = 75;
-
+		constexpr short virtual_mobility = 15;
+		constexpr short attack_factor = 68;
 #undef S
 
 		constexpr Bitboard file_masks[SQ_N] =  {
