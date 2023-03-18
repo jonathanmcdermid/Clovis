@@ -223,7 +223,8 @@ namespace Clovis {
 					pline->last = pline->moves;
 					*pline->last++ = tte->move;
 				}
-				else if (tte->depth >= depth
+				if (!PV_NODE
+				&& tte->depth >= depth
 				&& (tte->flags == HASH_EXACT
 				|| (tte->flags == HASH_BETA  && tte->eval >= beta)
 				|| (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
@@ -380,7 +381,7 @@ namespace Clovis {
 					}
 				}
 
-				if (!ROOT_NODE && score > - MIN_CHECKMATE_SCORE && moves_searched >= (4 + depth * depth))
+				if (moves_searched >= (4 + depth * depth))
 					play_quiets = false;
 			}
 
