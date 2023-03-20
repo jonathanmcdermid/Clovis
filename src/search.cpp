@@ -381,7 +381,9 @@ namespace Clovis {
 					}
 				}
 
-				if (moves_searched >= (4 + depth * depth))
+				if (!ROOT_NODE 
+				&& score > - MIN_CHECKMATE_SCORE 
+				&& moves_searched >= (4 + depth * depth))
 					play_quiets = false;
 			}
 
