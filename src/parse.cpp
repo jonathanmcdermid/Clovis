@@ -197,9 +197,9 @@ namespace Clovis {
 							pos.do_move(parse(pos, token));
 
 							if (fmc > 16 
-								&& token[token.length() - 1] != '#' 
-								&& token[token.length() - 1] != '+'
-								&& Random::random_U64() % 5 == 0)
+							&& token[token.length() - 1] != '#' 
+							&& token[token.length() - 1] != '+'
+							&& Random::random_U64() % 5 == 0)
 							{
 								Search::SearchLimits limits;
 								limits.depth = 1;
@@ -215,13 +215,8 @@ namespace Clovis {
 
 									if (find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
 									{
-										MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
-										Move mm;
-										if((mm = mp.get_next(false)) == MOVE_NONE)
-										{
-											keys.push_back(pos.bs->key);
-											ofs << pos.get_fen() + " \"" + result + "\";" << endl;
-										}
+										keys.push_back(pos.bs->key);
+										ofs << pos.get_fen() + " \"" + result + "\";" << endl;
 									}
 
 									for (Move* m = pline.last - 1; m >= pline.moves; --m)

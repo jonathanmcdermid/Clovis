@@ -103,12 +103,6 @@ namespace Clovis {
 			|| (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
 				return tte->eval;
 
-			if (PV_NODE && tte && tte->move != MOVE_NONE)
-			{
-				pline.last = pline.moves;
-				*pline.last++ = tte->move;
-			}
-
 			bool in_check = pos.is_king_in_check();
 
 			int eval;
