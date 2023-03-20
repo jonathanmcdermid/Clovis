@@ -35,8 +35,8 @@ Commands for the engine can be issued using the standard [UCI format](http://pag
 
 Clovis is currently estimated to have an Elo rating of ~2900
 
-- [CCRL 40/15](https://ccrl.chessdom.com/ccrl/4040/) **Clovis II 2815 Elo**
-- [CCRL Blitz](https://ccrl.chessdom.com/ccrl/404/) **Clovis II N/A**
+- [CCRL 40/15](https://ccrl.chessdom.com/ccrl/4040/) **Clovis III 2858 Elo**
+- [CCRL Blitz](https://ccrl.chessdom.com/ccrl/404/) **Clovis III 2820 Elo**
 
 ## Technical Details
 
