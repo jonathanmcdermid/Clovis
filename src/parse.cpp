@@ -173,15 +173,18 @@ namespace Clovis {
 				}
 
 				Position pos(fen.c_str());
-				int fmc = 1;
-				Colour turn = pos.side;
+
+				while (getline(ifs, line))
+					if (line.find(to_string(pos.bs->fmc) + "... ") != string::npos 
+						|| line.find(to_string(pos.bs->fmc) + ". ") != string::npos)
+						break;
+
 				bool live = true;
 				vector<Key> keys;
 
-				while (live && getline(ifs, line))
-				{
+				do {
 					istringstream ss(line);
-					while (line.find(to_string(fmc) + ". ") != string::npos || turn == BLACK || line.find(result) != string::npos)
+					while (true)
 					{
 						string token;
 						ss >> skipws >> token;
@@ -196,7 +199,7 @@ namespace Clovis {
 						{
 							pos.do_move(parse(pos, token));
 
-							if (fmc > 16 
+							if (pos.bs->fmc > 16
 							&& token[token.length() - 1] != '#' 
 							&& token[token.length() - 1] != '+'
 							&& Random::random_U64() % 5 == 0)
@@ -223,12 +226,9 @@ namespace Clovis {
 										pos.undo_move(*m);
 								}
 							}
-
-							if ((turn = ~turn) == WHITE)
-								++fmc;
 						}
 					}
-				}
+				} while (live && getline(ifs, line));
 			}
 
 			ifs.close();
