@@ -174,7 +174,7 @@ namespace Clovis {
 
 				Position pos(fen.c_str());
 				int fmc = 1;
-				Colour turn = WHITE;
+				Colour turn = pos.side;
 				bool live = true;
 				vector<Key> keys;
 
