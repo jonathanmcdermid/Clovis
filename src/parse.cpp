@@ -199,7 +199,7 @@ namespace Clovis {
 						{
 							pos.do_move(parse(pos, token));
 
-							if (pos.bs->fmc > 16
+							if (pos.bs->fmc > 8
 							&& token[token.length() - 1] != '#' 
 							&& token[token.length() - 1] != '+'
 							&& Random::random_U64() % 5 == 0)
@@ -218,8 +218,16 @@ namespace Clovis {
 
 									if (find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
 									{
-										keys.push_back(pos.bs->key);
-										ofs << pos.get_fen() + " \"" + result + "\";" << endl;
+										int eval = Eval::evaluate<false>(pos);
+										if (pos.side == BLACK)
+											eval = -eval;
+										if ((result == "1-0" && eval > -500)
+										|| (result == "0-1" && eval < 500)
+										|| (result == "1/2-1/2" && (eval > -500 && eval < 500)))
+										{
+											keys.push_back(pos.bs->key);
+											ofs << pos.get_fen() + " \"" + result + "\";" << endl;
+										}
 									}
 
 									for (Move* m = pline.last - 1; m >= pline.moves; --m)
