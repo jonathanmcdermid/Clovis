@@ -13,97 +13,41 @@ namespace Clovis {
 
 		void init_eval()
 		{
-			for (auto pt : {PAWN, QUEEN})
+			for (auto col : {WHITE, BLACK})
 			{
- 				for (Square sq = SQ_ZERO; sq < 32; ++sq)
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 				{
-					int r = sq / 4;
-					int f = sq & 0x3;
-					
-					// horizontal mirror
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
+					for (auto pt : {PAWN, QUEEN})
+						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source32[relative_square(col, sq)]];
+			
+					for (auto pt : {KNIGHT, BISHOP, KING})
+						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source16[sq]];
 
-					score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
-					score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
+					for (auto pt : { ROOK })
+						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
+				
+					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
 				}
 			}
 			
-			for (auto pt : {KNIGHT, BISHOP, ROOK, KING})
+			for (auto col : {WHITE, BLACK})
 			{
- 				for (Square sq = SQ_ZERO; sq < 16; ++sq)
+				for (auto pt : {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING})
 				{
-					int r = sq / 4;
-					int f = sq & 0x3;
-					
-					// horizontal mirror
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + f]       = &piece_table[pt][sq];
-					score_table[make_piece(pt, WHITE)][((7 - r) << 3) + (7 - f)] = &piece_table[pt][sq];
-
-					score_table[make_piece(pt, BLACK)][(r << 3) + f]             = &piece_table[pt][sq];
-					score_table[make_piece(pt, BLACK)][(r << 3) + (7 - f)]       = &piece_table[pt][sq];
-						
-					// vertical mirror
-					score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + f)]       = &piece_table[pt][sq];
-					score_table[make_piece(pt, WHITE)][56 ^ (((7 - r) << 3) + (7 - f))] = &piece_table[pt][sq];
-
-					score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + f)]             = &piece_table[pt][sq];
-					score_table[make_piece(pt, BLACK)][56 ^ ((r << 3) + (7 - f))]       = &piece_table[pt][sq];
-				}
-			}
-			
-			/*for (auto pt : {})
-			{
-				for (Square sq = SQ_ZERO; sq < 16; ++sq)
-				{
-					int r = sq / 4;
-					int f = sq & 0x3;
-
-					if (r >= f) 
-					{
-						// horizontal mirror
-						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + f]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - r) * 8 + (7 - f)] = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][r * 8 + f]             = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][r * 8 + (7 - f)]       = &piece_table[pt][sq];
-
-						// vertical mirror
-						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + f)]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][56 ^ ((7 - r) * 8 + (7 - f))] = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + f)]             = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][56 ^ (r * 8 + (7 - f))]       = &piece_table[pt][sq];
-
-						// diagonal mirror
-						score_table[make_piece(pt, WHITE)][f * 8 + r]           = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-						score_table[make_piece(pt, WHITE)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
-								
-						score_table[make_piece(pt, BLACK)][f * 8 + r]           = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][f * 8 + 7 - r]       = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + r]     = &piece_table[pt][sq];
-						score_table[make_piece(pt, BLACK)][(7 - f) * 8 + 7 - r] = &piece_table[pt][sq];
+ 					for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+ 					{
+						cout << *score_table[make_piece(pt, col)][sq];
+						if (!((sq + 1) % 8))
+							cout << endl;
 					}
 				}
-			}
-			*/
-			
-			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-			{
-				int r = sq / 4;
-				int f = sq & 0x3;
-
-				passed_table[WHITE][((7 - r) << 3) + f]       = &passed_pawn[sq];
-				passed_table[WHITE][((7 - r) << 3) + (7 - f)] = &passed_pawn[sq];
-
-				passed_table[BLACK][(r << 3) + f]             = &passed_pawn[sq];
-				passed_table[BLACK][(r << 3) + (7 - f)]       = &passed_pawn[sq];
 				
-				shield_table[WHITE][((7 - r) << 3) + f]       = &pawn_shield[sq];
-				shield_table[WHITE][((7 - r) << 3) + (7 - f)] = &pawn_shield[sq];
-
-				shield_table[BLACK][(r << 3) + f]             = &pawn_shield[sq];
-				shield_table[BLACK][(r << 3) + (7 - f)]       = &pawn_shield[sq];
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+ 				{
+					cout << *passed_table[col][sq];
+					if (!((sq + 1) % 8))
+						cout << endl;
+				}
 			}
 		}
 		
@@ -173,7 +117,7 @@ namespace Clovis {
 			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
 			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
-			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[sq]][US];
+			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source10[sq]][US];
 			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[sq]][US];
 		}
