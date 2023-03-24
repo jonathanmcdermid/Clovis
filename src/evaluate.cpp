@@ -20,33 +20,14 @@ namespace Clovis {
 					for (auto pt : {PAWN, QUEEN})
 						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source32[relative_square(col, sq)]];
 			
-					for (auto pt : {KNIGHT, BISHOP, KING})
+					for (auto pt : {KNIGHT, ROOK, KING})
 						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source16[sq]];
 
-					for (auto pt : { ROOK })
+					for (auto pt : {BISHOP})
 						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
 				
 					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
-				}
-			}
-			
-			for (auto col : {WHITE, BLACK})
-			{
-				for (auto pt : {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING})
-				{
- 					for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
- 					{
-						cout << *score_table[make_piece(pt, col)][sq];
-						if (!((sq + 1) % 8))
-							cout << endl;
-					}
-				}
-				
-				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
- 				{
-					cout << *passed_table[col][sq];
-					if (!((sq + 1) % 8))
-						cout << endl;
+					shield_table[col][sq] = &pawn_shield[source32[relative_square(col, sq)]];
 				}
 			}
 		}
@@ -116,8 +97,8 @@ namespace Clovis {
 		{
 			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
-			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
-			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source10[sq]][US];
+			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source10[sq]][US];
+			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[sq]][US];
 			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[sq]][US];
 		}
