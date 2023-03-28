@@ -92,6 +92,11 @@ namespace Clovis {
 			}
 		}
 		
+		constexpr bool is_open_file(const Position& pos, File f)
+		{
+			return !(file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
+		}
+		
 		template<Colour US, PieceType PT>
 		void psqt_trace(Square sq)
 		{
@@ -323,47 +328,6 @@ namespace Clovis {
 			}
 			
 			File kf = file_of(ei.ksq[US]);
-
-			if (!(file_masks[ei.ksq[US]] & pos.pc_bb[OUR_PAWN]))
-			{
-				if (file_masks[ei.ksq[US]] & pos.pc_bb[THEIR_PAWN])
-				{
-					score -= king_semi_open_penalty;
-					if constexpr (TRACE) --T[KING_SEMI][US];
-				}
-				else
-				{
-					score -= king_full_open_penalty;
-					if constexpr (TRACE) --T[KING_FULL][US];
-				}
-			}
-			if (kf != FILE_A && !(file_masks[ei.ksq[US] + WEST] & pos.pc_bb[OUR_PAWN]))
-			{
-				if (file_masks[ei.ksq[US] + WEST] & pos.pc_bb[THEIR_PAWN])
-				{
-					score -= king_adjacent_semi_open_penalty;
-					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
-				}
-				else
-				{
-					score -= king_adjacent_full_open_penalty;
-					if constexpr (TRACE) --T[KING_ADJ_FULL][US];
-				}
-			}
-			if (kf != FILE_H && !(file_masks[ei.ksq[US] + EAST] & pos.pc_bb[OUR_PAWN]))
-			{
-				if (file_masks[ei.ksq[US] + EAST] & pos.pc_bb[THEIR_PAWN])
-				{
-					score -= king_adjacent_semi_open_penalty;
-					if constexpr (TRACE) --T[KING_ADJ_SEMI][US];
-				}
-				else
-				{
-					score -= king_adjacent_full_open_penalty;
-					if constexpr (TRACE) --T[KING_ADJ_FULL][US];
-				}
-			}
-			
 			File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
 			
 			for (File f = cf - 1; f <= cf + 1; ++f)
@@ -379,6 +343,19 @@ namespace Clovis {
 				{
 					ei.weight[~US] += *shield_table[0][f];
 					if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
+				}
+				
+				if (is_open_file(pos, f))
+				{
+					if (f == kf) {
+						score -= king_full_open_penalty;
+						if constexpr (TRACE) --T[KING_FULL][US];
+					}
+					else
+					{
+						score -= king_adjacent_full_open_penalty;
+						if constexpr (TRACE) --T[KING_ADJ_FULL][US];
+					}
 				}
 			}
 			
