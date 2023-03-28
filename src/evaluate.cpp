@@ -59,7 +59,7 @@ namespace Clovis {
 				if (danger > support)
 					return false;
 				sq += pawn_push(US);
-			} while (relative_rank(US, rank_of(sq)) != RANK_7);
+			} while (rank_of(sq) != relative_rank(US, RANK_7));
 			
 			return true;
 		}
@@ -347,7 +347,8 @@ namespace Clovis {
 				
 				if (is_open_file(pos, f))
 				{
-					if (f == kf) {
+					if (f == kf) 
+					{
 						score -= king_full_open_penalty;
 						if constexpr (TRACE) --T[KING_FULL][US];
 					}
@@ -360,7 +361,6 @@ namespace Clovis {
 			}
 			
 			score += *score_table[make_piece(KING, US)][ei.ksq[US]];
-			
 			if constexpr (TRACE) psqt_trace<US, KING>(ei.ksq[US]);
 
 			return score;

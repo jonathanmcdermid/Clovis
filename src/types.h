@@ -39,7 +39,6 @@ namespace Clovis {
 	constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
 	struct Score {
-	public:
 		Score() : mg(0), eg(0) {}
 		Score(double* param) : mg((short) round(param[0])), eg((short) round(param[1])) {}
 		constexpr Score(int m, int e) : mg(m), eg(e) {}
@@ -198,9 +197,7 @@ namespace Clovis {
 		ROOK_CLOSED,
 		TEMPO,
 		KING_FULL,
-		KING_SEMI,
 		KING_ADJ_FULL,
-		KING_ADJ_SEMI,
 		KNIGHT_OUTPOST,
 		BISHOP_OUTPOST,
 		WEAK_QUEEN,
