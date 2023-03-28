@@ -20,11 +20,11 @@ namespace Clovis {
 					for (auto pt : {PAWN, QUEEN})
 						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source32[relative_square(col, sq)]];
 			
-					for (auto pt : {KNIGHT, ROOK, KING})
+					for (auto pt : {KNIGHT, BISHOP, ROOK, KING})
 						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source16[sq]];
 
-					for (auto pt : {BISHOP})
-						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
+					//for (auto pt : {})
+					//	score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
 				
 					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
 					shield_table[col][sq] = &pawn_shield[source32[relative_square(col, sq)]];
@@ -97,7 +97,7 @@ namespace Clovis {
 		{
 			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
-			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source10[sq]][US];
+			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
 			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[sq]][US];
 			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[sq]][US];
