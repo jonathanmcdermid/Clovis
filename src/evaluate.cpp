@@ -97,17 +97,6 @@ namespace Clovis {
 			return !(file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
 		}
 
-		template<Colour US>
-		constexpr bool is_trapped_rook(const Position& pos, const EvalInfo& ei, Square sq, Bitboard moves)
-		{
-			File kf = file_of(lsb(pos.pc_bb[make_piece(KING, US)]));
-
-			return popcnt(moves) < 4 
-				&& !(moves & ei.open_files)
-				&& (kf < FILE_E) == (file_of(sq) < kf)
-				&& (castle_rights(US) & pos.bs->castle) == NO_CASTLING;
-		}
-		
 		template<Colour US, PieceType PT>
 		void psqt_trace(Square sq)
 		{
@@ -127,6 +116,19 @@ namespace Clovis {
 			return (PT == QUEEN)   ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)]
 			     : (PT == ROOK)    ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)] | pos.pc_bb[make_piece(ROOK, ~US)]
 			     : pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, ~US)];
+		}
+		
+		template<Colour US>
+		constexpr bool is_trapped_rook(const Position& pos, const EvalInfo& ei, Square sq, Bitboard safe_attacks)
+		{
+			Bitboard moves = safe_attacks & ~(pos.pc_bb[make_piece(PAWN, US)] | pos.pc_bb[make_piece(KING, US)]);
+			File kf = file_of(ei.ksq[US]);
+
+			return popcnt(moves) < 4
+				&& !(moves & (worthy_trades<US, ROOK>(pos) | ei.open_files))
+				&& file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)]
+				&& (kf < FILE_E) == (file_of(sq) < kf)
+				&& (castle_rights(US) & pos.bs->castle) == NO_CASTLING;
 		}
 		
 		template<Colour US, PieceType PT, bool SAFETY, bool TRACE>
@@ -154,7 +156,8 @@ namespace Clovis {
 				if (pinner != SQ_NONE)
 					attacks &= between_squares(ei.ksq[US], pinner) | pinner;
 
-				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | worthy_trades<US, PT>(pos));
+				Bitboard trades = worthy_trades<US, PT>(pos);
+				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
 				score += quiet_mobility[PT]   * popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
 				score += capture_mobility[PT] * popcnt(safe_attacks &  pos.occ_bb[~US]);
@@ -232,7 +235,7 @@ namespace Clovis {
 						score += rook_on_seventh;
 						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
 					}
-					if (is_trapped_rook<US>(pos, ei, sq, attacks & ~(pos.pc_bb[make_piece(PAWN, US)] | pos.pc_bb[make_piece(KING, US)])))
+					if (is_trapped_rook<US>(pos, ei, sq, safe_attacks))
 					{
 						score -= trapped_rook_penalty;
 						if constexpr (TRACE) --T[TRAPPED_ROOK][US]; 
