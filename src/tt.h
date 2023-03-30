@@ -38,7 +38,8 @@ namespace Clovis {
 		Bitboard pawn_attacks[COLOUR_N] = {0ULL};
 		Bitboard passers[COLOUR_N] = {0ULL};
 		Bitboard potential_pawn_attacks[COLOUR_N] = {0ULL};
-		Square ksq [COLOUR_N] = {SQ_NONE};
+		Bitboard open_files = ~0ULL;
+		Square ksq[COLOUR_N] = {SQ_NONE};
 		short weight[COLOUR_N] = {0};
 	};
 

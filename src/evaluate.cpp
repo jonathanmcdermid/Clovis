@@ -96,6 +96,17 @@ namespace Clovis {
 		{
 			return !(file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
 		}
+
+		template<Colour US>
+		constexpr bool is_trapped_rook(const Position& pos, const EvalInfo& ei, Square sq, Bitboard moves)
+		{
+			File kf = file_of(lsb(pos.pc_bb[make_piece(KING, US)]));
+
+			return popcnt(moves) < 4 
+				&& !(moves & ei.open_files)
+				&& (kf < FILE_E) == (file_of(sq) < kf)
+				&& (castle_rights(US) & pos.bs->castle) == NO_CASTLING;
+		}
 		
 		template<Colour US, PieceType PT>
 		void psqt_trace(Square sq)
@@ -221,6 +232,11 @@ namespace Clovis {
 						score += rook_on_seventh;
 						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
 					}
+					if (is_trapped_rook<US>(pos, ei, sq, attacks & ~(pos.pc_bb[make_piece(PAWN, US)] | pos.pc_bb[make_piece(KING, US)])))
+					{
+						score -= trapped_rook_penalty;
+						if constexpr (TRACE) --T[TRAPPED_ROOK][US]; 
+					}
 				}
 				if constexpr (PT == QUEEN)
 				{
@@ -325,6 +341,7 @@ namespace Clovis {
 
 				ei.pawn_attacks[US] |= Bitboards::pawn_attacks[US][sq];
 				ei.potential_pawn_attacks[US] |= outpost_pawn_masks[US][sq];
+				ei.open_files &= ~file_masks[sq];
 			}
 			
 			File kf = file_of(ei.ksq[US]);

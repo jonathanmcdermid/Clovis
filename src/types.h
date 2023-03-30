@@ -206,6 +206,7 @@ namespace Clovis {
 		TALL_PAWN,
 		FIANCHETTO,
 		ROOK_ON_SEVENTH,
+		TRAPPED_ROOK,
 		
 		TI_SAFETY,
 		
@@ -240,6 +241,10 @@ namespace Clovis {
 
 	constexpr CastleRights qs_castle_rights(Colour c) {
 		return CastleRights(1 << ((c << 1) + 1));
+	}
+
+	constexpr CastleRights castle_rights(Colour c) {
+		return c == WHITE ? CastleRights(3) : CastleRights(12);
 	}
 
 	constexpr Move encode_move(Square from, Square to, Piece piece, Piece promo, int cap, int dpush, int enpassant, int castling) {
