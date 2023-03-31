@@ -118,25 +118,6 @@ namespace Clovis {
 			     : pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, ~US)];
 		}
 		
-		template<Colour US>
-		constexpr bool is_trapped_rook(const Position& pos, const EvalInfo& ei, Square sq, Bitboard safe_attacks)
-		{
-			Bitboard moves = safe_attacks & ~(pos.pc_bb[make_piece(PAWN, US)] | pos.pc_bb[make_piece(KING, US)]);
-			File kf = file_of(ei.ksq[US]);
-
-			/* Rook is trapped if the following is true:
-				1. has less than 4 safe squares to move to
-				2. cannot trade or move to an open file
-				3. is not on a half open file
-				4. is on the same horizontal side as the king
-				5. king cannot castle */
-			return popcnt(moves) < 4
-				&& !(moves & (worthy_trades<US, ROOK>(pos) | ei.open_files))
-				&& file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)]
-				&& (kf < FILE_E) == (file_of(sq) < kf)
-				&& (castle_rights(US) & pos.bs->castle) == NO_CASTLING;
-		}
-		
 		template<Colour US, PieceType PT, bool SAFETY, bool TRACE>
 		Score evaluate_majors(const Position& pos, EvalInfo& ei)
 		{
@@ -240,11 +221,6 @@ namespace Clovis {
 					{
 						score += rook_on_seventh;
 						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
-					}
-					if (is_trapped_rook<US>(pos, ei, sq, safe_attacks))
-					{
-						score -= trapped_rook_penalty;
-						if constexpr (TRACE) --T[TRAPPED_ROOK][US]; 
 					}
 				}
 				if constexpr (PT == QUEEN)

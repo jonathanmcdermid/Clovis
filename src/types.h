@@ -206,7 +206,6 @@ namespace Clovis {
 		TALL_PAWN,
 		FIANCHETTO,
 		ROOK_ON_SEVENTH,
-		TRAPPED_ROOK,
 		
 		TI_SAFETY,
 		
