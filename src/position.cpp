@@ -558,6 +558,7 @@ namespace Clovis {
 		}
 
 		cout << "a b c d e f g h" << endl
+		<< "FEN:\t\t" << get_fen() << endl
 		<< "Side:\t\t" 
 		<< (side == WHITE ? "white" : "black") << endl
 		<< "Enpassant:\t" 
