@@ -6,6 +6,25 @@ namespace Clovis {
 
 	const extern string piece_str = " PNBRQK  pnbrqk";
 
+	const string symbols[] = {
+		"",
+        	"\u2659", // ♙ pawn
+        	"\u2658", // ♘ knight
+        	"\u2657", // ♗ bishop
+        	"\u2656", // ♖ rook
+        	"\u2655", // ♕ queen
+        	"\u2654", // ♔ king 
+		"",
+		"",
+        	"\u265F", // ♟︎ pawn 
+        	"\u265E", // ♞ knight 
+        	"\u265D", // ♝ bishop 
+        	"\u265C", // ♜ rook 
+        	"\u265B", // ♛ queen
+        	"\u265A", // ♚ king 
+		"\u00B7"  // · empty
+	};
+
 	// castling rights lookup table
 	constexpr int castling_rights[SQ_N] = {
 		13, 15, 15, 15, 12, 15, 15, 14,
@@ -522,8 +541,6 @@ namespace Clovis {
 	// prints the current position
 	void Position::print_position() const
 	{
-		cout << "+---+---+---+---+---+---+---+---+" << endl;
-
 		for (Rank r = RANK_8; r >= 0; --r)
 		{
 			for (File f = FILE_A; f < FILE_N; ++f)
@@ -535,12 +552,12 @@ namespace Clovis {
 					if (pc_bb[bb_piece] & sq)
 						break;
 
-				cout << "| " << ((bb_piece > B_KING) ? ' ' : piece_str[bb_piece]) << " ";
+				cout << symbols[bb_piece] << " ";
 			}
-			cout << "|" << to_string(1 + r) << endl << "+---+---+---+---+---+---+---+---+" << endl;
+			cout << r + 1 << endl;
 		}
 
-		cout << "  a   b   c   d   e   f   g   h" << endl
+		cout << "a b c d e f g h" << endl
 		<< "Side:\t\t" 
 		<< (side == WHITE ? "white" : "black") << endl
 		<< "Enpassant:\t" 
