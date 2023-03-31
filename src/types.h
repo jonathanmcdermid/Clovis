@@ -244,7 +244,7 @@ namespace Clovis {
 	}
 
 	constexpr CastleRights castle_rights(Colour c) {
-		return c == WHITE ? CastleRights(3) : CastleRights(12);
+		return CastleRights(3 << (c << 1));
 	}
 
 	constexpr Move encode_move(Square from, Square to, Piece piece, Piece promo, int cap, int dpush, int enpassant, int castling) {
