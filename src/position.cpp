@@ -6,24 +6,7 @@ namespace Clovis {
 
 	const extern string piece_str = " PNBRQK  pnbrqk";
 
-	const string symbols[] = {
-		"",
-        	"\u2659", // ♙ pawn
-        	"\u2658", // ♘ knight
-        	"\u2657", // ♗ bishop
-        	"\u2656", // ♖ rook
-        	"\u2655", // ♕ queen
-        	"\u2654", // ♔ king 
-		"",
-		"",
-        	"\u265F", // ♟︎ pawn 
-        	"\u265E", // ♞ knight 
-        	"\u265D", // ♝ bishop 
-        	"\u265C", // ♜ rook 
-        	"\u265B", // ♛ queen
-        	"\u265A", // ♚ king 
-		"\u00B7"  // · empty
-	};
+	const string symbols[] = {"·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚",};
 
 	// castling rights lookup table
 	constexpr int castling_rights[SQ_N] = {
@@ -543,21 +526,13 @@ namespace Clovis {
 	{
 		for (Rank r = RANK_8; r >= 0; --r)
 		{
+			cout << r + 1 << ' ';
 			for (File f = FILE_A; f < FILE_N; ++f)
-			{
-				Square sq = make_square(f, r);
-				int bb_piece;
-
-				for (bb_piece = W_PAWN; bb_piece <= B_KING; ++bb_piece)
-					if (pc_bb[bb_piece] & sq)
-						break;
-
-				cout << symbols[bb_piece] << " ";
-			}
-			cout << r + 1 << endl;
+				cout << symbols[pc_table[make_square(f,r)]] << " ";
+			cout << endl;
 		}
 
-		cout << "a b c d e f g h" << endl
+		cout << "  a b c d e f g h" << endl
 		<< "FEN:\t\t" << get_fen() << endl
 		<< "Side:\t\t" 
 		<< (side == WHITE ? "white" : "black") << endl
