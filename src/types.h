@@ -326,6 +326,10 @@ namespace Clovis {
 		return PieceType(pc & 7);
 	}
 
+	constexpr int distance_between(Square s1, Square s2) {
+		return max(abs(file_of(s2) - file_of(s1)), abs(rank_of(s2) - rank_of(s1)));
+	}
+
 	constexpr bool king_side_castle(Square to) {
 		return file_of(to) == FILE_G;
 	}

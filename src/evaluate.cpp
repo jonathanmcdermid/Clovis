@@ -326,7 +326,6 @@ namespace Clovis {
 
 				ei.pawn_attacks[US] |= Bitboards::pawn_attacks[US][sq];
 				ei.potential_pawn_attacks[US] |= outpost_pawn_masks[US][sq];
-				ei.open_files &= ~file_masks[sq];
 			}
 			
 			File kf = file_of(ei.ksq[US]);

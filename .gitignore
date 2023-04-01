@@ -44,6 +44,9 @@
 *.vcxproj.filters
 *.vcxproj.user
 
+# Chess Files
+*.epd
+
 # Folders
 x64/
 Debug/
