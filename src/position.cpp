@@ -535,18 +535,17 @@ namespace Clovis {
 				cout << symbols[pc_table[make_square(f,r)]] << " ";
 			cout << endl;
 		}
-
 		cout << "  a b c d e f g h" << endl << endl << get_fen() << endl << endl;
 	}
 
 	// prints the bitboards for this position
 	void Position::print_bitboards() 
 	{
-		// there is a gap in value between W_KING AND B_PAWN
-		// therefore some of the bitboards printed are empty
-		cout << "Printing Bitboards\n";
-		for (auto it : pc_bb)
-			Bitboards::print_bitboard(it);
+		for (PieceType pt = PAWN; pt <= KING; ++pt)
+		{
+			Bitboards::print_bitboard(pc_bb[make_piece(pt, WHITE)]);
+			Bitboards::print_bitboard(pc_bb[make_piece(pt, BLACK)]);
+		}
 		for (auto it : occ_bb)
 			Bitboards::print_bitboard(it);
 	}
