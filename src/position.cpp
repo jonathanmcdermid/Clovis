@@ -483,12 +483,11 @@ namespace Clovis {
 	{
 		side = ~side;
 
-		Square src = move_from_sq(move);
-		Square tar = move_to_sq(move);
-
 		if (move != MOVE_NULL)
 		{
-			put_piece(move_piece_type(move), src);
+			Square tar = move_to_sq(move);
+
+			put_piece(move_piece_type(move), move_from_sq(move));
 			remove_piece(tar);
 
 			if (move_castling(move))
