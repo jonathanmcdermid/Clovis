@@ -532,19 +532,7 @@ namespace Clovis {
 			cout << endl;
 		}
 
-		cout << "  a b c d e f g h" << endl
-		<< "FEN:\t\t" << get_fen() << endl
-		<< "Side:\t\t" 
-		<< (side == WHITE ? "white" : "black") << endl
-		<< "Enpassant:\t" 
-		<< bs->enpassant << endl
-		<< "Castling:\t"
-		<< ((bs->castle & WHITE_KS) ? 'K' : '-')
-		<< ((bs->castle & WHITE_QS) ? 'Q' : '-')
-		<< ((bs->castle & BLACK_KS) ? 'k' : '-')
-		<< ((bs->castle & BLACK_QS) ? 'q' : '-') << endl
-		<< "Halfmove:\t" << bs->hmc << endl
-		<< "Fullmove:\t" << bs->fmc << endl;
+		cout << "  a b c d e f g h" << endl << endl << get_fen() << endl << endl;
 	}
 
 	// prints the bitboards for this position
