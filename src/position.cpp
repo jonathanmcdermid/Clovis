@@ -229,18 +229,15 @@ namespace Clovis {
  		Key k = 0ULL;
 
 		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-		{
-			Piece p = pc_table[sq];
-			if (piece_type(p) == PAWN || piece_type(p) == KING)
-				k ^= Zobrist::piece_square[p][sq];
-		}
+			if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING)
+				k ^= Zobrist::piece_square[pc_table[sq]][sq];
 
 		return k;
 	}
 
 	Bitboard Position::attackers_to(Square sq) const 
 	{
-		return  (Bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN]) 
+		return (Bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN]) 
 		| (Bitboards::pawn_attacks[WHITE][sq] &  pc_bb[B_PAWN])
 		| (Bitboards::knight_attacks[sq]      & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT]))
 		| (Bitboards::king_attacks[sq]        & (pc_bb[W_KING]   | pc_bb[B_KING]))
