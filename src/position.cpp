@@ -205,13 +205,9 @@ namespace Clovis {
 	{
 		Key k = 0ULL;
 
-		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) 
-		{
-			Piece p = pc_table[sq];
-
-			if (p != NO_PIECE)
-				k ^= Zobrist::piece_square[p][sq];
-		}
+		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+			if (pc_table[sq] != NO_PIECE)
+				k ^= Zobrist::piece_square[pc_table[sq]][sq];
 
 		if (bs->enpassant != SQ_NONE)
 			k ^= Zobrist::enpassant[bs->enpassant];
