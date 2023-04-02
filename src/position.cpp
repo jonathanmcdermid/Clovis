@@ -253,8 +253,8 @@ namespace Clovis {
 	{
 		Bitboard bb;
         
-		for (Piece p = make_piece(PAWN, stm); piece_type(p) <= KING; ++p)
-			if ((bb = pc_bb[p] & attackers))
+		for (PieceType pt = PAWN; pt <= KING; ++pt)
+			if ((bb = pc_bb[make_piece(pt, stm)] & attackers))
 				return lsb(bb);
         
 		return SQ_NONE;
