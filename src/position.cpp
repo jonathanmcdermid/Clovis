@@ -6,7 +6,11 @@ namespace Clovis {
 
 	const extern string piece_str = " PNBRQK  pnbrqk";
 
-	const string symbols[] = {"·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚",};
+#if defined (__GNUC__)
+	const string symbols[] = { "·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚" };
+#else
+	const string symbols[] = { ".","P","N","B","R","Q","K","","","p","k","b","r","q","k" };
+#endif
 
 	// castling rights lookup table
 	constexpr int castling_rights[SQ_N] = {
