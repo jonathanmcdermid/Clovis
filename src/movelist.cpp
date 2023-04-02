@@ -12,8 +12,8 @@ namespace Clovis {
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
 			Bitboard tar_bb = M == ALL_MOVES   ? ~pos.occ_bb[US] 
-				        : M == QUIET_MOVES ? ~pos.occ_bb[BOTH]
-				                           :  pos.occ_bb[~US];
+				            : M == QUIET_MOVES ? ~pos.occ_bb[BOTH]
+				                               :  pos.occ_bb[~US];
 
 			while (bb)
 			{
@@ -23,7 +23,7 @@ namespace Clovis {
 				while (att)
 				{
 					Square tar = pop_lsb(att);
-					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, bool(pos.occ_bb[BOTH] & tar), 0, 0, 0);
+					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? 0 : bool(pos.occ_bb[BOTH] & tar), 0, 0, 0);
 				}
 			}
 
@@ -49,17 +49,10 @@ namespace Clovis {
 		template<typename T, MoveType M, Colour US>
 		T* generate_all(const Position& pos, T* moves)
 		{
-			constexpr Colour THEM = ~US;
-			
 			constexpr bool CAPTURES = M != QUIET_MOVES;
 			constexpr bool QUIETS	= M != CAPTURE_MOVES;
-
-			constexpr Piece OUR_PAWN = make_piece(PAWN, US);
-			constexpr Piece OUR_KING = make_piece(KING, US);
-
-			constexpr Square KING_ORIGIN = relative_square(US, E1);
 			
-			Bitboard bb = pos.pc_bb[OUR_PAWN];
+			Bitboard bb = pos.pc_bb[make_piece(PAWN, US)];
 
 			while (bb)
 			{
@@ -68,7 +61,7 @@ namespace Clovis {
 
 				if (rank_of(src) == relative_rank(US, RANK_7))
 				{
-					Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[THEM];
+					Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
 					if (!(pos.occ_bb[BOTH] & tar))
 						moves = generate_promotions<T, M, US, 0>(moves, src, tar);
@@ -85,40 +78,40 @@ namespace Clovis {
 					if (QUIETS && is_valid(tar) && !(pos.occ_bb[BOTH] & tar))
 					{
 						// single push
-						*moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 0, 0, 0, 0);
+						*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 0, 0, 0, 0);
 						// double push
 						if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
-							*moves++ = encode_move(src, tar + pawn_push(US), OUR_PAWN, NO_PIECE, 0, 1, 0, 0);
+							*moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, 0, 1, 0, 0);
  					}
 
 					if constexpr (CAPTURES)
 					{
-						Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[THEM];
+						Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
 						while (att)
 						{
 							tar = pop_lsb(att);
 
-							*moves++ = encode_move(src, tar, OUR_PAWN, NO_PIECE, 1, 0, 0, 0);
+							*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 1, 0, 0, 0);
 						}
 
 						if (pos.bs->enpassant != SQ_NONE && Bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
-							*moves++ = encode_move(src, pos.bs->enpassant, OUR_PAWN, NO_PIECE, 1, 0, 1, 0);
+							*moves++ = encode_move(src, pos.bs->enpassant, make_piece(PAWN, US), NO_PIECE, 1, 0, 1, 0);
 					}
 				}
 			}
 
-			if (QUIETS && !pos.is_attacked<US>(KING_ORIGIN))
+			if (QUIETS && !pos.is_attacked<US>(relative_square(US, E1)))
 			{
 				if (pos.bs->castle & ks_castle_rights(US)
 				&& !(pos.occ_bb[BOTH] & (relative_square(US, F1) | relative_square(US, G1)))
-				&& !pos.is_attacked<US>(KING_ORIGIN + EAST))
-					*moves++ = encode_move(KING_ORIGIN, KING_ORIGIN + EAST + EAST, OUR_KING, NO_PIECE, 0, 0, 0, 1);
+				&& !pos.is_attacked<US>(relative_square(US, F1)))
+					*moves++ = encode_move(relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, 0, 0, 0, 1);
 
 				if (pos.bs->castle & qs_castle_rights(US)
 				&& !(pos.occ_bb[BOTH] & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1)))
-				&& !pos.is_attacked<US>(KING_ORIGIN + WEST))
-					*moves++ = encode_move(KING_ORIGIN, KING_ORIGIN + WEST + WEST, OUR_KING, NO_PIECE, 0, 0, 0, 1);
+				&& !pos.is_attacked<US>(relative_square(US, D1)))
+					*moves++ = encode_move(relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE, 0, 0, 0, 1);
 			}
 
 			moves = generate_majors<T, M, KNIGHT, US>(pos, moves);
