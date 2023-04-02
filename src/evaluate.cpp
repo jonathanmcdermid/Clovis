@@ -217,7 +217,7 @@ namespace Clovis {
 							if constexpr (TRACE) ++T[ROOK_THEIR_PASSER][US];
 						}
 					}
-					if (relative_rank(US, rank_of(sq)) == RANK_7 && relative_rank(US, rank_of(ei.ksq[~US])) == RANK_8)
+					if (rank_of(sq) == relative_rank(US, RANK_7) && rank_of(ei.ksq[~US]) == relative_rank(US, RANK_8))
 					{
 						score += rook_on_seventh;
 						if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
@@ -313,7 +313,7 @@ namespace Clovis {
 				{
 					ei.passers[US] |= sq;
 					score += *passed_table[US][sq];
-					if (TRACE && relative_rank(US, rank_of(sq)) != RANK_7) 
+					if (TRACE && rank_of(sq) != relative_rank(US, RANK_7))
 						++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
 				}
 				else if (is_candidate_passer<US>(pos.pc_bb[OUR_PAWN], pos.pc_bb[THEIR_PAWN], sq))
