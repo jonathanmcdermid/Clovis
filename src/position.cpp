@@ -362,23 +362,22 @@ namespace Clovis {
 		bs_new->prev = bs;
 		// position now refers to new boardstate
 		bs = bs_new;
+		bs->key ^= Zobrist::side;
 
-		Square src = move_from_sq(move);
-		Square tar = move_to_sq(move);
-		Piece piece = move_piece_type(move);
+		if (bs->enpassant != SQ_NONE)
+		{
+			bs->key ^= Zobrist::enpassant[bs->enpassant];
+			bs->enpassant = SQ_NONE;
+		}
 
 		if (move == MOVE_NULL)
-		{
-			if (bs->enpassant != SQ_NONE)
-			{
-				bs->key ^= Zobrist::enpassant[bs->enpassant];
-				bs->enpassant = SQ_NONE;
-			}
-			bs->captured_piece = NO_PIECE;
 			bs->ply_null = 0;
-		}
 		else
 		{
+			Square src = move_from_sq(move);
+			Square tar = move_to_sq(move);
+			Piece piece = move_piece_type(move);
+
 			assert(get_side(move_piece_type(move)) == side);
 			assert(get_side(pc_table[src]) == side);
 			assert(pc_table[tar] == NO_PIECE || get_side(pc_table[tar]) != side);
@@ -430,12 +429,6 @@ namespace Clovis {
 			bs->key ^= Zobrist::piece_square[pc_table[src]][tar];
 			remove_piece(src);
 
-			if (bs->enpassant != SQ_NONE)
-			{
-				bs->key ^= Zobrist::enpassant[bs->enpassant];
-				bs->enpassant = SQ_NONE;
-			}
-
 			if (piece_type(piece) == PAWN)
 			{
 				if (move_double(move))
@@ -462,16 +455,14 @@ namespace Clovis {
 				bs->pkey ^= Zobrist::piece_square[piece][src];
 				bs->pkey ^= Zobrist::piece_square[piece][tar];
 			}
-		}
 
-		bs->key ^= Zobrist::side;
-
-		// move gen doesnt check for suicidal king, so we check here
-		if (is_king_in_check())
-		{
-			side = ~side;
-			undo_move(move);
-			return false;
+			// move gen doesnt check for suicidal king, so we check here
+			if (is_king_in_check())
+			{
+				side = ~side;
+				undo_move(move);
+				return false;
+			}
 		}
 
 		side = ~side;
