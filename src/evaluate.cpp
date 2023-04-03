@@ -384,7 +384,7 @@ namespace Clovis {
 			if constexpr (TRACE) memset(T, 0, sizeof(T));
 			if constexpr (TRACE) ++T[TEMPO][us];
 
-			EvalInfo ei = EvalInfo(tt.probe_pawn(pos.bs->pkey));
+			EvalInfo ei(tt.probe_pawn(pos.bs->pkey));
 
 			if (TRACE || ei.key != pos.bs->pkey)
 			{

@@ -27,7 +27,7 @@ namespace Clovis {
 					istringstream is(line.substr(idx + 1, idx_end - idx - 1).c_str());
 					vector<Move> moves;
 
-					Position pos = Position(fen.c_str());
+					Position pos(fen.c_str());
 
 					while (is >> token)
 						moves.push_back(Parse::parse(pos, token));

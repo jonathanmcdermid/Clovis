@@ -126,7 +126,7 @@ namespace Clovis {
 					alpha = eval;
 			}
 
-			MovePick::MovePicker mp = MovePick::MovePicker(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
+			MovePick::MovePicker mp(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
 			Move curr_move;
 			Move best_move = MOVE_NONE;
 			int best_eval = INT_MIN;
@@ -280,7 +280,7 @@ namespace Clovis {
 			else
 				++depth;
 
-			MovePick::MovePicker mp = MovePick::MovePicker(pos, ply, prev_move, tt_move);
+			MovePick::MovePicker mp(pos, ply, prev_move, tt_move);
 
 			Move curr_move;
 			Move best_move = MOVE_NONE;
@@ -403,7 +403,7 @@ namespace Clovis {
 			int alpha = - CHECKMATE_SCORE;
 			int beta  =   CHECKMATE_SCORE;
 
-			MoveGen::MoveList ml = MoveGen::MoveList(pos);
+			MoveGen::MoveList ml(pos);
 			ml.remove_illegal(pos);
 
 			if (ml.size() > 1)

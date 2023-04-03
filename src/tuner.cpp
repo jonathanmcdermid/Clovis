@@ -297,7 +297,7 @@ namespace Clovis {
 						entry.result = 0.5;
 					else exit(EXIT_FAILURE);
 					
-					Position pos = Position(line.substr(0, idx).c_str());
+					Position pos(line.substr(0, idx).c_str());
 					
 					entry.phase = pos.get_game_phase();
 					
@@ -310,11 +310,9 @@ namespace Clovis {
 					entry.n_att[BLACK] = Eval::T[SAFETY_N_ATT][BLACK];
 					
 					for (int j = 0; j < TI_N; ++j)
-					{
 						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
 							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
 							entry.tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
-					}
 
 					entries.push_back(entry);
 				}

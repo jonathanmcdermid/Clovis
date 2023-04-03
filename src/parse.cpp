@@ -125,7 +125,7 @@ namespace Clovis {
 				}
 			}
 			
-			MoveGen::MoveList ml = MoveGen::MoveList(pos);
+			MoveGen::MoveList ml(pos);
 			ml.remove_illegal(pos);
 
 			for (const auto& m : ml)
