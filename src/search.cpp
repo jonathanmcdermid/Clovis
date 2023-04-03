@@ -250,10 +250,10 @@ namespace Clovis {
 				&& depth >= null_depth
 				&& pos.stm_has_promoted())
 				{
-					pos.do_move(MOVE_NULL);
+					pos.do_null_move();
 					Line line;
 					score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, line);
-					pos.undo_move(MOVE_NULL);
+					pos.undo_null_move();
 
 					if (score >= beta)
 						return beta;

@@ -50,6 +50,8 @@ namespace Clovis {
 		Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
 		Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
 		bool see_ge(Move move, int threshold) const;
+		bool do_null_move();
+		void undo_null_move();
 		bool do_move(Move move);
 		void undo_move(Move move);
 		bool is_draw() const;
@@ -62,11 +64,13 @@ namespace Clovis {
 		template <Colour US> Square get_pinner(Square sq) const;
 		template <Colour US> bool discovery_threat(Square sq) const;
 		template <Colour US> bool is_insufficient() const;
+		template <bool NM> void new_board_state();
 		bool is_draw_50() const;
 		int get_game_phase() const { return min(bs->game_phase, MAX_GAMEPHASE); }
 		Key make_key();
 		Key make_pawn_key();
 		void put_piece(Piece pc, Square s);
+		void replace_piece(Piece pc, Square s);
 		void remove_piece(Square s);
 		Piece pc_table[SQ_N];
 		Bitboard pc_bb[15];
