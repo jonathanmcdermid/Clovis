@@ -62,7 +62,7 @@ namespace Clovis {
 		bool stm_has_promoted() const;
 		bool is_material_draw() const;
 		template <Colour US> Square get_pinner(Square sq) const;
-		template <Colour US> int discovery_threat(Square sq) const;
+		template <Colour US> bool discovery_threat(Square sq) const;
 		template <Colour US> bool is_insufficient() const;
 		template <bool NM> void new_board_state();
 		bool is_draw_50() const;

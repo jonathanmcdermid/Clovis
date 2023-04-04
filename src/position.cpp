@@ -71,7 +71,7 @@ namespace Clovis {
 	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>
-	int Position::discovery_threat(Square sq) const 
+	bool Position::discovery_threat(Square sq) const 
 	{
 		// pawn is moveless if it attacks no enemies and is blocked by a piece
 		// we dont have to worry about shift because discovery pawns will never be on outer files
@@ -88,18 +88,16 @@ namespace Clovis {
         
 		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
-		int res = 0;
-
 		while (candidates)
 			if (popcnt(between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
-				++res;
+				return true;
 
-		return res;
+		return false;
 	}
 	
 	// explicit template instantiations
-	template int Position::discovery_threat<WHITE>(Square sq) const;
-	template int Position::discovery_threat<BLACK>(Square sq) const;
+	template bool Position::discovery_threat<WHITE>(Square sq) const;
+	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
 	string Position::get_fen() const
 	{
