@@ -225,11 +225,10 @@ namespace Clovis {
 				}
 				if constexpr (PT == QUEEN)
 				{
-					if (pos.discovery_threat<US>(sq))
-					{
-						score -= weak_queen_penalty;
-						if constexpr (TRACE) --T[WEAK_QUEEN][US];
-					}
+					int threats = pos.discovery_threat<US>(sq);
+					
+					score -= weak_queen_penalty * threats;
+					if constexpr (TRACE) T[WEAK_QUEEN][US] -= threats;
 				}
 			}
 

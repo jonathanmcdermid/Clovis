@@ -11,9 +11,7 @@ namespace Clovis {
 		{
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
-			Bitboard tar_bb = M == ALL_MOVES   ? ~pos.occ_bb[US] 
-				            : M == QUIET_MOVES ? ~pos.occ_bb[BOTH]
-				                               :  pos.occ_bb[~US];
+			Bitboard tar_bb = M == ALL_MOVES ? ~pos.occ_bb[US] : M == QUIET_MOVES ? ~pos.occ_bb[BOTH] : pos.occ_bb[~US];
 
 			while (bb)
 			{
