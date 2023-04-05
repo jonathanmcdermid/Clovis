@@ -362,16 +362,6 @@ namespace Clovis {
 			0x2838000000000000ULL, 0x5070000000000000ULL, 0xa0e0000000000000ULL, 0x40c0000000000000ULL,
 		};
 
-		/*const Bitboard* e_attacks[] = {
-			NULL,
-			NULL,
-			knight_attacks,
-			empty_bishop_attacks,
-			empty_rook_attacks,
-			empty_queen_attacks,
-			king_attacks,
-		};*/
-
 		extern Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
 		extern Bitboard rook_attacks[SQ_N][rook_attack_indices];
 
@@ -380,7 +370,7 @@ namespace Clovis {
 		void init_bitboards();
 
 		template<PieceType PT>
-		inline Bitboard get_attacks(Bitboard occ, Square sq)
+		constexpr Bitboard get_attacks(Bitboard occ, Square sq)
 		{
 			static_assert(PT != PAWN);
             
@@ -392,7 +382,7 @@ namespace Clovis {
 		}
 
 		template<PieceType PT>
-		inline Bitboard get_attacks(Square sq)
+		constexpr Bitboard get_attacks(Square sq)
 		{
 			static_assert(PT != PAWN);
             
