@@ -1,5 +1,4 @@
 #include "bitboard.h"
-#include <iomanip>
 
 using namespace std;
 
@@ -11,7 +10,7 @@ namespace Clovis {
 
 		Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
 		Bitboard rook_attacks[SQ_N][rook_attack_indices];
-	
+
 		// prints a bitboard, useful for debugging
 		void print_bitboard(const Bitboard& bb)
 		{
