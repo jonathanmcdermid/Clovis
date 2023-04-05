@@ -130,14 +130,15 @@ namespace Clovis {
 			init_sliders_attacks();
 
 			for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1)
+			{
 				for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2)
-					if (get_attacks<ROOK>(0ULL, sq1) & sq2)
+				{
+					if (get_attacks<ROOK>(sq1) & sq2)
 						between_bb[sq1][sq2] = get_attacks<ROOK>(sqbb(sq2), sq1) & get_attacks<ROOK>(sqbb(sq1), sq2);
-			
-			for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1)
-				for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2)
-					if (get_attacks<BISHOP>(0ULL, sq1) & sq2)
+					else if (get_attacks<BISHOP>(sq1) & sq2)
 						between_bb[sq1][sq2] = get_attacks<BISHOP>(sqbb(sq2), sq1) & get_attacks<BISHOP>(sqbb(sq1), sq2);
+				}
+			}
 		}
 
 	} // namespace Bitboards
