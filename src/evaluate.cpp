@@ -6,7 +6,6 @@ namespace Clovis {
 
 		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
 		const Score* passed_table[COLOUR_N][SQ_N];
-		const Score* candidate_table[COLOUR_N][SQ_N];
 		const short* shield_table[COLOUR_N][SQ_N];
 		const Score* score_table[15][SQ_N];
 
@@ -28,7 +27,6 @@ namespace Clovis {
 					//	score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
 				
 					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
-					candidate_table[col][sq] = &candidate_passer[source32[relative_square(col, sq)]];
 					shield_table[col][sq] = &pawn_shield[source32[relative_square(col, sq)]];
 				}
 			}
@@ -145,7 +143,8 @@ namespace Clovis {
 				if (pinner != SQ_NONE)
 					attacks &= between_squares(ei.ksq[US], pinner) | pinner;
 
-				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | worthy_trades<US, PT>(pos));
+				Bitboard trades = worthy_trades<US, PT>(pos);
+				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
 				score += quiet_mobility[PT]   * popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
 				score += capture_mobility[PT] * popcnt(safe_attacks &  pos.occ_bb[~US]);
@@ -319,8 +318,8 @@ namespace Clovis {
 				}
 				else if (is_candidate_passer<US>(pos.pc_bb[OUR_PAWN], pos.pc_bb[THEIR_PAWN], sq))
 				{
-					score += *candidate_table[US][sq];
-					if constexpr (TRACE) ++T[CANDIDATE_PASSER + source32[relative_square(US, sq)]][US];
+					score += candidate_passer[relative_rank(US, rank_of(sq))];
+					if constexpr (TRACE) ++T[CANDIDATE_PASSER + relative_rank(US, rank_of(sq))][US];
 				}
 
 				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), ei);

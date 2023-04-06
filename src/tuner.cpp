@@ -54,8 +54,8 @@ namespace Clovis {
 				add_param<Score>(king_table[sq], TraceIndex(KING_PSQT + sq));
 			for (Square sq = SQ_ZERO; sq < int(sizeof(passed_pawn) / sizeof(Score)); ++sq)
 				add_param<Score>(passed_pawn[sq], TraceIndex(PASSED_PAWN + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(candidate_passer) / sizeof(Score)); ++sq)
-				add_param<Score>(candidate_passer[sq], TraceIndex(CANDIDATE_PASSER + sq));
+			for (Rank r = RANK_1; r < int(sizeof(candidate_passer) / sizeof(Score)); ++r)
+				add_param<Score>(candidate_passer[r], TraceIndex(CANDIDATE_PASSER + r));
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
 				add_param<Score>(quiet_mobility[pt], TraceIndex(QUIET_MOBILITY + pt));
 			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
@@ -209,7 +209,7 @@ namespace Clovis {
 			print_table("queen_table",      QUEEN_PSQT,       sizeof(queen_table)      / sizeof(Score), 4);
 			print_table("king_table",       KING_PSQT,        sizeof(king_table)       / sizeof(Score), 4);
 			print_table("passed_pawn",      PASSED_PAWN,      sizeof(passed_pawn)      / sizeof(Score), 4);
-			print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 4);
+			print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
 			print_table("quiet_mobility",   QUIET_MOBILITY,   7, 7);
 			print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
 			
