@@ -322,11 +322,11 @@ namespace Clovis {
 					if constexpr (TRACE) ++T[CANDIDATE_PASSER + relative_rank(US, rank_of(sq))][US];
 				}
 
-				king_danger<US, PAWN, TRACE>(sqbb(sq + pawn_push(US)), ei);
-
 				ei.pawn_attacks[US] |= Bitboards::pawn_attacks[US][sq];
 				ei.potential_pawn_attacks[US] |= outpost_pawn_masks[US][sq];
 			}
+
+			king_danger<US, PAWN, TRACE>(shift<pawn_push(US)>(pos.pc_bb[OUR_PAWN]), ei);
 			
 			File kf = file_of(ei.ksq[US]);
 			File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
