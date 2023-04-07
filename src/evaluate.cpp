@@ -65,7 +65,7 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		constexpr bool is_outpost(Square sq, EvalInfo& ei) 
+		constexpr bool is_outpost(Square sq, const EvalInfo& ei) 
 		{
 			return (outpost_masks[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US]);
 		}

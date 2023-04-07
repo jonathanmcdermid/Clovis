@@ -11,7 +11,7 @@ namespace Clovis {
 		{
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
-			Bitboard tar_bb = M == ALL_MOVES   ? ~pos.occ_bb[US] 
+			Bitboard tar_bb = M == ALL_MOVES ? ~pos.occ_bb[US] 
 				            : M == QUIET_MOVES ? ~pos.occ_bb[BOTH]
 				                               :  pos.occ_bb[~US];
 
@@ -23,14 +23,14 @@ namespace Clovis {
 				while (att)
 				{
 					Square tar = pop_lsb(att);
-					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? 0 : bool(pos.occ_bb[BOTH] & tar), 0, 0, 0);
+					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? 0 : pos.occ_bb[BOTH] & tar, 0, 0, 0);
 				}
 			}
 
 			return moves;
 		}
 
-		template<typename T, MoveType M, Colour US, int TC>
+		template<typename T, MoveType M, Colour US, bool TC>
 		inline T* generate_promotions(T* moves, Square src, Square tar)
 		{
 			if constexpr (M != QUIET_MOVES)
@@ -64,13 +64,12 @@ namespace Clovis {
 					Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
 					if (!(pos.occ_bb[BOTH] & tar))
-						moves = generate_promotions<T, M, US, 0>(moves, src, tar);
+						moves = generate_promotions<T, M, US, false>(moves, src, tar);
 
 					while (att) 
 					{
 						tar = pop_lsb(att);
-
-						moves = generate_promotions<T, M, US, 1>(moves, src, tar);
+						moves = generate_promotions<T, M, US, true>(moves, src, tar);
 					}
 				}
 				else 
@@ -91,7 +90,6 @@ namespace Clovis {
 						while (att)
 						{
 							tar = pop_lsb(att);
-
 							*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 1, 0, 0, 0);
 						}
 

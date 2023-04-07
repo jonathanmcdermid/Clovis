@@ -246,7 +246,7 @@ namespace Clovis {
 		return CastleRights(3 << (c << 1));
 	}
 
-	constexpr Move encode_move(Square from, Square to, Piece piece, Piece promo, int cap, int dpush, int enpassant, int castling) {
+	constexpr Move encode_move(Square from, Square to, Piece piece, Piece promo, bool cap, bool dpush, bool enpassant, bool castling) {
 		return Move(from | (to << 6) | (piece << 12) | (promo << 16) | (cap << 20) | (dpush << 21) | (enpassant << 22) | (castling << 23));
 	}
 
