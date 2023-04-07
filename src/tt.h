@@ -18,7 +18,8 @@ namespace Clovis {
 	};
 
 	struct TTEntry {
-		TTEntry(Key k = 0ULL, int d = 0, HashFlag f = HASH_NONE, int e = 0, Move m = MOVE_NONE) : key(k), depth(d), flags(f), eval(e), move(m) {};
+		TTEntry() : key(0ULL), depth(0), flags(HASH_NONE), eval(0), move(MOVE_NONE) { ; }
+		TTEntry(Key k, int d, HashFlag f, int e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {};
 		Key key;        // 8 bytes
 		uint8_t depth;  // 1 byte
 		uint8_t flags;  // 1 byte
@@ -30,16 +31,26 @@ namespace Clovis {
 		TTEntry e1;
 		TTEntry e2;
 	};
-
+	
 	struct PTEntry {
-		void clear() { *this = {}; }
+		void clear() {
+			score = Score(0,0);
+			key = 0ULL;
+			for (int i = 0; i < COLOUR_N; ++i) {
+				pawn_attacks[i] = 0ULL;
+				passers[i] = 0ULL;
+				potential_pawn_attacks[i] = 0ULL;
+				ksq[i] = SQ_NONE;
+				weight[i] = 0;
+			}
+		}
 		Score score;
-		Key key = 0ULL;
-		Bitboard pawn_attacks[COLOUR_N] = {0ULL};
-		Bitboard passers[COLOUR_N] = {0ULL};
-		Bitboard potential_pawn_attacks[COLOUR_N] = {0ULL};
-		Square ksq[COLOUR_N] = {SQ_NONE};
-		short weight[COLOUR_N] = {0};
+		Key key;
+		Bitboard pawn_attacks[COLOUR_N];
+		Bitboard passers[COLOUR_N];
+		Bitboard potential_pawn_attacks[COLOUR_N];
+		Square ksq[COLOUR_N];
+		short weight[COLOUR_N];
 	};
 
 	class TTable {
@@ -49,12 +60,12 @@ namespace Clovis {
 		void clear();
 		void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
 		TTEntry* probe(Key key);
-		void new_pawn_entry(PTEntry pte) { pt[pawn_hash_index(pte.key)] = pte; }
+		void new_pawn_entry(const PTEntry& pte) { pt[pawn_hash_index(pte.key)] = pte; }
 		PTEntry probe_pawn(Key key);
 		~TTable();
 	private:
 		int hash_index(Key key) const;
-		int pawn_hash_index(Key key) const;
+		constexpr int pawn_hash_index(Key key) const;
 		Bucket* ht = nullptr;
 		PTEntry* pt = nullptr;
 		size_t tt_size;
@@ -64,7 +75,7 @@ namespace Clovis {
 		return key & (tt_size - 1ULL);
 	}
 
-	inline int TTable::pawn_hash_index(Key key) const {
+	constexpr int TTable::pawn_hash_index(Key key) const {
 		return key & (pt_size - 1ULL);
 	}
 
