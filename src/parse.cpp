@@ -189,7 +189,8 @@ namespace Clovis {
 						}
 						if (token.find(".") == string::npos)
 						{
-							pos.do_move(parse(pos, token));
+							if (!pos.do_move(parse(pos, token)))
+								exit(EXIT_FAILURE);
 
 							if (pos.bs->fmc > 8
 							&& token[token.length() - 1] != '#' 
