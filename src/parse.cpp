@@ -26,12 +26,9 @@ namespace Clovis {
 			}
 			else if (islower(move[0]))
 			{
-				Piece promotion = 
-					  move[move.length() - 2] == '='
-					? move[move.length() - 1] == 'Q' ? make_piece(QUEEN, pos.side)
-					: move[move.length() - 1] == 'R' ? make_piece(ROOK, pos.side)
-					: move[move.length() - 1] == 'B' ? make_piece(BISHOP, pos.side)
-					: make_piece(KNIGHT, pos.side) : NO_PIECE;
+				Piece promotion = move[move.length() - 2] == '=' 
+					? make_piece((PieceType) piece_str.find(move[move.length() - 1]), pos.side) 
+					: NO_PIECE;
 
 				if (move[1] == 'x')
 				{
@@ -50,12 +47,7 @@ namespace Clovis {
 			}
 			else
 			{
-				Piece piece = make_piece(
-					  move[0] == 'K' ? KING
-					: move[0] == 'Q' ? QUEEN
-					: move[0] == 'R' ? ROOK
-					: move[0] == 'B' ? BISHOP
-					: KNIGHT, pos.side);
+				Piece piece = make_piece((PieceType) piece_str.find(move[0]), pos.side);
 
 				if (move[1] == 'x')
 				{
