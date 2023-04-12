@@ -554,7 +554,7 @@ namespace Clovis {
 	// prints the current position
 	void Position::print_position() const
 	{
-		for (Rank r = RANK_8; r >= 0; --r)
+		for (Rank r = RANK_8; r >= RANK_1; --r)
 		{
 			cout << r + 1 << ' ';
 			for (File f = FILE_A; f < FILE_N; ++f)

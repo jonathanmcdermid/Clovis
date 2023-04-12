@@ -14,17 +14,17 @@ namespace Clovis {
 		// prints a bitboard, useful for debugging
 		void print_bitboard(const Bitboard& bb)
 		{
-			cout << "+---+---+---+---+---+---+---+---+\n";
-
 			for (Rank r = RANK_8; r >= RANK_1; --r)
 			{
-				for (File f = FILE_A; f <= FILE_H; ++f)
-					cout << ((bb & make_square(f, r)) ? "| X " : "|   ");
-				cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
+				cout << r + 1 << ' ';
+				for (File f = FILE_A; f < FILE_N; ++f)
+					cout << ((bb & make_square(f, r)) ? "x " : ". ");
+				cout << endl;
 			}
-			cout << "  a   b   c   d   e   f   g   h\n" << "  Bitboard: " << bb << endl;
+			cout << "  a b c d e f g h" << endl;
 		}
 
+		// returns whether or not a direction can be moved to from a given square
 		constexpr bool valid_dir(Square sq, Direction dir) {
 			return (dir == NORTH || dir == SOUTH) ? is_valid(sq)
 				: dir == EAST ? file_of(sq) != FILE_A
