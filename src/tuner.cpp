@@ -40,26 +40,26 @@ namespace Clovis {
 		{
 			using namespace Eval;
 			
-			for (Square sq = SQ_ZERO; sq < int(sizeof(pawn_table) / sizeof(Score)); ++sq)
-				add_param<Score>(pawn_table[sq], TraceIndex(PAWN_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(knight_table) / sizeof(Score)); ++sq)
-				add_param<Score>(knight_table[sq], TraceIndex(KNIGHT_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(bishop_table) / sizeof(Score)); ++sq)
-				add_param<Score>(bishop_table[sq], TraceIndex(BISHOP_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(rook_table) / sizeof(Score)); ++sq)
-				add_param<Score>(rook_table[sq], TraceIndex(ROOK_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(queen_table) / sizeof(Score)); ++sq)
-				add_param<Score>(queen_table[sq], TraceIndex(QUEEN_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(king_table) / sizeof(Score)); ++sq)
-				add_param<Score>(king_table[sq], TraceIndex(KING_PSQT + sq));
-			for (Square sq = SQ_ZERO; sq < int(sizeof(passed_pawn) / sizeof(Score)); ++sq)
-				add_param<Score>(passed_pawn[sq], TraceIndex(PASSED_PAWN + sq));
-			for (Rank r = RANK_1; r < int(sizeof(candidate_passer) / sizeof(Score)); ++r)
-				add_param<Score>(candidate_passer[r], TraceIndex(CANDIDATE_PASSER + r));
-			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-				add_param<Score>(quiet_mobility[pt], TraceIndex(QUIET_MOBILITY + pt));
-			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-				add_param<Score>(capture_mobility[pt], TraceIndex(CAPTURE_MOBILITY + pt));
+			for (auto& it : pawn_table)
+				add_param<Score>(it, TraceIndex(PAWN_PSQT + &it - pawn_table));
+			for (auto& it : knight_table)
+				add_param<Score>(it, TraceIndex(KNIGHT_PSQT + &it - knight_table));
+			for (auto& it : bishop_table)
+				add_param<Score>(it, TraceIndex(BISHOP_PSQT + &it - bishop_table));
+			for (auto& it : rook_table)
+				add_param<Score>(it, TraceIndex(ROOK_PSQT + &it - rook_table));
+			for (auto& it : queen_table)
+				add_param<Score>(it, TraceIndex(QUEEN_PSQT + &it - queen_table));
+			for (auto& it : king_table)
+				add_param<Score>(it, TraceIndex(KING_PSQT + &it - king_table));
+			for (auto& it : passed_pawn)
+				add_param<Score>(it, TraceIndex(PASSED_PAWN + &it - passed_pawn));
+			for (auto& it : candidate_passer)
+				add_param<Score>(it, TraceIndex(CANDIDATE_PASSER + &it - candidate_passer));
+			for (auto& it : quiet_mobility)
+				add_param<Score>(it, TraceIndex(QUIET_MOBILITY + &it - quiet_mobility));
+			for (auto& it : capture_mobility)
+				add_param<Score>(it, TraceIndex(CAPTURE_MOBILITY + &it - capture_mobility));
 			
 			add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
 			add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
@@ -79,12 +79,12 @@ namespace Clovis {
 			add_param<Score>(fianchetto_bonus, FIANCHETTO);
 			add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
 			
-			for (Square sq = SQ_ZERO; sq < 32; ++sq)
-				add_param<short>(pawn_shield[sq], TraceIndex(SAFETY_PAWN_SHIELD + sq));
-			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-				add_param<short>(inner_ring_attack[pt], TraceIndex(SAFETY_INNER_RING + pt));
-			for (PieceType pt = PIECETYPE_NONE; pt <= KING; ++pt)
-				add_param<short>(outer_ring_attack[pt], TraceIndex(SAFETY_OUTER_RING + pt));
+			for (auto& it : pawn_shield)
+				add_param<short>(it, TraceIndex(SAFETY_PAWN_SHIELD + &it - pawn_shield));
+			for (auto& it : inner_ring_attack)
+				add_param<short>(it, TraceIndex(SAFETY_INNER_RING + &it - inner_ring_attack));
+			for (auto& it : outer_ring_attack)
+				add_param<short>(it, TraceIndex(SAFETY_OUTER_RING + &it - outer_ring_attack));
 			
 			add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
 			add_param<short>(attack_factor, SAFETY_N_ATT);

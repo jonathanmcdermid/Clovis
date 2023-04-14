@@ -282,7 +282,7 @@ namespace Clovis {
 		template<Colour US, bool TRACE>
 		Score evaluate_pawns(const Position& pos, EvalInfo& ei)
 		{
-			constexpr Piece OUR_PAWN   = make_piece(PAWN, US);
+			constexpr Piece OUR_PAWN   = make_piece(PAWN,  US);
 			constexpr Piece THEIR_PAWN = make_piece(PAWN, ~US);
 
 			Score score;

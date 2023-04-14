@@ -14,41 +14,36 @@ namespace Clovis {
 		// prints a bitboard, useful for debugging
 		void print_bitboard(const Bitboard& bb)
 		{
-			cout << "+---+---+---+---+---+---+---+---+\n";
-
 			for (Rank r = RANK_8; r >= RANK_1; --r)
 			{
-				for (File f = FILE_A; f <= FILE_H; ++f)
-				{
-					cout << ((bb & make_square(f, r)) ? "| X " : "|   ");
-				}
-				cout << "|" + to_string(1 + r) + "\n" + "+---+---+---+---+---+---+---+---+\n";
+				cout << r + 1 << ' ';
+				for (File f = FILE_A; f < FILE_N; ++f)
+					cout << ((bb & make_square(f, r)) ? "x " : ". ");
+				cout << endl;
 			}
-			cout << "  a   b   c   d   e   f   g   h\n" << "  Bitboard: " << bb << endl;
+			cout << "  a b c d e f g h" << endl;
+		}
+
+		// returns whether or not a direction can be moved to from a given square
+		constexpr bool valid_dir(Square sq, Direction dir) {
+			return (dir == NORTH || dir == SOUTH) ? is_valid(sq)
+				: dir == EAST ? file_of(sq) != FILE_A
+				: dir == WEST ? file_of(sq) != FILE_H 
+				: false;
 		}
 
 		// generate bishop moves for a given square with bitboard of blocking pieces
 		Bitboard bishop_otf(Square sq, Bitboard block)
 		{
 			Bitboard attacks = 0ULL;
-			Rank r, tr = rank_of(sq);
-			File f, tf = file_of(sq);
 
-			for (r = tr + 1, f = tf + 1; r <= RANK_8 && f <= FILE_H; ++r, ++f) {
-				attacks |= (1ULL << (r * 8 + f));
-				if ((1ULL << (r * 8 + f)) & block) break;
-			}
-			for (r = tr - 1, f = tf + 1; r >= RANK_1 && f <= FILE_H; --r, ++f) {
-				attacks |= (1ULL << (r * 8 + f));
-				if ((1ULL << (r * 8 + f)) & block) break;
-			}
-			for (r = tr + 1, f = tf - 1; r <= RANK_8 && f >= FILE_A; ++r, --f) {
-				attacks |= (1ULL << (r * 8 + f));
-				if ((1ULL << (r * 8 + f)) & block) break;
-			}
-			for (r = tr - 1, f = tf - 1; r >= RANK_1 && f >= FILE_A; --r, --f) {
-				attacks |= (1ULL << (r * 8 + f));
-				if ((1ULL << (r * 8 + f)) & block) break;
+			for (const auto& dir1 : { NORTH, SOUTH }) {
+				for (const auto& dir2 : { EAST, WEST }) {
+					for (Square s = sq + dir1 + dir2; valid_dir(s, dir1) && valid_dir(s, dir2); s += dir1 + dir2) {
+						attacks |= s;
+						if (block & s) break;
+					}
+				}
 			}
 
 			return attacks;
@@ -58,24 +53,12 @@ namespace Clovis {
 		Bitboard rook_otf(Square sq, Bitboard block)
 		{
 			Bitboard attacks = 0ULL;
-			Rank r, tr = rank_of(sq);
-			File f, tf = file_of(sq);
 
-			for (r = tr + 1; r <= RANK_8; ++r) {
-				attacks |= (1ULL << (r * 8 + tf));
-				if ((1ULL << (r * 8 + tf)) & block) break;
-			}
-			for (r = tr - 1; r >= RANK_1; --r) {
-				attacks |= (1ULL << (r * 8 + tf));
-				if ((1ULL << (r * 8 + tf)) & block) break;
-			}
-			for (f = tf + 1; f <= FILE_H; ++f) {
-				attacks |= (1ULL << (tr * 8 + f));
-				if ((1ULL << (tr * 8 + f)) & block) break;
-			}
-			for (f = tf - 1; f >= FILE_A; --f) {
-				attacks |= (1ULL << (tr * 8 + f));
-				if ((1ULL << (tr * 8 + f)) & block) break;
+			for (const auto& dir : { NORTH, SOUTH, EAST, WEST }) {
+				for (Square s = sq + dir; valid_dir(s, dir); s += dir) {
+					attacks |= s;
+					if (block & s) break;
+				}
 			}
 
 			return attacks;
@@ -90,7 +73,6 @@ namespace Clovis {
 			for (int i = 0; i < bits; ++i) 
 			{
 				Square sq = pop_lsb(attack_mask);
-				
 				if (index & (1 << i))
 					occ |= sq;
 			}
@@ -103,23 +85,15 @@ namespace Clovis {
 		{
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 			{
-				int relevant_bits_count = popcnt(bishop_masks[sq]);
-				int occupancy_indicies = (1 << relevant_bits_count);
-
-				for (int index = 0; index < occupancy_indicies; ++index)
+				for (int index = 0; index < (1 << popcnt(bishop_masks[sq])); ++index)
 				{
-					Bitboard occ = set_occupancy(bishop_masks[sq], index, relevant_bits_count);
-
+					Bitboard occ = set_occupancy(bishop_masks[sq], index, popcnt(bishop_masks[sq]));
 					bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_rbits[sq]] = bishop_otf(sq, occ);
 				}
 				
-				relevant_bits_count = popcnt(rook_masks[sq]);
-				occupancy_indicies = (1 << relevant_bits_count);
-
-				for (int index = 0; index < occupancy_indicies; ++index)
+				for (int index = 0; index < (1 << popcnt(rook_masks[sq])); ++index)
 				{
-					Bitboard occ = set_occupancy(rook_masks[sq], index, relevant_bits_count);
-
+					Bitboard occ = set_occupancy(rook_masks[sq], index, popcnt(rook_masks[sq]));
 					rook_attacks[sq][(occ * rook_magic[sq]) >> rook_rbits[sq]] = rook_otf(sq, occ);
 				}
 			}
