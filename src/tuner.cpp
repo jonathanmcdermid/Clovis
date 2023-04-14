@@ -40,18 +40,18 @@ namespace Clovis {
 		{
 			using namespace Eval;
 			
-			for (auto& it : pawn_table)
-				add_param<Score>(it, TraceIndex(PAWN_PSQT + &it - pawn_table));
-			for (auto& it : knight_table)
-				add_param<Score>(it, TraceIndex(KNIGHT_PSQT + &it - knight_table));
-			for (auto& it : bishop_table)
-				add_param<Score>(it, TraceIndex(BISHOP_PSQT + &it - bishop_table));
-			for (auto& it : rook_table)
-				add_param<Score>(it, TraceIndex(ROOK_PSQT + &it - rook_table));
-			for (auto& it : queen_table)
-				add_param<Score>(it, TraceIndex(QUEEN_PSQT + &it - queen_table));
-			for (auto& it : king_table)
-				add_param<Score>(it, TraceIndex(KING_PSQT + &it - king_table));
+			for (auto& it : pawn_source)
+				add_param<Score>(it, TraceIndex(PAWN_PSQT + &it - pawn_source));
+			for (auto& it : knight_source)
+				add_param<Score>(it, TraceIndex(KNIGHT_PSQT + &it - knight_source));
+			for (auto& it : bishop_source)
+				add_param<Score>(it, TraceIndex(BISHOP_PSQT + &it - bishop_source));
+			for (auto& it : rook_source)
+				add_param<Score>(it, TraceIndex(ROOK_PSQT + &it - rook_source));
+			for (auto& it : queen_source)
+				add_param<Score>(it, TraceIndex(QUEEN_PSQT + &it - queen_source));
+			for (auto& it : king_source)
+				add_param<Score>(it, TraceIndex(KING_PSQT + &it - king_source));
 			for (auto& it : passed_pawn)
 				add_param<Score>(it, TraceIndex(PASSED_PAWN + &it - passed_pawn));
 			for (auto& it : candidate_passer)
@@ -202,12 +202,12 @@ namespace Clovis {
 		{
 			using namespace Eval;
 			
-			print_table("pawn_table",       PAWN_PSQT,        sizeof(pawn_table)       / sizeof(Score), 4);
-			print_table("knight_table",     KNIGHT_PSQT,      sizeof(knight_table)     / sizeof(Score), 4);
-			print_table("bishop_table",     BISHOP_PSQT,      sizeof(bishop_table)     / sizeof(Score), 4);
-			print_table("rook_table",       ROOK_PSQT,        sizeof(rook_table)       / sizeof(Score), 4);
-			print_table("queen_table",      QUEEN_PSQT,       sizeof(queen_table)      / sizeof(Score), 4);
-			print_table("king_table",       KING_PSQT,        sizeof(king_table)       / sizeof(Score), 4);
+			print_table("pawn_source",      PAWN_PSQT,        sizeof(pawn_source)      / sizeof(Score), 4);
+			print_table("knight_source",    KNIGHT_PSQT,      sizeof(knight_source)    / sizeof(Score), 4);
+			print_table("bishop_source",    BISHOP_PSQT,      sizeof(bishop_source)    / sizeof(Score), 4);
+			print_table("rook_source",      ROOK_PSQT,        sizeof(rook_source)      / sizeof(Score), 4);
+			print_table("queen_source",     QUEEN_PSQT,       sizeof(queen_source)     / sizeof(Score), 4);
+			print_table("king_source",      KING_PSQT,        sizeof(king_source)      / sizeof(Score), 4);
 			print_table("passed_pawn",      PASSED_PAWN,      sizeof(passed_pawn)      / sizeof(Score), 4);
 			print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
 			print_table("quiet_mobility",   QUIET_MOBILITY,   7, 7);

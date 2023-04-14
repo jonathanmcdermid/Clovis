@@ -4,10 +4,11 @@ namespace Clovis {
 
 	namespace Eval {
 
-		const Score* piece_table[7] = { NULL, pawn_table, knight_table, bishop_table, rook_table, queen_table, king_table };
+		const Score* major_source[7] = { NULL, NULL, knight_source, bishop_source, rook_source, queen_source, king_source };
 		const Score* passed_table[COLOUR_N][SQ_N];
 		const short* shield_table[COLOUR_N][SQ_N];
-		const Score* score_table[15][SQ_N];
+		const Score* pawn_psqt[COLOUR_N][SQ_N];
+		const Score* major_psqt[7][SQ_N];
 
 		int T[TI_MISC][PHASE_N];
 
@@ -17,15 +18,11 @@ namespace Clovis {
 			{
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 				{
-					for (auto pt : {PAWN, QUEEN})
-						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source32[relative_square(col, sq)]];
-			
-					for (auto pt : {KNIGHT, BISHOP, ROOK, KING})
-						score_table[make_piece(pt, col)][sq] = &piece_table[pt][source16[sq]];
+					pawn_psqt[col][sq] = &pawn_source[source32[relative_square(col, sq)]];
 
-					//for (auto pt : {})
-					//	score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
-				
+					for (auto pt : {KNIGHT, BISHOP, ROOK, QUEEN, KING})
+						major_psqt[pt][sq] = &major_source[pt][source16[sq]];
+					
 					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
 					shield_table[col][sq] = &pawn_shield[source32[relative_square(col, sq)]];
 				}
@@ -100,12 +97,9 @@ namespace Clovis {
 		template<Colour US, PieceType PT>
 		void psqt_trace(Square sq)
 		{
-			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
-			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
-			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
-			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[sq]][US];
-			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
-			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[sq]][US];
+			static_assert(PT != PAWN);
+
+			++T[KNIGHT_PSQT + (PT - KNIGHT) * 16 + source16[sq]][US];
 		}
 
 		template<Colour US, PieceType PT>
@@ -124,7 +118,6 @@ namespace Clovis {
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
 
 			Score score;
-			Square sq;
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
 			Bitboard transparent_occ =
@@ -134,8 +127,8 @@ namespace Clovis {
 
 			while (bb)
 			{
-				sq = pop_lsb(bb);
-				score += *score_table[make_piece(PT, US)][sq];
+				Square sq = pop_lsb(bb);
+				score += *major_psqt[PT][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
 
 				Square pinner = pos.get_pinner<US>(sq);
@@ -293,9 +286,9 @@ namespace Clovis {
 			{
 				Square sq = pop_lsb(bb);
 
-				if constexpr (TRACE) psqt_trace<US, PAWN>(sq);
+				if constexpr (TRACE) ++T[PAWN_PSQT + source32[relative_square(US, sq)]][US];
 
-				score += *score_table[OUR_PAWN][sq];
+				score += *pawn_psqt[US][sq];
 
 				if (is_doubled_pawn(pos.pc_bb[OUR_PAWN], sq))
 				{
@@ -361,7 +354,7 @@ namespace Clovis {
 				}
 			}
 			
-			score += *score_table[make_piece(KING, US)][ei.ksq[US]];
+			score += *major_psqt[KING][ei.ksq[US]];
 			if constexpr (TRACE) psqt_trace<US, KING>(ei.ksq[US]);
 
 			return score;
