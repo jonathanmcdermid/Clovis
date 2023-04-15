@@ -33,7 +33,7 @@ namespace Clovis {
 		}
 
 		// generate bishop moves for a given square with bitboard of blocking pieces
-		Bitboard bishop_otf(Square sq, Bitboard block)
+		Bitboard bishop_otf(Square sq, Bitboard occ)
 		{
 			Bitboard attacks = 0ULL;
 
@@ -41,7 +41,7 @@ namespace Clovis {
 				for (const auto& dir2 : { EAST, WEST }) {
 					for (Square s = sq + dir1 + dir2; valid_dir(s, dir1) && valid_dir(s, dir2); s += dir1 + dir2) {
 						attacks |= s;
-						if (block & s) break;
+						if (occ & s) break;
 					}
 				}
 			}
@@ -50,14 +50,14 @@ namespace Clovis {
 		}
 
 		// generate rook moves for a given square with bitboard of blocking pieces
-		Bitboard rook_otf(Square sq, Bitboard block)
+		Bitboard rook_otf(Square sq, Bitboard occ)
 		{
 			Bitboard attacks = 0ULL;
 
 			for (const auto& dir : { NORTH, SOUTH, EAST, WEST }) {
 				for (Square s = sq + dir; valid_dir(s, dir); s += dir) {
 					attacks |= s;
-					if (block & s) break;
+					if (occ & s) break;
 				}
 			}
 

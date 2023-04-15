@@ -41,25 +41,25 @@ namespace Clovis {
 			using namespace Eval;
 			
 			for (auto& it : pawn_source)
-				add_param<Score>(it, TraceIndex(PAWN_PSQT + &it - pawn_source));
+				add_param<Score>(it, TraceIndex(&it + PAWN_PSQT - pawn_source));
 			for (auto& it : knight_source)
-				add_param<Score>(it, TraceIndex(KNIGHT_PSQT + &it - knight_source));
+				add_param<Score>(it, TraceIndex(&it + KNIGHT_PSQT - knight_source));
 			for (auto& it : bishop_source)
-				add_param<Score>(it, TraceIndex(BISHOP_PSQT + &it - bishop_source));
+				add_param<Score>(it, TraceIndex(&it + BISHOP_PSQT - bishop_source));
 			for (auto& it : rook_source)
-				add_param<Score>(it, TraceIndex(ROOK_PSQT + &it - rook_source));
+				add_param<Score>(it, TraceIndex(&it + ROOK_PSQT - rook_source));
 			for (auto& it : queen_source)
-				add_param<Score>(it, TraceIndex(QUEEN_PSQT + &it - queen_source));
+				add_param<Score>(it, TraceIndex(&it + QUEEN_PSQT - queen_source));
 			for (auto& it : king_source)
-				add_param<Score>(it, TraceIndex(KING_PSQT + &it - king_source));
+				add_param<Score>(it, TraceIndex(&it + KING_PSQT - king_source));
 			for (auto& it : passed_pawn)
-				add_param<Score>(it, TraceIndex(PASSED_PAWN + &it - passed_pawn));
+				add_param<Score>(it, TraceIndex(&it + PASSED_PAWN - passed_pawn));
 			for (auto& it : candidate_passer)
-				add_param<Score>(it, TraceIndex(CANDIDATE_PASSER + &it - candidate_passer));
+				add_param<Score>(it, TraceIndex(&it + CANDIDATE_PASSER - candidate_passer));
 			for (auto& it : quiet_mobility)
-				add_param<Score>(it, TraceIndex(QUIET_MOBILITY + &it - quiet_mobility));
+				add_param<Score>(it, TraceIndex(&it + QUIET_MOBILITY - quiet_mobility));
 			for (auto& it : capture_mobility)
-				add_param<Score>(it, TraceIndex(CAPTURE_MOBILITY + &it - capture_mobility));
+				add_param<Score>(it, TraceIndex(&it + CAPTURE_MOBILITY - capture_mobility));
 			
 			add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
 			add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
@@ -80,11 +80,11 @@ namespace Clovis {
 			add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
 			
 			for (auto& it : pawn_shield)
-				add_param<short>(it, TraceIndex(SAFETY_PAWN_SHIELD + &it - pawn_shield));
+				add_param<short>(it, TraceIndex(&it + SAFETY_PAWN_SHIELD - pawn_shield));
 			for (auto& it : inner_ring_attack)
-				add_param<short>(it, TraceIndex(SAFETY_INNER_RING + &it - inner_ring_attack));
+				add_param<short>(it, TraceIndex(&it + SAFETY_INNER_RING - inner_ring_attack));
 			for (auto& it : outer_ring_attack)
-				add_param<short>(it, TraceIndex(SAFETY_OUTER_RING + &it - outer_ring_attack));
+				add_param<short>(it, TraceIndex(&it + SAFETY_OUTER_RING - outer_ring_attack));
 			
 			add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
 			add_param<short>(attack_factor, SAFETY_N_ATT);
@@ -190,7 +190,7 @@ namespace Clovis {
 				if (!(i % cols))
 					cout << '\t';
 				if (index < TI_SAFETY)
-					cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+					cout << Score(params[index + i])     << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 				else
 					cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
 			}
@@ -231,12 +231,12 @@ namespace Clovis {
 			<< "\t\tconstexpr Score fianchetto_bonus = "                << Score(params[FIANCHETTO])        << ";" << endl
 			<< "\t\tconstexpr Score rook_on_seventh = "                 << Score(params[ROOK_ON_SEVENTH])   << ";" << endl << endl;
 			
-			print_table("pawn_shield",   SAFETY_PAWN_SHIELD,   sizeof(pawn_shield)   / sizeof(short), 4);
+			print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(pawn_shield) / sizeof(short), 4);
 			print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
 			print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 			
-			cout << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << endl
-			<< "\t\tconstexpr short attack_factor = "         << round(params[SAFETY_N_ATT][MG])            << ";" << endl;
+			cout << "\t\tconstexpr short attack_factor = " << round(params[SAFETY_N_ATT][MG])            << ";" << endl 
+			<< "\t\tconstexpr short virtual_mobility = "   << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << endl;
 		}
 		
 		double find_k()
@@ -323,7 +323,7 @@ namespace Clovis {
 			double K = find_k();
 			double rate = 1.0;
 			
-			cout << mse<true>(K) << endl;
+			cout << mse<true> (K) << endl;
 			cout << mse<false>(K) << endl;
 			
 			for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch) 

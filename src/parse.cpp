@@ -86,7 +86,7 @@ namespace Clovis {
 				{
 					if (line.find("Result") != string::npos)
 					{
-						size_t start = line.find("\"") + 1;
+						size_t start = line.find ("\"") + 1;
 						size_t end   = line.rfind("\"");
 						result = line.substr(start, end - start);
 						break;
@@ -97,8 +97,8 @@ namespace Clovis {
 				{
 					if (line.find("FEN") != string::npos)
 					{
-						size_t start = line.find("\"") + 1;
-						size_t end = line.rfind("\"");
+						size_t start = line. find("\"") + 1;
+						size_t end   = line.rfind("\"");
 						fen = line.substr(start, end - start);
 						break;
 					}
@@ -141,7 +141,7 @@ namespace Clovis {
 								limits.depth = 1;
 								Search::SearchInfo info;
 								Search::start_search(pos, limits, info);
-								\
+								
 								if (info.score < MIN_CHECKMATE_SCORE && info.score > -MIN_CHECKMATE_SCORE)
 								{
 									for (const auto& it : info.pline)
