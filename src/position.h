@@ -10,8 +10,6 @@
 #include "bitboard.h"
 #include "random.h"
 
-using namespace std;
-
 namespace Clovis {
 
 	const extern string piece_str;

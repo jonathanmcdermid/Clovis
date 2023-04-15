@@ -6,8 +6,6 @@
 #include "benchmark.h"
 #include "iq.h"
 
-using namespace std;
-
 namespace Clovis {
 
 	namespace CMDLine {

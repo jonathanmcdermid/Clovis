@@ -8,8 +8,6 @@
 #include "types.h"
 #include "random.h"
 
-using namespace std;
-
 namespace Clovis {
 
 	namespace Parse {

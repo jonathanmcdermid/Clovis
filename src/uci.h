@@ -12,8 +12,6 @@
 #include "types.h"
 #include "tt.h"
 
-using namespace std;
-
 namespace Clovis {
 
 	namespace UCI {
