@@ -150,7 +150,7 @@ namespace Clovis {
 				score += capture_mobility[PT] * popcnt(safe_attacks &  pos.occ_bb[~US]);
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
-				if constexpr (TRACE) ++T[KNIGHT_PSQT + (PT - KNIGHT) * 16 + source16[sq]][US];
+				if constexpr (TRACE) psqt_trace<US, PT>(sq);
 				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
 				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += popcnt(safe_attacks &  pos.occ_bb[~US]);
 				if constexpr (PT == KNIGHT)

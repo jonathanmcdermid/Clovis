@@ -48,8 +48,6 @@ namespace Clovis {
 		void init_values();
 		void clear();
 
-		extern SearchLimits limits;
-
 	} // namespace Search
 
 } // namespace Clovis
