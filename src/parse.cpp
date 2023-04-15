@@ -139,14 +139,12 @@ namespace Clovis {
 							{
 								Search::SearchLimits limits;
 								limits.depth = 1;
-								int score;
-								U64 nodes;
-								Search::Line pline;
-								Search::start_search(pos, limits, score, nodes, pline);
-
-								if (score < MIN_CHECKMATE_SCORE && score > -MIN_CHECKMATE_SCORE)
+								Search::SearchInfo info;
+								Search::start_search(pos, limits, info);
+								\
+								if (info.score < MIN_CHECKMATE_SCORE && info.score > -MIN_CHECKMATE_SCORE)
 								{
-									for (const auto& it : pline)
+									for (const auto& it : info.pline)
 										pos.do_move(it);
 
 									if (find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
@@ -163,7 +161,7 @@ namespace Clovis {
 										}
 									}
 
-									for (Move* m = pline.last - 1; m >= pline.moves; --m)
+									for (Move* m = info.pline.last - 1; m >= info.pline.moves; --m)
 										pos.undo_move(*m);
 								}
 							}

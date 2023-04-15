@@ -14,17 +14,16 @@ namespace Clovis {
 
 		void init_eval()
 		{
-			for (auto col : {WHITE, BLACK})
+			for (auto col : { WHITE, BLACK })
 			{
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 				{
-					pawn_psqt[col][sq] = &pawn_source[source32[relative_square(col, sq)]];
-
-					for (auto pt : {KNIGHT, BISHOP, ROOK, QUEEN, KING})
-						major_psqt[pt][sq] = &major_source[pt][source16[sq]];
-					
 					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
 					shield_table[col][sq] = &pawn_shield[source32[relative_square(col, sq)]];
+					pawn_psqt   [col][sq] = &pawn_source[source32[relative_square(col, sq)]];
+
+					for (auto pt : { KNIGHT, BISHOP, ROOK, QUEEN, KING })
+						major_psqt[pt][sq] = &major_source[pt][source16[sq]];
 				}
 			}
 		}
@@ -95,14 +94,6 @@ namespace Clovis {
 		}
 
 		template<Colour US, PieceType PT>
-		void psqt_trace(Square sq)
-		{
-			static_assert(PT != PAWN);
-
-			++T[KNIGHT_PSQT + (PT - KNIGHT) * 16 + source16[sq]][US];
-		}
-
-		template<Colour US, PieceType PT>
 		Bitboard worthy_trades(const Position& pos)
 		{
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
@@ -143,7 +134,7 @@ namespace Clovis {
 				score += capture_mobility[PT] * popcnt(safe_attacks &  pos.occ_bb[~US]);
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
-				if constexpr (TRACE) psqt_trace<US, PT>(sq);
+				if constexpr (TRACE) ++T[KNIGHT_PSQT + (PT - KNIGHT) * 16 + source16[sq]][US];
 				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
 				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += popcnt(safe_attacks &  pos.occ_bb[~US]);
 				if constexpr (PT == KNIGHT)
@@ -355,7 +346,7 @@ namespace Clovis {
 			}
 			
 			score += *major_psqt[KING][ei.ksq[US]];
-			if constexpr (TRACE) psqt_trace<US, KING>(ei.ksq[US]);
+			if constexpr (TRACE) ++T[KING_PSQT + source16[ei.ksq[US]]][US];
 
 			return score;
 		}

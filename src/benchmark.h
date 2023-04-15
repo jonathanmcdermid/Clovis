@@ -11,10 +11,8 @@ namespace Clovis {
 		struct BenchMark {
 			BenchMark(string f) : fen(f) {;}
 			string fen;
-			int score;
 			TimePoint time;
-			U64 nodes;
-			Search::Line pline;
+			Search::SearchInfo info;
 		};
 		
 		TimePoint benchmark(int argc, char* argv[]);

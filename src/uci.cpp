@@ -90,10 +90,8 @@ namespace Clovis {
 				else if (token == "infinite")	limits.infinite = 1;
 			}
 
-			int score;
-			U64 nodes;
-			Search::Line pline;
-			Search::start_search(pos, limits, score, nodes, pline);
+			Search::SearchInfo info;
+			Search::start_search(pos, limits, info);
 		}
 
 		// set position to input description

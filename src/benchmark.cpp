@@ -46,20 +46,20 @@ namespace Clovis {
 			{
 				tm.set();
 				Position pos(it.fen.c_str());
-				Search::start_search(pos, limits, it.score, it.nodes, it.pline);
+				Search::start_search(pos, limits, it.info);
 				it.time = tm.get_time_elapsed();
-				total_nodes += it.nodes;
+				total_nodes += it.info.nodes;
 				total_time += it.time;
 				Search::clear();
 			}
 		
 			for (auto& it : bm) 
 			{
-				cout << "score cp: " << setw(4) << it.score
-				     << " best: "    << setw(4) << it.pline.moves[0] 
-				     << " ponder: "  << setw(4) << it.pline.moves[1]
-				     << " nodes: "   << setw(7) << it.nodes
-				     << " nps: "     << setw(6) << 1000ULL * it.nodes / (it.time + 1) << endl;
+				cout << "score cp: " << setw(4) << it.info.score
+				     << " best: "    << setw(4) << it.info.pline.moves[0] 
+				     << " ponder: "  << setw(4) << it.info.pline.moves[1]
+				     << " nodes: "   << setw(7) << it.info.nodes
+				     << " nps: "     << setw(6) << 1000ULL * it.info.nodes / (it.time + 1) << endl;
 			}
 
 			cout << "bench: " << total_nodes 

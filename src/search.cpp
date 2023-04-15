@@ -394,10 +394,10 @@ namespace Clovis {
 		}
 
 		// begin search
-		void start_search(Position& pos, SearchLimits& lim, int& score, U64& nodes, Line& pline)
+		void start_search(Position& pos, SearchLimits& limits, SearchInfo& info)
 		{
 			stop = false;
-			allocated_time = lim.depth ? LLONG_MAX : 5 * lim.time[pos.side] / (lim.moves_left + 5);
+			allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
 			tm.set();
 
 			int alpha = - CHECKMATE_SCORE;
@@ -411,16 +411,16 @@ namespace Clovis {
 				MovePick::reset_killers();
 				MovePick::age_history();
 
-				nodes = 0;
+				info.nodes = 0;
 
-				for (int depth = 1; depth <= MAX_PLY && (lim.depth == 0 || depth <= lim.depth); ++depth)
+				for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth)
 				{
-					score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, nodes, pline);
+					info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pline);
 
 					if (stop)
 						break;
 
-					if (score <= alpha)
+					if (info.score <= alpha)
 					{
 						assert(depth > asp_depth);
 						alpha = -CHECKMATE_SCORE;
@@ -428,7 +428,7 @@ namespace Clovis {
 						continue;
 					}
                     
-					if (score >= beta)
+					if (info.score >= beta)
 					{
 						assert(depth > asp_depth);
 						beta = CHECKMATE_SCORE;
@@ -439,13 +439,13 @@ namespace Clovis {
 					auto time = tm.get_time_elapsed();
 
 					cout << "info depth " << setw(2) << depth
-					<< " score cp "  << setw(4) << score
-					<< " nodes "     << setw(8) << nodes
-					<< " time "      << setw(6) << tm.get_time_elapsed()
-					<< " nps "       << setw(8) << 1000ULL * nodes / (time + 1)
+					<< " score cp " << setw(4) << info.score
+					<< " nodes "    << setw(8) << info.nodes
+					<< " time "     << setw(6) << tm.get_time_elapsed()
+					<< " nps "      << setw(8) << 1000ULL * info.nodes / (time + 1)
 					<< " pv ";
 
-					for (auto& it : pline)
+					for (auto& it : info.pline)
 						cout << it << " ";
 
 					cout << endl;
@@ -455,15 +455,15 @@ namespace Clovis {
 
 					if (depth > asp_depth)
 					{
-						alpha = score - delta;
-						beta  = score + delta;
+						alpha = info.score - delta;
+						beta  = info.score + delta;
 					}
 				}
 			}
 			else
-				*pline.last++ = *ml.begin();
+				*info.pline.last++ = *ml.begin();
 
-			cout << "bestmove " << pline.moves[0] << endl;
+			cout << "bestmove " << info.pline.moves[0] << endl;
 		}
 
 	} // namespace Search

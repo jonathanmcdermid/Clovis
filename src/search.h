@@ -37,7 +37,13 @@ namespace Clovis {
 			Move moves[MAX_PLY] = { MOVE_NONE }, *last;
 		};
 
-		void start_search(Position& pos, SearchLimits& lim, int& score, U64& nodes, Line& pline);
+		struct SearchInfo {
+			int score;
+			U64 nodes;
+			Line pline;
+		};
+
+		void start_search(Position& pos, SearchLimits& limits, SearchInfo& params);
 		void init_search();
 		void init_values();
 		void clear();

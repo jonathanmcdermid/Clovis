@@ -47,15 +47,13 @@ namespace Clovis {
 			{
 				Position pos(it.fen.c_str());
 				pos.print_position();
-				int score;
-				U64 nodes;
-				Search::Line pline;
-				Search::start_search(pos, limits, score, nodes, pline);
+				Search::SearchInfo info;
+				Search::start_search(pos, limits, info);
 				bool res = false;
 				
 				for (auto& move : it.moves)
 				{
-					if (pline.moves[0] == move)
+					if (info.pline.moves[0] == move)
 					{
 						res = true;
 						break;
