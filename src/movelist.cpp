@@ -74,7 +74,7 @@ namespace Clovis {
 				}
 				else 
 				{
-					if (QUIETS && is_valid(tar) && !(pos.occ_bb[BOTH] & tar))
+					if (QUIETS && !(pos.occ_bb[BOTH] & tar))
 					{
 						// single push
 						*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 0, 0, 0, 0);
