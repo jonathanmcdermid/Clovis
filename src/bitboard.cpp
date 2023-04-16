@@ -26,10 +26,11 @@ namespace Clovis {
 
 		// returns whether or not a direction can be moved to from a given square
 		constexpr bool valid_dir(Square sq, Direction dir) {
-			return (dir == NORTH || dir == SOUTH) ? is_valid(sq)
-				: dir == EAST ? file_of(sq) != FILE_A
-				: dir == WEST ? file_of(sq) != FILE_H 
-				: false;
+			return dir == NORTH ? rank_of(sq) != RANK_8
+			     : dir == SOUTH ? rank_of(sq) != RANK_1
+			     : dir == EAST  ? file_of(sq) != FILE_A
+			     : dir == WEST  ? file_of(sq) != FILE_H 
+			     : false;
 		}
 
 		// generate bishop moves for a given square with bitboard of blocking pieces
