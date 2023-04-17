@@ -28,8 +28,8 @@ namespace Clovis {
 		constexpr bool valid_dir(Square sq, Direction dir) {
 			return dir == NORTH ? rank_of(sq) != RANK_8
 			     : dir == SOUTH ? rank_of(sq) != RANK_1
-			     : dir == EAST  ? file_of(sq) != FILE_A
-			     : dir == WEST  ? file_of(sq) != FILE_H 
+			     : dir == EAST  ? file_of(sq) != FILE_H
+			     : dir == WEST  ? file_of(sq) != FILE_A 
 			     : false;
 		}
 
@@ -40,7 +40,9 @@ namespace Clovis {
 
 			for (const auto& dir1 : { NORTH, SOUTH }) {
 				for (const auto& dir2 : { EAST, WEST }) {
-					for (Square s = sq + dir1 + dir2; valid_dir(s, dir1) && valid_dir(s, dir2); s += dir1 + dir2) {
+					Square s = sq;
+					while (valid_dir(s, dir1) && valid_dir(s, dir2)) {
+						s += dir1 + dir2;
 						attacks |= s;
 						if (occ & s) break;
 					}
@@ -56,7 +58,9 @@ namespace Clovis {
 			Bitboard attacks = 0ULL;
 
 			for (const auto& dir : { NORTH, SOUTH, EAST, WEST }) {
-				for (Square s = sq + dir; valid_dir(s, dir); s += dir) {
+				Square s = sq;
+				while (valid_dir(s, dir)) {
+					s += dir;
 					attacks |= s;
 					if (occ & s) break;
 				}
