@@ -4,8 +4,8 @@ namespace Clovis {
 	
 	namespace Bench {
 		
-		TimePoint benchmark(int argc, char* argv[])
-		{
+		TimePoint benchmark(int argc, char* argv[]) {
+
 			vector<BenchMark> bm;
 
 			string file_name = "src/bench.csv";
@@ -13,15 +13,13 @@ namespace Clovis {
 			ifs.open(file_name.c_str(), ifstream::in);
 			string line;
 
-			while (true)
-			{
+			while (true) {
 				if (ifs.eof())
 					break;
 
 				getline(ifs, line);
 				
-				if (line.length())
-				{
+				if (line.length()) {
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
 					bm.push_back(BenchMark(line.substr(idx + 1, idx_end - idx - 1)));				
@@ -42,8 +40,7 @@ namespace Clovis {
 
 			limits.depth = depth;
 
-			for (auto& it : bm) 
-			{
+			for (auto& it : bm) {
 				tm.set();
 				Position pos(it.fen.c_str());
 				Search::start_search(pos, limits, it.info);
@@ -53,8 +50,7 @@ namespace Clovis {
 				Search::clear();
 			}
 		
-			for (auto& it : bm) 
-			{
+			for (auto& it : bm) {
 				cout << "score cp: " << setw(4) << it.info.score
 				     << " best: "    << setw(4) << it.info.pline.moves[0] 
 				     << " ponder: "  << setw(4) << it.info.pline.moves[1]

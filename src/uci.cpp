@@ -10,8 +10,8 @@ namespace Clovis {
 		const char* authors = "Jonathan McDermid";
 
 		// main loop for UCI communication
-		void loop(int argc, char* argv[])
-		{
+		void loop(int argc, char* argv[]) {
+
 			Position pos(START_POS);
 
 			string token;
@@ -41,8 +41,8 @@ namespace Clovis {
 			} while (token != "quit" && argc == 1);
 		}
 
-		void set_option(std::istringstream& is)
-		{
+		void set_option(std::istringstream& is) {
+
 			// format for option setting is setoption name X value Y
 			string token, name, value;
 
@@ -55,8 +55,8 @@ namespace Clovis {
 			while (is >> token)
 				value = token;
 
-			if (name == "Hash")
-			{
+			if (name == "Hash") {
+
 				int mb = stoi(value);
 				mb = max(mb, 1);
 				mb = min(mb, 10000);
@@ -64,19 +64,17 @@ namespace Clovis {
 			}
 
 			if (name == "Threads")
-			{
 				return;
-			}
 		}
 
 		// begin search
-		void go(Position& pos, std::istringstream& is)
-		{
+		void go(Position& pos, std::istringstream& is) {
+
 			Search::SearchLimits limits;
 			string token;
 
-			while (is >> token) 
-			{
+			while (is >> token) {
+
 				if (token == "wtime")			is >> limits.time[WHITE];
 				else if (token == "btime")		is >> limits.time[BLACK];
 				else if (token == "winc")		is >> limits.inc[WHITE];
@@ -95,13 +93,12 @@ namespace Clovis {
 		}
 
 		// set position to input description
-		void position(Position& pos, istringstream& is) 
-		{
+		void position(Position& pos, istringstream& is) {
+
 			Move move;
 			string token, fen;
 			is >> token;
-			if (token == "startpos") 
-			{
+			if (token == "startpos") {
 				fen = START_POS;
 				is >> token;
 			}
@@ -120,8 +117,8 @@ namespace Clovis {
 		}
 
 		// convert string to move if it is legal
-		Move to_move(const Position& pos, string& str) 
-		{
+		Move to_move(const Position& pos, string& str) {
+
 			if (str.length() == 5)
 				str[4] = char(tolower(str[4]));
 

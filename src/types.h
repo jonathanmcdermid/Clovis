@@ -334,15 +334,11 @@ namespace Clovis {
 		return file_of(to) == FILE_G;
 	}
 
-	constexpr void get_castle_rook_squares(Square king_tar, Square& rf, Square& rt)
-	{
-		if (king_side_castle(king_tar))
-		{
+	constexpr void get_castle_rook_squares(Square king_tar, Square& rf, Square& rt) {
+		if (king_side_castle(king_tar)) {
 			rf = king_tar + EAST;
 			rt = king_tar + WEST;
-		}
-		else
-		{
+		} else {
 			rf = king_tar + WEST + WEST;
 			rt = king_tar + EAST;
 		}
@@ -369,27 +365,23 @@ namespace Clovis {
 	}
 
 	// convert move to string
-	inline string move2str(Move m)
-	{
+	inline string move2str(Move m) {
 		return (move_promotion_type(m))
 		? sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + " pnbrqk  pnbrqk"[move_promotion_type(m)]
 		: sq2str(move_from_sq(m)) + sq2str(move_to_sq(m));
 	}
 
-	inline ostream& operator<<(ostream& os, const Square& sq)
-	{
+	inline ostream& operator<<(ostream& os, const Square& sq) {
 		os << sq2str(sq);
 		return os;
 	}
 
-	inline ostream& operator<<(ostream& os, const Score& s)
-	{
+	inline ostream& operator<<(ostream& os, const Score& s) {
 		os << "S(" << s.mg << ", " << s.eg << ")";
 		return os;
 	}
 
-	inline ostream& operator<<(ostream& os, const Move& m)
-	{
+	inline ostream& operator<<(ostream& os, const Move& m) {
 		os << move_from_sq(m) << move_to_sq(m); 
 		if (move_promotion_type(m))
 			os << " pnbrqk  pnbrqk"[move_promotion_type(m)];

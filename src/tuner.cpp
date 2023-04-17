@@ -19,16 +19,13 @@ namespace Clovis {
 		}
 
 		template<typename T>
-		void add_param(T t, TraceIndex ti)
-		{
-			if constexpr (is_same<T, Score>())
-			{
+		void add_param(T t, TraceIndex ti) {
+
+			if constexpr (is_same<T, Score>()) {
 				assert(ti < TI_SAFETY);
 				params[ti][MG] = (double) t.mg;
 				params[ti][EG] = (double) t.eg;
-			}
-			else
-			{
+			} else {
 				static_assert(is_same<T, short>());
 				assert(ti >= TI_SAFETY);
 				params[ti][MG] = (double) t;
@@ -36,8 +33,8 @@ namespace Clovis {
 			}
 		}
 		
-		void init_params()
-		{
+		void init_params() {
+
 			using namespace Eval;
 			
 			for (auto& it : pawn_source)
@@ -90,15 +87,15 @@ namespace Clovis {
 			add_param<short>(attack_factor, SAFETY_N_ATT);
 		}
 		
-		double linear_eval(const TEntry* entry, TGradient* tg) 
-		{
+		double linear_eval(const TEntry* entry, TGradient* tg) {
+
 			double normal[PHASE_N];
 			double safety = 0.0;
 			double mg[EVALTYPE_N][COLOUR_N] = {0};
 			double eg[EVALTYPE_N][COLOUR_N] = {0};
 			
-			for (auto& it : entry->tuples)
-			{
+			for (auto& it : entry->tuples) {
+
 				EvalType et = it.index >= TI_SAFETY ? SAFETY : NORMAL;
 				
 				mg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][MG];
@@ -115,8 +112,7 @@ namespace Clovis {
 
 			double eval =  ((normal[MG] + safety) * entry->phase + normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
 			
-			if (tg)
-			{
+			if (tg) {
 				tg->eval = eval;
 				tg->safety[WHITE] = mg[SAFETY][WHITE];
 				tg->safety[BLACK] = mg[SAFETY][BLACK];
@@ -126,8 +122,8 @@ namespace Clovis {
 		}
 		
 		template<bool STATIC>
-		double mse(long double K)
-		{
+		double mse(long double K) {
+			
 			double total = 0.0;
 
 			#pragma omp parallel shared(total)
@@ -140,8 +136,8 @@ namespace Clovis {
 			return total / (double) entries.size();
 		}
 		
-		void update_single_gradient(TEntry *entry, TVector gradient, double K) 
-		{
+		void update_single_gradient(TEntry *entry, TVector gradient, double K) {
+			
 			TGradient tg;
 			
 			double E = linear_eval(entry, &tg);
@@ -150,15 +146,11 @@ namespace Clovis {
 			
 			double base[PHASE_N] = { A * entry->phase, A * (MAX_GAMEPHASE - entry->phase) };
 
-			for (auto& it : entry->tuples)
-			{
-				if (it.index < TI_SAFETY)
-				{
+			for (auto& it : entry->tuples) {
+				if (it.index < TI_SAFETY) {
 					gradient[it.index][MG] += base[MG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
 					gradient[it.index][EG] += base[EG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
-				}
-				else
-				{
+				} else {
 					gradient[it.index][MG] += 2 * base[MG] * tg.safety[WHITE] * it.coefficient[WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE]);
 					gradient[it.index][MG] -= 2 * base[MG] * tg.safety[BLACK] * it.coefficient[BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK]);
 				}
@@ -169,26 +161,24 @@ namespace Clovis {
 			
 		}
 		
-		void compute_gradient(TVector gradient, double K) 
-		{
+		void compute_gradient(TVector gradient, double K) {
+
 			TVector local = {0};
 
 			for (size_t i = 0; i < entries.size(); ++i)
 				update_single_gradient(&entries[i], local, K);
 
-			for (int i = 0; i < TI_MISC; ++i) 
-			{
+			for (int i = 0; i < TI_MISC; ++i) {
 				gradient[i][MG] += local[i][MG];
 				gradient[i][EG] += local[i][EG];
 			}
 		}
 		
-		void print_table(string name, int index, int size, int cols) 
-		{
+		void print_table(string name, int index, int size, int cols) {
+			
 			cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name << "[] = {" << endl << "\t\t";
 
-			for (int i = 0; i < size; ++i) 
-			{
+			for (int i = 0; i < size; ++i) {
 				if (!(i % cols))
 					cout << '\t';
 				if (index < TI_SAFETY)
@@ -200,8 +190,8 @@ namespace Clovis {
 			cout << "};" << endl << endl;
 		}
 		
-		void print_params()
-		{
+		void print_params() {
+
 			using namespace Eval;
 			
 			print_table("pawn_source",      PAWN_PSQT,        sizeof(pawn_source)      / sizeof(Score), 4);
@@ -241,17 +231,15 @@ namespace Clovis {
 			<< "\t\tconstexpr short virtual_mobility = "   << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << endl;
 		}
 		
-		double find_k()
-		{
+		double find_k() {
+
 			double start = -10, end = 10, step = 1;
 			double curr = start, error, best = mse<true>(start);
 
-			for (int epoch = 0; epoch < 10; ++epoch) 
-			{
+			for (int epoch = 0; epoch < 10; ++epoch) {
 				curr = start - step;
 				
-				while (curr < end) 
-				{
+				while (curr < end) {
 					curr = curr + step;
 					error = mse<true>(curr);
 					
@@ -269,8 +257,8 @@ namespace Clovis {
 			return start;
 		}
 		
-		void tune_eval()
-		{
+		void tune_eval() {
+
 			TVector adagrad = {0};
 			init_params();
 			
@@ -279,12 +267,12 @@ namespace Clovis {
 			ifs.open(file_name.c_str(), ifstream::in);
 			string line;
 
-			while (!ifs.eof()) 
-			{
+			while (!ifs.eof()) {
+
 				getline(ifs, line);
 				
-				if (line.length())
-				{
+				if (line.length()) {
+
 					TEntry entry;
 					memset(Eval::T, 0, sizeof(Eval::T));
 					size_t idx = line.find("\"");
@@ -328,13 +316,13 @@ namespace Clovis {
 			cout << mse<true> (K) << endl;
 			cout << mse<false>(K) << endl;
 			
-			for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch) 
-			{
+			for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch) {
+
 				TVector gradient = {0};
 				compute_gradient(gradient, K);
 
-				for (int i = 0; i < TI_MISC; ++i) 
-				{
+				for (int i = 0; i < TI_MISC; ++i) {
+
 					adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / 16384, 2.0);
 					adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / 16384, 2.0);
 					

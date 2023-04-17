@@ -72,13 +72,10 @@ namespace Clovis {
 		assert(bb);
 		unsigned long pos;
 
-		if (bb & 0xffffffff)
-		{
+		if (bb & 0xffffffff) {
   			_BitScanForward(&pos, int32_t(bb));
 			return Square(pos);
-		}
-		else
-		{
+		} else {
 			_BitScanForward(&pos, int32_t(bb >> 32));
 			return Square(pos + 32);
 		}
@@ -88,13 +85,10 @@ namespace Clovis {
 		assert(bb);
 		unsigned long idx;
 
-		if (bb >> 32) 
-		{
+		if (bb >> 32) {
 			_BitScanReverse(&idx, int32_t(bb >> 32));
 			return Square(idx + 32);
-		} 
-		else 
-		{
+		} else {
 			_BitScanReverse(&idx, int32_t(bb));
 			return Square(idx);
 		}
@@ -120,8 +114,7 @@ namespace Clovis {
 	}
 
 	template<Direction D>
-	constexpr Bitboard shift(Bitboard bb)
-	{
+	constexpr Bitboard shift(Bitboard bb) {
 		return D >= 0 ? bb << D : bb >> -D;
 	}
 
@@ -370,8 +363,8 @@ namespace Clovis {
 		void init_bitboards();
 
 		template<PieceType PT>
-		constexpr Bitboard get_attacks(Bitboard occ, Square sq)
-		{
+		constexpr Bitboard get_attacks(Bitboard occ, Square sq) {
+
 			static_assert(PT != PAWN);
             
 			return PT == KNIGHT    ? knight_attacks[sq]
@@ -382,8 +375,8 @@ namespace Clovis {
 		}
 
 		template<PieceType PT>
-		constexpr Bitboard get_attacks(Square sq)
-		{
+		constexpr Bitboard get_attacks(Square sq) {
+
 			static_assert(PT != PAWN);
             
 			return PT == KNIGHT    ? knight_attacks[sq]
@@ -393,8 +386,8 @@ namespace Clovis {
 				: king_attacks[sq];
 		}
 
-		inline Bitboard get_attacks(PieceType pt, Bitboard occ, Square sq)
-		{
+		inline Bitboard get_attacks(PieceType pt, Bitboard occ, Square sq) {
+
 			assert(pt != PAWN);
 
 			return pt == KNIGHT    ? knight_attacks[sq]

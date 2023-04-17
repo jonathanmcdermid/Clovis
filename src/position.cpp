@@ -26,8 +26,8 @@ namespace Clovis {
 
 	namespace Zobrist {
 
-		void init_zobrist()
-		{
+		void init_zobrist() {
+
 			for (int i = NO_PIECE; i <= B_KING; ++i)
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
   					piece_square[i][sq] = Random::random_U64();
@@ -47,18 +47,16 @@ namespace Clovis {
 
 	// returns the square that pins a piece if it exists
 	template<Colour US>
-	Square Position::get_pinner(Square sq) const
-	{
+	Square Position::get_pinner(Square sq) const {
+
 		Square ksq = lsb(pc_bb[make_piece(KING, US)]);
 
-		if (Bitboards::get_attacks<QUEEN>(ksq) & sq)
-		{
+		if (Bitboards::get_attacks<QUEEN>(ksq) & sq) {
 			Bitboard candidates = 
 			 ((Bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK,   ~US)])) 
 			| (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
 
-			while (candidates)
-			{
+			while (candidates) {
 				Square candidate = pop_lsb(candidates);
 				if (between_squares(ksq, candidate) & sq)
 					return candidate;
@@ -74,8 +72,7 @@ namespace Clovis {
 	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>
-	bool Position::discovery_threat(Square sq) const 
-	{
+	bool Position::discovery_threat(Square sq) const {
 		// pawn is moveless if it attacks no enemies and is blocked by a piece
 		// we dont have to worry about shift because discovery pawns will never be on outer files
 		Bitboard their_moveless_pawns = 
@@ -102,22 +99,18 @@ namespace Clovis {
 	template bool Position::discovery_threat<WHITE>(Square sq) const;
 	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
-	string Position::get_fen() const
-	{
+	string Position::get_fen() const {
+
 		string fen;
 		
-		for (Rank r = RANK_8; r >= RANK_1; --r)
-		{
+		for (Rank r = RANK_8; r >= RANK_1; --r) {
 			int empty_count = 0;
-			for (File f = FILE_A; f <= FILE_H; ++f)
-			{
+			for (File f = FILE_A; f <= FILE_H; ++f) {
 				Square sq = make_square(f, r);
 				if (pc_table[sq] == NO_PIECE)
 					++empty_count;
-				else
-				{
-					if (empty_count)
-					{
+				else {
+					if (empty_count) {
 						fen += to_string(empty_count);
 						empty_count = 0;
 					}
@@ -134,8 +127,7 @@ namespace Clovis {
 
 		if (bs->castle == NO_CASTLING)
 			fen += '-';
-		else 
-		{
+		else {
 			if (bs->castle & WHITE_KS) fen += "K";
 			if (bs->castle & WHITE_QS) fen += "Q";
 			if (bs->castle & BLACK_KS) fen += "k";
@@ -148,8 +140,8 @@ namespace Clovis {
 	}
 
 	// sets position to the state specified by FEN string
-	void Position::set(const char* fen)
-	{
+	void Position::set(const char* fen) {
+
 		memset(this, 0, sizeof(Position));
 		bs = new BoardState;
 
@@ -161,8 +153,7 @@ namespace Clovis {
 
 		ss >> noskipws;
 
-		while ((ss >> token) && !isspace(token))
-		{
+		while ((ss >> token) && !isspace(token)) {
 			if (isdigit(token))
 				sq = sq + (token - '0') * EAST;
 			else if (token == '/')
@@ -178,8 +169,7 @@ namespace Clovis {
 		side = (token == 'w' ? WHITE : BLACK);
 		ss >> token;
 
-		while ((ss >> token) && !isspace(token)) 
-		{
+		while ((ss >> token) && !isspace(token)) {
 			if      (token == 'K') bs->castle |= WHITE_KS;
 			else if (token == 'Q') bs->castle |= WHITE_QS;
 			else if (token == 'k') bs->castle |= BLACK_KS;
@@ -189,8 +179,7 @@ namespace Clovis {
 
 		ss >> token;
 
-		if (token != '-') 
-		{
+		if (token != '-') {
 			File f = File(token - 'a');
 			ss >> token;
 			Rank r = Rank(token - '1');
@@ -204,8 +193,8 @@ namespace Clovis {
 		bs->ply_null = 0;
 	}
 
-	Key Position::make_key()
-	{
+	Key Position::make_key() {
+
 		Key k = 0ULL;
 
 		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -223,8 +212,7 @@ namespace Clovis {
 		return k;
 	}
 
-	Key Position::make_pawn_key()
-	{
+	Key Position::make_pawn_key() {
  		Key k = 0ULL;
 
 		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -234,8 +222,7 @@ namespace Clovis {
 		return k;
 	}
 
-	Bitboard Position::attackers_to(Square sq) const 
-	{
+	Bitboard Position::attackers_to(Square sq) const  {
 		return (Bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN]) 
 		| (Bitboards::pawn_attacks[WHITE][sq] &  pc_bb[B_PAWN])
 		| (Bitboards::knight_attacks[sq]      & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT]))
@@ -245,8 +232,7 @@ namespace Clovis {
 	}
 
 	// returns the piece type of the least valuable piece on a bitboard of attackers
-	Square Position::get_smallest_attacker(Bitboard attackers, const Colour stm) const
-	{
+	Square Position::get_smallest_attacker(Bitboard attackers, const Colour stm) const {
 		Bitboard bb;
         
 		for (PieceType pt = PAWN; pt <= KING; ++pt)
@@ -257,10 +243,8 @@ namespace Clovis {
 	}
 
 	// updates a bitboard of attackers after a piece has moved to include possible x ray attackers
-	Bitboard Position::consider_xray(Bitboard occ, Square to, PieceType pt) const
-	{
-		switch (pt)
-		{
+	Bitboard Position::consider_xray(Bitboard occ, Square to, PieceType pt) const {
+		switch (pt) {
 		case PAWN:
 		case BISHOP:
 			return occ & (Bitboards::get_attacks<BISHOP> (occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
@@ -274,8 +258,7 @@ namespace Clovis {
 		}
 	}
 
-	bool Position::see_ge(Move move, int threshold) const
-	{
+	bool Position::see_ge(Move move, int threshold) const {
 		// dont even bother
 		if (move_promotion_type(move) || move_enpassant(move))
 			return true;
@@ -314,8 +297,7 @@ namespace Clovis {
 
 	// updates bitboards to represent a new piece on a square
 	// does not remove info if a piece was already on that square
-	void Position::put_piece(Piece pc, Square sq) 
-	{
+	void Position::put_piece(Piece pc, Square sq) {
 		assert(!(sq & pc_bb[pc]));
 		assert(!(sq & occ_bb[get_side(pc)]));
 		assert(!(sq & occ_bb[BOTH]));
@@ -327,8 +309,7 @@ namespace Clovis {
 	}
 	
 	// updates bitboards to replace an old piece with a new piece on a square
-	void Position::replace_piece(Piece pc, Square sq) 
-	{
+	void Position::replace_piece(Piece pc, Square sq) {
 		assert(!(sq & occ_bb[get_side(pc)]));
 		assert((sq & occ_bb[~get_side(pc)]));
 		assert((sq & occ_bb[BOTH]));
@@ -341,8 +322,7 @@ namespace Clovis {
 	}
 
 	// updates bitboards to represent a piece being removed from a square
-	void Position::remove_piece(Square sq)
-	{
+	void Position::remove_piece(Square sq) {
 		Piece pc = pc_table[sq];
 
 		assert(sq & pc_bb[pc]);
@@ -356,8 +336,7 @@ namespace Clovis {
 	}
 	
 	template<bool NM>
-	void Position::new_board_state()
-	{
+	void Position::new_board_state() {
 		BoardState* bs_new = new BoardState;
 		assert(bs_new != bs);
 		// copy old boardstate info to new boardstate and update clocks
@@ -373,24 +352,21 @@ namespace Clovis {
 		// position now refers to new boardstate
 		bs = bs_new;
 		
-		if (bs->enpassant != SQ_NONE)
-		{
+		if (bs->enpassant != SQ_NONE) {
 			bs->key ^= Zobrist::enpassant[bs->enpassant];
 			bs->enpassant = SQ_NONE;
 		}
 	}
 	
 	// executes a null move and updates the position
-	bool Position::do_null_move()
-	{
+	bool Position::do_null_move() {
 		new_board_state<true>();
 		side = ~side;
 		return true;
 	}
 
 	// reverts a null move and rolls back the position
-	void Position::undo_null_move()
-	{
+	void Position::undo_null_move() {
 		side = ~side;
 		assert(bs->prev);
 		BoardState* temp = bs;
@@ -399,8 +375,7 @@ namespace Clovis {
 	}
 
 	// executes a move and updates the position
-	bool Position::do_move(Move move)
-	{
+	bool Position::do_move(Move move) {
 		new_board_state<false>();
 		
 		Square src = move_from_sq(move);
@@ -421,19 +396,15 @@ namespace Clovis {
 		bs->castle &= castling_rights[tar];
 		bs->key ^= Zobrist::castling[bs->castle];
 
-		if (move_capture(move))
-		{
-			if (move_enpassant(move))
-			{
+		if (move_capture(move)) {
+			if (move_enpassant(move)) {
 				Square victim_sq = tar - pawn_push(side);
 				bs->captured_piece = make_piece(PAWN, ~side);
 				bs->key  ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
 				bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
 				remove_piece(victim_sq);
 				put_piece(piece, tar);
-			}
-			else
-			{
+			} else {
 				if (piece_type(bs->captured_piece) == PAWN)
 					bs->pkey ^= Zobrist::piece_square[bs->captured_piece][tar];
 
@@ -450,15 +421,12 @@ namespace Clovis {
 		bs->key ^= Zobrist::piece_square[pc_table[src]][tar];
 		remove_piece(src);
 
-		if (piece_type(piece) == PAWN)
-		{
-			if (move_double(move))
-			{
+		if (piece_type(piece) == PAWN) {
+			if (move_double(move)) {
 				bs->enpassant = tar - pawn_push(side);
 				bs->key ^= Zobrist::enpassant[bs->enpassant];
 			}
-			else if (move_promotion_type(move))
-			{
+			else if (move_promotion_type(move)) {
 				bs->key  ^= Zobrist::piece_square[pc_table[tar]][tar];
 				bs->pkey ^= Zobrist::piece_square[piece][tar];
 				remove_piece(tar);
@@ -471,13 +439,11 @@ namespace Clovis {
 			bs->pkey ^= Zobrist::piece_square[piece][tar];
 			bs->hmc = 0;
 		}
-		else if (piece_type(piece) == KING)
-		{
+		else if (piece_type(piece) == KING) {
 			bs->pkey ^= Zobrist::piece_square[piece][src];
 			bs->pkey ^= Zobrist::piece_square[piece][tar];
 			
-			if (move_castling(move))
-			{
+			if (move_castling(move)) {
 				Square rt, rf;
 				get_castle_rook_squares(tar, rf, rt);
 				bs->key ^= Zobrist::piece_square[pc_table[rf]][rf];
@@ -488,8 +454,7 @@ namespace Clovis {
 		}
 
 		// move gen doesnt check for suicidal king, so we check here
-		if (is_king_in_check())
-		{
+		if (is_king_in_check()) {
 			side = ~side;
 			undo_move(move);
 			return false;
@@ -500,26 +465,22 @@ namespace Clovis {
 	}
 
 	// reverts a move and rolls back the position
-	void Position::undo_move(Move move)
-	{
+	void Position::undo_move(Move move) {
 		side = ~side;
 
 		Square tar = move_to_sq(move);
 
 		put_piece(move_piece_type(move), move_from_sq(move));
 
-		if (move_castling(move))
-		{
+		if (move_castling(move)) {
 			Square rt, rf;
 			get_castle_rook_squares(tar, rf, rt);
 			remove_piece(rt);
 			put_piece(make_piece(ROOK, side), rf);
 		}
 
-		if (move_capture(move)) 
-		{
-			if (move_enpassant(move)) 
-			{
+		if (move_capture(move)) {
+			if (move_enpassant(move)) {
 				remove_piece(tar);
 				put_piece(bs->captured_piece, tar - pawn_push(side));
 			}
@@ -535,12 +496,11 @@ namespace Clovis {
 		delete temp;
 	}
 
-	bool Position::is_repeat() const 
-	{
+	bool Position::is_repeat() const {
+		
 		BoardState* temp = bs;
        
-		for (int end = min(bs->hmc, bs->ply_null); end >= 4; end -= 4)
-		{
+		for (int end = min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
 			assert(temp->prev->prev->prev->prev);
 
 			temp = temp->prev->prev->prev->prev;
@@ -552,10 +512,9 @@ namespace Clovis {
 	}
 
 	// prints the current position
-	void Position::print_position() const
-	{
-		for (Rank r = RANK_8; r >= RANK_1; --r)
-		{
+	void Position::print_position() const {
+
+		for (Rank r = RANK_8; r >= RANK_1; --r) {
 			cout << r + 1 << ' ';
 			for (File f = FILE_A; f < FILE_N; ++f)
 				cout << symbols[pc_table[make_square(f,r)]] << " ";
@@ -565,10 +524,9 @@ namespace Clovis {
 	}
 
 	// prints the bitboards for this position
-	void Position::print_bitboards() 
-	{
-		for (PieceType pt = PAWN; pt <= KING; ++pt)
-		{
+	void Position::print_bitboards() {
+
+		for (PieceType pt = PAWN; pt <= KING; ++pt) {
 			Bitboards::print_bitboard(pc_bb[make_piece(pt, WHITE)]);
 			Bitboards::print_bitboard(pc_bb[make_piece(pt, BLACK)]);
 		}

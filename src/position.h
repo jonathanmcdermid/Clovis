@@ -79,8 +79,8 @@ namespace Clovis {
 
 	// returns whether or not a square is attacked by opposing side
 	template<Colour US>
-	inline bool Position::is_attacked(Square sq) const
-	{
+	inline bool Position::is_attacked(Square sq) const {
+
 		return ((pc_bb[make_piece(PAWN,   ~US)] & Bitboards::pawn_attacks[US][sq])
 		     || (pc_bb[make_piece(KNIGHT, ~US)] & Bitboards::knight_attacks[sq])
 		     || (pc_bb[make_piece(BISHOP, ~US)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
@@ -90,8 +90,8 @@ namespace Clovis {
 	}
 	
 	template <Colour US>
-	inline bool Position::is_insufficient() const 
-	{
+	inline bool Position::is_insufficient() const {
+
 		return (popcnt(pc_bb[make_piece(PAWN,   US)]) == 0
 		    && (popcnt(pc_bb[make_piece(ROOK,   US)]) == 0)
 		    && (popcnt(pc_bb[make_piece(QUEEN,  US)]) == 0)
@@ -99,33 +99,30 @@ namespace Clovis {
 		    && (popcnt(pc_bb[make_piece(BISHOP, US)]) + popcnt(pc_bb[make_piece(KNIGHT, US)])  < 2));
 	}
 
-	inline bool Position::is_draw() const
-	{
+	inline bool Position::is_draw() const {
 		return is_repeat() || is_material_draw() || is_draw_50();
 	}
 
-	inline bool Position::is_king_in_check() const 
-	{
+	inline bool Position::is_king_in_check() const {
+
 		return (side == WHITE)
 			? is_attacked<WHITE>(lsb(pc_bb[W_KING]))
 			: is_attacked<BLACK>(lsb(pc_bb[B_KING]));
 	}
 
-	inline bool Position::stm_has_promoted() const 
-	{
+	inline bool Position::stm_has_promoted() const {
+
 		return bool(pc_bb[make_piece(KNIGHT, side)]
 		          | pc_bb[make_piece(BISHOP, side)]
 		          | pc_bb[make_piece(ROOK,   side)]
 		          | pc_bb[make_piece(QUEEN,  side)]);
 	}
 
-	inline bool Position::is_material_draw() const 
-	{
+	inline bool Position::is_material_draw() const {
 		return is_insufficient<WHITE>() && is_insufficient<BLACK>();
 	}
 
-	inline bool Position::is_draw_50() const 
-	{
+	inline bool Position::is_draw_50() const {
 		return (bs->hmc >= 100);
 	}
 

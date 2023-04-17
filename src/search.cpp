@@ -52,17 +52,15 @@ namespace Clovis {
 		TimePoint allocated_time;
 
 		// initialize starting search conditions
-		void init_search()
-		{
+		void init_search() {
 			clear();
 			init_values();
 		}
 
 		// initialize search values
-		void init_values()
-		{
-			for (int depth = 1; depth <= MAX_PLY; ++depth)
-			{
+		void init_values() {
+
+			for (int depth = 1; depth <= MAX_PLY; ++depth) {
 				//futility_reduction[depth] = depth * futility_factor;
 
 				//for (int i = 0; i < 2; ++i)
@@ -74,15 +72,14 @@ namespace Clovis {
 		}
 
 		// reset transposition table, set search to standard conditions
-		void clear()
-		{
+		void clear() {
 			MovePick::clear();
 			tt.clear();
 		}
  
 		template<NodeType N>
-		int quiescence(Position& pos, int alpha, int beta, U64& nodes, int ply, Line& pline)
-		{
+		int quiescence(Position& pos, int alpha, int beta, U64& nodes, int ply, Line& pline) {
+
 			constexpr bool PV_NODE = N != NODE_NON_PV;
 
 			assert(PV_NODE || (alpha == beta - 1));
@@ -108,8 +105,8 @@ namespace Clovis {
 			int eval;
 			int old_alpha = alpha;
 
-			if (!in_check)
-			{
+			if (!in_check) {
+
 				eval = Eval::evaluate<false>(pos);
 	
 				// use TT score instead of static eval if conditions are right
@@ -131,8 +128,8 @@ namespace Clovis {
 			Move best_move = MOVE_NONE;
 			int best_eval = INT_MIN;
 
-			while ((curr_move = mp.get_next(in_check)) != MOVE_NONE)
-			{
+			while ((curr_move = mp.get_next(in_check)) != MOVE_NONE) {
+
 				// illegal move or non capture
 				if (!pos.do_move(curr_move))
 					continue;
@@ -143,21 +140,21 @@ namespace Clovis {
 				pos.undo_move(curr_move);
 
 				// fail high
- 				if (eval >= beta)
-				{
+ 				if (eval >= beta) {
+
 					tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
 
 					return beta;
 				}
-				if (eval > best_eval)
-				{
+				if (eval > best_eval) {
+
 					best_eval = eval;
 					best_move = curr_move;
 					// new best move found
-					if (eval > alpha)
-					{
-						if constexpr (PV_NODE)
-						{
+					if (eval > alpha) {
+
+						if constexpr (PV_NODE) {
+
 							pline.last = pline.moves;
 							*pline.last++ = curr_move;
 
@@ -178,15 +175,13 @@ namespace Clovis {
 		}
 
 		template<NodeType N>
-		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline)
-		{
+		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline) {
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
 
 			assert(PV_NODE || (alpha == beta - 1));
 
-			if (nodes & 2047 && tm.get_time_elapsed() > allocated_time)
-			{
+			if (nodes & 2047 && tm.get_time_elapsed() > allocated_time) {
 				stop = true;
 				return 0;
 			}
@@ -210,13 +205,13 @@ namespace Clovis {
 			TTEntry* tte = tt.probe(pos.bs->key);
 			Move tt_move;
 
-			if (tte)
-			{
-				if (PV_NODE && tte->move != MOVE_NONE)
-				{
+			if (tte) {
+
+				if (PV_NODE && tte->move != MOVE_NONE) {
 					pline.last = pline.moves;
 					*pline.last++ = tte->move;
 				}
+
 				if (!PV_NODE
 				&& tte->depth >= depth
 				&& (tte->flags == HASH_EXACT
@@ -233,8 +228,8 @@ namespace Clovis {
 
 			int score;
 
-			if (!in_check)
-			{
+			if (!in_check) {
+
 				score = tte ? tte->eval : Eval::evaluate<false>(pos);
 
 				// reverse futility pruning
@@ -248,8 +243,8 @@ namespace Clovis {
 				if (!PV_NODE
 				&& !is_null
 				&& depth >= null_depth
-				&& pos.stm_has_promoted())
-				{
+				&& pos.stm_has_promoted()) {
+
 					pos.do_null_move();
 					Line line;
 					score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, line);
@@ -260,16 +255,14 @@ namespace Clovis {
 				}
 
 				// internal iterative deepening
-				if (!tte && depth >= iid_depth[PV_NODE])
-				{
+				if (!tte && depth >= iid_depth[PV_NODE]) {
+
 					Line line;
 					negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, line);
 					tte = tt.probe(pos.bs->key);
 
-					if (tte)
-					{
-						if constexpr (PV_NODE)
-						{
+					if (tte) {
+						if constexpr (PV_NODE) {
 							pline.last = pline.moves;
 							*pline.last++ = tte->move;
 						}
@@ -293,8 +286,7 @@ namespace Clovis {
 
 			bool play_quiets = true;
 
-			while ((curr_move = mp.get_next(play_quiets)) != MOVE_NONE)
-			{
+			while ((curr_move = mp.get_next(play_quiets)) != MOVE_NONE) {
 				// illegal move
 				if (!pos.do_move(curr_move))
 					continue;
@@ -307,8 +299,8 @@ namespace Clovis {
 				else if (moves_searched > 1
 				&& depth > lmr_depth
 				&& move_capture(curr_move) == NO_PIECE
-				&& move_promotion_type(curr_move) == NO_PIECE)
-				{
+				&& move_promotion_type(curr_move) == NO_PIECE) {
+
 					int history_entry = MovePick::get_history_entry(~pos.side, curr_move);
 					// reduction factor
 					int R = lmr_table[depth][min(moves_searched, 63)];
@@ -339,10 +331,10 @@ namespace Clovis {
 					return 0;
 
 				// fail high
-				if (score >= beta)
-				{
-					if (move_capture(curr_move) == NO_PIECE)
-					{
+				if (score >= beta) {
+
+					if (move_capture(curr_move) == NO_PIECE) {
+
 						mp.update_history<HASH_BETA>(curr_move, depth);
 						MovePick::update_killers(curr_move, ply);
 						MovePick::update_counter_entry(pos.side, prev_move, curr_move);
@@ -353,15 +345,15 @@ namespace Clovis {
 					return beta;
 				}
 
-				if (score > best_score)
-				{
+				if (score > best_score) {
+
 					best_move = curr_move;
 					best_score = score;
                     
-					if (score > alpha)
-					{
-						if constexpr (PV_NODE)
-						{
+					if (score > alpha) {
+
+						if constexpr (PV_NODE) {
+
 							pline.last = pline.moves;
 							*pline.last++ = curr_move;
 
@@ -394,8 +386,8 @@ namespace Clovis {
 		}
 
 		// begin search
-		void start_search(Position& pos, SearchLimits& limits, SearchInfo& info)
-		{
+		void start_search(Position& pos, SearchLimits& limits, SearchInfo& info) {
+
 			stop = false;
 			allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
 			tm.set();
@@ -406,30 +398,30 @@ namespace Clovis {
 			MoveGen::MoveList ml(pos);
 			ml.remove_illegal(pos);
 
-			if (ml.size() > 1)
-			{
+			if (ml.size() > 1) {
+
 				MovePick::reset_killers();
 				MovePick::age_history();
 
 				info.nodes = 0;
 
-				for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth)
-				{
+				for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth) {
+
 					info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pline);
 
 					if (stop)
 						break;
 
-					if (info.score <= alpha)
-					{
+					if (info.score <= alpha) {
+
 						assert(depth > asp_depth);
 						alpha = -CHECKMATE_SCORE;
 						--depth;
 						continue;
 					}
                     
-					if (info.score >= beta)
-					{
+					if (info.score >= beta) {
+
 						assert(depth > asp_depth);
 						beta = CHECKMATE_SCORE;
 						--depth;
@@ -453,8 +445,7 @@ namespace Clovis {
 					if (time > allocated_time / 3)
 						break;
 
-					if (depth > asp_depth)
-					{
+					if (depth > asp_depth) {
 						alpha = info.score - delta;
 						beta  = info.score + delta;
 					}

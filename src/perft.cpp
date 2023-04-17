@@ -6,10 +6,9 @@ namespace Clovis {
 
 	namespace Perft {
 
-		void perft(Position& pos, int depth, U64& nodes) 
-		{
-			if (depth == 0) 
-			{
+		void perft(Position& pos, int depth, U64& nodes) {
+
+			if (depth == 0) {
 				++nodes;
 				return;
 			}
@@ -18,9 +17,8 @@ namespace Clovis {
 
 			//Move m;
 
-			for (const auto& m : MoveGen::MoveList(pos))
-			//while ((m = mp.get_next(true)) != MOVE_NONE)
-			{
+			for (const auto& m : MoveGen::MoveList(pos)) {
+			//while ((m = mp.get_next(true)) != MOVE_NONE) {
 				if (!pos.do_move(m))
 					continue;
 				perft(pos, depth - 1, nodes);
@@ -28,8 +26,8 @@ namespace Clovis {
 			}
 		}
 
-		void perft_control() 
-		{
+		void perft_control() {
+
 			vector<PerftPosition> pp;
 
 			string file_name = "src/perft.epd";
@@ -37,13 +35,14 @@ namespace Clovis {
 			ifs.open(file_name.c_str(), ifstream::in);
 			string line, token;
 
-			while (true)
-			{
+			while (true) {
+
 				if (ifs.eof())
 					break;
+
 				getline(ifs, line);
-				if (line.length())
-				{
+
+				if (line.length()) {
 					size_t idx = line.find(",");
 					string fen = line.substr(0, idx);
 
@@ -51,8 +50,8 @@ namespace Clovis {
 					int depth = 1;
 					vector<U64> nv;
 
-					while (is >> token)
-					{
+					while (is >> token) {
+
 						assert(token.length() == 2);
 						assert(token[1] - '0' == depth);
 						is >> token;
@@ -70,17 +69,20 @@ namespace Clovis {
 
 			bool failed = false;
 
-			for (auto& it : pp) 
-			{
+			for (auto& it : pp) {
+
 				tm.set();
 				Position pos(it.fen.c_str());
 				cout << "testing position " << it.fen << endl;
-				for (size_t depth = 1; depth - 1 < it.nodes.size(); ++depth) 
-				{
+
+				for (size_t depth = 1; depth - 1 < it.nodes.size(); ++depth) {
+
 					nodes = 0;
 					perft(pos, depth, nodes);
+
 					if (nodes != it.nodes[depth - 1])
 						failed = true;
+					
 					cout << (failed ? " FAIL! " : " PASS! ") 
 						 << "depth: "    << depth
 						 << "expected: " << setw(10) << it.nodes[depth - 1] 

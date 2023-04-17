@@ -7,16 +7,14 @@ namespace Clovis {
 	namespace CMDLine {
 	
 		// handle any start-up command line arguments
-		void handle_cmd(int argc, char* argv[])
-		{
-			if (argc < 2)
-			{
+		void handle_cmd(int argc, char* argv[]) {
+
+			if (argc < 2) {
 				UCI::loop(argc, argv);
 				exit(EXIT_SUCCESS);
 			}
 
-			if (!strcmp(argv[1], "--help")) 
-			{
+			if (!strcmp(argv[1], "--help")) {
 				cout << "bench [depth=" << DEFAULT_BENCH_DEPTH 
 					<< "] [threads="    << DEFAULT_BENCH_THREADS 
 					<< "] [hash="       << DEFAULT_BENCH_MB  << "]"  << endl
@@ -24,32 +22,27 @@ namespace Clovis {
 				exit(EXIT_SUCCESS);
 			}
 
-			if (!strcmp(argv[1], "bench")) 
-			{
+			if (!strcmp(argv[1], "bench")) {
 				Bench::benchmark(argc, argv);
 				exit(EXIT_SUCCESS);
 			}
 
-			if (!strcmp(argv[1], "perft"))
-			{
+			if (!strcmp(argv[1], "perft")) {
 				Perft::perft_control();
 				exit(EXIT_SUCCESS);
 			}
 
-			if (!strcmp(argv[1], "iq"))
-			{
+			if (!strcmp(argv[1], "iq")) {
 				IQ::iq_test();
 				exit(EXIT_SUCCESS);
 			}
 
-			if (!strcmp(argv[1], "tune"))
-			{
+			if (!strcmp(argv[1], "tune")) {
 				Tuner::tune_eval();
 				exit(EXIT_SUCCESS);
 			}
 			
-			if (!strcmp(argv[1], "generate"))
-			{
+			if (!strcmp(argv[1], "generate")) {
 				Parse::generate_dataset();
 				exit(EXIT_SUCCESS);
 			}

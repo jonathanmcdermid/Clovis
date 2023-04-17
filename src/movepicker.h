@@ -91,8 +91,7 @@ namespace Clovis {
 
 		inline void update_killers(Move m, int ply) {
 			Move* k = &killers[ply << 1];
-			if (k[0] != m)
-			{
+			if (k[0] != m) {
 				k[1] = k[0];
 				k[0] = m;
 			}
@@ -133,16 +132,15 @@ namespace Clovis {
 		};
 	
 		template<HashFlag HF>
-		void MovePicker::update_history(Move best_move, int depth)
-		{
+		void MovePicker::update_history(Move best_move, int depth) {
+
 			ScoredMove* last_searched_quiet = HF == HASH_EXACT ? last : curr;
 
 			assert(!move_capture(best_move) || move_promotion_type(best_move));
 
 			update_history_entry(best_move, pos.side, history_bonus[depth]);
 
-			for (ScoredMove* sm = end_bad_caps; sm < last_searched_quiet; ++sm)
-			{
+			for (ScoredMove* sm = end_bad_caps; sm < last_searched_quiet; ++sm) {
 				assert(!move_capture(*sm) || move_promotion_type(*sm));
 				if (*sm != best_move)
 					update_history_entry(*sm, pos.side, -history_bonus[depth]);
