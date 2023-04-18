@@ -11,8 +11,9 @@ namespace Clovis {
 	struct Position;
 
 	struct ScoredMove {
-		Move move = MOVE_NONE;
-		int score = 0;
+		constexpr ScoredMove() : move(MOVE_NONE), score(0) {}
+		Move move;
+		int score;
 		void operator=(Move m) { this->move = m; }
 		operator Move() const { return move; }
 	};

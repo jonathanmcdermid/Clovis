@@ -8,6 +8,7 @@ namespace Clovis {
 
 	class TimeManager {
 	public:
+		constexpr TimeManager(): start_time(0) {}
 		inline void set();
 		inline TimePoint get_time_elapsed();
 		inline TimePoint now();

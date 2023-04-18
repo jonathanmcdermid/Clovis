@@ -11,31 +11,31 @@ namespace Clovis {
 	constexpr size_t pt_size = 131072;
 
 	struct KingZone {
-		KingZone() : outer_ring(0ULL), inner_ring(0ULL) { ; }
-		constexpr KingZone(Bitboard outer, Bitboard inner) : outer_ring(outer), inner_ring(inner) { ; }
-		Bitboard outer_ring;
-		Bitboard inner_ring;
+		constexpr KingZone() : outer_ring(0ULL), inner_ring(0ULL) {}
+		constexpr KingZone(Bitboard outer, Bitboard inner) : outer_ring(outer), inner_ring(inner) {}
+		Bitboard outer_ring, inner_ring;
 	};
 
 	struct TTEntry {
-		TTEntry() : key(0ULL), depth(0), flags(HASH_NONE), eval(0), move(MOVE_NONE) { ; }
-		TTEntry(Key k, int d, HashFlag f, int e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {};
-		Key key;        // 8 bytes
-		uint8_t depth;  // 1 byte
-		uint8_t flags;  // 1 byte
-		short eval;     // 2 bytes
-		Move move;      // 4 bytes
+		constexpr TTEntry() : key(0ULL), depth(0), flags(HASH_NONE), eval(0), move(MOVE_NONE) {}
+		constexpr TTEntry(Key k, int d, HashFlag f, int e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {};
+		Key key;               // 8 bytes
+		uint8_t depth, flags;  // 1 byte x 2
+		short eval;            // 2 bytes
+		Move move;             // 4 bytes
 	};
 
 	struct Bucket {
-		TTEntry e1;
-		TTEntry e2;
+		TTEntry e1, e2;
 	};
 	
 	struct PTEntry {
 
+		constexpr PTEntry() : score(), key(0ULL), pawn_attacks{ 0ULL }, passers{ 0ULL }, 
+			potential_pawn_attacks{ 0ULL }, ksq{ SQ_NONE }, weight{ 0 } {}
+
 		void clear() {
-			score = Score(0,0);
+			score = Score();
 			key = 0ULL;
 			for (int i = 0; i < COLOUR_N; ++i) {
 				pawn_attacks[i] = 0ULL;
@@ -48,9 +48,7 @@ namespace Clovis {
 
 		Score score;
 		Key key;
-		Bitboard pawn_attacks[COLOUR_N];
-		Bitboard passers[COLOUR_N];
-		Bitboard potential_pawn_attacks[COLOUR_N];
+		Bitboard pawn_attacks[COLOUR_N], passers[COLOUR_N], potential_pawn_attacks[COLOUR_N];
 		Square ksq[COLOUR_N];
 		short weight[COLOUR_N];
 	};
@@ -64,7 +62,7 @@ namespace Clovis {
 		void clear();
 
 		constexpr void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
-		constexpr void new_pawn_entry(const PTEntry& pte) { pt[pawn_hash_index(pte.key)] = pte; }
+		constexpr void new_pawn_entry(const PTEntry& pte);
 		constexpr PTEntry probe_pawn(Key key);
 		constexpr TTEntry* probe(Key key);
 
@@ -107,6 +105,10 @@ namespace Clovis {
 	// probe the pawn table to see if an entry exists
 	constexpr PTEntry TTable::probe_pawn(Key key) {
 		return pt[pawn_hash_index(key)];
+	}
+
+	constexpr void TTable::new_pawn_entry(const PTEntry& pte) { 
+		pt[pawn_hash_index(pte.key)] = pte; 
 	}
 
 	extern TTable tt;

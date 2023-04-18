@@ -113,22 +113,19 @@ namespace Clovis {
 
 		class MovePicker {
 		public:
-			MovePicker(const Position& p, int pl, Move pm, Move ttm) 
-				: pos(p), ply(pl), prev_move(pm), tt_move(ttm) {
-				curr = last = end_bad_caps = moves;
-				stage = TT_MOVE;
-			}
-			template<HashFlag HF> void update_history(Move best_move, int depth);
+			constexpr MovePicker(const Position& p, int pl, Move pm, Move ttm) 
+				: pos(p), ply(pl), stage(TT_MOVE), prev_move(pm), tt_move(ttm), 
+				curr(moves), last(moves), end_bad_caps(moves) {}
 			Move get_next(bool play_quiets);
+			template<HashFlag HF> void update_history(Move best_move, int depth);
 		private:
 			constexpr void score_captures();
 			void score_quiets();
 			const Position& pos;
-			int ply;
-			ScoredMove* curr, *last, *end_bad_caps;
-			ScoredMove moves[MAX_MOVES];
+
+			int ply, stage;
+			ScoredMove *curr, *last, *end_bad_caps, moves[MAX_MOVES];
 			Move prev_move, tt_move;
-			int stage;
 		};
 	
 		template<HashFlag HF>

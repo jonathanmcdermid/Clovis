@@ -18,26 +18,21 @@ namespace Clovis {
 
 		void init_zobrist();
 
-		extern Key piece_square[15][SQ_N];
-		extern Key enpassant[SQ_N];
-		extern Key castling[16];
-		extern Key side;
+		extern Key piece_square[15][SQ_N], enpassant[SQ_N], castling[16], side;
 
 	}
 
 	// linked list implementation for board state info
 	struct BoardState {
 
-		BoardState* prev = NULL;
-		Piece captured_piece = NO_PIECE;
-		Square enpassant = SQ_NONE;
-		Key key = 0ULL;
-		Key pkey = 0ULL;
-		int castle = 0;
-		int hmc = 0;
-		int fmc = 0;
-		int ply_null = 0;
-		int game_phase = 0;
+		constexpr BoardState() :prev(NULL), captured_piece(NO_PIECE), enpassant(SQ_NONE), 
+			key(0ULL), pkey(0ULL), castle(0), hmc(0), fmc(0), ply_null(0), game_phase(0) {}
+
+		BoardState* prev;
+		Piece captured_piece;
+		Square enpassant;
+		Key key, pkey;
+		int castle, hmc, fmc, ply_null, game_phase;
 	};
 
 	struct Position {
@@ -76,8 +71,7 @@ namespace Clovis {
 		constexpr int get_game_phase() const;
 
 		Piece pc_table[SQ_N];
-		Bitboard pc_bb[15];
-		Bitboard occ_bb[COLOUR_N + 1];
+		Bitboard pc_bb[15], occ_bb[COLOUR_N + 1];
 		BoardState* bs;
 		Colour side;
 	};

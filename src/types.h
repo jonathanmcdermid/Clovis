@@ -39,9 +39,9 @@ namespace Clovis {
 	constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
 	struct Score {
-		Score() : mg(0), eg(0) {}
-		Score(double* param) : mg((short) round(param[0])), eg((short) round(param[1])) {}
+		constexpr Score() : mg(0), eg(0) {}
 		constexpr Score(int m, int e) : mg(m), eg(e) {}
+		Score(double* param) : mg((short) round(param[0])), eg((short) round(param[1])) {}
 		void operator+=(const Score& rhs) {
 			this->mg += rhs.mg;
 			this->eg += rhs.eg;
@@ -53,8 +53,7 @@ namespace Clovis {
 		bool operator==(const Score& rhs) {
 			return this->mg == rhs.mg && this->eg == rhs.eg;
 		}
-		short mg;
-		short eg;
+		short mg, eg;
 	};
 
 	inline Score operator-(Score s)            { return Score(-s.mg, -s.eg); }
@@ -69,18 +68,16 @@ namespace Clovis {
 	inline Score operator<<(Score s, int i)    { return Score(s.mg << i, s.eg << i); }
 
     /*
-                    MOVE BIT FORMATTING
+    MOVE BIT FORMATTING
 
-    binary                                              hexidecimal
-
-    0000 0000 0000 0000 0011 1111   from square         0x3f
-    0000 0000 0000 1111 1100 0000   to square           0xfc0
-    0000 0000 1111 0000 0000 0000   piece               0xf000
-    0000 1111 0000 0000 0000 0000   promoted piece      0xf0000
-    0001 0000 0000 0000 0000 0000   capture flag        0x100000
-    0010 0000 0000 0000 0000 0000   double push flag    0x200000
-    0100 0000 0000 0000 0000 0000   enpassant flag      0x400000
-    1000 0000 0000 0000 0000 0000   castling flag       0x800000
+    0000 0000 0000 0000 0011 1111   from square
+    0000 0000 0000 1111 1100 0000   to square
+    0000 0000 1111 0000 0000 0000   piece
+    0000 1111 0000 0000 0000 0000   promoted piece
+    0001 0000 0000 0000 0000 0000   capture flag
+    0010 0000 0000 0000 0000 0000   double push flag
+    0100 0000 0000 0000 0000 0000   enpassant flag
+    1000 0000 0000 0000 0000 0000   castling flag
     */
 
 	enum Move : int {
