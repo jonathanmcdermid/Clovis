@@ -213,6 +213,7 @@ namespace Clovis {
 	}
 
 	Key Position::make_pawn_key() {
+
  		Key k = 0ULL;
 
 		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -220,42 +221,6 @@ namespace Clovis {
 				k ^= Zobrist::piece_square[pc_table[sq]][sq];
 
 		return k;
-	}
-
-	Bitboard Position::attackers_to(Square sq) const  {
-		return (Bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN]) 
-		| (Bitboards::pawn_attacks[WHITE][sq] &  pc_bb[B_PAWN])
-		| (Bitboards::knight_attacks[sq]      & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT]))
-		| (Bitboards::king_attacks[sq]        & (pc_bb[W_KING]   | pc_bb[B_KING]))
-		| (Bitboards::get_attacks<ROOK>  (occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK]))
-		| (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
-	}
-
-	// returns the piece type of the least valuable piece on a bitboard of attackers
-	Square Position::get_smallest_attacker(Bitboard attackers, const Colour stm) const {
-		Bitboard bb;
-        
-		for (PieceType pt = PAWN; pt <= KING; ++pt)
-			if ((bb = pc_bb[make_piece(pt, stm)] & attackers))
-				return lsb(bb);
-        
-		return SQ_NONE;
-	}
-
-	// updates a bitboard of attackers after a piece has moved to include possible x ray attackers
-	Bitboard Position::consider_xray(Bitboard occ, Square to, PieceType pt) const {
-		switch (pt) {
-		case PAWN:
-		case BISHOP:
-			return occ & (Bitboards::get_attacks<BISHOP> (occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
-		case ROOK:
-			return occ & (Bitboards::get_attacks<ROOK>   (occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK]   | pc_bb[B_ROOK]));
-		case QUEEN:
-			return occ & ((Bitboards::get_attacks<BISHOP>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
-			|  (Bitboards::get_attacks<ROOK>  (occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK]   | pc_bb[B_ROOK])));
-		default:
-			return 0ULL;
-		}
 	}
 
 	bool Position::see_ge(Move move, int threshold) const {
@@ -494,21 +459,6 @@ namespace Clovis {
 		BoardState* temp = bs;
 		bs = bs->prev;
 		delete temp;
-	}
-
-	bool Position::is_repeat() const {
-		
-		BoardState* temp = bs;
-       
-		for (int end = min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
-			assert(temp->prev->prev->prev->prev);
-
-			temp = temp->prev->prev->prev->prev;
-
-			if (temp->key == bs->key)
-				return true;
-		}
-		return false;
 	}
 
 	// prints the current position
