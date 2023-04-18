@@ -69,14 +69,6 @@ namespace Clovis {
 						moves = generate_promotions<T, M, US, true>(moves, src, tar);
 					}
 				} else {
-					if (QUIETS && !(pos.occ_bb[BOTH] & tar)) {
-						// single push
-						*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 0, 0, 0, 0);
-						// double push
-						if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
-							*moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, 0, 1, 0, 0);
- 					}
-
 					if constexpr (CAPTURES) {
 
 						Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
@@ -86,9 +78,16 @@ namespace Clovis {
 							*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 1, 0, 0, 0);
 						}
 
-						if (pos.bs->enpassant != SQ_NONE && Bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
+						if (Bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
 							*moves++ = encode_move(src, pos.bs->enpassant, make_piece(PAWN, US), NO_PIECE, 1, 0, 1, 0);
 					}
+					else if (!(pos.occ_bb[BOTH] & tar)) {
+						// single push
+						*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 0, 0, 0, 0);
+						// double push
+						if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
+							*moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, 0, 1, 0, 0);
+ 					}
 				}
 			}
 
