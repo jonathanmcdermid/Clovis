@@ -30,7 +30,7 @@ namespace Clovis {
 		}
 
 		template<typename T, MoveType M, Colour US, bool TC>
-		inline T* generate_promotions(T* moves, Square src, Square tar) {
+		T* generate_promotions(T* moves, Square src, Square tar) {
 
 			if constexpr (M != QUIET_MOVES)
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN,  US),  TC, 0, 0, 0);
@@ -114,7 +114,7 @@ namespace Clovis {
 		}
 
 		template<typename T, MoveType M> 
-		inline T* generate(const Position& pos, T* moves) {
+		T* generate(const Position& pos, T* moves) {
 			return (pos.side == WHITE)
 			? generate_all<T, M, WHITE>(pos, moves)
 			: generate_all<T, M, BLACK>(pos, moves);

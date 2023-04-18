@@ -50,7 +50,7 @@ namespace Clovis {
 			0,  0,  8, 16, 24, 32, 40,  0,  0,  0,  0,  0,  0,  0,  0, 
 		};
 
-		constexpr int cft_index(Colour c, Move m) {
+		inline int cft_index(Colour c, Move m) {
 			return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m);
 		}
 
@@ -106,20 +106,20 @@ namespace Clovis {
 			counter_table[cft_index(c, prev)] = curr;
 		}
 
-		constexpr bool is_killer(Move m, int ply) {
+		inline bool is_killer(Move m, int ply) {
 			Move* k = &killers[ply << 1];
 			return (m == k[0] || m == k[1]);
 		}
 
 		class MovePicker {
 		public:
-			constexpr MovePicker(const Position& p, int pl, Move pm, Move ttm) 
+			MovePicker(const Position& p, int pl, Move pm, Move ttm) 
 				: pos(p), ply(pl), stage(TT_MOVE), prev_move(pm), tt_move(ttm), 
 				curr(moves), last(moves), end_bad_caps(moves) {}
 			Move get_next(bool play_quiets);
 			template<HashFlag HF> void update_history(Move best_move, int depth);
 		private:
-			constexpr void score_captures();
+			void score_captures();
 			void score_quiets();
 			const Position& pos;
 
@@ -142,12 +142,6 @@ namespace Clovis {
 				if (*sm != best_move)
 					update_history_entry(*sm, pos.side, -history_bonus[depth]);
 			}
-		}
-
-		constexpr void MovePicker::score_captures() {
-			for (ScoredMove* sm = moves; sm < last; ++sm)
-				// promotions supercede mvv-lva
-				sm->score = mvv_lva[move_piece_type(*sm)][pos.pc_table[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
 		}
 
 	} // namespace MovePick

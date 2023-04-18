@@ -20,12 +20,12 @@ namespace Clovis {
 	namespace Tuner {
 	
 		struct TTuple {
-			constexpr TTuple(int i, int wc, int bc) : index(i), coefficient{ wc, bc } {}
+			TTuple(int i, int wc, int bc) : index(i), coefficient{ wc, bc } {}
 			int index, coefficient[COLOUR_N];
 		};
 		
 		struct TGradient {
-			constexpr TGradient() : eval(0), safety{ 0.0 } {}
+			TGradient() : eval(0), safety{ 0.0 } {}
 			double eval, safety[COLOUR_N];
 		};
 		

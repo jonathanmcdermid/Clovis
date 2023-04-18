@@ -56,16 +56,16 @@ namespace Clovis {
 		short mg, eg;
 	};
 
-	inline Score operator-(Score s)            { return Score(-s.mg, -s.eg); }
-	inline Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
-	inline Score operator+(Score s, int i)     { return Score(s.mg + i, s.eg + i); }
-	inline Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
-	inline Score operator-(Score s, int i)     { return Score(s.mg - i, s.eg - i); }
-	inline Score operator*(Score s, int i)     { return Score(s.mg * i, s.eg * i); }
-	inline Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
-	inline Score operator/(Score s, int i)     { return Score(s.mg / i, s.eg / i); }
-	inline Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
-	inline Score operator<<(Score s, int i)    { return Score(s.mg << i, s.eg << i); }
+	constexpr Score operator-(Score s)            { return Score(-s.mg, -s.eg); }
+	constexpr Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+	constexpr Score operator+(Score s, int i)     { return Score(s.mg + i, s.eg + i); }
+	constexpr Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+	constexpr Score operator-(Score s, int i)     { return Score(s.mg - i, s.eg - i); }
+	constexpr Score operator*(Score s, int i)     { return Score(s.mg * i, s.eg * i); }
+	constexpr Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
+	constexpr Score operator/(Score s, int i)     { return Score(s.mg / i, s.eg / i); }
+	constexpr Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
+	constexpr Score operator<<(Score s, int i)    { return Score(s.mg << i, s.eg << i); }
 
     /*
     MOVE BIT FORMATTING
@@ -159,8 +159,8 @@ namespace Clovis {
 
 	constexpr Square operator+(Square sq, Direction dir) { return Square(int(sq) + int(dir)); }
 	constexpr Square operator-(Square sq, Direction dir) { return Square(int(sq) - int(dir)); }
-	inline Square& operator+=(Square& sq, Direction dir) { return sq = sq + dir; }
-	inline Square& operator-=(Square& sq, Direction dir) { return sq = sq - dir; }
+	constexpr Square& operator+=(Square& sq, Direction dir) { return sq = sq + dir; }
+	constexpr Square& operator-=(Square& sq, Direction dir) { return sq = sq - dir; }
 
 	enum File : int {
 		FILE_NONE = -1,
@@ -323,6 +323,8 @@ namespace Clovis {
 		return PieceType(pc & 7);
 	}
 
+	constexpr Colour operator~(Colour c) { return Colour(c ^ 1); }
+
 	constexpr int distance_between(Square s1, Square s2) {
 		return max(abs(file_of(s2) - file_of(s1)), abs(rank_of(s2) - rank_of(s1)));
 	}
@@ -384,19 +386,17 @@ namespace Clovis {
 			os << " pnbrqk  pnbrqk"[move_promotion_type(m)];
 		return os;
 	}
-
-	constexpr Colour operator~(Colour c) { return Colour(c ^ 1); }
     
 #define INCR_OPERATORS(T)						\
-inline T& operator++(T& d) { return d = T(int(d) + 1); }		\
-inline T& operator--(T& d) { return d = T(int(d) - 1); }
+constexpr T& operator++(T& d) { return d = T(int(d) + 1); }		\
+constexpr T& operator--(T& d) { return d = T(int(d) - 1); }
 
 #define BASE_OPERATORS(T)						\
 constexpr T operator+(T d1, int d2) { return T(int(d1) + d2); }		\
 constexpr T operator-(T d1, int d2) { return T(int(d1) - d2); }		\
 constexpr T operator-(T d) { return T(-int(d)); }			\
-inline T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }		\
-inline T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }					
+constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }		\
+constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }					
 
 INCR_OPERATORS(Piece)
 INCR_OPERATORS(PieceType)

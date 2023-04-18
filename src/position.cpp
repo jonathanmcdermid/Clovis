@@ -461,6 +461,31 @@ namespace Clovis {
 		delete temp;
 	}
 
+	// returns the piece type of the least valuable piece on a bitboard of attackers
+	Square Position::get_smallest_attacker(Bitboard attackers, const Colour stm) const {
+
+		for (PieceType pt = PAWN; pt <= KING; ++pt)
+			if (Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers)
+				return lsb(bb);
+
+		return SQ_NONE;
+	}
+
+	bool Position::is_repeat() const {
+
+		BoardState* temp = bs;
+
+		for (int end = min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
+
+			assert(temp->prev->prev->prev->prev);
+			temp = temp->prev->prev->prev->prev;
+
+			if (temp->key == bs->key)
+				return true;
+		}
+		return false;
+	}
+
 	// prints the current position
 	void Position::print_position() const {
 
