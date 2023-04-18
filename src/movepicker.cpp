@@ -74,12 +74,6 @@ namespace Clovis {
 			return MOVE_NONE;
 		}
 
-		void MovePicker::score_captures() {
-			for (ScoredMove* sm = moves; sm < last; ++sm)
-				// promotions supercede mvv-lva
-				sm->score = mvv_lva[move_piece_type(*sm)][pos.pc_table[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
-		}
-
 		void MovePicker::score_quiets() {
 
 			size_t primary_index = ply << 1;

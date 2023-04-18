@@ -386,7 +386,7 @@ namespace Clovis {
 				: king_attacks[sq];
 		}
 
-		inline Bitboard get_attacks(PieceType pt, Bitboard occ, Square sq) {
+		constexpr Bitboard get_attacks(PieceType pt, Bitboard occ, Square sq) {
 
 			assert(pt != PAWN);
 

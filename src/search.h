@@ -31,9 +31,9 @@ namespace Clovis {
 
 		struct Line {
 			Line() : last(moves) {}
-			int move_count() const { return last - moves; }
-			const Move* begin() const { return moves; }
-			const Move* end() const { return last; }
+			constexpr int move_count()    const { return last - moves; }
+			constexpr const Move* begin() const { return moves; }
+			constexpr const Move* end()   const { return last; }
 			Move moves[MAX_PLY] = { MOVE_NONE }, *last;
 		};
 

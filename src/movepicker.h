@@ -121,7 +121,7 @@ namespace Clovis {
 			template<HashFlag HF> void update_history(Move best_move, int depth);
 			Move get_next(bool play_quiets);
 		private:
-			void score_captures();
+			constexpr void score_captures();
 			void score_quiets();
 			const Position& pos;
 			int ply;
@@ -145,6 +145,12 @@ namespace Clovis {
 				if (*sm != best_move)
 					update_history_entry(*sm, pos.side, -history_bonus[depth]);
 			}
+		}
+
+		constexpr void MovePicker::score_captures() {
+			for (ScoredMove* sm = moves; sm < last; ++sm)
+				// promotions supercede mvv-lva
+				sm->score = mvv_lva[move_piece_type(*sm)][pos.pc_table[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
 		}
 
 	} // namespace MovePick

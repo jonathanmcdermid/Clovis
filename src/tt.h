@@ -33,6 +33,7 @@ namespace Clovis {
 	};
 	
 	struct PTEntry {
+
 		void clear() {
 			score = Score(0,0);
 			key = 0ULL;
@@ -44,6 +45,7 @@ namespace Clovis {
 				weight[i] = 0;
 			}
 		}
+
 		Score score;
 		Key key;
 		Bitboard pawn_attacks[COLOUR_N];
@@ -54,29 +56,57 @@ namespace Clovis {
 	};
 
 	class TTable {
+
 	public:
 		TTable();
+		~TTable();
 		void resize(size_t mb);
 		void clear();
-		void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
-		TTEntry* probe(Key key);
-		void new_pawn_entry(const PTEntry& pte) { pt[pawn_hash_index(pte.key)] = pte; }
-		PTEntry probe_pawn(Key key);
-		~TTable();
+
+		constexpr void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
+		constexpr void new_pawn_entry(const PTEntry& pte) { pt[pawn_hash_index(pte.key)] = pte; }
+		constexpr PTEntry probe_pawn(Key key);
+		constexpr TTEntry* probe(Key key);
+
 	private:
-		int hash_index(Key key) const;
+		constexpr int hash_index(Key key) const;
 		constexpr int pawn_hash_index(Key key) const;
 		Bucket* ht = nullptr;
 		PTEntry* pt = nullptr;
 		size_t tt_size;
 	};
 
-	inline int TTable::hash_index(Key key) const {
+	constexpr int TTable::hash_index(Key key) const {
 		return key & (tt_size - 1ULL);
 	}
 
 	constexpr int TTable::pawn_hash_index(Key key) const {
 		return key & (pt_size - 1ULL);
+	}
+
+	// probe the table to see if an entry exists
+	constexpr TTEntry* TTable::probe(Key key) {
+
+		Bucket* b = ht + hash_index(key);
+
+		if (b->e1.key == key)
+			return &b->e1;
+		if (b->e1.depth > 0)
+			--b->e1.depth;
+
+		return (b->e2.key == key) ? &b->e2 : nullptr;
+	}
+
+	constexpr void TTable::new_entry(Key key, int depth, int eval, HashFlag flags, Move move) {
+		Bucket* b = ht + hash_index(key);
+		(b->e1.depth <= depth)
+			? b->e1 = TTEntry(key, depth, flags, eval, move)
+			: b->e2 = TTEntry(key, depth, flags, eval, move);
+	}
+
+	// probe the pawn table to see if an entry exists
+	constexpr PTEntry TTable::probe_pawn(Key key) {
+		return pt[pawn_hash_index(key)];
 	}
 
 	extern TTable tt;

@@ -28,9 +28,9 @@ namespace Clovis {
 		struct MoveList {
 		public:
 			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves)) {}
-			int size() const { return (last - moves); }
-			const Move* begin() const { return moves; }
-			const Move* end()   const { return last;  }
+			constexpr int size() const { return (last - moves); }
+			constexpr const Move* begin() const { return moves; }
+			constexpr const Move* end()   const { return last;  }
 			void remove_illegal(Position pos);
 		private:
 			Move moves[MAX_MOVES], *last;
