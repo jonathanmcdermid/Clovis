@@ -30,21 +30,21 @@ namespace Clovis {
 			}
 		}
 		
-		inline bool is_doubled_pawn(Bitboard bb, Square sq) {
+		bool is_doubled_pawn(Bitboard bb, Square sq) {
 			return multiple_bits(bb & file_masks[sq]);
 		}
 		
-		constexpr bool is_isolated_pawn(Bitboard bb, Square sq) {
+		bool is_isolated_pawn(Bitboard bb, Square sq) {
 			return !(bb & isolated_masks[sq]);
 		}
 
 		template<Colour US>
-		constexpr bool is_passed_pawn(Bitboard bb, Square sq) {
+		bool is_passed_pawn(Bitboard bb, Square sq) {
 			return !(bb & passed_masks[US][sq]);
 		}
 
 		template<Colour US>
-		constexpr bool is_candidate_passer(const Position& pos, Square sq) {
+		bool is_candidate_passer(const Position& pos, Square sq) {
 
 			if (pos.pc_bb[make_piece(PAWN, ~US)] & rook_on_passer_masks[US][sq])
 				return false;
@@ -61,20 +61,20 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		constexpr bool is_outpost(Square sq, const EvalInfo& ei) {
+		bool is_outpost(Square sq, const EvalInfo& ei) {
 			return (outpost_masks[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US]);
 		}
 		
 		template<Colour US>
-		constexpr bool is_fianchetto(const Position& pos, Square sq) {
+		bool is_fianchetto(const Position& pos, Square sq) {
 			return fianchetto_bishop_mask[US] & sq && multiple_bits(center_mask & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq));
 		}
 		
 		template<Colour US, PieceType PT, bool TRACE>
-		inline void king_danger(Bitboard attacks, EvalInfo& ei) {
+		void king_danger(Bitboard attacks, EvalInfo& ei) {
 
-			Bitboard or_att_bb = attacks & king_zones[ei.ksq[~US]].outer_ring;
-			Bitboard ir_att_bb = attacks & king_zones[ei.ksq[~US]].inner_ring;
+			Bitboard or_att_bb = attacks & outer_ring[ei.ksq[~US]];
+			Bitboard ir_att_bb = attacks & inner_ring[ei.ksq[~US]];
 
 			if (or_att_bb || ir_att_bb) {
 
@@ -86,7 +86,7 @@ namespace Clovis {
 			}
 		}
 		
-		constexpr bool is_open_file(const Position& pos, File f) {
+		bool is_open_file(const Position& pos, File f) {
 			return !(file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
 		}
 
@@ -375,7 +375,7 @@ namespace Clovis {
 		}
 		
 		// explicit template instantiations
-		template int evaluate<true>(const Position& pos);
+		template int evaluate<true> (const Position& pos);
 		template int evaluate<false>(const Position& pos);
 
 	} // namespace Eval
