@@ -218,8 +218,8 @@ namespace Clovis {
 
 				score += evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei);
 				score += evaluate_majors<US, BISHOP, true, TRACE>(pos, ei);
-				score += evaluate_majors<US, ROOK, true, TRACE>(pos, ei);
-				score += evaluate_majors<US, QUEEN, true, TRACE>(pos, ei);
+				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, ei);
+				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, ei);
 
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(ei.n_att[US] < 10);
@@ -236,6 +236,7 @@ namespace Clovis {
 					if constexpr (TRACE) T[SAFETY_N_ATT][US] = ei.n_att[US];
 				}
 				else if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
+
 			} else {
 
 				score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, ei);
@@ -267,12 +268,10 @@ namespace Clovis {
 					score -= double_pawn_penalty;
 					if constexpr (TRACE) --T[DOUBLE_PAWN][US];
 				}
-
 				if (is_isolated_pawn(pos.pc_bb[make_piece(PAWN, US)], sq)) {
 					score -= isolated_pawn_penalty;
 					if constexpr (TRACE) --T[ISOLATED_PAWN][US];
 				}
-
 				if (is_passed_pawn<US>(pos.pc_bb[make_piece(PAWN, ~US)], sq)) {
 					ei.passers[US] |= sq;
 					if (rank_of(sq) != relative_rank(US, RANK_7)) {
@@ -296,6 +295,7 @@ namespace Clovis {
 			File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
 			
 			for (File f = cf - 1; f <= cf + 1; ++f) {
+
 				Bitboard fp = pos.pc_bb[make_piece(PAWN, US)] & file_masks[f];
 
 				if (fp) {
