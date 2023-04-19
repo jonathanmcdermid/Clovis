@@ -30,16 +30,16 @@ namespace Clovis {
 			}
 		}
 		
-		bool is_doubled_pawn(Bitboard bb, Square sq) {
+		inline bool is_doubled_pawn(Bitboard bb, Square sq) {
 			return multiple_bits(bb & file_masks[sq]);
 		}
 		
-		bool is_isolated_pawn(Bitboard bb, Square sq) {
+		inline bool is_isolated_pawn(Bitboard bb, Square sq) {
 			return !(bb & isolated_masks[sq]);
 		}
 
 		template<Colour US>
-		bool is_passed_pawn(Bitboard bb, Square sq) {
+		inline bool is_passed_pawn(Bitboard bb, Square sq) {
 			return !(bb & passed_masks[US][sq]);
 		}
 
@@ -61,13 +61,17 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		bool is_outpost(Square sq, const EvalInfo& ei) {
+		inline bool is_outpost(Square sq, const EvalInfo& ei) {
 			return (outpost_masks[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US]);
 		}
 		
 		template<Colour US>
-		bool is_fianchetto(const Position& pos, Square sq) {
+		inline bool is_fianchetto(const Position& pos, Square sq) {
 			return fianchetto_bishop_mask[US] & sq && multiple_bits(center_mask & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq));
+		}
+
+		inline bool is_open_file(const Position& pos, File f) {
+			return !(file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
 		}
 		
 		template<Colour US, PieceType PT, bool TRACE>
@@ -85,13 +89,9 @@ namespace Clovis {
 				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcnt(or_att_bb);
 			}
 		}
-		
-		bool is_open_file(const Position& pos, File f) {
-			return !(file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
-		}
 
 		template<Colour US, PieceType PT>
-		void psqt_trace(Square sq) {
+		inline void psqt_trace(Square sq) {
 			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
 			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
@@ -101,7 +101,7 @@ namespace Clovis {
 		}
 
 		template<Colour US, PieceType PT>
-		Bitboard worthy_trades(const Position& pos) {
+		inline Bitboard worthy_trades(const Position& pos) {
 
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
 
@@ -343,7 +343,7 @@ namespace Clovis {
 			EvalInfo ei(tt.probe_pawn(pos.bs->pkey));
 
 			if (TRACE || ei.key != pos.bs->pkey) {
-				ei.clear();
+				ei = EvalInfo();
 				ei.key = pos.bs->pkey;
 				ei.ksq[WHITE] = lsb(pos.pc_bb[W_KING]);
 				ei.ksq[BLACK] = lsb(pos.pc_bb[B_KING]);

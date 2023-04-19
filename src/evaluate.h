@@ -10,12 +10,8 @@ namespace Clovis {
 	namespace Eval {
 
 		struct EvalInfo : public PTEntry {
+			constexpr EvalInfo() : PTEntry(), n_att{ 0,0 } {}
 			EvalInfo(const PTEntry& pte) : PTEntry(pte), n_att{0, 0} {}
-			void clear() {
-				PTEntry::clear();
-				n_att[WHITE] = 0;
-				n_att[BLACK] = 0;
-			}
 			short n_att[COLOUR_N];
 		};
 	

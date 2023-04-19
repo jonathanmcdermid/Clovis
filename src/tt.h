@@ -12,7 +12,7 @@ namespace Clovis {
 
 	struct TTEntry {
 		TTEntry() : key(0ULL), depth(0), flags(HASH_NONE), eval(0), move(MOVE_NONE) {}
-		TTEntry(Key k, int d, HashFlag f, int e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {};
+		TTEntry(Key k, int d, HashFlag f, int e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
 		Key key;               // 8 bytes
 		uint8_t depth, flags;  // 1 byte x 2
 		short eval;            // 2 bytes
@@ -25,20 +25,8 @@ namespace Clovis {
 	
 	struct PTEntry {
 
-		PTEntry() : score(), key(0ULL), pawn_attacks{ 0ULL }, passers{ 0ULL }, 
+		constexpr PTEntry() : score(), key(0ULL), pawn_attacks{ 0ULL }, passers{ 0ULL }, 
 			potential_pawn_attacks{ 0ULL }, ksq{ SQ_NONE }, weight{ 0 } {}
-
-		void clear() {
-			score = Score();
-			key = 0ULL;
-			for (int i = 0; i < COLOUR_N; ++i) {
-				pawn_attacks[i] = 0ULL;
-				passers[i] = 0ULL;
-				potential_pawn_attacks[i] = 0ULL;
-				ksq[i] = SQ_NONE;
-				weight[i] = 0;
-			}
-		}
 
 		Score score;
 		Key key;
