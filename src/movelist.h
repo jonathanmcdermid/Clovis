@@ -18,10 +18,6 @@ namespace Clovis {
 		int score;
 	};
 
-	constexpr bool sm_score_comp(ScoredMove const& lhs, ScoredMove const& rhs) {
-		return lhs.score > rhs.score;
-	}
-
 	namespace MoveGen {
 
 		template<typename T, MoveType M> T* generate(const Position& pos, T* moves);

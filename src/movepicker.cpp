@@ -10,6 +10,10 @@ namespace Clovis {
 		Move counter_table[];
 		Move killers[];
 
+		inline bool sm_greater(ScoredMove const& lhs, ScoredMove const& rhs) {
+			return lhs.score > rhs.score;
+		}
+
 		// return the next ordered move
 		Move MovePicker::get_next(bool play_quiets) {
 			switch (stage) {
@@ -22,7 +26,7 @@ namespace Clovis {
 				curr = end_bad_caps = moves;
 				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves);
 				score_captures();
-				sort(moves, last, sm_score_comp);
+				sort(moves, last, sm_greater);
 				++stage;
 				[[fallthrough]];
 			case WINNING_CAPTURES:
@@ -44,7 +48,7 @@ namespace Clovis {
 					curr = end_bad_caps;
 					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
 					score_quiets();
-					sort(end_bad_caps, last, sm_score_comp);
+					sort(end_bad_caps, last, sm_greater);
 				}
 				++stage;
 				[[fallthrough]];
