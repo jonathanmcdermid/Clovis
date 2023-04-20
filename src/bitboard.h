@@ -24,73 +24,13 @@ namespace Clovis {
 
 	inline Bitboard between_squares(Square sq1, Square sq2) { return between_bb[sq1][sq2]; }
 
-#if defined(__GNUC__)
-
-	inline Square lsb(Bitboard bb) {
+	constexpr Square lsb(Bitboard bb) {
 		assert(bb);
-		return Square(__builtin_ctzll(bb));
-	}
-
-	inline Square msb(Bitboard bb) {
-		assert(bb);
-		return Square(63 ^ __builtin_clzll(bb));
-	}
-
-#elif defined(_MSC_VER)
-
-#ifdef _WIN64
-
-	inline Square lsb(Bitboard bb) {
-		assert(bb);
-		unsigned long pos;
-		_BitScanForward64(&pos, bb);
+		const unsigned long pos = std::countr_zero(bb);
 		return Square(pos);
 	}
 
-	inline Square msb(Bitboard bb) {
-		assert(bb);
-		unsigned long idx;
-		_BitScanReverse64(&idx, bb);
-		return Square(idx);
-	}
-
-#else
-
-	inline Square lsb(Bitboard bb) {
-		assert(bb);
-		unsigned long pos;
-
-		if (bb & 0xffffffff) {
-  			_BitScanForward(&pos, int32_t(bb));
-			return Square(pos);
-		} else {
-			_BitScanForward(&pos, int32_t(bb >> 32));
-			return Square(pos + 32);
-		}
-	}
-
-	inline Square msb(Bitboard bb) {
-		assert(bb);
-		unsigned long idx;
-
-		if (bb >> 32) {
-			_BitScanReverse(&idx, int32_t(bb >> 32));
-			return Square(idx + 32);
-		} else {
-			_BitScanReverse(&idx, int32_t(bb));
-			return Square(idx);
-		}
-	}
-
-#endif
-
-#else  // Cant use GCC or MSVC 
-
-#error "Invalid Compiler"
-
-#endif
-
-	inline Square pop_lsb(Bitboard& bb) {
+	constexpr Square pop_lsb(Bitboard& bb) {
 		assert(bb);
 		Square sq = lsb(bb);
 		bb &= bb - 1;
