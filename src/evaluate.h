@@ -260,43 +260,29 @@ namespace Clovis {
 
 		constexpr Bitboard center_mask = 0x1818000000ULL;
 
-		constexpr Bitboard inner_ring[SQ_N] = {
-			0x303ULL,              0x707ULL,              0xe0eULL,              0x1c1cULL, 
-			0x3838ULL,             0x7070ULL,             0xe0e0ULL,             0xc0c0ULL, 
-			0x30303ULL,            0x70707ULL,            0xe0e0eULL,            0x1c1c1cULL, 
-			0x383838ULL,           0x707070ULL,           0xe0e0e0ULL,           0xc0c0c0ULL, 
-			0x3030300ULL,          0x7070700ULL,          0xe0e0e00ULL,          0x1c1c1c00ULL, 
-			0x38383800ULL,         0x70707000ULL,         0xe0e0e000ULL,         0xc0c0c000ULL, 
-			0x303030000ULL,        0x707070000ULL,        0xe0e0e0000ULL,        0x1c1c1c0000ULL, 
-			0x3838380000ULL,       0x7070700000ULL,       0xe0e0e00000ULL,       0xc0c0c00000ULL, 
-			0x30303000000ULL,      0x70707000000ULL,      0xe0e0e000000ULL,      0x1c1c1c000000ULL, 
-			0x383838000000ULL,     0x707070000000ULL,     0xe0e0e0000000ULL,     0xc0c0c0000000ULL, 
-			0x3030300000000ULL,    0x7070700000000ULL,    0xe0e0e00000000ULL,    0x1c1c1c00000000ULL, 
-			0x38383800000000ULL,   0x70707000000000ULL,   0xe0e0e000000000ULL,   0xc0c0c000000000ULL, 
-			0x303030000000000ULL,  0x707070000000000ULL,  0xe0e0e0000000000ULL,  0x1c1c1c0000000000ULL, 
-			0x3838380000000000ULL, 0x7070700000000000ULL, 0xe0e0e00000000000ULL, 0xc0c0c00000000000ULL, 
-			0x303000000000000ULL,  0x707000000000000ULL,  0xe0e000000000000ULL,  0x1c1c000000000000ULL, 
-			0x3838000000000000ULL, 0x7070000000000000ULL, 0xe0e0000000000000ULL, 0xc0c0000000000000ULL, 
-		};
+		constexpr std::array<Bitboard, SQ_N> inner_ring = [] {
+			std::array<Bitboard, SQ_N> arr{};
+
+			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+				arr[sq] = Bitboards::get_attacks<KING>(sq) | sq;
+
+			return arr;
+		}();
 		
-		constexpr Bitboard outer_ring[SQ_N] = {
-			0x70404ULL,            0xf0808ULL,            0x1f1111ULL,           0x3e2222ULL,
-			0x7c4444ULL,           0xf88888ULL,           0xf01010ULL,           0xe02020ULL,
-			0x7040404ULL,          0xf080808ULL,          0x1f111111ULL,         0x3e222222ULL,
-			0x7c444444ULL,         0xf8888888ULL,         0xf0101010ULL,         0xe0202020ULL,
-			0x704040407ULL,        0xf0808080fULL,        0x1f1111111fULL,       0x3e2222223eULL,
-			0x7c4444447cULL,       0xf8888888f8ULL,       0xf0101010f0ULL,       0xe0202020e0ULL,
-			0x70404040700ULL,      0xf0808080f00ULL,      0x1f1111111f00ULL,     0x3e2222223e00ULL,
-			0x7c4444447c00ULL,     0xf8888888f800ULL,     0xf0101010f000ULL,     0xe0202020e000ULL,
-			0x7040404070000ULL,    0xf0808080f0000ULL,    0x1f1111111f0000ULL,   0x3e2222223e0000ULL,
-			0x7c4444447c0000ULL,   0xf8888888f80000ULL,   0xf0101010f00000ULL,   0xe0202020e00000ULL,
-			0x704040407000000ULL,  0xf0808080f000000ULL,  0x1f1111111f000000ULL, 0x3e2222223e000000ULL,
-			0x7c4444447c000000ULL, 0xf8888888f8000000ULL, 0xf0101010f0000000ULL, 0xe0202020e0000000ULL,
-			0x404040700000000ULL,  0x808080f00000000ULL,  0x1111111f00000000ULL, 0x2222223e00000000ULL,
-			0x4444447c00000000ULL, 0x888888f800000000ULL, 0x101010f000000000ULL, 0x202020e000000000ULL,
-			0x404070000000000ULL,  0x8080f0000000000ULL,  0x11111f0000000000ULL, 0x22223e0000000000ULL,
-			0x44447c0000000000ULL, 0x8888f80000000000ULL, 0x1010f00000000000ULL, 0x2020e00000000000ULL, 
-		};
+		constexpr std::array<Bitboard, SQ_N> outer_ring = [] {
+			std::array<Bitboard, SQ_N> arr{};
+
+			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
+				Bitboard bb = Bitboards::get_attacks<KING>(s1);
+				while (bb) {
+					Square s2 = pop_lsb(bb);
+					arr[s1] |= Bitboards::get_attacks<KING>(s2);
+				}
+				arr[s1] &= ~(Bitboards::get_attacks<KING>(s1) | s1);
+			}
+
+			return arr;
+		}();
 		
 		constexpr int source32[] = {
 			28, 29, 30, 31, 31, 30, 29, 28,
