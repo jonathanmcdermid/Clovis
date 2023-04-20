@@ -139,16 +139,11 @@ namespace Clovis {
 		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> pawn_attacks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
-			for (Colour c : { WHITE, BLACK }) {
-				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-					if (is_valid(sq + pawn_push(c))) {
-						if (file_of(sq) != FILE_A)
-							arr[c][sq] |= sq + pawn_push(c) + WEST;
-						if (file_of(sq) != FILE_H)
-							arr[c][sq] |= sq + pawn_push(c) + EAST;
-					}
-				}
-			}
+			for (Colour c : { WHITE, BLACK })
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+					for (Direction dir : { EAST, WEST })
+						if (is_valid(sq + pawn_push(c)) && rank_of(sq) == rank_of(sq + dir))
+							arr[c][sq] |= sq + pawn_push(c) + dir;
 
 			return arr;
 		}();
