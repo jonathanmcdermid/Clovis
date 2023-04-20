@@ -91,12 +91,12 @@ namespace Clovis {
 	template <Colour US>
 	inline bool Position::is_insufficient() const {
 
-		return (popcount(pc_bb[make_piece(PAWN,   US)]) == 0
-			&& (popcount(pc_bb[make_piece(ROOK,   US)]) == 0)
-			&& (popcount(pc_bb[make_piece(QUEEN,  US)]) == 0)
-			&& (popcount(pc_bb[make_piece(KNIGHT, US)]) < 3)
-			&& (popcount(pc_bb[make_piece(BISHOP, US)])
-			  + popcount(pc_bb[make_piece(KNIGHT, US)]) < 2));
+		return (std::popcount(pc_bb[make_piece(PAWN,   US)]) == 0
+			&& (std::popcount(pc_bb[make_piece(ROOK,   US)]) == 0)
+			&& (std::popcount(pc_bb[make_piece(QUEEN,  US)]) == 0)
+			&& (std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3)
+			&& (std::popcount(pc_bb[make_piece(BISHOP, US)])
+			  + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2));
 	}
 
 	// updates a bitboard of attackers after a piece has moved to include possible x ray attackers
