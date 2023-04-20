@@ -133,6 +133,7 @@ namespace Clovis {
 	};
 
 	enum Direction : int {
+		NO_DIR,
 		NORTH = 8,
 		EAST = 1,
 		SOUTH = -NORTH,
