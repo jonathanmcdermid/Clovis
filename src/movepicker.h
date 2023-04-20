@@ -19,17 +19,14 @@ namespace Clovis {
 		extern Move counter_table[cft_size];
 		extern Move killers[MAX_PLY << 1];
 
-		constexpr int history_bonus[MAX_PLY + 1] = {
-			    0, 
-			   32,   128,   288,   512,   800,  1152,  1568,  2048, 
-			 2592,  3200,  3872,  4608,  5408,  6272,  7200,  8192, 
-			 9248, 10368, 11552, 12800, 12800, 12800, 12800, 12800, 
-			12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
-			12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
-			12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
-			12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800, 
-			12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800,
-		};
+		constexpr std::array<int, MAX_PLY + 1> history_bonus = [] {
+			std::array<int, MAX_PLY + 1> arr{};
+
+			for (int i = 0; i <= MAX_PLY; ++i)
+				arr[i] = 32 * min(i * i, 400);
+
+			return arr;
+		}();
 
 		constexpr std::array<std::array<int, 15>, 15> mvv_lva = [] {
 			std::array<std::array<int, 15>, 15> arr{};
