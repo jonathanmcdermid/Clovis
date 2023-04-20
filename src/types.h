@@ -343,6 +343,15 @@ namespace Clovis {
 		}
 	}
 
+	// returns whether or not a direction can be moved to from a given square
+	constexpr bool valid_dir(Square sq, Direction dir) {
+		return dir == NORTH ? rank_of(sq) != RANK_8
+			 : dir == SOUTH ? rank_of(sq) != RANK_1
+			 : dir == EAST  ? file_of(sq) != FILE_H
+			 : dir == WEST  ? file_of(sq) != FILE_A
+			 : false;
+	}
+
 	inline Square str2sq(string s) {
 		assert(s.length() == 2);
 		return make_square(File(s[0] - 'a'), Rank(s[1] - '1'));

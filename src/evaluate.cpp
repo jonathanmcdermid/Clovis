@@ -50,8 +50,8 @@ namespace Clovis {
 				return false;
 
 			do {
-				int support = popcnt(Bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]);
-				int danger  = popcnt(Bitboards::pawn_attacks[ US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]);
+				int support = popcount(Bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]);
+				int danger  = popcount(Bitboards::pawn_attacks[ US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]);
 				if (danger > support)
 					return false;
 				sq += pawn_push(US);
@@ -82,11 +82,11 @@ namespace Clovis {
 
 			if (or_att_bb || ir_att_bb) {
 
-				ei.weight[US] += inner_ring_attack[PT] * popcnt(ir_att_bb) + outer_ring_attack[PT] * popcnt(or_att_bb);
+				ei.weight[US] += inner_ring_attack[PT] * popcount(ir_att_bb) + outer_ring_attack[PT] * popcount(or_att_bb);
 
 				if constexpr (PT != PAWN) ++ei.n_att[US];
-				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += popcnt(ir_att_bb);
-				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcnt(or_att_bb);
+				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += popcount(ir_att_bb);
+				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcount(or_att_bb);
 			}
 		}
 
@@ -136,13 +136,13 @@ namespace Clovis {
 				Bitboard trades = worthy_trades<US, PT>(pos);
 				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
-				score += quiet_mobility[PT]   * popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
-				score += capture_mobility[PT] * popcnt(safe_attacks &  pos.occ_bb[~US]);
+				score += quiet_mobility[PT]   * popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				score += capture_mobility[PT] * popcount(safe_attacks &  pos.occ_bb[~US]);
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
 				if constexpr (TRACE) psqt_trace<US, PT>(sq);
-				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += popcnt(safe_attacks & ~pos.occ_bb[BOTH]);
-				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += popcnt(safe_attacks &  pos.occ_bb[~US]);
+				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += popcount(safe_attacks &  pos.occ_bb[~US]);
 				if constexpr (PT == KNIGHT) {
 					if (is_outpost<US>(sq, ei)) {
 						score += knight_outpost_bonus;
@@ -224,7 +224,7 @@ namespace Clovis {
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(ei.n_att[US] < 10);
 
-				int mob = popcnt(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
+				int mob = popcount(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
 
 				if (mob > 4) {
 					ei.weight[US] += virtual_mobility * min(13, mob);
@@ -361,7 +361,7 @@ namespace Clovis {
 			/*
 			int scaling;
 
-			if (game_phase == 2 && popcnt(pos.pc_bb[W_BISHOP]) == 1 && popcnt(pos.pc_bb[B_BISHOP]) == 1 
+			if (game_phase == 2 && popcount(pos.pc_bb[W_BISHOP]) == 1 && popcount(pos.pc_bb[B_BISHOP]) == 1 
 				&& bool(pos.pc_bb[W_BISHOP] & light_mask) == bool(pos.pc_bb[B_BISHOP] & dark_mask))
 				scaling = opposite_bishops_scaling;
 			else

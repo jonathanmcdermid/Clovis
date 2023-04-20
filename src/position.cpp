@@ -89,7 +89,7 @@ namespace Clovis {
 		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
 		while (candidates)
-			if (popcnt(between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
+			if (popcount(between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
 				return true;
 
 		return false;

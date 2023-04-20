@@ -23,16 +23,6 @@ namespace Clovis {
 			cout << "  a b c d e f g h" << endl;
 		}
 
-		// returns whether or not a direction can be moved to from a given square
-		constexpr bool valid_dir(Square sq, Direction dir) {
-
-			return dir == NORTH ? rank_of(sq) != RANK_8
-			     : dir == SOUTH ? rank_of(sq) != RANK_1
-			     : dir == EAST  ? file_of(sq) != FILE_H
-			     : dir == WEST  ? file_of(sq) != FILE_A 
-			     : false;
-		}
-
 		// generate bishop moves for a given square with bitboard of blocking pieces
 		Bitboard bishop_otf(Square sq, Bitboard occ) {
 
@@ -88,13 +78,13 @@ namespace Clovis {
 		void init_sliders_attacks() {
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-				for (int index = 0; index < (1 << popcnt(bishop_masks[sq])); ++index) {
-					Bitboard occ = set_occupancy(bishop_masks[sq], index, popcnt(bishop_masks[sq]));
+				for (int index = 0; index < (1 << popcount(bishop_masks[sq])); ++index) {
+					Bitboard occ = set_occupancy(bishop_masks[sq], index, popcount(bishop_masks[sq]));
 					bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_rbits[sq]] = bishop_otf(sq, occ);
 				}
 				
-				for (int index = 0; index < (1 << popcnt(rook_masks[sq])); ++index) {
-					Bitboard occ = set_occupancy(rook_masks[sq], index, popcnt(rook_masks[sq]));
+				for (int index = 0; index < (1 << popcount(rook_masks[sq])); ++index) {
+					Bitboard occ = set_occupancy(rook_masks[sq], index, popcount(rook_masks[sq]));
 					rook_attacks[sq][(occ * rook_magic[sq]) >> rook_rbits[sq]] = rook_otf(sq, occ);
 				}
 			}

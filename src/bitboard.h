@@ -26,10 +26,6 @@ namespace Clovis {
 
 #if defined(__GNUC__)
 
-	inline int popcnt(Bitboard bb) {
-		return __builtin_popcountll(bb);
-	}
-
 	inline Square lsb(Bitboard bb) {
 		assert(bb);
 		return Square(__builtin_ctzll(bb));
@@ -43,10 +39,6 @@ namespace Clovis {
 #elif defined(_MSC_VER)
 
 #ifdef _WIN64
-
-	inline int popcnt(Bitboard bb) {
-		return __popcnt64(bb);
-	}
 
 	inline Square lsb(Bitboard bb) {
 		assert(bb);
@@ -63,10 +55,6 @@ namespace Clovis {
 	}
 
 #else
-
-	inline int popcnt(Bitboard bb) {
-		return __popcnt(int32_t(bb)) + __popcnt(int32_t(bb >> 32));
-	}
 
 	inline Square lsb(Bitboard bb) {
 		assert(bb);

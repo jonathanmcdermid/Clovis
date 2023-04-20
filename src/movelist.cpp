@@ -33,7 +33,7 @@ namespace Clovis {
 		T* generate_promotions(T* moves, Square src, Square tar) {
 
 			if constexpr (M != QUIET_MOVES)
-				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN,  US),  TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN,  US), TC, 0, 0, 0);
 			if constexpr (M != CAPTURE_MOVES) {
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, 0, 0, 0);
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(BISHOP, US), TC, 0, 0, 0);
