@@ -157,7 +157,7 @@ namespace Clovis {
 		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> pawn_attacks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
-			for (Colour c : {WHITE, BLACK}) {
+			for (Colour c : { WHITE, BLACK }) {
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
 					if (is_valid(sq + pawn_push(c))) {
 						if (file_of(sq) != FILE_A)
@@ -171,24 +171,22 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr Bitboard knight_attacks[SQ_N] = {
-			0x20400ULL,            0x50800ULL,            0xa1100ULL,            0x142200ULL, 
-			0x284400ULL,           0x508800ULL,           0xa01000ULL,           0x402000ULL, 
-			0x2040004ULL,          0x5080008ULL,          0xa110011ULL,          0x14220022ULL, 
-			0x28440044ULL,         0x50880088ULL,         0xa0100010ULL,         0x40200020ULL, 
-			0x204000402ULL,        0x508000805ULL,        0xa1100110aULL,        0x1422002214ULL, 
-			0x2844004428ULL,       0x5088008850ULL,       0xa0100010a0ULL,       0x4020002040ULL, 
-			0x20400040200ULL,      0x50800080500ULL,      0xa1100110a00ULL,      0x142200221400ULL, 
-			0x284400442800ULL,     0x508800885000ULL,     0xa0100010a000ULL,     0x402000204000ULL, 
-			0x2040004020000ULL,    0x5080008050000ULL,    0xa1100110a0000ULL,    0x14220022140000ULL, 
-			0x28440044280000ULL,   0x50880088500000ULL,   0xa0100010a00000ULL,   0x40200020400000ULL, 
-			0x204000402000000ULL,  0x508000805000000ULL,  0xa1100110a000000ULL,  0x1422002214000000ULL, 
-			0x2844004428000000ULL, 0x5088008850000000ULL, 0xa0100010a0000000ULL, 0x4020002040000000ULL, 
-			0x400040200000000ULL,  0x800080500000000ULL,  0x1100110a00000000ULL, 0x2200221400000000ULL, 
-			0x4400442800000000ULL, 0x8800885000000000ULL, 0x100010a000000000ULL, 0x2000204000000000ULL, 
-			0x4020000000000ULL,    0x8050000000000ULL,    0x110a0000000000ULL,   0x22140000000000ULL, 
-			0x44280000000000ULL,   0x88500000000000ULL,   0x10a00000000000ULL,   0x20400000000000ULL, 
-		};
+		constexpr std::array<Bitboard, SQ_N> knight_attacks = [] {
+			std::array<Bitboard, SQ_N> arr{};
+
+			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
+				for (Direction d1 : { NORTH, SOUTH }) {
+					for (Direction d2 : { EAST, WEST }) {
+						if (is_valid(sq + d1 + d1) && rank_of(sq) == rank_of(sq + d2))
+							arr[sq] |= sq + d1 + d1 + d2;
+						if (is_valid(sq + d1) && rank_of(sq) == rank_of(sq + d2 + d2))
+							arr[sq] |= sq + d1 + d2 + d2;
+					}
+				}
+			}
+
+			return arr;
+		}();
 
 		constexpr Bitboard empty_bishop_attacks[SQ_N] = {
 			0x8040201008040200ULL, 0x80402010080500ULL,   0x804020110a00ULL,     0x8041221400ULL, 
