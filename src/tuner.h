@@ -30,7 +30,7 @@ namespace Clovis {
 		};
 		
 		struct TEntry {
-			TEntry() : stm(WHITE), seval(0), result(0.0), phase(0.0), safety{ 0 }, n_att{ 0 } {}
+			TEntry() : stm(WHITE), result(0.0), phase(0.0), seval(0), safety{ 0 }, n_att{ 0 } {}
 			Colour stm;
 			double result, phase;
 			int seval, safety[COLOUR_N], n_att[COLOUR_N];
