@@ -6,37 +6,56 @@ namespace Clovis {
 
 	namespace Search {
 
-		int lmr_table[MAX_PLY + 1][64];
+		constexpr double log_table[] = {
+			0.000000,
+			0.000000, 0.693147, 1.098612, 1.386294,
+			1.609438, 1.791759, 1.945910, 2.079442,
+			2.197225, 2.302585, 2.397895, 2.484907,
+			2.564949, 2.639057, 2.708050, 2.772589,
+			2.833213, 2.890372, 2.944439, 2.995732,
+			3.044522, 3.091042, 3.135494, 3.178054,
+			3.218876, 3.258097, 3.295837, 3.332205,
+			3.367296, 3.401197, 3.433987, 3.465736,
+			3.496508, 3.526361, 3.555348, 3.583519,
+			3.610918, 3.637586, 3.663562, 3.688879,
+			3.713572, 3.737670, 3.761200, 3.784190,
+			3.806662, 3.828641, 3.850148, 3.871201,
+			3.891820, 3.912023, 3.931826, 3.951244,
+			3.970292, 3.988984, 4.007333, 4.025352,
+			4.043051, 4.060443, 4.077537, 4.094345,
+			4.110874, 4.127134, 4.143135, 4.158883
+		};
+
 		constexpr int lmr_depth = 2;
 		constexpr int lmr_history_min = 2;
 		constexpr int lmr_history_max = 2;
 		constexpr int lmr_history_divisor = 4000;
 		constexpr int lmr_reduction = 2;
 
-		constexpr int iid_table[2][MAX_PLY + 1] = {
-			 0, 
-			-1, -1,  0,  0,  0,  0,  0,  1, 
-			 1,  1,  2,  2,  2,  3,  3,  3, 
-			 4,  4,  4,  5,  5,  5,  6,  6, 
-			 6,  7,  7,  7,  8,  8,  8,  9, 
-			 9,  9, 10, 10, 10, 11, 11, 11, 
-			12, 12, 12, 13, 13, 13, 14, 14, 
-			14, 15, 15, 15, 16, 16, 16, 17, 
-			17, 17, 18, 18, 18, 19, 19, 19, 
-			 0, 
-			 0,  0,  1,  2,  3,  4,  4,  5, 
-			 6,  7,  8,  8,  9, 10, 11, 12, 
-			12, 13, 14, 15, 16, 16, 17, 18, 
-			19, 20, 20, 21, 22, 23, 24, 24, 
-			25, 26, 27, 28, 28, 29, 30, 31, 
-			32, 32, 33, 34, 35, 36, 36, 37, 
-			38, 39, 40, 40, 41, 42, 43, 44, 
-			44, 45, 46, 47, 48, 48, 49, 50,
-		};
+		constexpr std::array<std::array<int, 64>, MAX_PLY + 1> lmr_table = [] {
+			std::array<std::array<int, 64>, MAX_PLY + 1> arr{};
+
+			for (int depth = 1; depth <= MAX_PLY; ++depth)
+				for (int ordered = 1; ordered < 64; ++ordered)
+					arr[depth][ordered] = int(0.75 + log_table[depth] * log_table[ordered] / 2.25);
+
+			return arr;
+		}();
+
 		constexpr int iid_depth[2] = { 5, 7 };
 		constexpr int iid_reduction[2] = { 5, 4 };
 		constexpr int iid_factor[2] = { 1, 4 };
 		constexpr int iid_divisor[2] = { 2, 4 };
+
+		constexpr std::array<std::array<int, MAX_PLY + 1>, 2> iid_table = [] {
+			std::array<std::array<int, MAX_PLY + 1>, 2> arr{};
+
+			for (int depth = 1; depth <= MAX_PLY; ++depth)
+				for (int i = 0; i < 2; ++i)
+					arr[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
+
+			return arr;
+		}();
 	
 		constexpr int futility_factor = 75;
 		constexpr int futility_depth = 8;
@@ -54,21 +73,6 @@ namespace Clovis {
 		// initialize starting search conditions
 		void init_search() {
 			clear();
-			init_values();
-		}
-
-		// initialize search values
-		void init_values() {
-
-			for (int depth = 1; depth <= MAX_PLY; ++depth) {
-				//futility_reduction[depth] = depth * futility_factor;
-
-				//for (int i = 0; i < 2; ++i)
-				//	iid_table[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
-
-				for (int ordered = 1; ordered < 64; ++ordered)
-					lmr_table[depth][ordered] = int(0.75 + log(depth) * log(ordered) / 2.25);
-			}
 		}
 
 		// reset transposition table, set search to standard conditions
