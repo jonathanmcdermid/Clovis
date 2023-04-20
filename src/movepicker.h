@@ -31,24 +31,16 @@ namespace Clovis {
 			12800, 12800, 12800, 12800, 12800, 12800, 12800, 12800,
 		};
 
-		// MVV-LVA lookup table [attacker][victim]
-		constexpr int mvv_lva[15][15] = {
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  5, 13, 21, 29, 37, 45, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  4, 12, 20, 28, 36, 44, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  3, 11, 19, 27, 35, 43, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  2, 10, 18, 26, 34, 42, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  9, 17, 25, 33, 41, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  8, 16, 24, 32, 40, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  5, 13, 21, 29, 37, 45,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  4, 12, 20, 28, 36, 44,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  3, 11, 19, 27, 35, 43,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  2, 10, 18, 26, 34, 42,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  1,  9, 17, 25, 33, 41,  0,  0,  0,  0,  0,  0,  0,  0, 
-			0,  0,  8, 16, 24, 32, 40,  0,  0,  0,  0,  0,  0,  0,  0, 
-		};
+		constexpr std::array<std::array<int, 15>, 15> mvv_lva = [] {
+			std::array<std::array<int, 15>, 15> arr{};
+
+			for (Colour c : {WHITE, BLACK})
+				for (PieceType p1 = PAWN; p1 <= KING; ++p1)
+					for (PieceType p2 = PAWN; p2 <= KING; ++p2)
+						arr[make_piece(p1, c)][make_piece(p2, ~c)] = KING - p1 + KING * p2;
+
+			return arr;
+		}();
 
 		inline int cft_index(Colour c, Move m) {
 			return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m);
@@ -114,8 +106,8 @@ namespace Clovis {
 		class MovePicker {
 		public:
 			MovePicker(const Position& p, int pl, Move pm, Move ttm) 
-				: pos(p), ply(pl), stage(TT_MOVE), prev_move(pm), tt_move(ttm), 
-				curr(moves), last(moves), end_bad_caps(moves) {}
+				: pos(p), ply(pl), stage(TT_MOVE), curr(moves), last(moves), 
+				end_bad_caps(moves), prev_move(pm), tt_move(ttm) {}
 			Move get_next(bool play_quiets);
 			template<HashFlag HF> void update_history(Move best_move, int depth);
 		private:
