@@ -52,30 +52,6 @@ namespace Clovis {
 		constexpr int bishop_attack_indices = 512;
 		constexpr int rook_attack_indices = 4096;
 
-		// 64 - number of relevant occupancy bits for every bishop square
-		constexpr int bishop_rbits[SQ_N] = {
-			58, 59, 59, 59, 59, 59, 59, 58,
-			59, 59, 59, 59, 59, 59, 59, 59,
-			59, 59, 57, 57, 57, 57, 59, 59,
-			59, 59, 57, 55, 55, 57, 59, 59,
-			59, 59, 57, 55, 55, 57, 59, 59,
-			59, 59, 57, 57, 57, 57, 59, 59,
-			59, 59, 59, 59, 59, 59, 59, 59,
-			58, 59, 59, 59, 59, 59, 59, 58,
-		};
-
-		// 64 - number of relevant occupancy bits for every rook square
-		constexpr int rook_rbits[SQ_N] = {
-			52, 53, 53, 53, 53, 53, 53, 52,
-			53, 54, 54, 54, 54, 54, 54, 53,
-			53, 54, 54, 54, 54, 54, 54, 53,
-			53, 54, 54, 54, 54, 54, 54, 53,
-			53, 54, 54, 54, 54, 54, 54, 53,
-			53, 54, 54, 54, 54, 54, 54, 53,
-			53, 54, 54, 54, 54, 54, 54, 53,
-			52, 53, 53, 53, 53, 53, 53, 52,
-		};
-
 		// precalculated magic numbers for generating rook attacks
 		constexpr Bitboard rook_magic[SQ_N] = {
 			0x8a80104000800020ULL, 0x140002000100040ULL,  0x2801880a0017001ULL,  0x100081001000420ULL, 
@@ -239,6 +215,24 @@ namespace Clovis {
 						if (s2 != s1)
 							arr[s1] |= s2;
 			}
+
+			return arr;
+		}();
+
+		constexpr std::array<int, SQ_N> bishop_rbits = [] {
+			std::array<int, SQ_N> arr{};
+
+			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+				arr[sq] = SQ_N - std::popcount(bishop_masks[sq]);
+
+			return arr;
+		}();
+
+		constexpr std::array<int, SQ_N> rook_rbits = [] {
+			std::array<int, SQ_N> arr{};
+
+			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+				arr[sq] = SQ_N - std::popcount(rook_masks[sq]);
 
 			return arr;
 		}();
