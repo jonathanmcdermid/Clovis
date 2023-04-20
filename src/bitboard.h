@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <array>
 
 #include "random.h"
 #include "types.h"
@@ -153,40 +154,22 @@ namespace Clovis {
 			0x6e10101010101000ULL, 0x5e20202020202000ULL, 0x3e40404040404000ULL, 0x7e80808080808000ULL, 
 		};
 
-		constexpr Bitboard pawn_attacks[COLOUR_N][SQ_N] = {
-			0x200ULL,              0x500ULL,              0xa00ULL,              0x1400ULL, 
-			0x2800ULL,             0x5000ULL,             0xa000ULL,             0x4000ULL, 
-			0x20000ULL,            0x50000ULL,            0xa0000ULL,            0x140000ULL, 
-			0x280000ULL,           0x500000ULL,           0xa00000ULL,           0x400000ULL, 
-			0x2000000ULL,          0x5000000ULL,          0xa000000ULL,          0x14000000ULL, 
-			0x28000000ULL,         0x50000000ULL,         0xa0000000ULL,         0x40000000ULL, 
-			0x200000000ULL,        0x500000000ULL,        0xa00000000ULL,        0x1400000000ULL, 
-			0x2800000000ULL,       0x5000000000ULL,       0xa000000000ULL,       0x4000000000ULL, 
-			0x20000000000ULL,      0x50000000000ULL,      0xa0000000000ULL,      0x140000000000ULL, 
-			0x280000000000ULL,     0x500000000000ULL,     0xa00000000000ULL,     0x400000000000ULL, 
-			0x2000000000000ULL,    0x5000000000000ULL,    0xa000000000000ULL,    0x14000000000000ULL, 
-			0x28000000000000ULL,   0x50000000000000ULL,   0xa0000000000000ULL,   0x40000000000000ULL, 
-			0x200000000000000ULL,  0x500000000000000ULL,  0xa00000000000000ULL,  0x1400000000000000ULL, 
-			0x2800000000000000ULL, 0x5000000000000000ULL, 0xa000000000000000ULL, 0x4000000000000000ULL, 
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL, 
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL, 
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL, 
-			0x0ULL,                0x0ULL,                0x0ULL,                0x0ULL, 
-			0x2ULL,                0x5ULL,                0xaULL,                0x14ULL, 
-			0x28ULL,               0x50ULL,               0xa0ULL,               0x40ULL, 
-			0x200ULL,              0x500ULL,              0xa00ULL,              0x1400ULL, 
-			0x2800ULL,             0x5000ULL,             0xa000ULL,             0x4000ULL, 
-			0x20000ULL,            0x50000ULL,            0xa0000ULL,            0x140000ULL, 
-			0x280000ULL,           0x500000ULL,           0xa00000ULL,           0x400000ULL, 
-			0x2000000ULL,          0x5000000ULL,          0xa000000ULL,          0x14000000ULL, 
-			0x28000000ULL,         0x50000000ULL,         0xa0000000ULL,         0x40000000ULL, 
-			0x200000000ULL,        0x500000000ULL,        0xa00000000ULL,        0x1400000000ULL, 
-			0x2800000000ULL,       0x5000000000ULL,       0xa000000000ULL,       0x4000000000ULL, 
-			0x20000000000ULL,      0x50000000000ULL,      0xa0000000000ULL,      0x140000000000ULL, 
-			0x280000000000ULL,     0x500000000000ULL,     0xa00000000000ULL,     0x400000000000ULL, 
-			0x2000000000000ULL,    0x5000000000000ULL,    0xa000000000000ULL,    0x14000000000000ULL, 
-			0x28000000000000ULL,   0x50000000000000ULL,   0xa0000000000000ULL,   0x40000000000000ULL,
-		};
+		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> pawn_attacks = [] {
+			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
+
+			for (Colour c : {WHITE, BLACK}) {
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
+					if (is_valid(sq + pawn_push(c))) {
+						if (file_of(sq) != FILE_A)
+							arr[c][sq] |= sq + pawn_push(c) + WEST;
+						if (file_of(sq) != FILE_H)
+							arr[c][sq] |= sq + pawn_push(c) + EAST;
+					}
+				}
+			}
+
+			return arr;
+		}();
 
 		constexpr Bitboard knight_attacks[SQ_N] = {
 			0x20400ULL,            0x50800ULL,            0xa1100ULL,            0x142200ULL, 
