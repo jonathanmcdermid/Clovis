@@ -150,7 +150,7 @@ namespace Clovis {
 		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> passed_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
-			for (Colour c : {WHITE, BLACK})
+			for (Colour c : { WHITE, BLACK })
 				for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
 					for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c))
 						arr[c][s1] |= Bitboards::pawn_attacks[c][s2] | s2;
@@ -161,7 +161,7 @@ namespace Clovis {
 		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> outpost_pawn_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
-			for (Colour c : {WHITE, BLACK})
+			for (Colour c : { WHITE, BLACK })
 				for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
 					for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c))
 						arr[c][s1] |= Bitboards::pawn_attacks[c][s2];
@@ -172,7 +172,7 @@ namespace Clovis {
 		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> rook_on_passer_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
-			for (Colour c : {WHITE, BLACK})
+			for (Colour c : { WHITE, BLACK })
 				for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
 					for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c))
 						arr[c][s1] |= s2;

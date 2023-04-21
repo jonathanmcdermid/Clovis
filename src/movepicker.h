@@ -31,7 +31,7 @@ namespace Clovis {
 		constexpr std::array<std::array<int, 15>, 15> mvv_lva = [] {
 			std::array<std::array<int, 15>, 15> arr{};
 
-			for (Colour c : {WHITE, BLACK})
+			for (Colour c : { WHITE, BLACK })
 				for (PieceType p1 = PAWN; p1 <= KING; ++p1)
 					for (PieceType p2 = PAWN; p2 <= KING; ++p2)
 						arr[make_piece(p1, c)][make_piece(p2, ~c)] = KING - p1 + KING * p2;
