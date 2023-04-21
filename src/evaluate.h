@@ -217,38 +217,52 @@ namespace Clovis {
 
 		constexpr Bitboard center_mask = D4 | E4 | D5 | E5;
 		
-		constexpr int source32[] = {
-			28, 29, 30, 31, 31, 30, 29, 28,
-			24, 25, 26, 27, 27, 26, 25, 24,
-			20, 21, 22, 23, 23, 22, 21, 20,
-			16, 17, 18, 19, 19, 18, 17, 16,
-			12, 13, 14, 15, 15, 14, 13, 12,
-			 8,  9, 10, 11, 11, 10,  9,  8,
-			 4,  5,  6,  7,  7,  6,  5,  4,
-			 0,  1,  2,  3,  3,  2,  1,  0,
-		};
+		constexpr std::array<Bitboard, SQ_N> source32 = [] {
+			std::array<Bitboard, SQ_N> arr{};
+
+			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
+				int r = sq / 4;
+				int f = sq & 0x3;
+
+				arr[((7 - r) * 8) + f] = sq;
+				arr[((7 - r) * 8) + (7 - f)] = sq;
+			}
+
+			return arr;
+		}();
 		
-		constexpr int source16[] = {
-			 0,  1,  2,  3,  3,  2,  1,  0,
-			 4,  5,  6,  7,  7,  6,  5,  4,
-			 8,  9, 10, 11, 11, 10,  9,  8,
-			12, 13, 14, 15, 15, 14, 13, 12,
-			12, 13, 14, 15, 15, 14, 13, 12,
-			 8,  9, 10, 11, 11, 10,  9,  8,
-			 4,  5,  6,  7,  7,  6,  5,  4,
-			 0,  1,  2,  3,  3,  2,  1,  0,
-		};
+		constexpr std::array<Bitboard, SQ_N> source16 = [] {
+			std::array<Bitboard, SQ_N> arr = source32;
+
+			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
+				int r = sq / 4;
+				int f = sq & 0x3;
+				
+				arr[56 ^ (((7 - r) * 8) + f)] = sq;
+				arr[56 ^ (((7 - r) * 8) + (7 - f))] = sq;
+			}
+
+			return arr;
+		}();
 		
-		constexpr int source10[] = {
-			 0,  1,  2,  3,  3,  2,  1,  0,
-			 1,  4,  5,  6,  6,  5,  4,  1,
-			 2,  5,  7,  8,  8,  7,  5,  2,
-			 3,  6,  8,  9,  9,  8,  6,  3,
-			 3,  6,  8,  9,  9,  8,  6,  3,
-			 2,  5,  7,  8,  8,  7,  5,  2,
-			 1,  4,  5,  6,  6,  5,  4,  1,
-			 0,  1,  2,  3,  3,  2,  1,  0,
-		};
+		constexpr std::array<Bitboard, SQ_N> source10 = [] {
+			std::array<Bitboard, SQ_N> arr = source16;
+
+			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
+				int r = sq / 4;
+				int f = sq & 0x3;
+
+				if (f >= r) {
+					arr[f * 8 + r] = sq;
+					arr[f * 8 + 7 - r] = sq;
+					arr[(7 - f) * 8 + r] = sq;
+					arr[(7 - f) * 8 + 7 - r] = sq;
+				}
+			}
+
+			return arr;
+		}();
+						
 
 		void init_eval();
 		template<bool TRACE> int evaluate(const Position& pos);
