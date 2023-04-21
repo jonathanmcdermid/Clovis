@@ -131,7 +131,7 @@ namespace Clovis {
 				Square pinner = pos.get_pinner<US>(sq);
 
 				if (pinner != SQ_NONE)
-					attacks &= between_squares(ei.ksq[US], pinner) | pinner;
+					attacks &= Bitboards::between_squares(ei.ksq[US], pinner) | pinner;
 
 				Bitboard trades = worthy_trades<US, PT>(pos);
 				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);

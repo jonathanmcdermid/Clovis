@@ -4,8 +4,6 @@ using namespace std;
 
 namespace Clovis {
 
-	Bitboard between_bb[SQ_N][SQ_N];
-
 	namespace Bitboards {
 
 		Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
@@ -93,15 +91,6 @@ namespace Clovis {
 		void init_bitboards() {
 
 			init_sliders_attacks();
-
-			for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1) {
-				for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2) {
-					if (get_attacks<ROOK>(sq1) & sq2)
-						between_bb[sq1][sq2] = get_attacks<ROOK>  (sqbb(sq2), sq1) & get_attacks<ROOK>  (sqbb(sq1), sq2);
-					else if (get_attacks<BISHOP>(sq1) & sq2)
-						between_bb[sq1][sq2] = get_attacks<BISHOP>(sqbb(sq2), sq1) & get_attacks<BISHOP>(sqbb(sq1), sq2);
-				}
-			}
 		}
 
 	} // namespace Bitboards

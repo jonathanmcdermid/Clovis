@@ -21,10 +21,6 @@ namespace Clovis {
 	constexpr Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb(sq); }
 	constexpr Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb(sq); }
 
-	extern Bitboard between_bb[SQ_N][SQ_N];
-
-	inline Bitboard between_squares(Square sq1, Square sq2) { return between_bb[sq1][sq2]; }
-
 	constexpr Square lsb(Bitboard bb) {
 		assert(bb);
 		return (Square) std::countr_zero(bb);
@@ -236,12 +232,37 @@ namespace Clovis {
 			return arr;
 		}();
 
+		constexpr std::array<std::array<Bitboard, SQ_N>, SQ_N> between_bb = [] {
+			std::array<std::array<Bitboard, SQ_N>, SQ_N> arr{};
+
+			for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1) {
+				for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2) {
+
+					Bitboard bb = (empty_bishop_attacks[sq1] & sq2)
+						? empty_bishop_attacks[sq1] & empty_bishop_attacks[sq2]
+						: (empty_rook_attacks[sq1] & sq2)
+						? empty_rook_attacks[sq1] & empty_rook_attacks[sq2]
+						: 0ULL;
+
+					while (bb) {
+						Square sq3 = pop_lsb(bb);
+						if ((sq1 < sq3 && sq3 < sq2) || (sq1 > sq3 && sq3 > sq2))
+							arr[sq1][sq2] |= sq3;
+					}
+				}
+			}
+
+			return arr;
+		}();
+
 		extern Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
 		extern Bitboard rook_attacks[SQ_N][rook_attack_indices];
 
 		void print_bitboard(const Bitboard& bb);
 
 		void init_bitboards();
+
+		constexpr Bitboard between_squares(Square sq1, Square sq2) { return between_bb[sq1][sq2]; }
 
 		template<PieceType PT>
 		constexpr Bitboard get_attacks(Bitboard occ, Square sq) {

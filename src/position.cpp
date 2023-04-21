@@ -60,7 +60,7 @@ namespace Clovis {
 
 			while (candidates) {
 				Square candidate = pop_lsb(candidates);
-				if (between_squares(ksq, candidate) & sq)
+				if (Bitboards::between_squares(ksq, candidate) & sq)
 					return candidate;
 			}
 		}
@@ -91,7 +91,7 @@ namespace Clovis {
 		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
 		while (candidates)
-			if (popcount(between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
+			if (popcount(Bitboards::between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
 				return true;
 
 		return false;
