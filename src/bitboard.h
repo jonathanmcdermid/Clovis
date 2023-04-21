@@ -27,8 +27,7 @@ namespace Clovis {
 
 	constexpr Square lsb(Bitboard bb) {
 		assert(bb);
-		const unsigned long pos = std::countr_zero(bb);
-		return Square(pos);
+		return (Square) std::countr_zero(bb);
 	}
 
 	constexpr Square pop_lsb(Bitboard& bb) {
