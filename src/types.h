@@ -229,7 +229,8 @@ namespace Clovis {
 		WHITE_KS = 1 << 0,
 		WHITE_QS = 1 << 1,
 		BLACK_KS = 1 << 2,
-		BLACK_QS = 1 << 3
+		BLACK_QS = 1 << 3,
+		ALL_CASTLING = WHITE_KS | WHITE_QS | BLACK_KS | BLACK_QS,
 	};
 
 	constexpr CastleRights ks_castle_rights(Colour c) {

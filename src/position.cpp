@@ -11,18 +11,20 @@ namespace Clovis {
 #else
 	const string symbols[] = { ".","P","N","B","R","Q","K","","","p","k","b","r","q","k" };
 #endif
+	
+	constexpr std::array<int, SQ_N> castling_rights = [] {
+		std::array<int, SQ_N> arr{};
 
-	// castling rights lookup table
-	constexpr int castling_rights[SQ_N] = {
-		13, 15, 15, 15, 12, 15, 15, 14,
-		15, 15, 15, 15, 15, 15, 15, 15,
-		15, 15, 15, 15, 15, 15, 15, 15,
-		15, 15, 15, 15, 15, 15, 15, 15,
-		15, 15, 15, 15, 15, 15, 15, 15,
-		15, 15, 15, 15, 15, 15, 15, 15,
-		15, 15, 15, 15, 15, 15, 15, 15,
-		 7, 15, 15, 15,  3, 15, 15, 11
-	};
+		arr.fill(ALL_CASTLING);
+		
+		for (Colour c : { WHITE, BLACK }) {
+			arr[relative_square(c, E1)] &= ~(ks_castle_rights(c) | qs_castle_rights(c));
+			arr[relative_square(c, A1)] &= ~qs_castle_rights(c);
+			arr[relative_square(c, H1)] &= ~ks_castle_rights(c);
+		}
+			
+		return arr;
+	}();
 
 	namespace Zobrist {
 
