@@ -87,7 +87,7 @@ namespace Clovis {
 			0x28000010020204ULL,   0x6000020202d0240ULL,  0x8918844842082200ULL, 0x4010011029020020ULL, 
 		};
 
-		constexpr std::array<Bitboard, SQ_N> file_masks = [] {
+		constexpr auto file_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -97,7 +97,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> rank_masks = [] {
+		constexpr auto rank_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -107,7 +107,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> pawn_attacks = [] {
+		constexpr auto pawn_attacks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
 			for (Colour c : { WHITE, BLACK })
@@ -119,7 +119,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> knight_attacks = [] {
+		constexpr auto knight_attacks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
@@ -136,7 +136,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> empty_bishop_attacks = [] {
+		constexpr auto empty_bishop_attacks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
@@ -148,7 +148,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> empty_rook_attacks = [] {
+		constexpr auto empty_rook_attacks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
@@ -163,7 +163,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> empty_queen_attacks = [] {
+		constexpr auto empty_queen_attacks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -172,7 +172,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> king_attacks = [] {
+		constexpr auto king_attacks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -184,7 +184,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> bishop_masks = [] {
+		constexpr auto bishop_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
@@ -197,7 +197,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> rook_masks = [] {
+		constexpr auto rook_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
@@ -214,7 +214,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<int, SQ_N> bishop_rbits = [] {
+		constexpr auto bishop_rbits = [] {
 			std::array<int, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -223,7 +223,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<int, SQ_N> rook_rbits = [] {
+		constexpr auto rook_rbits = [] {
 			std::array<int, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -232,7 +232,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<std::array<Bitboard, SQ_N>, SQ_N> between_bb = [] {
+		constexpr auto between_bb = [] {
 			std::array<std::array<Bitboard, SQ_N>, SQ_N> arr{};
 
 			for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1) {
@@ -259,7 +259,6 @@ namespace Clovis {
 		extern Bitboard rook_attacks[SQ_N][rook_attack_indices];
 
 		void print_bitboard(const Bitboard& bb);
-
 		void init_bitboards();
 
 		constexpr Bitboard between_squares(Square sq1, Square sq2) { return between_bb[sq1][sq2]; }

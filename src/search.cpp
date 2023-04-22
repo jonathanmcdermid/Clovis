@@ -32,7 +32,7 @@ namespace Clovis {
 		constexpr int lmr_history_divisor = 4000;
 		constexpr int lmr_reduction = 2;
 
-		constexpr std::array<std::array<int, 64>, MAX_PLY + 1> lmr_table = [] {
+		constexpr auto lmr_table = [] {
 			std::array<std::array<int, 64>, MAX_PLY + 1> arr{};
 
 			for (int depth = 1; depth <= MAX_PLY; ++depth)
@@ -47,7 +47,7 @@ namespace Clovis {
 		constexpr int iid_factor[2] = { 1, 4 };
 		constexpr int iid_divisor[2] = { 2, 4 };
 
-		constexpr std::array<std::array<int, MAX_PLY + 1>, 2> iid_table = [] {
+		constexpr auto iid_table = [] {
 			std::array<std::array<int, MAX_PLY + 1>, 2> arr{};
 
 			for (int depth = 1; depth <= MAX_PLY; ++depth)

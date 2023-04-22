@@ -12,7 +12,7 @@ namespace Clovis {
 	const string symbols[] = { ".","P","N","B","R","Q","K","","","p","k","b","r","q","k" };
 #endif
 	
-	constexpr std::array<int, SQ_N> castling_rights = [] {
+	constexpr auto castling_rights = [] {
 		std::array<int, SQ_N> arr{};
 
 		arr.fill(ALL_CASTLING);

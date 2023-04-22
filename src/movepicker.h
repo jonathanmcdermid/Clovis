@@ -19,7 +19,7 @@ namespace Clovis {
 		extern Move counter_table[cft_size];
 		extern Move killers[MAX_PLY << 1];
 
-		constexpr std::array<int, MAX_PLY + 1> history_bonus = [] {
+		constexpr auto history_bonus = [] {
 			std::array<int, MAX_PLY + 1> arr{};
 
 			for (int i = 0; i <= MAX_PLY; ++i)
@@ -28,7 +28,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<std::array<int, 15>, 15> mvv_lva = [] {
+		constexpr auto mvv_lva = [] {
 			std::array<std::array<int, 15>, 15> arr{};
 
 			for (Colour c : { WHITE, BLACK })

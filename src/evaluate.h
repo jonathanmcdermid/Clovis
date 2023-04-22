@@ -134,7 +134,7 @@ namespace Clovis {
 
 #undef S
 		
-		constexpr std::array<Bitboard, SQ_N> isolated_masks = [] {
+		constexpr auto isolated_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
@@ -147,7 +147,7 @@ namespace Clovis {
 			return arr;
 		}();
 		
-		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> passed_masks = [] {
+		constexpr auto passed_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
 			for (Colour c : { WHITE, BLACK })
@@ -158,7 +158,7 @@ namespace Clovis {
 			return arr;
 		}();
 				
-		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> outpost_pawn_masks = [] {
+		constexpr auto outpost_pawn_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
 			for (Colour c : { WHITE, BLACK })
@@ -169,7 +169,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<std::array<Bitboard, SQ_N>, COLOUR_N> rook_on_passer_masks = [] {
+		constexpr auto rook_on_passer_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
 			for (Colour c : { WHITE, BLACK })
@@ -180,7 +180,7 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<Bitboard, SQ_N> inner_ring = [] {
+		constexpr auto inner_ring = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -189,7 +189,7 @@ namespace Clovis {
 			return arr;
 		}();
 		
-		constexpr std::array<Bitboard, SQ_N> outer_ring = [] {
+		constexpr auto outer_ring = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
@@ -217,7 +217,7 @@ namespace Clovis {
 
 		constexpr Bitboard center_mask = D4 | E4 | D5 | E5;
 		
-		constexpr std::array<Bitboard, SQ_N> source32 = [] {
+		constexpr auto source32 = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
@@ -231,7 +231,7 @@ namespace Clovis {
 			return arr;
 		}();
 		
-		constexpr std::array<Bitboard, SQ_N> source16 = [] {
+		constexpr auto source16 = [] {
 			std::array<Bitboard, SQ_N> arr = source32;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
@@ -245,7 +245,7 @@ namespace Clovis {
 			return arr;
 		}();
 		
-		constexpr std::array<Bitboard, SQ_N> source10 = [] {
+		constexpr auto source10 = [] {
 			std::array<Bitboard, SQ_N> arr = source16;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
