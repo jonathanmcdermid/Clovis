@@ -87,57 +87,6 @@ namespace Clovis {
 			0x28000010020204ULL,   0x6000020202d0240ULL,  0x8918844842082200ULL, 0x4010011029020020ULL, 
 		};
 
-		// generate bishop moves for a given square with bitboard of blocking pieces
-		constexpr Bitboard bishop_otf(Square sq, Bitboard occ) {
-
-			Bitboard attacks = 0ULL;
-
-			for (const auto& dir1 : { NORTH, SOUTH }) {
-				for (const auto& dir2 : { EAST, WEST }) {
-					Square s = sq;
-					while (valid_dir(s, dir1) && valid_dir(s, dir2)) {
-						s += dir1 + dir2;
-						attacks |= s;
-						if (occ & s) break;
-					}
-				}
-			}
-
-			return attacks;
-		}
-
-		// generate rook moves for a given square with bitboard of blocking pieces
-		constexpr Bitboard rook_otf(Square sq, Bitboard occ) {
-
-			Bitboard attacks = 0ULL;
-
-			for (const auto& dir : { NORTH, SOUTH, EAST, WEST }) {
-				Square s = sq;
-				while (valid_dir(s, dir)) {
-					s += dir;
-					attacks |= s;
-					if (occ & s) break;
-				}
-			}
-
-			return attacks;
-		}
-
-		// set occupancies for bits within an attack mask
-		// returns the occupancy bitboard
-		constexpr Bitboard set_occupancy(Bitboard attack_mask, int index, int bits) {
-
-			Bitboard occ = 0ULL;
-
-			for (int i = 0; i < bits; ++i) {
-				Square sq = pop_lsb(attack_mask);
-				if (index & (1 << i))
-					occ |= sq;
-			}
-
-			return occ;
-		}
-
 		constexpr std::array<Bitboard, SQ_N> file_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
@@ -306,33 +255,12 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks = [] {
-			std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N> arr{};
-
-			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-				for (int index = 0; index < (1 << (SQ_N - bishop_rbits[sq])); ++index) {
-					Bitboard occ = set_occupancy(bishop_masks[sq], index, SQ_N - bishop_rbits[sq]);
-					arr[sq][(occ * bishop_magic[sq]) >> bishop_rbits[sq]] = bishop_otf(sq, occ);
-				}
-			}
-
-			return arr;
-		}();
-
-		constexpr std::array<std::array<Bitboard, rook_attack_indices>, SQ_N> rook_attacks = [] {
-			std::array<std::array<Bitboard, rook_attack_indices>, SQ_N> arr{};
-
-			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-				for (int index = 0; index < (1 << (SQ_N - rook_rbits[sq])); ++index) {
-					Bitboard occ = set_occupancy(rook_masks[sq], index, SQ_N - rook_rbits[sq]);
-					arr[sq][(occ * rook_magic[sq]) >> rook_rbits[sq]] = rook_otf(sq, occ);
-				}
-			}
-
-			return arr;
-		}();
+		extern Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
+		extern Bitboard rook_attacks[SQ_N][rook_attack_indices];
 
 		void print_bitboard(const Bitboard& bb);
+
+		void init_bitboards();
 
 		constexpr Bitboard between_squares(Square sq1, Square sq2) { return between_bb[sq1][sq2]; }
 
