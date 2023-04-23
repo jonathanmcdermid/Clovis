@@ -223,9 +223,7 @@ namespace Clovis {
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				int r = sq / 4;
 				int f = sq & 0x3;
-
-				arr[((7 - r) * 8) + f] = sq;
-				arr[((7 - r) * 8) + (7 - f)] = sq;
+				arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r ^ 7)] = sq;
 			}
 
 			return arr;
@@ -237,26 +235,25 @@ namespace Clovis {
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
 				int r = sq / 4;
 				int f = sq & 0x3;
-				
-				arr[56 ^ (((7 - r) * 8) + f)] = sq;
-				arr[56 ^ (((7 - r) * 8) + (7 - f))] = sq;
+				arr[make_square(f, r ^ 7) ^ 56] = arr[make_square(f ^ 7, r ^ 7) ^ 56] = sq;
 			}
 
 			return arr;
 		}();
 		
 		constexpr auto source10 = [] {
-			std::array<Bitboard, SQ_N> arr = source16;
+			std::array<Bitboard, SQ_N> arr{};
+
+			int index = 0;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
 				int r = sq / 4;
 				int f = sq & 0x3;
 
-				if (f >= r) {
-					arr[f * 8 + r] = sq;
-					arr[f * 8 + 7 - r] = sq;
-					arr[(7 - f) * 8 + r] = sq;
-					arr[(7 - f) * 8 + 7 - r] = sq;
+				if (r >= f) {
+					arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] = arr[make_square(f ^ 7, r ^ 7)] = index;
+					arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] = arr[make_square(r ^ 7, f ^ 7)] = index;
+					++index;
 				}
 			}
 
