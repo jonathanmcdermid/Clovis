@@ -215,7 +215,10 @@ namespace Clovis {
 
 		constexpr Bitboard fianchetto_bishop_mask[COLOUR_N] = { B2 | G2, B7 | G7 };
 
-		constexpr Bitboard center_mask = D4 | E4 | D5 | E5;
+		constexpr Bitboard center_mask[COLOUR_N] = {
+			D5 | E5,
+			D4 | E4
+		};
 		
 		constexpr auto source32 = [] {
 			std::array<Bitboard, SQ_N> arr{};

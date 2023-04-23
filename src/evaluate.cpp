@@ -67,7 +67,7 @@ namespace Clovis {
 		
 		template<Colour US>
 		inline bool is_fianchetto(const Position& pos, Square sq) {
-			return fianchetto_bishop_mask[US] & sq && multiple_bits(center_mask & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq));
+			return fianchetto_bishop_mask[US] & sq && center_mask[US] & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq);
 		}
 
 		inline bool is_open_file(const Position& pos, File f) {
