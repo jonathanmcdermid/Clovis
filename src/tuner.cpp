@@ -65,8 +65,8 @@ namespace Clovis {
 			add_param<Score>(rook_semi_open_file_bonus, ROOK_SEMI);
 			add_param<Score>(rook_closed_file_penalty, ROOK_CLOSED);
 			add_param<Score>(tempo_bonus, TEMPO);
-			add_param<Score>(king_full_open_penalty, KING_FULL);
-			add_param<Score>(king_adjacent_full_open_penalty, KING_ADJ_FULL);
+			add_param<Score>(king_open_penalty, KING_FULL);
+			add_param<Score>(king_adjacent_open_penalty, KING_ADJ_FULL);
 			add_param<Score>(knight_outpost_bonus, KNIGHT_OUTPOST);
 			add_param<Score>(bishop_outpost_bonus, BISHOP_OUTPOST);
 			add_param<Score>(weak_queen_penalty, WEAK_QUEEN);

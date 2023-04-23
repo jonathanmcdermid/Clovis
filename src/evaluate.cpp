@@ -15,10 +15,10 @@ namespace Clovis {
 
 			for (auto col : { WHITE, BLACK }) {
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-					for (auto pt : { PAWN, QUEEN })
+					for (auto pt : { PAWN })
 						piece_table[make_piece(pt, col)][sq] = &piecetype_source[pt][source32[relative_square(col, sq)]];
 			
-					for (auto pt : { KNIGHT, BISHOP, ROOK, KING })
+					for (auto pt : { KNIGHT, BISHOP, ROOK, QUEEN, KING })
 						piece_table[make_piece(pt, col)][sq] = &piecetype_source[pt][source16[sq]];
 
 					//for (auto pt : {})
@@ -96,7 +96,7 @@ namespace Clovis {
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
 			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
 			if constexpr (PT == ROOK)   ++T[ROOK_PSQT   + source16[sq]][US];
-			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source32[relative_square(US, sq)]][US];
+			if constexpr (PT == QUEEN)  ++T[QUEEN_PSQT  + source16[sq]][US];
 			if constexpr (PT == KING)   ++T[KING_PSQT   + source16[sq]][US];
 		}
 
@@ -308,10 +308,10 @@ namespace Clovis {
 				
 				if (is_open_file(pos, f)) {
 					if (f == kf) {
-						score -= king_full_open_penalty;
+						score -= king_open_penalty;
 						if constexpr (TRACE) --T[KING_FULL][US];
 					} else {
-						score -= king_adjacent_full_open_penalty;
+						score -= king_adjacent_open_penalty;
 						if constexpr (TRACE) --T[KING_ADJ_FULL][US];
 					}
 				}
