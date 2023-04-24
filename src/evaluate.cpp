@@ -308,11 +308,11 @@ namespace Clovis {
 				
 				if (is_open_file(pos, f)) {
 					if (f == kf) {
-						score -= king_full_open_penalty;
-						if constexpr (TRACE) --T[KING_FULL][US];
+						score -= king_open_penalty;
+						if constexpr (TRACE) --T[KING_OPEN][US];
 					} else {
-						score -= king_adjacent_full_open_penalty;
-						if constexpr (TRACE) --T[KING_ADJ_FULL][US];
+						score -= king_adjacent_open_penalty;
+						if constexpr (TRACE) --T[KING_ADJ_OPEN][US];
 					}
 				}
 			}

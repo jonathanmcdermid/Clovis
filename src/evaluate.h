@@ -99,8 +99,8 @@ namespace Clovis {
 		constexpr Score rook_semi_open_file_bonus = S(0, 0);
 		constexpr Score rook_closed_file_penalty = S(14, 4);
 		constexpr Score tempo_bonus = S(23, 15);
-		constexpr Score king_full_open_penalty = S(33, 10);
-		constexpr Score king_adjacent_full_open_penalty = S(4, 10);
+		constexpr Score king_open_penalty = S(33, 10);
+		constexpr Score king_adjacent_open_penalty = S(4, 10);
 		constexpr Score knight_outpost_bonus = S(37, 11);
 		constexpr Score bishop_outpost_bonus = S(36, 0);
 		constexpr Score weak_queen_penalty = S(31, 5);

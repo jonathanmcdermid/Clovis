@@ -65,8 +65,8 @@ namespace Clovis {
 			add_param<Score>(rook_semi_open_file_bonus, ROOK_SEMI);
 			add_param<Score>(rook_closed_file_penalty, ROOK_CLOSED);
 			add_param<Score>(tempo_bonus, TEMPO);
-			add_param<Score>(king_full_open_penalty, KING_FULL);
-			add_param<Score>(king_adjacent_full_open_penalty, KING_ADJ_FULL);
+			add_param<Score>(king_open_penalty, KING_OPEN);
+			add_param<Score>(king_adjacent_open_penalty, KING_ADJ_OPEN);
 			add_param<Score>(knight_outpost_bonus, KNIGHT_OUTPOST);
 			add_param<Score>(bishop_outpost_bonus, BISHOP_OUTPOST);
 			add_param<Score>(weak_queen_penalty, WEAK_QUEEN);
@@ -212,8 +212,8 @@ namespace Clovis {
 			<< "\t\tconstexpr Score rook_semi_open_file_bonus = "  << Score(params[ROOK_SEMI])         << ";" << endl
 			<< "\t\tconstexpr Score rook_closed_file_penalty = "   << Score(params[ROOK_CLOSED])       << ";" << endl
 			<< "\t\tconstexpr Score tempo_bonus = "                << Score(params[TEMPO])             << ";" << endl
-			<< "\t\tconstexpr Score king_open_penalty = "          << Score(params[KING_FULL])         << ";" << endl
-			<< "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_FULL])     << ";" << endl
+			<< "\t\tconstexpr Score king_open_penalty = "          << Score(params[KING_OPEN])         << ";" << endl
+			<< "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN])     << ";" << endl
 			<< "\t\tconstexpr Score knight_outpost_bonus = "       << Score(params[KNIGHT_OUTPOST])    << ";" << endl
 			<< "\t\tconstexpr Score bishop_outpost_bonus = "       << Score(params[BISHOP_OUTPOST])    << ";" << endl
 			<< "\t\tconstexpr Score weak_queen_penalty = "         << Score(params[WEAK_QUEEN])        << ";" << endl
