@@ -159,12 +159,11 @@ namespace Clovis {
 		}();
 				
 		constexpr auto outpost_pawn_masks = [] {
-			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
+			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr = passed_masks;
 
 			for (Colour c : { WHITE, BLACK })
-				for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-					for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c))
-						arr[c][s1] |= Bitboards::pawn_attacks[c][s2];
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+					arr[c][sq] &= ~Bitboards::file_masks[sq];
 
 			return arr;
 		}();
