@@ -137,12 +137,9 @@ namespace Clovis {
 		constexpr auto isolated_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
 
-			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-				if (file_of(sq) != FILE_A)
-					arr[sq] |= Bitboards::file_masks[sq + WEST];
-				if (file_of(sq) != FILE_H)
-					arr[sq] |= Bitboards::file_masks[sq + EAST];
-			}
+			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+				arr[sq] = (file_of(sq) != FILE_A ? Bitboards::file_masks[sq + WEST] : 0ULL)
+				        | (file_of(sq) != FILE_H ? Bitboards::file_masks[sq + EAST] : 0ULL);
 
 			return arr;
 		}();
@@ -213,10 +210,7 @@ namespace Clovis {
 
 		constexpr Bitboard fianchetto_bishop_mask[COLOUR_N] = { B2 | G2, B7 | G7 };
 
-		constexpr Bitboard center_mask[COLOUR_N] = {
-			D5 | E5,
-			D4 | E4
-		};
+		constexpr Bitboard center_mask[COLOUR_N] = { D5 | E5, D4 | E4 };
 		
 		constexpr auto source32 = [] {
 			std::array<Bitboard, SQ_N> arr{};
