@@ -184,7 +184,7 @@ namespace Clovis {
 							score -= rook_closed_file_penalty;
 							if constexpr (TRACE) --T[ROOK_CLOSED][US];
 						}
-						if (safe_attacks & rook_on_passer_masks[US][sq] & ei.passers[US]) {
+						if (attacks & rook_on_passer_masks[US][sq] & ei.passers[US]) {
 							score += rook_on_our_passer_file;
 							if constexpr (TRACE) ++T[ROOK_OUR_PASSER][US];
 						}
