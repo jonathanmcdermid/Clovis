@@ -96,13 +96,13 @@ namespace Clovis {
 			if (ply >= MAX_PLY)
 				return Eval::evaluate<false>(pos);
 
-			TTEntry* tte = tt.probe(pos.bs->key);
+			TTEntry tte = tt.probe(pos.bs->key);
 
-			if (!PV_NODE && tte->key == pos.bs->key &&
-			(tte->flags == HASH_EXACT 
-			|| (tte->flags == HASH_BETA  && tte->eval >= beta)
-			|| (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
-				return tte->eval;
+			if (!PV_NODE && tte.key == pos.bs->key 
+			&& (tte.flags == HASH_EXACT 
+			|| (tte.flags == HASH_BETA  && tte.eval >= beta)
+			|| (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+				return tte.eval;
 
 			bool in_check = pos.is_king_in_check();
 
@@ -117,8 +117,8 @@ namespace Clovis {
 				// conditions: valid TTE and either 
 				// 1. alpha flag + lower hash score than static eval
 				// 2. beta flag + higher hash score than static eval
-				if (tte->key == pos.bs->key && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
-					eval = tte->eval;
+				if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval)))
+					eval = tte.eval;
 	
 				if (eval >= beta)
 					return beta;
@@ -127,7 +127,7 @@ namespace Clovis {
 					alpha = eval;
 			}
 
-			MovePick::MovePicker mp(pos, 0, MOVE_NONE, (tte->key == pos.bs->key) ? tte->move : MOVE_NONE);
+			MovePick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
 			Move curr_move;
 			Move best_move = MOVE_NONE;
 			int best_eval = INT_MIN;
@@ -180,6 +180,7 @@ namespace Clovis {
 
 		template<NodeType N>
 		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline) {
+			
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
 
@@ -191,7 +192,7 @@ namespace Clovis {
 			}
 
 			if (depth <= 0)
-				return quiescence<PV_NODE ? NODE_PV : NODE_NON_PV>(pos, alpha, beta, nodes, ply, pline);
+				return quiescence<N>(pos, alpha, beta, nodes, ply, pline);
 
 			++nodes;
 
@@ -206,27 +207,22 @@ namespace Clovis {
 			if (alpha >= beta)
 				return alpha;
 
-			TTEntry* tte = tt.probe(pos.bs->key);
-			Move tt_move;
+			TTEntry tte = tt.probe(pos.bs->key);
 
-			if (tte->key == pos.bs->key) {
+			if (tte.key == pos.bs->key) {
 
-				if (PV_NODE && tte->move != MOVE_NONE) {
+				if (PV_NODE && tte.move != MOVE_NONE) {
 					pline.last = pline.moves;
-					*pline.last++ = tte->move;
+					*pline.last++ = tte.move;
 				}
 
 				if (!PV_NODE
-				&& tte->depth >= depth
-				&& (tte->flags == HASH_EXACT
-				|| (tte->flags == HASH_BETA  && tte->eval >= beta)
-				|| (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
-					return tte->eval;
-
-				tt_move = tte->move;
+				&& tte.depth >= depth
+				&& (tte.flags == HASH_EXACT
+				|| (tte.flags == HASH_BETA  && tte.eval >= beta)
+				|| (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+					return tte.eval;
 			}
-			else
-				tt_move = MOVE_NONE;
 
 			bool in_check = pos.is_king_in_check();
 
@@ -234,7 +230,7 @@ namespace Clovis {
 
 			if (!in_check) {
 
-				score = tte->key == pos.bs->key ? tte->eval : Eval::evaluate<false>(pos);
+				score = tte.key == pos.bs->key ? tte.eval : Eval::evaluate<false>(pos);
 
 				// reverse futility pruning
 				// if evaluation is above a certain threshold, we can trust that it will maintain it in the future
@@ -259,25 +255,24 @@ namespace Clovis {
 				}
 
 				// internal iterative deepening
-				if (tte->key != pos.bs->key && depth >= iid_depth[PV_NODE]) {
+				if (tte.key != pos.bs->key && depth >= iid_depth[PV_NODE]) {
 
 					Line line;
 					negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, line);
 					tte = tt.probe(pos.bs->key);
 
-					if (tte->key == pos.bs->key) {
+					if (tte.key == pos.bs->key) {
 						if constexpr (PV_NODE) {
 							pline.last = pline.moves;
-							*pline.last++ = tte->move;
+							*pline.last++ = tte.move;
 						}
-						tt_move = tte->move;
 					}
 				}
 			}
 			else
 				++depth;
 
-			MovePick::MovePicker mp(pos, ply, prev_move, tt_move);
+			MovePick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
 
 			Move curr_move;
 			Move best_move = MOVE_NONE;

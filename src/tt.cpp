@@ -23,16 +23,16 @@ namespace Clovis {
 	}
 
 	// probe the table to see if an entry exists
-	TTEntry* TTable::probe(Key key) {
+	TTEntry TTable::probe(Key key) {
 
 		TTBucket& b = ht[hash_index(key)];
 
 		if (b.e1.key == key)
-			return &b.e1;
+			return b.e1;
 		if (b.e1.depth > 0)
 			--b.e1.depth;
 
-		return &b.e2;
+		return b.e2;
 	}
 
 	void TTable::new_entry(Key key, int depth, int eval, HashFlag flags, Move move) {
