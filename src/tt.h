@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <memory>
 
 #include "types.h"
 
@@ -19,7 +20,7 @@ namespace Clovis {
 		Move move;             // 4 bytes
 	};
 
-	struct Bucket {
+	struct TTBucket {
 		TTEntry e1, e2;
 	};
 	
@@ -39,7 +40,6 @@ namespace Clovis {
 
 	public:
 		TTable();
-		~TTable();
 		void resize(size_t mb);
 		void clear();
 
@@ -51,8 +51,8 @@ namespace Clovis {
 	private:
 		int hash_index(Key key) const;
 		int pawn_hash_index(Key key) const;
-		Bucket* ht;
-		PTEntry* pt;
+		std::unique_ptr<TTBucket[]> ht;
+		std::unique_ptr<PTEntry[]> pt;
 		size_t tt_size;
 	};
 

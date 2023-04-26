@@ -98,7 +98,7 @@ namespace Clovis {
 
 			TTEntry* tte = tt.probe(pos.bs->key);
 
-			if (!PV_NODE && tte &&
+			if (!PV_NODE && tte->key == pos.bs->key &&
 			(tte->flags == HASH_EXACT 
 			|| (tte->flags == HASH_BETA  && tte->eval >= beta)
 			|| (tte->flags == HASH_ALPHA && tte->eval <= alpha)))
@@ -117,7 +117,7 @@ namespace Clovis {
 				// conditions: valid TTE and either 
 				// 1. alpha flag + lower hash score than static eval
 				// 2. beta flag + higher hash score than static eval
-				if (tte && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
+				if (tte->key == pos.bs->key && ((tte->flags == HASH_ALPHA) == (tte->eval < eval)))
 					eval = tte->eval;
 	
 				if (eval >= beta)
@@ -127,7 +127,7 @@ namespace Clovis {
 					alpha = eval;
 			}
 
-			MovePick::MovePicker mp(pos, 0, MOVE_NONE, (tte) ? tte->move : MOVE_NONE);
+			MovePick::MovePicker mp(pos, 0, MOVE_NONE, (tte->key == pos.bs->key) ? tte->move : MOVE_NONE);
 			Move curr_move;
 			Move best_move = MOVE_NONE;
 			int best_eval = INT_MIN;
@@ -209,7 +209,7 @@ namespace Clovis {
 			TTEntry* tte = tt.probe(pos.bs->key);
 			Move tt_move;
 
-			if (tte) {
+			if (tte->key == pos.bs->key) {
 
 				if (PV_NODE && tte->move != MOVE_NONE) {
 					pline.last = pline.moves;
@@ -234,7 +234,7 @@ namespace Clovis {
 
 			if (!in_check) {
 
-				score = tte ? tte->eval : Eval::evaluate<false>(pos);
+				score = tte->key == pos.bs->key ? tte->eval : Eval::evaluate<false>(pos);
 
 				// reverse futility pruning
 				// if evaluation is above a certain threshold, we can trust that it will maintain it in the future
@@ -259,13 +259,13 @@ namespace Clovis {
 				}
 
 				// internal iterative deepening
-				if (!tte && depth >= iid_depth[PV_NODE]) {
+				if (tte->key != pos.bs->key && depth >= iid_depth[PV_NODE]) {
 
 					Line line;
 					negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, line);
 					tte = tt.probe(pos.bs->key);
 
-					if (tte) {
+					if (tte->key == pos.bs->key) {
 						if constexpr (PV_NODE) {
 							pline.last = pline.moves;
 							*pline.last++ = tte->move;
