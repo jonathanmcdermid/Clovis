@@ -226,11 +226,9 @@ namespace Clovis {
 
 			bool in_check = pos.is_king_in_check();
 
-			int score;
-
 			if (!in_check) {
 
-				score = tte.key == pos.bs->key ? tte.eval : Eval::evaluate<false>(pos);
+				int score = tte.key == pos.bs->key ? tte.eval : Eval::evaluate<false>(pos);
 
 				// reverse futility pruning
 				// if evaluation is above a certain threshold, we can trust that it will maintain it in the future
@@ -290,39 +288,42 @@ namespace Clovis {
 				if (!pos.do_move(curr_move))
 					continue;
 
+				int score;
 				Line line;
 				++moves_searched;
 
 				if (pos.is_draw())
 					score = DRAW_SCORE;
-				else if (moves_searched > 1
-				&& depth > lmr_depth
-				&& move_capture(curr_move) == NO_PIECE
-				&& move_promotion_type(curr_move) == NO_PIECE) {
+				else {
+					if (moves_searched > 1
+					&& depth > lmr_depth
+					&& move_capture(curr_move) == NO_PIECE
+					&& move_promotion_type(curr_move) == NO_PIECE) {
 
-					int history_entry = MovePick::get_history_entry(~pos.side, curr_move);
-					// reduction factor
-					int R = lmr_table[depth][min(moves_searched, 63)];
-					// reduce for pv nodes
-					R -= PV_NODE;
-					// reduce for killers
-					R -= MovePick::is_killer(curr_move, ply);
-					// reduce based on history heuristic
-					R -= max(-lmr_history_min, min(lmr_history_max, history_entry / lmr_history_divisor));
+						int history_entry = MovePick::get_history_entry(~pos.side, curr_move);
+						// reduction factor
+						int R = lmr_table[depth][min(moves_searched, 63)];
+						// reduce for pv nodes
+						R -= PV_NODE;
+						// reduce for killers
+						R -= MovePick::is_killer(curr_move, ply);
+						// reduce based on history heuristic
+						R -= max(-lmr_history_min, min(lmr_history_max, history_entry / lmr_history_divisor));
 
-					R = max(0, min(R, depth - lmr_reduction));
+						R = max(0, min(R, depth - lmr_reduction));
 
-					// search current move with reduced depth:
-					score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, line);
+						// search current move with reduced depth:
+						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, line);
 
-					if (R && score > alpha)
+						if (R && score > alpha)
+							score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
+					}
+					else if (!PV_NODE || moves_searched > 1)
 						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
-				}
-				else if (!PV_NODE || moves_searched > 1)
-					score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
                 
-				if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
-					score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
+					if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
+						score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
+				}
 
 				pos.undo_move(curr_move);
 
