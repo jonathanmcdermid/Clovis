@@ -66,7 +66,7 @@ namespace Clovis {
 		constexpr int asp_depth = 3;
 		constexpr int delta = 45;
 
-		bool stop;
+		bool stop = false;
 
 		TimePoint allocated_time;
 
@@ -388,17 +388,16 @@ namespace Clovis {
 		// begin search
 		void start_search(Position& pos, SearchLimits& limits, SearchInfo& info) {
 
-			stop = false;
-			allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
-			tm.set();
-
-			int alpha = - CHECKMATE_SCORE;
-			int beta  =   CHECKMATE_SCORE;
-
 			MoveGen::MoveList ml(pos);
 			ml.remove_illegal(pos);
 
 			if (ml.size() > 1) {
+
+				allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
+				tm.set();
+
+				int alpha = - CHECKMATE_SCORE;
+				int beta  =   CHECKMATE_SCORE;
 
 				MovePick::reset_killers();
 				MovePick::age_history();
@@ -409,8 +408,10 @@ namespace Clovis {
 
 					info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pline);
 
-					if (stop)
+					if (stop) {
+						stop = false;
 						break;
+					}
 
 					if (info.score <= alpha) {
 
@@ -431,11 +432,11 @@ namespace Clovis {
 					auto time = tm.get_time_elapsed();
 
 					cout << "info depth " << setw(2) << depth
-					<< " score cp " << setw(4) << info.score
-					<< " nodes "    << setw(8) << info.nodes
-					<< " time "     << setw(6) << tm.get_time_elapsed()
-					<< " nps "      << setw(8) << 1000ULL * info.nodes / (time + 1)
-					<< " pv ";
+					     << " score cp "  << setw(4) << info.score
+					     << " nodes "     << setw(8) << info.nodes
+					     << " time "      << setw(6) << tm.get_time_elapsed()
+					     << " nps "       << setw(8) << 1000ULL * info.nodes / (time + 1)
+					     << " pv ";
 
 					for (auto& it : info.pline)
 						cout << it << " ";
