@@ -26,13 +26,13 @@ namespace Clovis {
 		};
 		
 		struct TGradient {
-			TGradient() = default;
+			constexpr TGradient() = default;
 
 			double eval{ 0.0 }, safety[COLOUR_N]{ 0.0 };
 		};
 		
 		struct TEntry {
-			TEntry() = default;
+			constexpr TEntry() = default;
 
 			Colour stm{ WHITE };
 			double result{ 0.0 }, phase{ 0.0 };

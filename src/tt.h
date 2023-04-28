@@ -12,7 +12,7 @@ namespace Clovis {
 	constexpr size_t pt_size = 131072;
 
 	struct TTEntry {
-		TTEntry() = default;
+		constexpr TTEntry() = default;
 		TTEntry(U64 k, uint8_t d, uint8_t f, short e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
 
 		Key key{ 0ULL };    // 8 bytes
@@ -28,14 +28,13 @@ namespace Clovis {
 	
 	struct PTEntry {
 
-		constexpr PTEntry() : score(), key(0ULL), pawn_attacks{ 0ULL }, passers{ 0ULL }, 
-			potential_pawn_attacks{ 0ULL }, ksq{ SQ_NONE }, weight{ 0 } {}
+		constexpr PTEntry() = default;
 
 		Score score;
-		Key key;
-		Bitboard pawn_attacks[COLOUR_N], passers[COLOUR_N], potential_pawn_attacks[COLOUR_N];
-		Square ksq[COLOUR_N];
-		short weight[COLOUR_N];
+		Key key{ 0ULL };
+		Bitboard pawn_attacks[COLOUR_N]{ 0ULL }, passers[COLOUR_N]{ 0ULL }, potential_pawn_attacks[COLOUR_N]{ 0ULL };
+		Square ksq[COLOUR_N]{ SQ_NONE };
+		short weight[COLOUR_N]{ 0 };
 	};
 
 	class TTable {
