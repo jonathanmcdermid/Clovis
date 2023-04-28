@@ -12,7 +12,7 @@ namespace Clovis {
 
 	struct ScoredMove {
 		constexpr ScoredMove() = default;
-		void operator=(Move m) { this->move = m; }
+		void operator=(Move m) { move = m; }
 		operator Move() const { return move; }
 
 		Move move{ MOVE_NONE };
@@ -24,7 +24,7 @@ namespace Clovis {
 		template<typename T, MoveType M> T* generate(const Position& pos, T* moves);
 		template<typename T> void print_moves(T* m, T* end);
 
-		struct MoveList {
+		class MoveList {
 		public:
 			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
 			int size() { return last - moves.data(); }

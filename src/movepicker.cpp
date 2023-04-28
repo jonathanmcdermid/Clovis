@@ -6,9 +6,9 @@ namespace Clovis {
 
 	namespace MovePick {
 
-		int history_table[];
-		Move counter_table[];
-		Move killers[];
+		array<int, cft_size> history_table;
+		array<Move, cft_size> counter_table;
+		array<Move, MAX_PLY << 1> killers;
 
 		// return the next ordered move
 		Move MovePicker::get_next(bool play_quiets) {
