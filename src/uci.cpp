@@ -6,16 +6,15 @@ namespace Clovis {
 	
 	namespace UCI {
 
-		const char* version_no = "Clovis III";
-		const char* authors = "Jonathan McDermid";
+		constexpr string_view version_no = "Clovis III";
+		constexpr string_view authors = "Jonathan McDermid";
 
 		// main loop for UCI communication
 		void loop(int argc, char* argv[]) {
 
 			Position pos(START_POS);
 
-			string token;
-			string cmd;
+			string token, cmd;
 
 			for (int i = 0; i < argc; ++i)
 				cmd += string(argv[i]) + " ";
@@ -74,8 +73,7 @@ namespace Clovis {
 			string token;
 
 			while (is >> token) {
-
-				if (token == "wtime")			is >> limits.time[WHITE];
+				if      (token == "wtime")		is >> limits.time[WHITE];
 				else if (token == "btime")		is >> limits.time[BLACK];
 				else if (token == "winc")		is >> limits.inc[WHITE];
 				else if (token == "binc")		is >> limits.inc[BLACK];
@@ -92,10 +90,22 @@ namespace Clovis {
 			Search::start_search(pos, limits, info);
 		}
 
+		// convert string to move if it is legal
+		Move to_move(const MoveGen::MoveList& ml, string& str) {
+
+			if (str.length() == 5)
+				str[4] = char(tolower(str[4]));
+
+			for (const auto& move : ml)
+				if (str == move2str(move))
+					return move;
+
+			return MOVE_NONE;
+		}
+
 		// set position to input description
 		void position(Position& pos, istringstream& is) {
 
-			Move move;
 			string token, fen;
 			is >> token;
 			if (token == "startpos") {
@@ -110,23 +120,15 @@ namespace Clovis {
 
 			pos.set(fen.c_str());
 
-			while (is >> token && (move = to_move(pos, token)) != MOVE_NONE) 
+			MoveGen::MoveList ml(pos);
+			ml.remove_illegal(pos);
+
+			while (is >> token) {
+				Move move = to_move(ml, token);
+				if (move == MOVE_NONE)
+					break;
 				pos.do_move(move);
-
-			pos.print_position();
-		}
-
-		// convert string to move if it is legal
-		Move to_move(const Position& pos, string& str) {
-
-			if (str.length() == 5)
-				str[4] = char(tolower(str[4]));
-
-			for (const auto& move : MoveGen::MoveList(pos))
-				if (str == move2str(move))
-					return move;
-
-			return MOVE_NONE;
+			}
 		}
 
 	} // namespace UCI
