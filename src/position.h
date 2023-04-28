@@ -24,19 +24,16 @@ namespace Clovis {
 
 	// linked list implementation for board state info
 	struct BoardState {
+		constexpr BoardState() = default;
 
-		BoardState() :prev(NULL), captured_piece(NO_PIECE), enpassant(SQ_NONE), key(0ULL), 
-			pkey(0ULL), castle(0), hmc(0), fmc(0), ply_null(0), game_phase(0) {}
-
-		BoardState* prev;
-		Piece captured_piece;
-		Square enpassant;
-		Key key, pkey;
-		int castle, hmc, fmc, ply_null, game_phase;
+		BoardState* prev{ nullptr };
+		Piece captured_piece{ NO_PIECE };
+		Square enpassant{ SQ_NONE };
+		Key key{ 0ULL }, pkey{ 0ULL };
+		int castle{ 0 }, hmc{ 0 }, fmc{ 0 }, ply_null{ 0 }, game_phase{ 0 };
 	};
 
 	struct Position {
-
 		Position(const char* fen) { set(fen); }
 		std::string get_fen() const;
 		void set(const char* fen);
