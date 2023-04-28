@@ -1,5 +1,7 @@
 #include "iq.h"
 
+using namespace std;
+
 namespace Clovis {
 
 	namespace IQ {

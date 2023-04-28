@@ -1,5 +1,7 @@
 #include "benchmark.h"
 
+using namespace std;
+
 namespace Clovis {
 	
 	namespace Bench {

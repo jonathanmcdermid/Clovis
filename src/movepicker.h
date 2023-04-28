@@ -23,7 +23,7 @@ namespace Clovis {
 			std::array<int, MAX_PLY + 1> arr{};
 
 			for (int i = 0; i <= MAX_PLY; ++i)
-				arr[i] = 32 * min(i * i, 400);
+				arr[i] = 32 * std::min(i * i, 400);
 
 			return arr;
 		}();

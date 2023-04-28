@@ -14,8 +14,6 @@
 
 #define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
-using namespace std;
-
 namespace Clovis {
 
 	typedef unsigned int U32;
@@ -39,21 +37,23 @@ namespace Clovis {
 	constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
 	struct Score {
-		constexpr Score() : mg(0), eg(0) {}
+		constexpr Score() = default;
 		constexpr Score(int m, int e) : mg(m), eg(e) {}
 		Score(double* param) : mg((short) round(param[0])), eg((short) round(param[1])) {}
-		void operator+=(const Score& rhs) {
-			this->mg += rhs.mg;
-			this->eg += rhs.eg;
+		Score& operator+=(const Score& rhs) {
+			mg += rhs.mg;
+			eg += rhs.eg;
+			return *this;
 		}
-		void operator-=(const Score& rhs) {
-			this->mg -= rhs.mg;
-			this->eg -= rhs.eg;
+		Score& operator-=(const Score& rhs) {
+			mg -= rhs.mg;
+			eg -= rhs.eg;
+			return *this;
 		}
-		bool operator==(const Score& rhs) {
-			return this->mg == rhs.mg && this->eg == rhs.eg;
+		bool operator==(const Score& rhs) const {
+			return mg == rhs.mg && eg == rhs.eg;
 		}
-		short mg, eg;
+		short mg{ 0 }, eg{ 0 };
 	};
 
 	constexpr Score operator-(Score s)            { return Score(-s.mg, -s.eg); }
@@ -238,7 +238,7 @@ namespace Clovis {
 	}
 
 	constexpr CastleRights qs_castle_rights(Colour c) {
-		return CastleRights(1 << ((c << 1) + 1));
+		return CastleRights(1 << ((c << 1) | 1));
 	}
 
 	constexpr CastleRights castle_rights(Colour c) {
@@ -302,11 +302,11 @@ namespace Clovis {
 	}
 
 	constexpr Square make_square(int f, int r) {
-		return Square((r << 3) + f);
+		return Square((r << 3) | f);
 	}
 
 	constexpr Square make_square(File f, Rank r) {
-		return Square((r << 3) + f);
+		return Square((r << 3) | f);
 	}
 
 	constexpr Square flip_square(Square sq) {
@@ -322,7 +322,7 @@ namespace Clovis {
 	}
 
 	constexpr Piece make_piece(PieceType pt, Colour c) {
-		return Piece((c << 3) + pt);
+		return Piece((c << 3) | pt);
 	}
 
 	constexpr PieceType piece_type(Piece pc) {
@@ -332,7 +332,7 @@ namespace Clovis {
 	constexpr Colour operator~(Colour c) { return Colour(c ^ 1); }
 
 	constexpr int distance_between(Square s1, Square s2) {
-		return max(abs(file_of(s2) - file_of(s1)), abs(rank_of(s2) - rank_of(s1)));
+		return std::max(abs(file_of(s2) - file_of(s1)), abs(rank_of(s2) - rank_of(s1)));
 	}
 
 	constexpr bool king_side_castle(Square to) {
@@ -358,7 +358,7 @@ namespace Clovis {
 			 : false;
 	}
 
-	inline Square str2sq(string s) {
+	inline Square str2sq(std::string s) {
 		assert(s.length() == 2);
 		return make_square(File(s[0] - 'a'), Rank(s[1] - '1'));
 	}
@@ -374,28 +374,28 @@ namespace Clovis {
 		"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", "-"
 	};
 
-	inline string sq2str(Square sq) {
+	inline std::string sq2str(Square sq) {
 		return sq_names[sq];
 	}
 
 	// convert move to string
-	inline string move2str(Move m) {
+	inline std::string move2str(Move m) {
 		return (move_promotion_type(m))
 		? sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + " pnbrqk  pnbrqk"[move_promotion_type(m)]
 		: sq2str(move_from_sq(m)) + sq2str(move_to_sq(m));
 	}
 
-	inline ostream& operator<<(ostream& os, const Square& sq) {
+	inline std::ostream& operator<<(std::ostream& os, const Square& sq) {
 		os << sq2str(sq);
 		return os;
 	}
 
-	inline ostream& operator<<(ostream& os, const Score& s) {
+	inline std::ostream& operator<<(std::ostream& os, const Score& s) {
 		os << "{" << s.mg << ", " << s.eg << "}";
 		return os;
 	}
 
-	inline ostream& operator<<(ostream& os, const Move& m) {
+	inline std::ostream& operator<<(std::ostream& os, const Move& m) {
 		os << move_from_sq(m) << move_to_sq(m); 
 		if (move_promotion_type(m))
 			os << " pnbrqk  pnbrqk"[move_promotion_type(m)];

@@ -17,10 +17,10 @@ namespace Clovis {
 	namespace UCI {
 
 		void loop(int argc, char* argv[]);
-		void set_option(istringstream& is);
-		void go(Position& pos, istringstream& is);
-		void position(Position& pos, istringstream& is);
-		Move to_move(const Position& pos, string& str);
+		void set_option(std::istringstream& is);
+		void go(Position& pos, std::istringstream& is);
+		void position(Position& pos, std::istringstream& is);
+		Move to_move(const Position& pos, std::string& str);
 
 	} // namespace UCI
 	

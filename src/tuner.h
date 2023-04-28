@@ -34,7 +34,7 @@ namespace Clovis {
 			Colour stm;
 			double result, phase;
 			int seval, safety[COLOUR_N], n_att[COLOUR_N];
-			vector<TTuple> tuples;
+			std::vector<TTuple> tuples;
 		};
 
 		void tune_eval();

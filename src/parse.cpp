@@ -1,6 +1,8 @@
 #include "parse.h"
 #include "movepicker.h"
 
+using namespace std;
+
 namespace Clovis {
 
 	namespace Parse {

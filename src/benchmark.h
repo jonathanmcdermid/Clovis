@@ -9,8 +9,8 @@ namespace Clovis {
 	namespace Bench {
 
 		struct BenchMark {
-			BenchMark(string f) : fen(f), time(0LL) {;}
-			string fen;
+			BenchMark(std::string f) : fen(f), time(0LL) {;}
+			std::string fen;
 			TimePoint time;
 			Search::SearchInfo info;
 		};

@@ -12,7 +12,7 @@
 
 namespace Clovis {
 
-	const extern string piece_str;
+	const extern std::string piece_str;
 
 	namespace Zobrist {
 
@@ -38,7 +38,7 @@ namespace Clovis {
 	struct Position {
 
 		Position(const char* fen) { set(fen); }
-		string get_fen() const;
+		std::string get_fen() const;
 		void set(const char* fen);
 		bool see_ge(Move move, int threshold) const;
 		bool do_null_move();
@@ -119,7 +119,7 @@ namespace Clovis {
 	}
 
 	inline int Position::get_game_phase() const {
-		return min(bs->game_phase, MAX_GAMEPHASE);
+		return std::min(bs->game_phase, MAX_GAMEPHASE);
 	}
 
 	inline bool Position::is_king_in_check() const {
