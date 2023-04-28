@@ -10,10 +10,6 @@ namespace Clovis {
 		Move counter_table[];
 		Move killers[];
 
-		inline bool sm_greater(ScoredMove const& lhs, ScoredMove const& rhs) {
-			return lhs.score > rhs.score;
-		}
-
 		// return the next ordered move
 		Move MovePicker::get_next(bool play_quiets) {
 			switch (stage) {
@@ -23,10 +19,11 @@ namespace Clovis {
 					return tt_move;
 				[[fallthrough]];
 			case INIT_CAPTURES:
-				curr = end_bad_caps = moves;
-				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves);
+				curr = last_bad_cap = moves.data();
+				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
 				score_captures();
-				sort(moves, last, sm_greater);
+				sort(moves.data(), last, [](const ScoredMove& lhs, const ScoredMove& rhs) {
+					return lhs.score > rhs.score; });
 				++stage;
 				[[fallthrough]];
 			case WINNING_CAPTURES:
@@ -37,7 +34,7 @@ namespace Clovis {
 					else if (pos.see_ge(*curr, play_quiets ? -100 : 0))
 						return *curr++;
 					else if (play_quiets)
-						*end_bad_caps++ = *curr++;
+						*last_bad_cap++ = *curr++;
 					else
 						++curr;
 				}
@@ -45,10 +42,11 @@ namespace Clovis {
 				[[fallthrough]];
 			case INIT_QUIETS:
 				if (play_quiets) {
-					curr = end_bad_caps;
+					curr = last_bad_cap;
 					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
 					score_quiets();
-					sort(end_bad_caps, last, sm_greater);
+					sort(last_bad_cap, last, [](const ScoredMove& lhs, const ScoredMove& rhs) {
+						return lhs.score > rhs.score; });
 				}
 				++stage;
 				[[fallthrough]];
@@ -59,15 +57,17 @@ namespace Clovis {
 						return *curr++;
 					++curr;
 				}
-				curr = moves;
+				curr = moves.data();
 				++stage;
 				[[fallthrough]];
 			case LOSING_CAPTURES:
-				while (play_quiets && curr < end_bad_caps) {
-					assert(move_capture(*curr));
-					if (*curr != tt_move)
-						return *curr++;
-					++curr;
+				if (play_quiets) {
+					while (curr < last_bad_cap) {
+						assert(move_capture(*curr));
+						if (*curr != tt_move)
+							return *curr++;
+						++curr;
+					}
 				}
 				++stage;
 				[[fallthrough]];
@@ -79,7 +79,7 @@ namespace Clovis {
 		}
 
 		void MovePicker::score_captures() {
-			for (ScoredMove* sm = moves; sm < last; ++sm)
+			for (ScoredMove* sm = moves.data(); sm < last; ++sm)
 				// promotions supercede mvv-lva
 				sm->score = mvv_lva[move_piece_type(*sm)][pos.pc_table[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
 		}
@@ -91,7 +91,7 @@ namespace Clovis {
 
 			Move counter_move = get_counter_entry(pos.side, prev_move);
 
-			for (ScoredMove* sm = end_bad_caps; sm < last; ++sm) {
+			for (ScoredMove* sm = last_bad_cap; sm < last; ++sm) {
 				if (*sm == killers[primary_index])
 					sm->score = 22000;
 				else if (*sm == killers[secondary_index])

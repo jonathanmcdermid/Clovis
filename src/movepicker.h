@@ -103,8 +103,8 @@ namespace Clovis {
 		class MovePicker {
 		public:
 			MovePicker(const Position& p, int pl, Move pm, Move ttm) 
-				: pos(p), ply(pl), stage(TT_MOVE), curr(moves), last(moves), 
-				end_bad_caps(moves), prev_move(pm), tt_move(ttm) {}
+				: pos(p), ply(pl), stage(TT_MOVE), curr(moves.data()), last(moves.data()),
+				last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm) {}
 			Move get_next(bool play_quiets);
 			template<HashFlag HF> void update_history(Move best_move, int depth);
 		private:
@@ -113,7 +113,8 @@ namespace Clovis {
 			const Position& pos;
 
 			int ply, stage;
-			ScoredMove *curr, *last, *end_bad_caps, moves[MAX_MOVES];
+			ScoredMove *curr, *last, *last_bad_cap;
+			std::array<ScoredMove, MAX_MOVES> moves;
 			Move prev_move, tt_move;
 		};
 	
@@ -126,7 +127,7 @@ namespace Clovis {
 
 			update_history_entry(best_move, pos.side, history_bonus[depth]);
 
-			for (ScoredMove* sm = end_bad_caps; sm < last_searched_quiet; ++sm) {
+			for (ScoredMove* sm = last_bad_cap; sm < last_searched_quiet; ++sm) {
 				assert(!move_capture(*sm) || move_promotion_type(*sm));
 				if (*sm != best_move)
 					update_history_entry(*sm, pos.side, -history_bonus[depth]);
