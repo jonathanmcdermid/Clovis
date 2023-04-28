@@ -79,9 +79,9 @@ namespace Clovis {
 		}
 
 		void MovePicker::score_captures() {
-			for (ScoredMove* sm = moves.data(); sm < last; ++sm)
+			for (auto& sm : ranges::subrange(moves.data(), last))
 				// promotions supercede mvv-lva
-				sm->score = mvv_lva[move_piece_type(*sm)][pos.pc_table[move_to_sq(*sm)]] + ((move_promotion_type(*sm) << 6));
+				sm.score = mvv_lva[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] + ((move_promotion_type(sm) << 6));
 		}
 
 		void MovePicker::score_quiets() {
@@ -91,15 +91,15 @@ namespace Clovis {
 
 			Move counter_move = get_counter_entry(pos.side, prev_move);
 
-			for (ScoredMove* sm = last_bad_cap; sm < last; ++sm) {
-				if (*sm == killers[primary_index])
-					sm->score = 22000;
-				else if (*sm == killers[secondary_index])
-					sm->score = 21000;
-				else if (*sm == counter_move)
-					sm->score = 20000;
+			for (auto& sm : ranges::subrange(last_bad_cap, last)) {
+				if (sm == killers[primary_index])
+					sm.score = 22000;
+				else if (sm == killers[secondary_index])
+					sm.score = 21000;
+				else if (sm == counter_move)
+					sm.score = 20000;
 				else
-					sm->score = get_history_entry(pos.side, *sm);
+					sm.score = get_history_entry(pos.side, sm);
 			}
 
 		}

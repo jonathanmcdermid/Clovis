@@ -121,16 +121,14 @@ namespace Clovis {
 		template<HashFlag HF>
 		void MovePicker::update_history(Move best_move, int depth) {
 
-			ScoredMove* last_searched_quiet = HF == HASH_EXACT ? last : curr;
-
 			assert(!move_capture(best_move) || move_promotion_type(best_move));
 
 			update_history_entry(best_move, pos.side, history_bonus[depth]);
 
-			for (ScoredMove* sm = last_bad_cap; sm < last_searched_quiet; ++sm) {
-				assert(!move_capture(*sm) || move_promotion_type(*sm));
-				if (*sm != best_move)
-					update_history_entry(*sm, pos.side, -history_bonus[depth]);
+			for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HASH_EXACT ? last : curr)) {
+				assert(!move_capture(sm) || move_promotion_type(sm));
+				if (sm != best_move)
+					update_history_entry(sm, pos.side, -history_bonus[depth]);
 			}
 		}
 
