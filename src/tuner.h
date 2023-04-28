@@ -21,19 +21,22 @@ namespace Clovis {
 	
 		struct TTuple {
 			TTuple(int i, int wc, int bc) : index(i), coefficient{ wc, bc } {}
+
 			int index, coefficient[COLOUR_N];
 		};
 		
 		struct TGradient {
-			TGradient() : eval(0), safety{ 0.0 } {}
-			double eval, safety[COLOUR_N];
+			TGradient() = default;
+
+			double eval{ 0.0 }, safety[COLOUR_N]{ 0.0 };
 		};
 		
 		struct TEntry {
-			TEntry() : stm(WHITE), result(0.0), phase(0.0), seval(0), safety{ 0 }, n_att{ 0 } {}
-			Colour stm;
-			double result, phase;
-			int seval, safety[COLOUR_N], n_att[COLOUR_N];
+			TEntry() = default;
+
+			Colour stm{ WHITE };
+			double result{ 0.0 }, phase{ 0.0 };
+			int seval{ 0 }, safety[COLOUR_N]{ 0 }, n_att[COLOUR_N]{ 0 };
 			std::vector<TTuple> tuples;
 		};
 
