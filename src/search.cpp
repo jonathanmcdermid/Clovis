@@ -305,10 +305,8 @@ namespace Clovis {
 						R -= PV_NODE;
 						// reduce for killers
 						R -= MovePick::is_killer(curr_move, ply);
-						// reduce based on history heuristic
-						R -= max(-lmr_history_min, min(lmr_history_max, history_entry / lmr_history_divisor));
-
-						R = max(0, min(R, depth - lmr_reduction));
+						// reduce based on history heuristic and lmr reduction
+						R = clamp(R - clamp(history_entry / lmr_history_divisor, -lmr_history_min, lmr_history_max), 0, depth - lmr_reduction);
 
 						// search current move with reduced depth:
 						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, line);

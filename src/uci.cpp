@@ -54,13 +54,8 @@ namespace Clovis {
 			while (is >> token)
 				value = token;
 
-			if (name == "Hash") {
-
-				int mb = stoi(value);
-				mb = max(mb, 1);
-				mb = min(mb, 10000);
-				tt.resize(mb);
-			}
+			if (name == "Hash")
+				tt.resize(clamp(stoi(value), 1, 10000));
 
 			if (name == "Threads")
 				return;
