@@ -48,7 +48,7 @@ namespace Clovis {
 		constexpr int rook_attack_indices = 4096;
 
 		// precalculated magic numbers for generating rook attacks
-		constexpr Bitboard rook_magic[SQ_N] = {
+		constexpr std::array<Bitboard, SQ_N> rook_magic = {
 			0x8a80104000800020ULL, 0x140002000100040ULL,  0x2801880a0017001ULL,  0x100081001000420ULL, 
 			0x200020010080420ULL,  0x3001c0002010008ULL,  0x8480008002000100ULL, 0x2080088004402900ULL, 
 			0x800098204000ULL,     0x2024401000200040ULL, 0x100802000801000ULL,  0x120800800801000ULL, 
@@ -68,7 +68,7 @@ namespace Clovis {
 		};
 
 		// precalculated magic numbers for generating bishop attacks
-		constexpr Bitboard bishop_magic[SQ_N] = {
+		constexpr std::array<Bitboard, SQ_N> bishop_magic = {
 			0x40040844404084ULL,   0x2004208a004208ULL,   0x10190041080202ULL,   0x108060845042010ULL, 
 			0x581104180800210ULL,  0x2112080446200010ULL, 0x1080820820060210ULL, 0x3c0808410220200ULL, 
 			0x4050404440404ULL,    0x21001420088ULL,      0x24d0080801082102ULL, 0x1020a0a020400ULL, 
