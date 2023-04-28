@@ -19,28 +19,31 @@ namespace Clovis {
 
 	namespace Tuner {
 	
-		struct TTuple {
-			TTuple(int i, int wc, int bc) : index(i), coefficient{ wc, bc } {}
+        struct TTuple {
+            constexpr TTuple(int i, int wc, int bc) : index(i), coefficient{ wc, bc } {}
 
-			int index, coefficient[COLOUR_N];
-		};
-		
-		struct TGradient {
-			constexpr TGradient() = default;
+            int index;
+            std::array<int, COLOUR_N> coefficient;
+        };
 
-			double eval{ 0.0 }, safety[COLOUR_N]{ 0.0 };
-		};
-		
-		struct TEntry {
-			TEntry() = default;
+        struct TGradient {
+            constexpr TGradient() = default;
 
-			Colour stm{ WHITE };
-			double result{ 0.0 }, phase{ 0.0 };
-			int seval{ 0 }, safety[COLOUR_N]{ 0 }, n_att[COLOUR_N]{ 0 };
-			std::vector<TTuple> tuples;
-		};
+            double eval{ 0.0 };
+            std::array<double, COLOUR_N> safety{ 0.0 };
+        };
 
-		void tune_eval();
+        struct TEntry {
+            constexpr TEntry() = default;
+
+            Colour stm{ WHITE };
+            double result{ 0.0 }, phase{ 0.0 };
+            int seval{ 0 };
+            std::array<int, COLOUR_N> safety{ 0 }, n_att{ 0 };
+            std::vector<TTuple> tuples;
+        };
+
+        void tune_eval();
 
 	} // namespace Tuner
 
