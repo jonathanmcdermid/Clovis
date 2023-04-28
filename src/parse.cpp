@@ -142,8 +142,9 @@ namespace Clovis {
 										}
 									}
 
-									for (Move* m = info.pline.last - 1; m >= info.pline.moves; --m)
-										pos.undo_move(*m);
+									for_each(make_reverse_iterator(info.pline.last),
+										make_reverse_iterator(info.pline.moves.data()),
+										[&](Move& m) { pos.undo_move(m); });
 								}
 							}
 						}

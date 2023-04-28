@@ -145,9 +145,7 @@ namespace Clovis {
 
 				// fail high
  				if (eval >= beta) {
-
 					tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
-
 					return beta;
 				}
 				if (eval > best_eval) {
@@ -159,7 +157,7 @@ namespace Clovis {
 
 						if constexpr (PV_NODE) {
 
-							pline.last = pline.moves;
+							pline.last = pline.moves.data();
 							*pline.last++ = curr_move;
 
 							for (const auto& m : line)
@@ -212,7 +210,7 @@ namespace Clovis {
 			if (tte.key == pos.bs->key) {
 
 				if (PV_NODE && tte.move != MOVE_NONE) {
-					pline.last = pline.moves;
+					assert(pline.last == pline.moves.data());
 					*pline.last++ = tte.move;
 				}
 
@@ -261,7 +259,7 @@ namespace Clovis {
 
 					if (tte.key == pos.bs->key) {
 						if constexpr (PV_NODE) {
-							pline.last = pline.moves;
+							assert(pline.last == pline.moves.data());
 							*pline.last++ = tte.move;
 						}
 					}
@@ -354,7 +352,7 @@ namespace Clovis {
 
 						if constexpr (PV_NODE) {
 
-							pline.last = pline.moves;
+							pline.last = pline.moves.data();
 							*pline.last++ = curr_move;
 
 							for (const auto& m : line)
@@ -414,7 +412,6 @@ namespace Clovis {
 					}
 
 					if (info.score <= alpha) {
-
 						assert(depth > asp_depth);
 						alpha = -CHECKMATE_SCORE;
 						--depth;
@@ -422,7 +419,6 @@ namespace Clovis {
 					}
                     
 					if (info.score >= beta) {
-
 						assert(depth > asp_depth);
 						beta = CHECKMATE_SCORE;
 						--depth;

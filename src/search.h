@@ -13,26 +13,29 @@ namespace Clovis {
 	namespace Search {
 
 		struct SearchLimits {
-			SearchLimits() : time{ 5000 }, inc{ 0 }, move_time(0), start_time(0), 
-				moves_left(20), depth(0), mate(0), perft(0), infinite(false), nodes(0ULL) {}
-			int time[COLOUR_N], inc[COLOUR_N], move_time, start_time;
-			int moves_left, depth, mate, perft;
-			bool infinite;
-			U64 nodes;
+			constexpr SearchLimits() = default;
+
+			std::array<int, COLOUR_N> time{ {5000, 5000} }, inc{ {0, 0} };
+			int move_time{ 0 }, start_time{ 0 }, moves_left{ 20 }, depth{ 0 }, mate{ 0 }, perft{ 0 };
+			bool infinite{ false };
+			U64 nodes{0};
 		};
 
 		struct Line {
-			Line() : moves{ MOVE_NONE }, last(moves) {}
-			int move_count()    const { return last - moves; }
-			const Move* begin() const { return moves; }
+			constexpr Line() = default;
+			int move_count()    const { return last - moves.data(); }
+			const Move* begin() const { return moves.data(); }
 			const Move* end()   const { return last; }
-			Move moves[MAX_PLY], *last;
+
+			std::array<Move, MAX_PLY> moves;
+			Move* last{ moves.data() };
 		};
 
 		struct SearchInfo {
-			SearchInfo() : score(0), nodes(0ULL) {}
-			int score;
-			U64 nodes;
+			constexpr SearchInfo() = default;
+
+			int score{ 0 };
+			U64 nodes{ 0ULL };
 			Line pline;
 		};
 
