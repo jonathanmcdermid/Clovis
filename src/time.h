@@ -8,12 +8,13 @@ namespace Clovis {
 
 	class TimeManager {
 	public:
-		TimeManager(): start_time(0LL) {}
+		constexpr TimeManager() = default;
+
 		inline void set();
 		inline TimePoint get_time_elapsed();
 		inline TimePoint now();
 	private:
-		TimePoint start_time;
+		TimePoint start_time{ 0LL };
 	};
 
 	inline TimePoint TimeManager::get_time_elapsed() {

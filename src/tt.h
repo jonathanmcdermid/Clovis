@@ -27,7 +27,6 @@ namespace Clovis {
 	};
 	
 	struct PTEntry {
-
 		constexpr PTEntry() = default;
 
 		Score score;
