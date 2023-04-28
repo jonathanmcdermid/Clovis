@@ -5,6 +5,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <optional>
 
 #include "types.h"
 #include "bitboard.h"
@@ -43,17 +44,17 @@ namespace Clovis {
 		bool do_move(Move move);
 		void undo_move(Move move);
 		void print_position() const;
-		void print_bitboards();
-		Key make_key();
-		Key make_pawn_key();
+		void print_bitboards() const;
+		Key make_key() const;
+		Key make_pawn_key() const;
 		void put_piece(Piece pc, Square s);
 		void replace_piece(Piece pc, Square s);
 		void remove_piece(Square s);
-		Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
+		std::optional<Square> get_smallest_attacker(Bitboard attackers, Colour stm) const;
 		bool is_repeat() const;
 
 		template <bool NM> void new_board_state();
-		template <Colour US> Square get_pinner(Square sq) const;
+		template <Colour US> std::optional<Square> get_pinner(Square sq) const;
 		template <Colour US> bool discovery_threat(Square sq) const;
 		template <Colour US> bool is_insufficient() const;
 		template <Colour US> bool is_attacked(Square sq) const;
@@ -67,8 +68,9 @@ namespace Clovis {
 		bool is_draw() const;
 		bool is_material_draw() const;
 
-		Piece pc_table[SQ_N];
-		Bitboard pc_bb[15], occ_bb[COLOUR_N + 1];
+		std::array<Piece, SQ_N> pc_table;
+		std::array<Bitboard, 15> pc_bb;
+		std::array<Bitboard, COLOUR_N + 1> occ_bb;
 		BoardState* bs;
 		Colour side;
 	};
@@ -128,10 +130,10 @@ namespace Clovis {
 
 	inline bool Position::stm_has_promoted() const {
 
-		return bool(pc_bb[make_piece(KNIGHT, side)]
-		          | pc_bb[make_piece(BISHOP, side)]
-		          | pc_bb[make_piece(ROOK,   side)]
-		          | pc_bb[make_piece(QUEEN,  side)]);
+		return pc_bb[make_piece(KNIGHT, side)]
+		     | pc_bb[make_piece(BISHOP, side)]
+		     | pc_bb[make_piece(ROOK,   side)]
+		     | pc_bb[make_piece(QUEEN,  side)];
 	}
 
 	inline bool Position::is_draw_50() const {

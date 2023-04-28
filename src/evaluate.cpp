@@ -131,10 +131,10 @@ namespace Clovis {
 				score += *piece_table[make_piece(PT, US)][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
 
-				Square pinner = pos.get_pinner<US>(sq);
+				auto pinner = pos.get_pinner<US>(sq);
 
-				if (pinner != SQ_NONE)
-					attacks &= Bitboards::between_squares(ei.ksq[US], pinner) | pinner;
+				if (pinner.has_value())
+					attacks &= Bitboards::between_squares(ei.ksq[US], pinner.value()) | pinner.value();
 
 				Bitboard trades = worthy_trades<US, PT>(pos);
 				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);

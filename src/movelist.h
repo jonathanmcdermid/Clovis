@@ -30,7 +30,7 @@ namespace Clovis {
 			int size() { return last - moves.data(); }
 			auto begin() const { return moves.data(); }
 			auto end() const { return last; }
-			void remove_illegal(Position pos) {
+			void remove_illegal(Position& pos) {
 				last = std::remove_if(moves.data(), last, [&pos](const Move& move)
 					{ return pos.do_move(move) ? (void)pos.undo_move(move), false : true; });
 			}
