@@ -391,7 +391,7 @@ namespace Clovis {
 	}
 
 	inline ostream& operator<<(ostream& os, const Score& s) {
-		os << "S(" << s.mg << ", " << s.eg << ")";
+		os << "{" << s.mg << ", " << s.eg << "}";
 		return os;
 	}
 

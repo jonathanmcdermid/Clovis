@@ -1,34 +1,37 @@
 #include "evaluate.h"
 
+using namespace std;
+
 namespace Clovis {
 
 	namespace Eval {
 
-		const Score* piecetype_source[7] = { NULL, pawn_source, knight_source, bishop_source, rook_source, queen_source, king_source };
-		const Score* passed_table[COLOUR_N][SQ_N];
-		const short* shield_table[COLOUR_N][SQ_N];
-		const Score* piece_table[15][SQ_N];
+#include <array>
+
+		constexpr array<const Score*, 7> piecetype_source = 
+		{ nullptr, pawn_source, knight_source, bishop_source, rook_source, queen_source, king_source };
+
+		array<array<const Score*, SQ_N>, COLOUR_N> passed_table{};
+		array<array<const short*, SQ_N>, COLOUR_N> shield_table{};
+		array<array<const Score*, SQ_N>, 15> piece_table{};
 
 		int T[TI_MISC][PHASE_N];
 
 		void init_eval() {
-
 			for (auto col : { WHITE, BLACK }) {
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
 					for (auto pt : { PAWN, QUEEN })
 						piece_table[make_piece(pt, col)][sq] = &piecetype_source[pt][source32[relative_square(col, sq)]];
-			
 					for (auto pt : { KNIGHT, BISHOP, ROOK, KING })
 						piece_table[make_piece(pt, col)][sq] = &piecetype_source[pt][source16[sq]];
-
 					//for (auto pt : {})
-					//	score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
-				
+					//    score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
 					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
 					shield_table[col][sq] = &pawn_shield[source32[relative_square(col, sq)]];
 				}
 			}
 		}
+
 		
 		inline bool is_doubled_pawn(Bitboard bb, Square sq) {
 			return multiple_bits(bb & Bitboards::file_masks[sq]);
@@ -50,8 +53,8 @@ namespace Clovis {
 				return false;
 
 			do {
-				int support = std::popcount(Bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]);
-				int danger  = std::popcount(Bitboards::pawn_attacks[ US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]);
+				int support = popcount(Bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]);
+				int danger  = popcount(Bitboards::pawn_attacks[ US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]);
 				if (danger > support)
 					return false;
 				sq += pawn_push(US);
@@ -82,11 +85,11 @@ namespace Clovis {
 
 			if (or_att_bb || ir_att_bb) {
 
-				ei.weight[US] += inner_ring_attack[PT] * std::popcount(ir_att_bb) + outer_ring_attack[PT] * std::popcount(or_att_bb);
+				ei.weight[US] += inner_ring_attack[PT] * popcount(ir_att_bb) + outer_ring_attack[PT] * popcount(or_att_bb);
 
 				if constexpr (PT != PAWN) ++ei.n_att[US];
-				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += std::popcount(ir_att_bb);
-				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += std::popcount(or_att_bb);
+				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += popcount(ir_att_bb);
+				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcount(or_att_bb);
 			}
 		}
 
@@ -136,13 +139,13 @@ namespace Clovis {
 				Bitboard trades = worthy_trades<US, PT>(pos);
 				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
-				score += quiet_mobility[PT]   * std::popcount(safe_attacks & ~pos.occ_bb[BOTH]);
-				score += capture_mobility[PT] * std::popcount(safe_attacks &  pos.occ_bb[~US]);
+				score += quiet_mobility[PT]   * popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				score += capture_mobility[PT] * popcount(safe_attacks &  pos.occ_bb[~US]);
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
 				if constexpr (TRACE) psqt_trace<US, PT>(sq);
-				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += std::popcount(safe_attacks & ~pos.occ_bb[BOTH]);
-				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += std::popcount(safe_attacks &  pos.occ_bb[~US]);
+				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += popcount(safe_attacks &  pos.occ_bb[~US]);
 				if constexpr (PT == KNIGHT) {
 					if (is_outpost<US>(sq, ei)) {
 						score += knight_outpost_bonus;
@@ -224,7 +227,7 @@ namespace Clovis {
 				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(ei.n_att[US] < 10);
 
-				int mob = std::popcount(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
+				int mob = popcount(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
 
 				if (mob > 4) {
 					ei.weight[US] += virtual_mobility * min(13, mob);
@@ -361,7 +364,7 @@ namespace Clovis {
 			/*
 			int scaling;
 
-			if (game_phase == 2 && std::popcount(pos.pc_bb[W_BISHOP]) == 1 && std::popcount(pos.pc_bb[B_BISHOP]) == 1 
+			if (game_phase == 2 && popcount(pos.pc_bb[W_BISHOP]) == 1 && popcount(pos.pc_bb[B_BISHOP]) == 1 
 				&& bool(pos.pc_bb[W_BISHOP] & light_mask) == bool(pos.pc_bb[B_BISHOP] & dark_mask))
 				scaling = opposite_bishops_scaling;
 			else
