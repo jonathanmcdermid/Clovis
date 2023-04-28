@@ -25,13 +25,17 @@ namespace Clovis {
 
 		struct MoveList {
 		public:
-			MoveList(const Position& pos) : moves{ MOVE_NONE }, last(generate<Move, ALL_MOVES>(pos, moves)) {}
-			int size() const { return (last - moves); }
-			const Move* begin() const { return moves; }
-			const Move* end()   const { return last;  }
-			void remove_illegal(Position pos);
+			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
+			int size() { return last - moves.data(); }
+			auto begin() const { return moves.data(); }
+			auto end() const { return last; }
+			void remove_illegal(Position pos) {
+				last = std::remove_if(moves.data(), last, [&pos](const Move& move)
+					{ return pos.do_move(move) ? (void)pos.undo_move(move), false : true; });
+			}
 		private:
-			Move moves[MAX_MOVES], *last;
+			std::array<Move, MAX_MOVES> moves;
+			Move* last;
 		};
 
 	} // namespace MoveGen
