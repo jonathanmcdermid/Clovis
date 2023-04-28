@@ -32,7 +32,7 @@ namespace Clovis {
 		};
 		
 		struct TEntry {
-			constexpr TEntry() = default;
+			TEntry() = default;
 
 			Colour stm{ WHITE };
 			double result{ 0.0 }, phase{ 0.0 };
