@@ -330,10 +330,9 @@ namespace Clovis {
 	}
 	
 	// executes a null move and updates the position
-	bool Position::do_null_move() {
+	void Position::do_null_move() {
 		new_board_state<true>();
 		side = ~side;
-		return true;
 	}
 
 	// reverts a null move and rolls back the position

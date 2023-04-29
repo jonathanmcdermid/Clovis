@@ -39,7 +39,7 @@ namespace Clovis {
 		std::string get_fen() const;
 		void set(const char* fen);
 		bool see_ge(Move move, int threshold) const;
-		bool do_null_move();
+		void do_null_move();
 		void undo_null_move();
 		bool do_move(Move move);
 		void undo_move(Move move);
