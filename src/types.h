@@ -380,9 +380,7 @@ namespace Clovis {
 
 	// convert move to string
 	inline std::string move2str(Move m) {
-		return (move_promotion_type(m))
-		? sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + " pnbrqk  pnbrqk"[move_promotion_type(m)]
-		: sq2str(move_from_sq(m)) + sq2str(move_to_sq(m));
+		return sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + "\0pnbrqk  pnbrqk"[move_promotion_type(m)];
 	}
 
 	inline std::ostream& operator<<(std::ostream& os, const Square& sq) {
