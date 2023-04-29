@@ -442,13 +442,6 @@ namespace Clovis {
 
 		put_piece(move_piece_type(move), move_from_sq(move));
 
-		if (move_castling(move)) {
-			Square rt, rf;
-			get_castle_rook_squares(tar, rf, rt);
-			remove_piece(rt);
-			put_piece(make_piece(ROOK, side), rf);
-		}
-
 		if (move_capture(move)) {
 			if (move_enpassant(move)) {
 				remove_piece(tar);
@@ -456,9 +449,15 @@ namespace Clovis {
 			}
 			else
 				replace_piece(bs->captured_piece, tar);
-		}
-		else
+		} else {
+			if (move_castling(move)) {
+				Square rt, rf;
+				get_castle_rook_squares(tar, rf, rt);
+				remove_piece(rt);
+				put_piece(make_piece(ROOK, side), rf);
+			}
 			remove_piece(tar);
+		}
 
 		assert(bs->prev);
 		BoardState* temp = bs;
