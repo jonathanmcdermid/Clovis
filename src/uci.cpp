@@ -86,12 +86,12 @@ namespace Clovis {
 		}
 
 		// convert string to move if it is legal
-		Move to_move(const MoveGen::MoveList& ml, string& str) {
+		Move to_move(const Position& pos, string& str) {
 
 			if (str.length() == 5)
 				str[4] = char(tolower(str[4]));
 
-			for (const auto& move : ml)
+			for (const auto& move : MoveGen::MoveList(pos))
 				if (str == move2str(move))
 					return move;
 
@@ -114,12 +114,9 @@ namespace Clovis {
 				return;
 
 			pos.set(fen.c_str());
-
-			MoveGen::MoveList ml(pos);
-			ml.remove_illegal(pos);
-
+			
 			while (is >> token) {
-				Move move = to_move(ml, token);
+				Move move = to_move(pos, token);
 				if (move == MOVE_NONE)
 					break;
 				pos.do_move(move);
