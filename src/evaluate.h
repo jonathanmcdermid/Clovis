@@ -130,6 +130,91 @@ namespace Clovis {
 
 		constexpr short attack_factor = 59;
 		constexpr short virtual_mobility = 14;
+
+		constexpr auto source32 = [] {
+			std::array<Bitboard, SQ_N> arr{};
+
+			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
+				int r = sq / 4;
+				int f = sq & 0x3;
+				arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r ^ 7)] = sq;
+			}
+
+			return arr;
+		}();
+
+		constexpr auto source16 = [] {
+			std::array<Bitboard, SQ_N> arr = source32;
+
+			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
+				int r = sq / 4;
+				int f = sq & 0x3;
+				arr[make_square(f, r ^ 7) ^ 56] = arr[make_square(f ^ 7, r ^ 7) ^ 56] = sq;
+			}
+
+			return arr;
+		}();
+
+		constexpr auto source10 = [] {
+			std::array<Bitboard, SQ_N> arr{};
+
+			int index = 0;
+
+			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
+				int r = sq / 4;
+				int f = sq & 0x3;
+
+				if (r >= f) {
+					arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] = arr[make_square(f ^ 7, r ^ 7)] = index;
+					arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] = arr[make_square(r ^ 7, f ^ 7)] = index;
+					++index;
+				}
+			}
+
+			return arr;
+		}();
+
+		constexpr std::array<const Score*, 7> piecetype_source =
+		{ nullptr, pawn_source, knight_source, bishop_source, rook_source, queen_source, king_source };
+
+		constexpr auto piece_table = [] {
+			std::array<std::array<Score, SQ_N>, 15> arr{};
+
+			for (auto col : { WHITE, BLACK }) {
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
+					for (auto pt : { PAWN, QUEEN })
+						arr[make_piece(pt, col)][sq] = piecetype_source[pt][source32[relative_square(col, sq)]];
+					for (auto pt : { KNIGHT, BISHOP, ROOK, KING })
+						arr[make_piece(pt, col)][sq] = piecetype_source[pt][source16[sq]];
+					//for (auto pt : {})
+					//    arr[make_piece(pt, col)][sq] = piecetype_source[pt][source10[sq]];
+				}
+			}
+
+			return arr;
+		}();
+
+		constexpr auto passed_table = [] {
+			std::array<std::array<Score, SQ_N>, COLOUR_N> arr{};
+
+			for (auto col : { WHITE, BLACK })
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+					arr[col][sq] = passed_pawn[source32[relative_square(col, sq)]];
+
+			return arr;
+		}();
+
+		constexpr auto shield_table = [] {
+			std::array<std::array<short, SQ_N>, COLOUR_N> arr{};
+
+			for (auto col : { WHITE, BLACK })
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+					arr[col][sq] = pawn_shield[source32[relative_square(col, sq)]];
+
+			return arr;
+		}();
+
+		//array<array<const short*, SQ_N>, COLOUR_N> shield_table{};
 		
 		constexpr auto isolated_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
@@ -208,52 +293,7 @@ namespace Clovis {
 		constexpr Bitboard fianchetto_bishop_mask[COLOUR_N] = { B2 | G2, B7 | G7 };
 
 		constexpr Bitboard center_mask[COLOUR_N] = { D5 | E5, D4 | E4 };
-		
-		constexpr auto source32 = [] {
-			std::array<Bitboard, SQ_N> arr{};
 
-			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				int r = sq / 4;
-				int f = sq & 0x3;
-				arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r ^ 7)] = sq;
-			}
-
-			return arr;
-		}();
-		
-		constexpr auto source16 = [] {
-			std::array<Bitboard, SQ_N> arr = source32;
-
-			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
-				int r = sq / 4;
-				int f = sq & 0x3;
-				arr[make_square(f, r ^ 7) ^ 56] = arr[make_square(f ^ 7, r ^ 7) ^ 56] = sq;
-			}
-
-			return arr;
-		}();
-		
-		constexpr auto source10 = [] {
-			std::array<Bitboard, SQ_N> arr{};
-
-			int index = 0;
-
-			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
-				int r = sq / 4;
-				int f = sq & 0x3;
-
-				if (r >= f) {
-					arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] = arr[make_square(f ^ 7, r ^ 7)] = index;
-					arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] = arr[make_square(r ^ 7, f ^ 7)] = index;
-					++index;
-				}
-			}
-
-			return arr;
-		}();
-						
-
-		void init_eval();
 		template<bool TRACE> int evaluate(const Position& pos);
 		
 		extern int T[TI_MISC][PHASE_N];

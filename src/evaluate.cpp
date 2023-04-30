@@ -6,32 +6,7 @@ namespace Clovis {
 
 	namespace Eval {
 
-#include <array>
-
-		constexpr array<const Score*, 7> piecetype_source = 
-		{ nullptr, pawn_source, knight_source, bishop_source, rook_source, queen_source, king_source };
-
-		array<array<const Score*, SQ_N>, COLOUR_N> passed_table{};
-		array<array<const short*, SQ_N>, COLOUR_N> shield_table{};
-		array<array<const Score*, SQ_N>, 15> piece_table{};
-
 		int T[TI_MISC][PHASE_N];
-
-		void init_eval() {
-			for (auto col : { WHITE, BLACK }) {
-				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-					for (auto pt : { PAWN, QUEEN })
-						piece_table[make_piece(pt, col)][sq] = &piecetype_source[pt][source32[relative_square(col, sq)]];
-					for (auto pt : { KNIGHT, BISHOP, ROOK, KING })
-						piece_table[make_piece(pt, col)][sq] = &piecetype_source[pt][source16[sq]];
-					//for (auto pt : {})
-					//    score_table[make_piece(pt, col)][sq] = &piece_table[pt][source10[sq]];
-					passed_table[col][sq] = &passed_pawn[source32[relative_square(col, sq)]];
-					shield_table[col][sq] = &pawn_shield[source32[relative_square(col, sq)]];
-				}
-			}
-		}
-
 		
 		inline bool is_doubled_pawn(Bitboard bb, Square sq) {
 			return multiple_bits(bb & Bitboards::file_masks[sq]);
@@ -128,7 +103,7 @@ namespace Clovis {
 
 			while (bb) {
 				Square sq = pop_lsb(bb);
-				score += *piece_table[make_piece(PT, US)][sq];
+				score += piece_table[make_piece(PT, US)][sq];
 				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
 
 				auto pinner = pos.get_pinner<US>(sq);
@@ -265,7 +240,7 @@ namespace Clovis {
 
 				if constexpr (TRACE) psqt_trace<US, PAWN>(sq);
 
-				score += *piece_table[make_piece(PAWN, US)][sq];
+				score += piece_table[make_piece(PAWN, US)][sq];
 
 				if (is_doubled_pawn(pos.pc_bb[make_piece(PAWN, US)], sq)) {
 					score -= double_pawn_penalty;
@@ -278,7 +253,7 @@ namespace Clovis {
 				if (is_passed_pawn<US>(pos.pc_bb[make_piece(PAWN, ~US)], sq)) {
 					ei.passers[US] |= sq;
 					if (rank_of(sq) != relative_rank(US, RANK_7)) {
-						score += *passed_table[US][sq];
+						score += passed_table[US][sq];
 						if constexpr (TRACE)
 							++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
 					}
@@ -305,7 +280,7 @@ namespace Clovis {
 					//ei.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
 					//if constexpr (TRACE) --T[SAFETY_PAWN_SHIELD + source32[relative_square(US, US == WHITE ? lsb(fp) : msb(fp))]][~US];
 				} else {
-					ei.weight[~US] += *shield_table[0][f];
+					ei.weight[~US] += shield_table[0][f];
 					if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
 				}
 				
@@ -320,7 +295,7 @@ namespace Clovis {
 				}
 			}
 			
-			score += *piece_table[make_piece(KING, US)][ei.ksq[US]];
+			score += piece_table[make_piece(KING, US)][ei.ksq[US]];
 			if constexpr (TRACE) psqt_trace<US, KING>(ei.ksq[US]);
 
 			return score;
