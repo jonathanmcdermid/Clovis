@@ -19,7 +19,7 @@ namespace Clovis {
 	// empty transposition table
 	void TTable::clear() {
 		ht.reset(new TTBucket[tt_size]);
-    		pt.reset(new PTEntry[pt_size]);
+		pt.reset(new PTEntry[pt_size]);
 	}
 
 	// probe the table to see if an entry exists
@@ -36,10 +36,8 @@ namespace Clovis {
 	}
 
 	void TTable::new_entry(Key key, int depth, int eval, HashFlag flags, Move move) {
-		TTBucket& b = ht[hash_index(key)];
-		(b.e1.depth <= depth)
-			? b.e1 = TTEntry(key, depth, flags, eval, move)
-			: b.e2 = TTEntry(key, depth, flags, eval, move);
+		TTBucket& bucket = ht[hash_index(key)];
+		bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
 	}
 
 } // namespace Clovis

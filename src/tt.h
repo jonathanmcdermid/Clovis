@@ -23,6 +23,8 @@ namespace Clovis {
 	};
 
 	struct TTBucket {
+		TTEntry& operator[](bool index) { return index ? e2 : e1; }
+
 		TTEntry e1, e2;
 	};
 	
