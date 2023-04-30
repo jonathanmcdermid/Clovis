@@ -47,10 +47,6 @@ namespace Clovis {
 			return history_table[cft_index(c, m)];
 		}
 
-		inline int* get_history_entry_ptr(Colour c, Move m) {
-			return &history_table[cft_index(c, m)];
-		}
-
 		inline Move get_counter_entry(Colour c, Move m) {
 			return counter_table[cft_index(c, m)];
 		}
@@ -87,9 +83,9 @@ namespace Clovis {
 			}
 		}
 
-		inline void update_history_entry(Move move, Colour side, int bonus) {
-			int* history_entry = get_history_entry_ptr(side, move);
-			*history_entry += bonus - (*history_entry * abs(bonus) >> 14);
+		inline void update_history_entry(Move m, Colour c, int bonus) {
+			int& history_entry = history_table[cft_index(c, m)];
+			history_entry += bonus - (history_entry * abs(bonus) >> 14);
 		}
 
 		inline void update_counter_entry(Colour c, Move prev, Move curr) {
