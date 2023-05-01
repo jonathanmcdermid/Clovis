@@ -29,22 +29,44 @@ namespace Clovis {
 
 	namespace Zobrist {
 
-		void init_zobrist() {
-
-			for (int i = NO_PIECE; i <= B_KING; ++i)
-				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-  					piece_square[i][sq] = Random::random_U64();
-			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-				enpassant[sq] = Random::random_U64();
-			for (int i = 0; i < 16; ++i)
-				castling[i] = Random::random_U64();
-			side = Random::random_U64();
+		constexpr U64 xorshift(U64 state) {
+			state ^= state >> 12; // a
+			state ^= state << 25; // b
+			state ^= state >> 27; // c
+			return state * 0x2545F4914F6CDD1Dull; // d
 		}
 
-		Key piece_square[15][SQ_N];
-		Key enpassant[SQ_N];
-		Key castling[16];
-		Key side;
+		constexpr U64 state = 0xCAFEBABEDEADBEEFull;
+
+		constexpr auto piece_square = [] {
+			std::array<std::array<Key, SQ_N>, 15> arr{};
+			U64 s = state;
+			for (int i = NO_PIECE; i <= B_KING; ++i)
+				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+					arr[i][sq] = xorshift(s++);
+
+			return arr;
+		}();
+
+		constexpr auto enpassant = [] {
+			std::array<Key, SQ_N> arr{};
+			U64 s = state + 64 * 15;
+			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+				arr[sq] = xorshift(s++);
+
+			return arr;
+		}();
+
+		constexpr auto castling = [] {
+			std::array<Key, 16> arr{};
+			U64 s = state + 64 * 15 + 64;
+			for (int i = 0; i < 16; ++i)
+				arr[i] = xorshift(s++);
+
+			return arr;
+		}();
+
+		constexpr Key side = xorshift(state + 64 * 15 + 64 + 16);
 
 	} // namespace Zobrist
 

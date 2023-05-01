@@ -7,7 +7,6 @@
 #include <string>
 #include <array>
 
-#include "random.h"
 #include "types.h"
 
 namespace Clovis {

@@ -9,19 +9,10 @@
 
 #include "types.h"
 #include "bitboard.h"
-#include "random.h"
 
 namespace Clovis {
 
 	const extern std::string piece_str;
-
-	namespace Zobrist {
-
-		void init_zobrist();
-
-		extern Key piece_square[15][SQ_N], enpassant[SQ_N], castling[16], side;
-
-	}
 
 	// linked list implementation for board state info
 	struct BoardState {

@@ -6,7 +6,6 @@
 #include "search.h"
 #include "position.h"
 #include "types.h"
-#include "random.h"
 
 namespace Clovis {
 

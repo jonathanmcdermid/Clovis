@@ -121,8 +121,7 @@ namespace Clovis {
 
 							if (pos.bs->fmc > 8
 							&& token[token.length() - 1] != '#' 
-							&& token[token.length() - 1] != '+'
-							&& Random::random_U64() % 5 == 0) {
+							&& token[token.length() - 1] != '+') {
 								Search::SearchLimits limits;
 								limits.depth = 1;
 								Search::SearchInfo info;
