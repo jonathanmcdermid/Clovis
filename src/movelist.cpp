@@ -121,7 +121,7 @@ namespace Clovis {
 		}
 
 		template<typename T>
-		void print_moves(T* m, T* end) {
+		void print_moves(const T* m, const T* end) {
 			
 			cout << "move\tpiece\tcapture\tdouble\tenpass\tcastle";
 
@@ -161,8 +161,8 @@ namespace Clovis {
 		template ScoredMove* generate<ScoredMove, QUIET_MOVES>(const Position& pos, ScoredMove* moves);
 		template ScoredMove* generate<ScoredMove, CAPTURE_MOVES>(const Position& pos, ScoredMove* moves);
 		template ScoredMove* generate<ScoredMove, ALL_MOVES>(const Position& pos, ScoredMove* moves);
-		template void print_moves<Move>(Move* m, Move* end);
-		template void print_moves<ScoredMove>(ScoredMove* m, ScoredMove* end);
+		template void print_moves<Move>(const Move* m, const Move* end);
+		template void print_moves<ScoredMove>(const ScoredMove* m, const ScoredMove* end);
     
 	} // namespace MoveGen
 

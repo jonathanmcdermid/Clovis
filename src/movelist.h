@@ -22,7 +22,7 @@ namespace Clovis {
 	namespace MoveGen {
 
 		template<typename T, MoveType M> T* generate(const Position& pos, T* moves);
-		template<typename T> void print_moves(T* m, T* end);
+		template<typename T> void print_moves(const T* m, const T* end);
 
 		class MoveList {
 		public:
