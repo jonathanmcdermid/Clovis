@@ -296,7 +296,8 @@ namespace Clovis {
 
 		template<bool TRACE> int evaluate(const Position& pos);
 		
-		extern int T[TI_MISC][PHASE_N];
+		extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
+
 
 	} // namespace Eval
 

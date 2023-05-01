@@ -6,7 +6,7 @@ namespace Clovis {
 
 	namespace Eval {
 
-		int T[TI_MISC][PHASE_N];
+		array<array<int, PHASE_N>, TI_MISC> T;
 		
 		inline bool is_doubled_pawn(Bitboard bb, Square sq) {
 			return multiple_bits(bb & Bitboards::file_masks[sq]);
@@ -315,7 +315,7 @@ namespace Clovis {
 
 			Score score = (us == WHITE) ? tempo_bonus : -tempo_bonus;
 			
-			if constexpr (TRACE) memset(T, 0, sizeof(T));
+			if constexpr (TRACE) memset(T.data(), 0, sizeof(T));
 			if constexpr (TRACE) ++T[TEMPO][us];
 
 			EvalInfo ei(tt.probe_pawn(pos.bs->pkey));

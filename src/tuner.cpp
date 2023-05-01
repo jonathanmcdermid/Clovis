@@ -274,7 +274,7 @@ namespace Clovis {
 				if (line.length()) {
 
 					TEntry entry;
-					memset(Eval::T, 0, sizeof(Eval::T));
+					memset(Eval::T.data(), 0, sizeof(Eval::T));
 					size_t idx = line.find("\"");
 					size_t idx_end = line.find("\"", idx + 1);
 					string res = line.substr(idx + 1, idx_end - idx - 1);
