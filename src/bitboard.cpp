@@ -72,25 +72,19 @@ namespace Clovis {
 			return occ;
 		}
 
-		// populates slider attack tables
-		void init_sliders_attacks() {
+		void init_bitboards() {
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
 				for (int index = 0; index < (1 << popcount(bishop_masks[sq])); ++index) {
 					Bitboard occ = set_occupancy(bishop_masks[sq], index, popcount(bishop_masks[sq]));
 					bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_rbits[sq]] = bishop_otf(sq, occ);
 				}
-				
+
 				for (int index = 0; index < (1 << popcount(rook_masks[sq])); ++index) {
 					Bitboard occ = set_occupancy(rook_masks[sq], index, popcount(rook_masks[sq]));
 					rook_attacks[sq][(occ * rook_magic[sq]) >> rook_rbits[sq]] = rook_otf(sq, occ);
 				}
 			}
-		}
-
-		void init_bitboards() {
-
-			init_sliders_attacks();
 		}
 
 	} // namespace Bitboards

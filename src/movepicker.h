@@ -93,7 +93,7 @@ namespace Clovis {
 		}
 
 		inline bool is_killer(Move m, int ply) {
-			return (m == killers[ply << 1] || m == killers[(ply << 1) + 1]);
+			return m == killers[ply << 1] || m == killers[(ply << 1) + 1];
 		}
 
 		class MovePicker {

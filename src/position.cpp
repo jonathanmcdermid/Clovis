@@ -1,5 +1,4 @@
 #include "position.h"
-#include <unordered_set>
 
 using namespace std;
 
@@ -30,10 +29,10 @@ namespace Clovis {
 	namespace Zobrist {
 
 		constexpr U64 xorshift(U64 state) {
-			state ^= state >> 12; // a
-			state ^= state << 25; // b
-			state ^= state >> 27; // c
-			return state * 0x2545F4914F6CDD1DUll; // d
+			state ^= state >> 12;
+			state ^= state << 25;
+			state ^= state >> 27;
+			return state * 0x2545F4914F6CDD1DUll;
 		}
 
 		constexpr U64 state = 0xB1FACE5ULL;

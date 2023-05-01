@@ -45,7 +45,7 @@ namespace Clovis {
 			limits.time[BLACK] = 100000;
 			int passes = 0, fails = 0;
 			
-			for (auto& it : iq) {
+			for (const auto& it : iq) {
 
 				Position pos(it.fen.c_str());
 				pos.print_position();
@@ -53,7 +53,7 @@ namespace Clovis {
 				Search::start_search(pos, limits, info);
 				bool res = false;
 				
-				for (auto& move : it.moves) {
+				for (const auto& move : it.moves) {
 					if (info.pline.moves[0] == move) {
 						res = true;
 						break;
@@ -65,7 +65,7 @@ namespace Clovis {
 					++passes;
 				} else {
 					cout << "FAIL! best move: ";
-					for (auto& move : it.moves)
+					for (const auto& move : it.moves)
 						cout << move << " ";
 					cout << endl;
 					++fails;
