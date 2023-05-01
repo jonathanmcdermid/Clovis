@@ -40,7 +40,6 @@ namespace Clovis {
 		};
 
 		void start_search(Position& pos, SearchLimits& limits, SearchInfo& params);
-		void init_search();
 		void clear();
 
 	} // namespace Search

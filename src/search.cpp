@@ -70,11 +70,6 @@ namespace Clovis {
 
 		TimePoint allocated_time;
 
-		// initialize starting search conditions
-		void init_search() {
-			clear();
-		}
-
 		// reset transposition table, set search to standard conditions
 		void clear() {
 			MovePick::clear();
