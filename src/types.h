@@ -37,37 +37,6 @@ namespace Clovis {
 	constexpr std::array<int, 15> game_phase_inc = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
 	constexpr std::array<int, 15> piece_value = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
-	struct Score {
-		constexpr Score() = default;
-		constexpr Score(int m, int e) : mg(m), eg(e) {}
-		Score(const std::array<double, 2> param) : mg((short)round(param[0])), eg((short)round(param[1])) {}
-		Score& operator+=(const Score& rhs) {
-			mg += rhs.mg;
-			eg += rhs.eg;
-			return *this;
-		}
-		Score& operator-=(const Score& rhs) {
-			mg -= rhs.mg;
-			eg -= rhs.eg;
-			return *this;
-		}
-		bool operator==(const Score& rhs) const {
-			return mg == rhs.mg && eg == rhs.eg;
-		}
-		short mg{ 0 }, eg{ 0 };
-	};
-
-	constexpr Score operator-(Score s)            { return Score(-s.mg, -s.eg); }
-	constexpr Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
-	constexpr Score operator+(Score s, int i)     { return Score(s.mg + i, s.eg + i); }
-	constexpr Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
-	constexpr Score operator-(Score s, int i)     { return Score(s.mg - i, s.eg - i); }
-	constexpr Score operator*(Score s, int i)     { return Score(s.mg * i, s.eg * i); }
-	constexpr Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
-	constexpr Score operator/(Score s, int i)     { return Score(s.mg / i, s.eg / i); }
-	constexpr Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
-	constexpr Score operator<<(Score s, int i)    { return Score(s.mg << i, s.eg << i); }
-
     /*
     MOVE BIT FORMATTING
 
@@ -159,11 +128,6 @@ namespace Clovis {
 		SQ_N = 64
 	};
 
-	constexpr Square operator+(Square sq, Direction dir) { return Square(int(sq) + int(dir)); }
-	constexpr Square operator-(Square sq, Direction dir) { return Square(int(sq) - int(dir)); }
-	constexpr Square& operator+=(Square& sq, Direction dir) { return sq = sq + dir; }
-	constexpr Square& operator-=(Square& sq, Direction dir) { return sq = sq - dir; }
-
 	enum File : int {
 		FILE_NONE = -1,
 		FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_N
@@ -233,6 +197,42 @@ namespace Clovis {
 		BLACK_QS = 1 << 3,
 		ALL_CASTLING = WHITE_KS | WHITE_QS | BLACK_KS | BLACK_QS,
 	};
+
+	struct Score {
+		constexpr Score() = default;
+		constexpr Score(int m, int e) : mg(m), eg(e) {}
+		Score(const std::array<double, PHASE_N> param) : mg((short)round(param[MG])), eg((short)round(param[EG])) {}
+		Score& operator+=(const Score& rhs) {
+			mg += rhs.mg;
+			eg += rhs.eg;
+			return *this;
+		}
+		Score& operator-=(const Score& rhs) {
+			mg -= rhs.mg;
+			eg -= rhs.eg;
+			return *this;
+		}
+		bool operator==(const Score& rhs) const {
+			return mg == rhs.mg && eg == rhs.eg;
+		}
+		short mg{ 0 }, eg{ 0 };
+	};
+
+	constexpr Score operator-(Score s) { return Score(-s.mg, -s.eg); }
+	constexpr Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+	constexpr Score operator+(Score s, int i) { return Score(s.mg + i, s.eg + i); }
+	constexpr Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+	constexpr Score operator-(Score s, int i) { return Score(s.mg - i, s.eg - i); }
+	constexpr Score operator*(Score s, int i) { return Score(s.mg * i, s.eg * i); }
+	constexpr Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
+	constexpr Score operator/(Score s, int i) { return Score(s.mg / i, s.eg / i); }
+	constexpr Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
+	constexpr Score operator<<(Score s, int i) { return Score(s.mg << i, s.eg << i); }
+
+	constexpr Square operator+(Square sq, Direction dir) { return Square(int(sq) + int(dir)); }
+	constexpr Square operator-(Square sq, Direction dir) { return Square(int(sq) - int(dir)); }
+	constexpr Square& operator+=(Square& sq, Direction dir) { return sq = sq + dir; }
+	constexpr Square& operator-=(Square& sq, Direction dir) { return sq = sq - dir; }
 
 	constexpr CastleRights ks_castle_rights(Colour c) {
 		return CastleRights(1 << (c << 1));
