@@ -4,12 +4,10 @@ using namespace std;
 
 namespace Clovis {
 
-	const extern string piece_str = " PNBRQK  pnbrqk";
-
 #if defined (__GNUC__)
-	const string symbols[] = { "·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚" };
+	constexpr string_view symbols[] = { "·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚" };
 #else
-	const string symbols[] = { ".","P","N","B","R","Q","K","","","p","k","b","r","q","k" };
+	constexpr string_view symbols[] = { ".","P","N","B","R","Q","K","","","p","k","b","r","q","k" };
 #endif
 	
 	constexpr auto castling_rights = [] {
@@ -171,21 +169,21 @@ namespace Clovis {
 
 		istringstream ss(fen);
 		unsigned char token;
-
-		int index;
 		Square sq = A8;
 
 		ss >> noskipws;
 
 		while ((ss >> token) && !isspace(token)) {
+			size_t index;
 			if (isdigit(token))
 				sq = sq + (token - '0') * EAST;
 			else if (token == '/')
 				sq = sq + 2 * SOUTH;
- 			else if ((index = piece_str.find(token)) != -1) {
+			else if (index = piece_str.find(token); index != string::npos) {
+				put_piece(Piece(index), sq);
  				put_piece(Piece(index), sq);
 				bs->game_phase += game_phase_inc[Piece(index)];
-				++sq;
+				sq += EAST;
 			}
 		}
 
@@ -203,9 +201,9 @@ namespace Clovis {
 		ss >> token;
 
 		if (token != '-') {
-			File f = File(token - 'a');
+			auto f = File(token - 'a');
 			ss >> token;
-			Rank r = Rank(token - '1');
+			auto r = Rank(token - '1');
 			bs->enpassant = make_square(f, r);
 		}
 		else bs->enpassant = SQ_NONE;

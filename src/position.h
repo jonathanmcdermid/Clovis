@@ -12,7 +12,7 @@
 
 namespace Clovis {
 
-	const extern std::string piece_str;
+	constexpr std::string_view piece_str = " PNBRQK  pnbrqk";
 
 	// linked list implementation for board state info
 	struct BoardState {
