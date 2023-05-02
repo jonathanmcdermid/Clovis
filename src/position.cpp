@@ -123,7 +123,7 @@ namespace Clovis {
 
 	string Position::get_fen() const {
 
-		string fen;
+		stringstream fen;
 		
 		for (Rank r = RANK_8; r >= RANK_1; --r) {
 			int empty_count = 0;
@@ -133,32 +133,32 @@ namespace Clovis {
 					++empty_count;
 				else {
 					if (empty_count) {
-						fen += to_string(empty_count);
+						fen << empty_count;
 						empty_count = 0;
 					}
-					fen += piece_str[pc_table[sq]];
+					fen << piece_str[pc_table[sq]];
 				}
 			}
 			if (empty_count)
-				fen += to_string(empty_count);
+				fen << empty_count;
 			if (r != RANK_1)
-				fen += '/';
+				fen << '/';
 		}
 
-		fen += (side == WHITE) ? " w " : " b " ;
+		fen << (side == WHITE) ? " w " : " b " ;
 
 		if (bs->castle == NO_CASTLING)
-			fen += '-';
+			fen << '-';
 		else {
-			if (bs->castle & WHITE_KS) fen += "K";
-			if (bs->castle & WHITE_QS) fen += "Q";
-			if (bs->castle & BLACK_KS) fen += "k";
-			if (bs->castle & BLACK_QS) fen += "q";
+			if (bs->castle & WHITE_KS) fen << "K";
+			if (bs->castle & WHITE_QS) fen << "Q";
+			if (bs->castle & BLACK_KS) fen << "k";
+			if (bs->castle & BLACK_QS) fen << "q";
 		}
 
-		fen += " " + (bs->enpassant == SQ_NONE ? "-" : sq2str(bs->enpassant)) + " " + to_string(bs->hmc) + " " + to_string(bs->fmc);
+		fen << " " + (bs->enpassant == SQ_NONE ? "-" : sq2str(bs->enpassant)) << " " << to_string(bs->hmc) << " " << to_string(bs->fmc);
 		
-		return fen;
+		return fen.str();
 	}
 
 	// sets position to the state specified by FEN string
