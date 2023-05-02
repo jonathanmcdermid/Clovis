@@ -15,7 +15,7 @@ namespace Clovis {
 			constexpr EvalInfo() = default;
 			EvalInfo(const PTEntry& pte) : PTEntry(pte) {}
 
-			int n_att[COLOUR_N]{ 0,0 };
+			std::array<int, COLOUR_N> n_att{ 0,0 };
 		};
 
 		constexpr Score pawn_source[] = {
