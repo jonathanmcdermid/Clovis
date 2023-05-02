@@ -10,37 +10,31 @@ namespace Clovis {
 
 			vector<BenchMark> bm;
 
-			string file_name = "src/bench.csv";
-			ifstream ifs;
-			ifs.open(file_name.c_str(), ifstream::in);
+			ifstream ifs("src/bench.csv");
+
 			string line;
 
-			while (true) {
-				if (ifs.eof())
-					break;
-
-				getline(ifs, line);
-				
+			while (getline(ifs, line)) {
 				if (line.length()) {
-					size_t idx = line.find("\"");
-					size_t idx_end = line.find("\"", idx + 1);
-					bm.push_back(BenchMark(line.substr(idx + 1, idx_end - idx - 1)));				
+					const size_t idx = line.find("\"");
+					const size_t idx_end = line.find("\"", idx + 1);
+					bm.push_back(BenchMark(line.substr(idx + 1, idx_end - idx - 1)));
 				}
 			}
 
 			ifs.close();
-
-			U64 total_nodes = 0ULL;
-			TimePoint total_time = 0ULL;
 		
-			int depth = argc > 2 ? atoi(argv[2]) : DEFAULT_BENCH_DEPTH;
-			int mb    = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
+			const int depth = argc > 2 ? atoi(argv[2]) : DEFAULT_BENCH_DEPTH;
+			const int mb    = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
 
 			tt.resize(mb);
 			
 			Search::SearchLimits limits;
 
 			limits.depth = depth;
+
+			U64 total_nodes = 0ULL;
+			TimePoint total_time = 0ULL;
 
 			for (auto& it : bm) {
 				tm.set();
@@ -51,8 +45,8 @@ namespace Clovis {
 				total_time += it.time;
 				Search::clear();
 			}
-		
-			for (auto& it : bm) {
+			
+			for (const auto& it : bm) {
 				cout << "score cp: " << setw(4) << it.info.score
 				     << " best: "    << setw(4) << it.info.pline.moves[0] 
 				     << " ponder: "  << setw(4) << it.info.pline.moves[1]
