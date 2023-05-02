@@ -40,7 +40,7 @@ namespace Clovis {
 			} while (token != "quit" && argc == 1);
 		}
 
-		void set_option(std::istringstream& is) {
+		void set_option(istringstream& is) {
 
 			// format for option setting is setoption name X value Y
 			string token, name, value;
@@ -62,7 +62,7 @@ namespace Clovis {
 		}
 
 		// begin search
-		void go(Position& pos, std::istringstream& is) {
+		void go(Position& pos, stringstream& is) {
 
 			Search::SearchLimits limits;
 			string token;

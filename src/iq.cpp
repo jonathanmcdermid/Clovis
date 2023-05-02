@@ -9,20 +9,12 @@ namespace Clovis {
 		void iq_test() {
 
 			vector<IQPosition> iq;
-			string file_name = "src/iqtest.epd";
-			ifstream ifs;
-			ifs.open(file_name.c_str(), ifstream::in);
+			ifstream ifs("src/iqtest.epd");
 			string line, token;
 
-			while (true) {
-
-				if (ifs.eof())
-					break;
-				
-				getline(ifs, line);
+			while (getline(ifs, line)) {
 				
 				if (line.length()) {
-
 					size_t idx = line.find(",");
 					size_t idx_end = line.find(",", idx + 1);
 					string fen = line.substr(0, idx);

@@ -64,14 +64,8 @@ namespace Clovis {
 
 		void generate_dataset() {
 
-			string i_file_name = "src/games.pgn";
-			string o_file_name = "src/tuner.epd";
-
-			ifstream ifs;
-			ofstream ofs;
-
-			ifs.open(i_file_name.c_str(), ifstream::in);
-			ofs.open(o_file_name.c_str(), ofstream::out);
+			ifstream ifs("src/games.pgn");
+			ofstream ofs("src/tuner.epd");
 
 			string line, result, fen;
 			

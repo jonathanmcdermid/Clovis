@@ -30,17 +30,10 @@ namespace Clovis {
 
 			vector<PerftPosition> pp;
 
-			string file_name = "src/perft.epd";
-			ifstream ifs;
-			ifs.open(file_name.c_str(), ifstream::in);
+			ifstream ifs("src/perft.epd");
 			string line, token;
 
-			while (true) {
-
-				if (ifs.eof())
-					break;
-
-				getline(ifs, line);
+			while (getline(ifs, line)) {
 
 				if (line.length()) {
 					size_t idx = line.find(",");

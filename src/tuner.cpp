@@ -259,18 +259,14 @@ namespace Clovis {
 		
 		void tune_eval() {
 
-			TVector adagrad = {0};
 			init_params();
 			
-			string file_name = "src/tuner.epd";
-			ifstream ifs;
-			ifs.open(file_name.c_str(), ifstream::in);
+			TVector adagrad = {0};
+			ifstream ifs("src/tuner.epd");
 			string line;
 
-			while (!ifs.eof()) {
+			while (getline(ifs, line)) {
 
-				getline(ifs, line);
-				
 				if (line.length()) {
 
 					TEntry entry;
