@@ -254,8 +254,8 @@ namespace Clovis {
 			return arr;
 		}();
 
-		extern Bitboard bishop_attacks[SQ_N][bishop_attack_indices];
-		extern Bitboard rook_attacks[SQ_N][rook_attack_indices];
+		extern std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N>  bishop_attacks;
+		extern std::array<std::array<Bitboard, rook_attack_indices>, SQ_N> rook_attacks;
 
 		void print_bitboard(const Bitboard& bb);
 		void init_bitboards();
