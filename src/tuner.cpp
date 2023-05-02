@@ -5,9 +5,9 @@ using namespace std;
 namespace Clovis {
 
 	namespace Tuner {
-	
-		typedef double TVector[TI_MISC][PHASE_N];
 
+		typedef array<array<double, PHASE_N>, TI_MISC> TVector;
+		
 		vector<TEntry> entries;
 		TVector params;
 
@@ -89,10 +89,10 @@ namespace Clovis {
 		
 		double linear_eval(const TEntry* entry, TGradient* tg) {
 
-			double normal[PHASE_N];
+			array<double, PHASE_N> normal;
 			double safety = 0.0;
-			double mg[EVALTYPE_N][COLOUR_N] = {0};
-			double eg[EVALTYPE_N][COLOUR_N] = {0};
+			array<array<double, COLOUR_N>, EVALTYPE_N> mg = {0};
+			array<array<double, COLOUR_N>, EVALTYPE_N> eg = {0};
 			
 			for (auto& it : entry->tuples) {
 

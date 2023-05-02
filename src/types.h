@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <array>
 
 #define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -33,13 +34,13 @@ namespace Clovis {
 	constexpr int DEFAULT_BENCH_DEPTH = 13;
 	constexpr int DEFAULT_BENCH_THREADS = 1;
 
-	constexpr int game_phase_inc[15] = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
-	constexpr int piece_value[15] = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
+	constexpr std::array<int, 15> game_phase_inc = { 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
+	constexpr std::array<int, 15> piece_value = { 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
 
 	struct Score {
 		constexpr Score() = default;
 		constexpr Score(int m, int e) : mg(m), eg(e) {}
-		Score(double* param) : mg((short) round(param[0])), eg((short) round(param[1])) {}
+		Score(const std::array<double, 2> param) : mg((short)round(param[0])), eg((short)round(param[1])) {}
 		Score& operator+=(const Score& rhs) {
 			mg += rhs.mg;
 			eg += rhs.eg;
