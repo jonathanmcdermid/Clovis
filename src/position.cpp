@@ -198,7 +198,6 @@ namespace Clovis {
 			else if (token == 'Q') bs->castle |= WHITE_QS;
 			else if (token == 'k') bs->castle |= BLACK_KS;
 			else if (token == 'q') bs->castle |= BLACK_QS;
-			else continue;
 		}
 
 		ss >> token;

@@ -267,41 +267,40 @@ namespace Clovis {
 
 			while (getline(ifs, line)) {
 
-				if (line.length()) {
+				if (line.empty()) continue;
 
-					TEntry entry;
-					memset(Eval::T.data(), 0, sizeof(Eval::T));
-					size_t idx = line.find("\"");
-					size_t idx_end = line.find("\"", idx + 1);
-					string res = line.substr(idx + 1, idx_end - idx - 1);
+				TEntry entry;
+				memset(Eval::T.data(), 0, sizeof(Eval::T));
+				size_t idx = line.find("\"");
+				size_t idx_end = line.find("\"", idx + 1);
+				string res = line.substr(idx + 1, idx_end - idx - 1);
 
-					if (res == "1-0")
-						entry.result = 1.0;
-					else if (res == "0-1")
-						entry.result = 0.0;
-					else if (res == "1/2-1/2")
-						entry.result = 0.5;
-					else exit(EXIT_FAILURE);
-					
-					Position pos(line.substr(0, idx).c_str());
-					
-					entry.phase = pos.get_game_phase();
-					
-					entry.seval = Eval::evaluate<true>(pos);
-					if (pos.side == BLACK) entry.seval = -entry.seval;
-					
-					entry.stm = pos.side;
+				if (res == "1-0")
+					entry.result = 1.0;
+				else if (res == "0-1")
+					entry.result = 0.0;
+				else if (res == "1/2-1/2")
+					entry.result = 0.5;
+				else exit(EXIT_FAILURE);
 
-					entry.n_att[WHITE] = Eval::T[SAFETY_N_ATT][WHITE];
-					entry.n_att[BLACK] = Eval::T[SAFETY_N_ATT][BLACK];
-					
-					for (int j = 0; j < TI_N; ++j)
-						if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
-							|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
-							entry.tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
+				Position pos(line.substr(0, idx).c_str());
 
-					entries.push_back(entry);
-				}
+				entry.phase = pos.get_game_phase();
+
+				entry.seval = Eval::evaluate<true>(pos);
+				if (pos.side == BLACK) entry.seval = -entry.seval;
+
+				entry.stm = pos.side;
+
+				entry.n_att[WHITE] = Eval::T[SAFETY_N_ATT][WHITE];
+				entry.n_att[BLACK] = Eval::T[SAFETY_N_ATT][BLACK];
+
+				for (int j = 0; j < TI_N; ++j)
+					if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
+						|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
+						entry.tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
+
+				entries.push_back(entry);
 			}
 
 			ifs.close();

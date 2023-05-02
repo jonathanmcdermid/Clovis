@@ -130,8 +130,7 @@ namespace Clovis {
 			while ((curr_move = mp.get_next(in_check)) != MOVE_NONE) {
 
 				// illegal move or non capture
-				if (!pos.do_move(curr_move))
-					continue;
+				if (!pos.do_move(curr_move)) continue;
 
 				Line line;
 				eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1, line);
@@ -278,8 +277,7 @@ namespace Clovis {
 
 			while ((curr_move = mp.get_next(play_quiets)) != MOVE_NONE) {
 				// illegal move
-				if (!pos.do_move(curr_move))
-					continue;
+				if (!pos.do_move(curr_move)) continue;
 
 				int score;
 				Line line;

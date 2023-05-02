@@ -13,14 +13,8 @@ namespace Clovis {
 				return;
 			}
 
-			//MovePick::MovePicker mp(pos, 0, MOVE_NONE, MOVE_NONE);
-
-			//Move m;
-
 			for (const auto& m : MoveGen::MoveList(pos)) {
-			//while ((m = mp.get_next(true)) != MOVE_NONE) {
-				if (!pos.do_move(m))
-					continue;
+				if (pos.do_move(m)) continue;
 				perft(pos, depth - 1, nodes);
 				pos.undo_move(m);
 			}
@@ -29,37 +23,34 @@ namespace Clovis {
 		void perft_control() {
 
 			vector<PerftPosition> pp;
-
 			ifstream ifs("src/perft.epd");
 			string line, token;
 
 			while (getline(ifs, line)) {
 
-				if (line.length()) {
-					size_t idx = line.find(",");
-					string fen = line.substr(0, idx);
+				if (line.empty()) continue;
 
-					istringstream is(line.substr(idx + 1).c_str());
-					int depth = 1;
-					vector<U64> nv;
+				size_t idx = line.find(",");
+				string fen = line.substr(0, idx);
+				istringstream is(line.substr(idx + 1).c_str());
+				int depth = 1;
+				vector<U64> nv;
 
-					while (is >> token) {
+				while (is >> token) {
 
-						assert(token.length() == 2);
-						assert(token[1] - '0' == depth);
-						is >> token;
-						nv.push_back(U64(stoull(token)));
-						++depth;
-					}
-
-					pp.push_back(PerftPosition(fen, nv));
+					assert(token.length() == 2);
+					assert(token[1] - '0' == depth);
+					is >> token;
+					nv.push_back(U64(stoull(token)));
+					++depth;
 				}
+
+				pp.push_back(PerftPosition(fen, nv));
 			}
 
 			ifs.close();
 
 			U64 nodes;
-
 			bool failed = false;
 
 			for (auto& it : pp) {
@@ -84,12 +75,7 @@ namespace Clovis {
 				}
 			}
 
-			cout << "Perft tests complete!" << endl;
-
-			if(failed)
-				cout << "Some tests failed..." << endl;
-			else
-				cout << "All tests passed!" << endl;
+			cout << "Done!" << endl << (failed ? "Some tests failed." : "All tests passed!") << endl;
 		}
 
 	} // namespace Perft

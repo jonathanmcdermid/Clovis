@@ -62,7 +62,7 @@ namespace Clovis {
 		}
 
 		// begin search
-		void go(Position& pos, stringstream& is) {
+		void go(Position& pos, istringstream& is) {
 
 			Search::SearchLimits limits;
 			string token;

@@ -15,11 +15,10 @@ namespace Clovis {
 			string line;
 
 			while (getline(ifs, line)) {
-				if (line.length()) {
-					const size_t idx = line.find("\"");
-					const size_t idx_end = line.find("\"", idx + 1);
-					bm.push_back(BenchMark(line.substr(idx + 1, idx_end - idx - 1)));
-				}
+				if (line.empty()) continue;
+				const size_t idx = line.find("\"");
+				const size_t idx_end = line.find("\"", idx + 1);
+				bm.push_back(BenchMark(line.substr(idx + 1, idx_end - idx - 1)));
 			}
 
 			ifs.close();
