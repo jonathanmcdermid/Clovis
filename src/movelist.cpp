@@ -54,8 +54,7 @@ namespace Clovis {
 
 			while (bb) {
 
-				Square src = pop_lsb(bb);
-				Square tar = src + pawn_push(US);
+				Square src = pop_lsb(bb), tar = src + pawn_push(US);
 
 				if (rank_of(src) == relative_rank(US, RANK_7)) {
 
@@ -147,8 +146,7 @@ namespace Clovis {
 
 				cout << endl;
 
-				++m;
-				++count;
+				++m, ++count;
 			}
 
 			cout << "Total move count:" << count << endl;

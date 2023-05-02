@@ -8,7 +8,7 @@ namespace Clovis {
 
 		array<int, cft_size> history_table;
 		array<Move, cft_size> counter_table;
-		array<Move, MAX_PLY << 1> killers;
+		array<KEntry, MAX_PLY> killer_table;
 
 		// return the next ordered move
 		Move MovePicker::get_next(bool play_quiets) {
@@ -86,22 +86,14 @@ namespace Clovis {
 
 		void MovePicker::score_quiets() {
 
-			size_t primary_index = ply << 1;
-			size_t secondary_index = primary_index + 1;
-
-			Move counter_move = get_counter_entry(pos.side, prev_move);
+			auto counter = get_counter_entry(pos.side, prev_move);
 
 			for (auto& sm : ranges::subrange(last_bad_cap, last)) {
-				if (sm == killers[primary_index])
-					sm.score = 22000;
-				else if (sm == killers[secondary_index])
-					sm.score = 21000;
-				else if (sm == counter_move)
-					sm.score = 20000;
-				else
-					sm.score = get_history_entry(pos.side, sm);
+				if      (sm == killer_table[ply].primary)   sm.score = 22000;
+				else if (sm == killer_table[ply].secondary) sm.score = 21000;
+				else if (sm == counter)                sm.score = 20000;
+				else sm.score = get_history_entry(pos.side, sm);
 			}
-
 		}
 
 	} // namespace MovePick

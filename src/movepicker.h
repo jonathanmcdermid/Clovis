@@ -15,9 +15,13 @@ namespace Clovis {
 		// colour * from square * to square table size
 		constexpr size_t cft_size = COLOUR_N * SQ_N * SQ_N;
 
+		struct KEntry {
+			Move primary{ MOVE_NONE }, secondary{ MOVE_NONE };
+		};
+
 		extern std::array<int, cft_size> history_table;
 		extern std::array<Move, cft_size> counter_table;
-		extern std::array<Move, MAX_PLY << 1> killers;
+		extern std::array<KEntry, MAX_PLY> killer_table;
 
 		constexpr auto history_bonus = [] {
 			std::array<int, MAX_PLY + 1> arr{};
@@ -43,11 +47,11 @@ namespace Clovis {
 			return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m);
 		}
 
-		inline int get_history_entry(Colour c, Move m) {
+		inline int& get_history_entry(Colour c, Move m) {
 			return history_table[cft_index(c, m)];
 		}
 
-		inline Move get_counter_entry(Colour c, Move m) {
+		inline Move& get_counter_entry(Colour c, Move m) {
 			return counter_table[cft_index(c, m)];
 		}
 
@@ -61,7 +65,7 @@ namespace Clovis {
 		}
 
 		inline void reset_killers() {
-			killers.fill(MOVE_NONE);
+			killer_table.fill({ MOVE_NONE, MOVE_NONE });
 		}
 
 		inline void reset_history() {
@@ -75,11 +79,9 @@ namespace Clovis {
 		}
 
 		inline void update_killers(Move m, int ply) {
-			Move& k0 = killers[ply << 1];
-			Move& k1 = killers[(ply << 1) + 1];
-			if (k0 != m) {
-				k1 = k0;
-				k0 = m;
+			if (killer_table[ply].primary != m) {
+				killer_table[ply].secondary = killer_table[ply].primary;
+				killer_table[ply].primary = m;
 			}
 		}
 
@@ -93,7 +95,7 @@ namespace Clovis {
 		}
 
 		inline bool is_killer(Move m, int ply) {
-			return m == killers[ply << 1] || m == killers[(ply << 1) + 1];
+			return m == killer_table[ply].primary || m == killer_table[ply].secondary;
 		}
 
 		class MovePicker {

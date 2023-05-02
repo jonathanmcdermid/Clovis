@@ -162,7 +162,8 @@ namespace Clovis {
 		template<NodeType N>
 		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline) {
 			
-			constexpr bool ROOT_NODE = N == NODE_ROOT, PV_NODE = N != NODE_NON_PV;
+			constexpr bool ROOT_NODE = N == NODE_ROOT;
+			constexpr bool PV_NODE   = N != NODE_NON_PV;
 
 			assert(PV_NODE || (alpha == beta - 1));
 
