@@ -136,24 +136,24 @@ namespace Clovis {
 						fen << empty_count;
 						empty_count = 0;
 					}
-					fen << piece_str[pc_table[sq]];
+					fen.put(piece_str[pc_table[sq]]);
 				}
 			}
 			if (empty_count)
 				fen << empty_count;
 			if (r != RANK_1)
-				fen << '/';
+				fen.put('/');
 		}
 
-		fen << (side == WHITE) ? " w " : " b " ;
+		fen << ((side == WHITE) ? " w " : " b ");
 
 		if (bs->castle == NO_CASTLING)
-			fen << '-';
+			fen.put('-');
 		else {
-			if (bs->castle & WHITE_KS) fen << "K";
-			if (bs->castle & WHITE_QS) fen << "Q";
-			if (bs->castle & BLACK_KS) fen << "k";
-			if (bs->castle & BLACK_QS) fen << "q";
+			if (bs->castle & WHITE_KS) fen.put('K');
+			if (bs->castle & WHITE_QS) fen.put('Q');
+			if (bs->castle & BLACK_KS) fen.put('k');
+			if (bs->castle & BLACK_QS) fen.put('q');
 		}
 
 		fen << " " + (bs->enpassant == SQ_NONE ? "-" : sq2str(bs->enpassant)) << " " << to_string(bs->hmc) << " " << to_string(bs->fmc);
@@ -442,14 +442,10 @@ namespace Clovis {
 		}
 
 		// move gen doesnt check for suicidal king, so we check here
-		if (is_king_in_check()) {
-			side = ~side;
-			undo_move(move);
-			return false;
-		}
-
+		bool valid = !is_king_in_check();
 		side = ~side;
-		return true;
+		if (!valid) undo_move(move);
+		return valid;
 	}
 
 	// reverts a move and rolls back the position
