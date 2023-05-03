@@ -13,12 +13,12 @@ namespace Clovis {
 		// return the next ordered move
 		Move MovePicker::get_next(bool play_quiets) {
 			switch (stage) {
-			case TT_MOVE:
+			case Stage::TT_MOVE:
 				++stage;
 				if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move)))
 					return tt_move;
 				[[fallthrough]];
-			case INIT_CAPTURES:
+			case Stage::INIT_CAPTURES:
 				curr = last_bad_cap = moves.data();
 				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
 				score_captures();
@@ -26,7 +26,7 @@ namespace Clovis {
 					return lhs.score > rhs.score; });
 				++stage;
 				[[fallthrough]];
-			case WINNING_CAPTURES:
+			case Stage::WINNING_CAPTURES:
 				while (curr < last) {
 					assert(move_capture(*curr) || piece_type(move_promotion_type(*curr)) == QUEEN);
 					if (curr->move == tt_move)
@@ -40,7 +40,7 @@ namespace Clovis {
 				}
 				++stage;
 				[[fallthrough]];
-			case INIT_QUIETS:
+			case Stage::INIT_QUIETS:
 				if (play_quiets) {
 					curr = last_bad_cap;
 					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
@@ -50,7 +50,7 @@ namespace Clovis {
 				}
 				++stage;
 				[[fallthrough]];
-			case QUIETS:
+			case Stage::QUIETS:
 				while (play_quiets && curr < last) {
 					assert(!move_capture(*curr) || piece_type(move_promotion_type(*curr)) != QUEEN);
 					if (*curr != tt_move)
@@ -60,7 +60,7 @@ namespace Clovis {
 				curr = moves.data();
 				++stage;
 				[[fallthrough]];
-			case LOSING_CAPTURES:
+			case Stage::LOSING_CAPTURES:
 				if (play_quiets) {
 					while (curr < last_bad_cap) {
 						assert(move_capture(*curr));
