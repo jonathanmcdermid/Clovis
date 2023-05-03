@@ -13,7 +13,6 @@ namespace Clovis {
 		void loop(int argc, char* argv[]) {
 
 			Position pos(START_POS);
-
 			string token, cmd;
 
 			for (int i = 0; i < argc; ++i)
@@ -102,6 +101,7 @@ namespace Clovis {
 		void position(Position& pos, istringstream& is) {
 
 			string token, fen;
+
 			is >> token;
 			if (token == "startpos") {
 				fen = START_POS;

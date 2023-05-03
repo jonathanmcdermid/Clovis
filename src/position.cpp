@@ -250,12 +250,8 @@ namespace Clovis {
 			return true;
 
 		int gain[32], d = 0;
-
-		Square from = move_from_sq(move);
-		Square to = move_to_sq(move);
-		Bitboard occ = occ_bb[BOTH];
-		Bitboard attackers = attackers_to(to);
-
+		Square from = move_from_sq(move), to = move_to_sq(move);
+		Bitboard occ = occ_bb[BOTH], attackers = attackers_to(to);
 		Colour stm = side;
 
 		gain[d] = piece_value[pc_table[to]];
@@ -366,8 +362,7 @@ namespace Clovis {
 	bool Position::do_move(Move move) {
 		new_board_state<false>();
 		
-		Square src = move_from_sq(move);
-		Square tar = move_to_sq(move);
+		Square src = move_from_sq(move), tar = move_to_sq(move);
 		Piece piece = move_piece_type(move);
 
 		assert(get_side(move_piece_type(move)) == side);

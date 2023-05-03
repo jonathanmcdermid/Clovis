@@ -50,7 +50,6 @@ namespace Clovis {
 
 			ifs.close();
 
-			U64 nodes;
 			bool failed = false;
 
 			for (auto& it : pp) {
@@ -61,7 +60,7 @@ namespace Clovis {
 
 				for (size_t depth = 1; depth - 1 < it.nodes.size(); ++depth) {
 
-					nodes = 0;
+					U64 nodes = 0;
 					perft(pos, depth, nodes);
 
 					if (nodes != it.nodes[depth - 1])
