@@ -38,7 +38,8 @@ namespace Clovis {
 
 	template<Direction D>
 	constexpr Bitboard shift(Bitboard bb) {
-		return D >= 0 ? bb << D : bb >> -D;
+		if constexpr (D >= 0) return bb << D;
+		else return bb >> -D;
 	}
 
 	namespace Bitboards {

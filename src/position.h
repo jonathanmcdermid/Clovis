@@ -139,5 +139,4 @@ namespace Clovis {
 		return is_insufficient<WHITE>() && is_insufficient<BLACK>();
 	}
 
-
 } // namespace Clovis

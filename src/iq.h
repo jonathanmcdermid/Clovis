@@ -10,7 +10,6 @@ namespace Clovis {
 	namespace IQ {
 
 		struct IQPosition {
-			IQPosition(std::string f, std::vector<Move> m) : fen(f), moves(m) {;}
 			std::string fen;
 			std::vector<Move> moves;
 		};

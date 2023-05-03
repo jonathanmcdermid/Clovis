@@ -30,7 +30,7 @@ namespace Clovis {
 			limits.depth = depth;
 
 			U64 total_nodes = 0ULL;
-			long long total_time = 0LL;
+			Duration total_time = 0LL;
 
 			for (auto& it : bm) {
 				auto start_time = chrono::steady_clock::now();

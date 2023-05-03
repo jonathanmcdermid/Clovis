@@ -45,7 +45,7 @@ namespace Clovis {
 					++depth;
 				}
 
-				pp.push_back(PerftPosition(fen, nv));
+				pp.push_back({ fen, nv });
 			}
 
 			ifs.close();

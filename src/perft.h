@@ -17,7 +17,6 @@ namespace Clovis {
     namespace Perft {
 
 		struct PerftPosition {
-			PerftPosition(std::string s, std::vector<U64> n) : fen(s), nodes(n) {}
 			std::string fen;
 			std::vector<U64> nodes;
 		};

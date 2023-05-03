@@ -135,8 +135,7 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				int r = sq / 4;
-				int f = sq & 0x3;
+				int r = sq / 4, f = sq & 0x3;
 				arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r ^ 7)] = sq;
 			}
 
@@ -147,8 +146,7 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr = source32;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
-				int r = sq / 4;
-				int f = sq & 0x3;
+				int r = sq / 4, f = sq & 0x3;
 				arr[make_square(f, r ^ 7) ^ 56] = arr[make_square(f ^ 7, r ^ 7) ^ 56] = sq;
 			}
 
@@ -161,9 +159,7 @@ namespace Clovis {
 			int index = 0;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
-				int r = sq / 4;
-				int f = sq & 0x3;
-
+				int r = sq / 4, f = sq & 0x3;
 				if (r >= f) {
 					arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] = arr[make_square(f ^ 7, r ^ 7)] = index;
 					arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] = arr[make_square(r ^ 7, f ^ 7)] = index;
@@ -213,8 +209,6 @@ namespace Clovis {
 
 			return arr;
 		}();
-
-		//array<array<const short*, SQ_N>, COLOUR_N> shield_table{};
 		
 		constexpr auto isolated_masks = [] {
 			std::array<Bitboard, SQ_N> arr{};
@@ -297,7 +291,6 @@ namespace Clovis {
 		template<bool TRACE> int evaluate(const Position& pos);
 		
 		extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
-
 
 	} // namespace Eval
 
