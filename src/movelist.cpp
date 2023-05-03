@@ -11,8 +11,8 @@ namespace Clovis {
 
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
-			Bitboard tar_bb = M == MoveType::ALL   ? ~pos.occ_bb[US]
-				        : M == MoveType::QUIET ? ~pos.occ_bb[BOTH]
+			Bitboard tar_bb = M == ALL_MOVES   ? ~pos.occ_bb[US] 
+				        : M == QUIET_MOVES ? ~pos.occ_bb[BOTH]
 					                   :  pos.occ_bb[~US];
 
 			while (bb) {
@@ -22,7 +22,7 @@ namespace Clovis {
 
 				while (att) {
 					Square tar = pop_lsb(att);
-					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == MoveType::QUIET ? 0 : pos.occ_bb[BOTH] & tar, 0, 0, 0);
+					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? 0 : pos.occ_bb[BOTH] & tar, 0, 0, 0);
 				}
 			}
 
@@ -32,9 +32,9 @@ namespace Clovis {
 		template<typename T, MoveType M, Colour US, bool TC>
 		T* generate_promotions(T* moves, Square src, Square tar) {
 
-			if constexpr (M != MoveType::QUIET)
+			if constexpr (M != QUIET_MOVES)
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN,  US), TC, 0, 0, 0);
-			if constexpr (M != MoveType::CAPTURE) {
+			if constexpr (M != CAPTURE_MOVES) {
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, 0, 0, 0);
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(BISHOP, US), TC, 0, 0, 0);
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(ROOK,   US), TC, 0, 0, 0);
@@ -47,8 +47,8 @@ namespace Clovis {
 		template<typename T, MoveType M, Colour US>
 		T* generate_all(const Position& pos, T* moves) {
 
-			constexpr bool CAPTURES = M != MoveType::QUIET;
-			constexpr bool QUIETS	= M != MoveType::CAPTURE;
+			constexpr bool CAPTURES = M != QUIET_MOVES;
+			constexpr bool QUIETS	= M != CAPTURE_MOVES;
 			
 			Bitboard bb = pos.pc_bb[make_piece(PAWN, US)];
 
@@ -153,12 +153,12 @@ namespace Clovis {
 		}
 		
 		// explicit template instantiations
-		template Move* generate<Move, MoveType::QUIET>(const Position& pos, Move* moves);
-		template Move* generate<Move, MoveType::CAPTURE>(const Position& pos, Move* moves);
-		template Move* generate<Move, MoveType::ALL>(const Position& pos, Move* moves);
-		template ScoredMove* generate<ScoredMove, MoveType::QUIET>(const Position& pos, ScoredMove* moves);
-		template ScoredMove* generate<ScoredMove, MoveType::CAPTURE>(const Position& pos, ScoredMove* moves);
-		template ScoredMove* generate<ScoredMove, MoveType::ALL>(const Position& pos, ScoredMove* moves);
+		template Move* generate<Move, QUIET_MOVES>(const Position& pos, Move* moves);
+		template Move* generate<Move, CAPTURE_MOVES>(const Position& pos, Move* moves);
+		template Move* generate<Move, ALL_MOVES>(const Position& pos, Move* moves);
+		template ScoredMove* generate<ScoredMove, QUIET_MOVES>(const Position& pos, ScoredMove* moves);
+		template ScoredMove* generate<ScoredMove, CAPTURE_MOVES>(const Position& pos, ScoredMove* moves);
+		template ScoredMove* generate<ScoredMove, ALL_MOVES>(const Position& pos, ScoredMove* moves);
 		template void print_moves<Move>(const Move* m, const Move* end);
 		template void print_moves<ScoredMove>(const ScoredMove* m, const ScoredMove* end);
     

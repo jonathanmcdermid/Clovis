@@ -20,7 +20,7 @@ namespace Clovis {
 				[[fallthrough]];
 			case Stage::INIT_CAPTURES:
 				curr = last_bad_cap = moves.data();
-				last = MoveGen::generate<ScoredMove, MoveType::CAPTURE>(pos, moves.data());
+				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
 				score_captures();
 				sort(moves.data(), last, [](const ScoredMove& lhs, const ScoredMove& rhs) {
 					return lhs.score > rhs.score; });
@@ -43,7 +43,7 @@ namespace Clovis {
 			case Stage::INIT_QUIETS:
 				if (play_quiets) {
 					curr = last_bad_cap;
-					last = MoveGen::generate<ScoredMove, MoveType::QUIET>(pos, curr);
+					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
 					score_quiets();
 					sort(last_bad_cap, last, [](const ScoredMove& lhs, const ScoredMove& rhs) {
 						return lhs.score > rhs.score; });
