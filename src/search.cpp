@@ -77,10 +77,10 @@ namespace Clovis {
 			tt.clear();
 		}
  
-		template<Node N>
+		template<NodeType N>
 		int quiescence(Position& pos, int alpha, int beta, U64& nodes, int ply, Line& pline) {
 
-			constexpr bool PV_NODE = N != Node::NON_PV;
+			constexpr bool PV_NODE = N != NODE_NON_PV;
 
 			assert(PV_NODE || (alpha == beta - 1));
 
@@ -160,11 +160,11 @@ namespace Clovis {
 			return alpha;
 		}
 
-		template<Node N>
+		template<NodeType N>
 		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline) {
 			
-			constexpr bool ROOT_NODE = N == Node::ROOT;
-			constexpr bool PV_NODE   = N != Node::NON_PV;
+			constexpr bool ROOT_NODE = N == NODE_ROOT;
+			constexpr bool PV_NODE   = N != NODE_NON_PV;
 
 			assert(PV_NODE || (alpha == beta - 1));
 
@@ -225,7 +225,7 @@ namespace Clovis {
 
 					pos.do_null_move();
 					Line line;
-					score = -negamax<Node::NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, line);
+					score = -negamax<NODE_NON_PV>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, true, MOVE_NULL, nodes, line);
 					pos.undo_null_move();
 
 					if (score >= beta)
@@ -282,16 +282,16 @@ namespace Clovis {
 						// reduce based on history heuristic and lmr reduction
 						R = clamp(R - clamp(history_entry / lmr_history_divisor, -lmr_history_min, lmr_history_max), 0, depth - lmr_reduction);
 						// search current move with reduced depth:
-						score = -negamax<Node::NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, line);
+						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, line);
 						// if search does not fail low, we search again without reduction
 						if (R && score > alpha)
-							score = -negamax<Node::NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
+							score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
 					}
 					else if (!PV_NODE || moves_searched > 1)
-						score = -negamax<Node::NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
+						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
 					// full PV search if all options are exhausted
 					if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
-						score = -negamax<Node::PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
+						score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
 				}
 
 				pos.undo_move(curr_move);
@@ -365,7 +365,7 @@ namespace Clovis {
 
 				for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth) {
 
-					info.score = negamax<Node::ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pline);
+					info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pline);
 
 					if (stop) {
 						stop = false;
