@@ -6,9 +6,9 @@ namespace Clovis {
 	
 	namespace Bench {
 		
-		long long benchmark(int argc, char* argv[]) {
+		void benchmark(int argc, char* argv[]) {
 
-			vector<BenchMark> bm;
+			vector<string> bm;
 			ifstream ifs("src/bench.csv");
 			string line;
 
@@ -16,7 +16,7 @@ namespace Clovis {
 				if (line.empty()) continue;
 				const size_t idx = line.find("\"");
 				const size_t idx_end = line.find("\"", idx + 1);
-				bm.push_back(BenchMark(line.substr(idx + 1, idx_end - idx - 1)));
+				bm.push_back(line.substr(idx + 1, idx_end - idx - 1));
 			}
 
 			ifs.close();
@@ -34,28 +34,18 @@ namespace Clovis {
 
 			for (auto& it : bm) {
 				auto start_time = chrono::steady_clock::now();
-				Position pos(it.fen.c_str());
-				Search::start_search(pos, limits, it.info);
-				it.time = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
-				total_nodes += it.info.nodes;
-				total_time += it.time;
+				Position pos(it.c_str());
+				Search::SearchInfo info;
+				Search::start_search(pos, limits, info);
+				total_time += chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
+				total_nodes += info.nodes;
 				Search::clear();
-			}
-			
-			for (const auto& it : bm) {
-				cout << "score cp: " << setw(4) << it.info.score
-				     << " best: "    << setw(4) << it.info.pline.moves[0] 
-				     << " ponder: "  << setw(4) << it.info.pline.moves[1]
-				     << " nodes: "   << setw(7) << it.info.nodes
-				     << " nps: "     << setw(6) << 1000ULL * it.info.nodes / (it.time + 1) << endl;
 			}
 
 			cout << "bench: " << total_nodes 
 			     << " nps: "  << 1000ULL * total_nodes / (total_time + 1) 
 			     << " time: " << total_time 
 			     << " ms"     << endl;
-
-			return total_time;
 		}
 
 	} // namespace Bench
