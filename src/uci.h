@@ -5,7 +5,6 @@
 #include <string>
 #include <sstream>
 #include <cassert>
-#include <optional>
 
 #include "search.h"
 #include "position.h"
@@ -18,9 +17,6 @@ namespace Clovis {
 	namespace UCI {
 
 		void loop(int argc, char* argv[]);
-		void set_option(std::istringstream& is);
-		void go(Position& pos, std::istringstream& is);
-		void position(Position& pos, std::istringstream& is);
 
 	} // namespace UCI
 	

@@ -9,36 +9,6 @@ namespace Clovis {
 		constexpr string_view version_no = "Clovis III";
 		constexpr string_view authors = "Jonathan McDermid";
 
-		// main loop for UCI communication
-		void loop(int argc, char* argv[]) {
-
-			Position pos(START_POS);
-			string token, cmd;
-
-			for (int i = 0; i < argc; ++i)
-				cmd += string(argv[i]) + " ";
-
-			do {
-				if (argc == 1 && !getline(cin, cmd))
-					cmd = "quit";
-				istringstream is(cmd);
-				token.clear();
-				is >> skipws >> token;
-				if (token == "quit" || token == "stop")	break;
-				else if (token == "uci")
-					cout << "id name " << version_no << endl
-					<< "option name Hash type spin default 16 min 1 max 10000" << endl
-					<< "option name Threads type spin default 1 min 1 max 1" << endl
-					<< "id author " << authors << endl
-					<< "uciok" << endl;
-				else if (token == "go")         go(pos, is);
-				else if (token == "position")   position(pos, is);
-				else if (token == "ucinewgame") Search::clear();
-				else if (token == "isready")    cout << "readyok" << endl;
-				else if (token == "setoption")	set_option(is);
-			} while (token != "quit" && argc == 1);
-		}
-
 		void set_option(istringstream& is) {
 
 			// format for option setting is setoption name X value Y
@@ -121,6 +91,36 @@ namespace Clovis {
 					break;
 				pos.do_move(move);
 			}
+		}
+
+		// main loop for UCI communication
+		void loop(int argc, char* argv[]) {
+
+			Position pos(START_POS);
+			string token, cmd;
+
+			for (int i = 0; i < argc; ++i)
+				cmd += string(argv[i]) + " ";
+
+			do {
+				if (argc == 1 && !getline(cin, cmd))
+					cmd = "quit";
+				istringstream is(cmd);
+				token.clear();
+				is >> skipws >> token;
+				if (token == "quit" || token == "stop")	break;
+				else if (token == "uci")
+					cout << "id name " << version_no << endl
+					<< "option name Hash type spin default 16 min 1 max 10000" << endl
+					<< "option name Threads type spin default 1 min 1 max 1" << endl
+					<< "id author " << authors << endl
+					<< "uciok" << endl;
+				else if (token == "go")         go(pos, is);
+				else if (token == "position")   position(pos, is);
+				else if (token == "ucinewgame") Search::clear();
+				else if (token == "isready")    cout << "readyok" << endl;
+				else if (token == "setoption")	set_option(is);
+			} while (token != "quit" && argc == 1);
 		}
 
 	} // namespace UCI
