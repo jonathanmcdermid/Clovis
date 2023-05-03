@@ -168,7 +168,7 @@ namespace Clovis {
 
 			assert(PV_NODE || (alpha == beta - 1));
 
-			if (nodes & 2047 && (chrono::steady_clock::now() - start_time).count() > allocated_time) {
+			if (nodes & 2047 && chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() > allocated_time) {
 				stop = true;
 				return 0;
 			}
