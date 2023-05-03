@@ -23,6 +23,8 @@ namespace Clovis {
 	typedef U64 Key;
 	typedef U64 Bitboard;
 
+	typedef long long Duration;
+
 	constexpr int MAX_SCALING = 32;
 	constexpr int MAX_GAMEPHASE = 24;
 	constexpr int MAX_PLY = 64;

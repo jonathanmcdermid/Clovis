@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <array>
+#include <random>
 
 #include "types.h"
 

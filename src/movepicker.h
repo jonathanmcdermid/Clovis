@@ -123,7 +123,7 @@ namespace Clovis {
 
 			update_history_entry(best_move, pos.side, history_bonus[depth]);
 
-			for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HashFlag::EXACT ? last : curr)) {
+			for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HASH_EXACT ? last : curr)) {
 				assert(!move_capture(sm) || move_promotion_type(sm));
 				if (sm != best_move)
 					update_history_entry(sm, pos.side, -history_bonus[depth]);

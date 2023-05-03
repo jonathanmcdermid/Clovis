@@ -69,7 +69,7 @@ namespace Clovis {
 		bool stop = false;
 
 		chrono::steady_clock::time_point start_time;
-		long long allocated_time;
+		Duration allocated_time;
 
 		// reset transposition table, set search to standard conditions
 		void clear() {
