@@ -14,7 +14,7 @@ namespace Clovis {
 			}
 
 			for (const auto& m : MoveGen::MoveList(pos)) {
-				if (pos.do_move(m)) continue;
+				if (!pos.do_move(m)) continue;
 				perft_helper(pos, depth - 1, nodes);
 				pos.undo_move(m);
 			}
