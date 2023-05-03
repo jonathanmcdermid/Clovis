@@ -74,8 +74,8 @@ namespace Clovis {
 		B_PAWN = PAWN + 8, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
 	};
 
-	enum MoveType : int {
-		QUIET_MOVES, CAPTURE_MOVES, ALL_MOVES
+	enum class MoveType : int {
+		QUIET, CAPTURE, ALL
 	};
 
 	enum class Stage : int {

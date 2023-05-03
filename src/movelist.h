@@ -26,7 +26,7 @@ namespace Clovis {
 
 		class MoveList {
 		public:
-			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
+			MoveList(const Position& pos) : last(generate<Move, MoveType::ALL>(pos, moves.data())) {}
 			int size() { return last - moves.data(); }
 			auto begin() const { return moves.data(); }
 			auto end() const { return last; }
