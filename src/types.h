@@ -23,6 +23,8 @@ namespace Clovis {
 	typedef U64 Key;
 	typedef U64 Bitboard;
 
+	typedef long long Duration;
+
 	constexpr int MAX_SCALING = 32;
 	constexpr int MAX_GAMEPHASE = 24;
 	constexpr int MAX_PLY = 64;
@@ -91,11 +93,11 @@ namespace Clovis {
 		PHASE_N = 2
 	};
 
-	enum HashFlag : uint8_t {
-		HASH_NONE,
-		HASH_ALPHA,
-		HASH_BETA,
-		HASH_EXACT,
+	enum class HashFlag : uint8_t {
+		NONE,
+		ALPHA,
+		BETA,
+		EXACT,
 	};
 
 	enum NodeType : int {
@@ -184,7 +186,7 @@ namespace Clovis {
 		TI_MISC
 	};
 	
-	enum  EvalType : int {
+	enum EvalType : int {
 		NORMAL, 
 		SAFETY, EVALTYPE_N
 	};

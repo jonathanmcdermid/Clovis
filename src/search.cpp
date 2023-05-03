@@ -69,7 +69,7 @@ namespace Clovis {
 		bool stop = false;
 
 		chrono::steady_clock::time_point start_time;
-		long long allocated_time;
+		Duration allocated_time;
 
 		// reset transposition table, set search to standard conditions
 		void clear() {
@@ -94,9 +94,9 @@ namespace Clovis {
 			TTEntry tte = tt.probe(pos.bs->key);
 
 			if (!PV_NODE && tte.key == pos.bs->key 
-			&& (tte.flags == HASH_EXACT 
-			|| (tte.flags == HASH_BETA  && tte.eval >= beta)
-			|| (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+			&& (tte.flags == HashFlag::EXACT 
+			|| (tte.flags == HashFlag::BETA  && tte.eval >= beta)
+			|| (tte.flags == HashFlag::ALPHA && tte.eval <= alpha)))
 				return tte.eval;
 
 			bool in_check = pos.is_king_in_check();
@@ -110,7 +110,7 @@ namespace Clovis {
 				// conditions: valid TTE and either 
 				// 1. alpha flag + lower hash score than static eval
 				// 2. beta flag + higher hash score than static eval
-				if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval)))
+				if (tte.key == pos.bs->key && ((tte.flags == HashFlag::ALPHA) == (tte.eval < eval)))
 					eval = tte.eval;
 				if (eval >= beta)
 					return beta;
@@ -133,7 +133,7 @@ namespace Clovis {
 
 				// fail high
  				if (eval >= beta) {
-					tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
+					tt.new_entry(pos.bs->key, 0, beta, HashFlag::BETA, curr_move);
 					return beta;
 				}
 				if (eval > best_eval) {
@@ -155,7 +155,7 @@ namespace Clovis {
 			if (in_check && best_eval == INT_MIN)
 				return - CHECKMATE_SCORE + ply;
 
-			tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+			tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HashFlag::EXACT : HashFlag::ALPHA, best_move);
 
 			return alpha;
 		}
@@ -198,9 +198,9 @@ namespace Clovis {
 				}
 				if (!PV_NODE
 				&& tte.depth >= depth
-				&& (tte.flags == HASH_EXACT
-				|| (tte.flags == HASH_BETA  && tte.eval >= beta)
-				|| (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+				&& (tte.flags == HashFlag::EXACT
+				|| (tte.flags == HashFlag::BETA  && tte.eval >= beta)
+				|| (tte.flags == HashFlag::ALPHA && tte.eval <= alpha)))
 					return tte.eval;
 			}
 
@@ -253,7 +253,7 @@ namespace Clovis {
 			MovePick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
 			Move curr_move, best_move = MOVE_NONE;
 			int best_score = INT_MIN, moves_searched = 0;
-			HashFlag eval_type = HASH_ALPHA;
+			HashFlag eval_type = HashFlag::ALPHA;
 			bool play_quiets = true;
 
 			while ((curr_move = mp.get_next(play_quiets)) != MOVE_NONE) {
@@ -302,11 +302,11 @@ namespace Clovis {
 				// fail high
 				if (score >= beta) {
 					if (move_capture(curr_move) == NO_PIECE) {
-						mp.update_history<HASH_BETA>(curr_move, depth);
+						mp.update_history<HashFlag::BETA>(curr_move, depth);
 						MovePick::update_killers(curr_move, ply);
 						MovePick::update_counter_entry(pos.side, prev_move, curr_move);
 					}
-					tt.new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
+					tt.new_entry(pos.bs->key, depth, beta, HashFlag::BETA, curr_move);
 					return beta;
 				}
 
@@ -321,7 +321,7 @@ namespace Clovis {
 							for (const auto& m : line)
 								*pline.last++ = m;
 						}
-						eval_type = HASH_EXACT;
+						eval_type = HashFlag::EXACT;
 						// new best move found
 						alpha = score;
 					}
@@ -339,8 +339,8 @@ namespace Clovis {
 
 			tt.new_entry(pos.bs->key, depth, best_score, eval_type, best_move);
 
-			if (eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
-				mp.update_history<HASH_EXACT>(best_move, depth);
+			if (eval_type == HashFlag::EXACT && move_capture(best_move) == NO_PIECE)
+				mp.update_history<HashFlag::EXACT>(best_move, depth);
 
 			return alpha;
 		}
