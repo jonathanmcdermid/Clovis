@@ -78,7 +78,7 @@ namespace Clovis {
 		QUIET_MOVES, CAPTURE_MOVES, ALL_MOVES
 	};
 
-	enum class Stage : int {
+	enum StageType : int {
 		TT_MOVE,
 		INIT_CAPTURES,
 		WINNING_CAPTURES,
@@ -87,8 +87,6 @@ namespace Clovis {
 		LOSING_CAPTURES,
 		FINISHED
 	};
-
-	constexpr Stage& operator++(Stage& s) { return s = Stage(std::underlying_type_t<Stage>(s) + 1); }
 
 	enum GamePhase : int {
 		MG, EG,
