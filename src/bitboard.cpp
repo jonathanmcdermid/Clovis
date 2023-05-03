@@ -6,8 +6,8 @@ namespace Clovis {
 
 	namespace Bitboards {
 
-		array<array<Bitboard, bishop_attack_indices>, SQ_N>  bishop_attacks;
-		array<array<Bitboard, rook_attack_indices>, SQ_N> rook_attacks;
+		array<array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks;
+		array<array<Bitboard, rook_attack_indices>,   SQ_N> rook_attacks;
 
 		// prints a bitboard, useful for debugging
 		void print_bitboard(const Bitboard& bb) {
