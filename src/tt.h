@@ -13,13 +13,13 @@ namespace Clovis {
 
 	struct TTEntry {
 		constexpr TTEntry() = default;
-		TTEntry(U64 k, uint8_t d, HashFlag f, short e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
+		TTEntry(U64 k, uint8_t d, uint8_t f, short e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
 
-		Key key{ 0ULL };     // 8 bytes
-		uint8_t depth{ 0 };  // 1 bytes
-		HashFlag flags{ 0 }; // 1 bytes
-		short eval{ 0 };     // 2 bytes
-		Move move{ 0 };      // 4 bytes
+		Key key{ 0ULL };    // 8 bytes
+		uint8_t depth{ 0 }; // 1 bytes
+		uint8_t flags{ 0 }; // 1 bytes
+		short eval{ 0 };    // 2 bytes
+		Move move{ 0 };     // 4 bytes
 	};
 
 	struct TTBucket {
