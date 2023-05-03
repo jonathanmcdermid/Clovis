@@ -22,8 +22,7 @@ namespace Clovis {
 			std::vector<U64> nodes;
 		};
 
-		void perft(Position& pos, int depth, U64& nodes);
-		void perft_control();
+		void perft();
 
     } // namespace Perft
 

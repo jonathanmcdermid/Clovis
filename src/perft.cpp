@@ -6,7 +6,7 @@ namespace Clovis {
 
 	namespace Perft {
 
-		void perft(Position& pos, int depth, U64& nodes) {
+		void perft_helper(Position& pos, int depth, U64& nodes) {
 
 			if (depth == 0) {
 				++nodes;
@@ -15,12 +15,12 @@ namespace Clovis {
 
 			for (const auto& m : MoveGen::MoveList(pos)) {
 				if (pos.do_move(m)) continue;
-				perft(pos, depth - 1, nodes);
+				perft_helper(pos, depth - 1, nodes);
 				pos.undo_move(m);
 			}
 		}
 
-		void perft_control() {
+		void perft() {
 
 			vector<PerftPosition> pp;
 			ifstream ifs("src/perft.epd");
@@ -61,7 +61,7 @@ namespace Clovis {
 				for (size_t depth = 1; depth - 1 < it.nodes.size(); ++depth) {
 
 					U64 nodes = 0;
-					perft(pos, depth, nodes);
+					perft_helper(pos, depth, nodes);
 
 					if (nodes != it.nodes[depth - 1])
 						failed = true;

@@ -28,7 +28,7 @@ namespace Clovis {
 			}
 
 			if (!strcmp(argv[1], "perft")) {
-				Perft::perft_control();
+				Perft::perft();
 				exit(EXIT_SUCCESS);
 			}
 
