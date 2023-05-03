@@ -9,9 +9,7 @@ namespace Clovis {
 		long long benchmark(int argc, char* argv[]) {
 
 			vector<BenchMark> bm;
-
 			ifstream ifs("src/bench.csv");
-
 			string line;
 
 			while (getline(ifs, line)) {
@@ -29,7 +27,6 @@ namespace Clovis {
 			tt.resize(mb);
 			
 			Search::SearchLimits limits;
-
 			limits.depth = depth;
 
 			U64 total_nodes = 0ULL;
