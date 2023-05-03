@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <chrono>
 
 #include "position.h"
 #include "movelist.h"

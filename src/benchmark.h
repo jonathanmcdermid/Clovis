@@ -11,11 +11,11 @@ namespace Clovis {
 		struct BenchMark {
 			BenchMark(std::string f) : fen(f), time(0LL) {;}
 			std::string fen;
-			TimePoint time;
+			long long time;
 			Search::SearchInfo info;
 		};
 		
-		TimePoint benchmark(int argc, char* argv[]);
+		long long benchmark(int argc, char* argv[]);
 
 	} // namespace Bench
 

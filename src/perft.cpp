@@ -55,7 +55,7 @@ namespace Clovis {
 
 			for (auto& it : pp) {
 
-				tm.set();
+				auto start_time = chrono::steady_clock::now();
 				Position pos(it.fen.c_str());
 				cout << "testing position " << it.fen << endl;
 
@@ -71,7 +71,8 @@ namespace Clovis {
 						 << "depth: "    << depth
 						 << "expected: " << setw(10) << it.nodes[depth - 1] 
 						 << " result: "  << setw(10) << nodes
-						 << " time:"     << setw(7)  << tm.get_time_elapsed() << endl;
+						 << " time:"     << setw(7)  
+						 << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() << endl;
 				}
 			}
 

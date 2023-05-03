@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 #include "uci.h"
 #include "position.h"
 #include "evaluate.h"

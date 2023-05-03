@@ -68,7 +68,8 @@ namespace Clovis {
 
 		bool stop = false;
 
-		TimePoint allocated_time;
+		chrono::steady_clock::time_point start_time;
+		long long allocated_time;
 
 		// reset transposition table, set search to standard conditions
 		void clear() {
@@ -167,7 +168,7 @@ namespace Clovis {
 
 			assert(PV_NODE || (alpha == beta - 1));
 
-			if (nodes & 2047 && tm.get_time_elapsed() > allocated_time) {
+			if (nodes & 2047 && (chrono::steady_clock::now() - start_time).count() > allocated_time) {
 				stop = true;
 				return 0;
 			}
@@ -352,8 +353,8 @@ namespace Clovis {
 
 			if (ml.size() > 1) {
 
+				start_time = chrono::steady_clock::now();
 				allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
-				tm.set();
 
 				int beta = CHECKMATE_SCORE, alpha = -beta;
 
@@ -385,13 +386,13 @@ namespace Clovis {
 						continue;
 					}
 
-					auto time = tm.get_time_elapsed();
+					auto elapsed_time = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
 
 					cout << "info depth " << setw(2) << depth
 					     << " score cp "  << setw(4) << info.score
 					     << " nodes "     << setw(8) << info.nodes
-					     << " time "      << setw(6) << tm.get_time_elapsed()
-					     << " nps "       << setw(8) << 1000ULL * info.nodes / (time + 1)
+					     << " time "      << setw(6) << elapsed_time
+					     << " nps "       << setw(8) << 1000ULL * info.nodes / (elapsed_time + 1)
 					     << " pv ";
 
 					for (auto& it : info.pline)
@@ -399,7 +400,7 @@ namespace Clovis {
 
 					cout << endl;
 
-					if (time > allocated_time / 3) break;
+					if (elapsed_time > allocated_time / 3) break;
 
 					if (depth > asp_depth)
 						alpha = info.score - delta, beta = info.score + delta;

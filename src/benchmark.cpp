@@ -6,7 +6,7 @@ namespace Clovis {
 	
 	namespace Bench {
 		
-		TimePoint benchmark(int argc, char* argv[]) {
+		long long benchmark(int argc, char* argv[]) {
 
 			vector<BenchMark> bm;
 
@@ -33,13 +33,13 @@ namespace Clovis {
 			limits.depth = depth;
 
 			U64 total_nodes = 0ULL;
-			TimePoint total_time = 0ULL;
+			long long total_time = 0LL;
 
 			for (auto& it : bm) {
-				tm.set();
+				auto start_time = chrono::steady_clock::now();
 				Position pos(it.fen.c_str());
 				Search::start_search(pos, limits, it.info);
-				it.time = tm.get_time_elapsed();
+				it.time = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
 				total_nodes += it.info.nodes;
 				total_time += it.time;
 				Search::clear();
