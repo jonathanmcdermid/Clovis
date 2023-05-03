@@ -304,19 +304,10 @@ namespace Clovis {
 		template<bool TRACE>
 		int evaluate(const Position& pos) {
 
-			/*bool insufficient[COLOUR_N] = { 
-				pos.is_insufficient<WHITE>(), 
-				pos.is_insufficient<BLACK>() 
-			};*/
-
-			Colour us = pos.side;
-
-			int game_phase = pos.get_game_phase();
-
-			Score score = (us == WHITE) ? tempo_bonus : -tempo_bonus;
+			Score score = (pos.side == WHITE) ? tempo_bonus : -tempo_bonus;
 			
 			if constexpr (TRACE) memset(T.data(), 0, sizeof(T));
-			if constexpr (TRACE) ++T[TEMPO][us];
+			if constexpr (TRACE) ++T[TEMPO][pos.side];
 
 			EvalInfo ei(tt.probe_pawn(pos.bs->pkey));
 
@@ -331,9 +322,9 @@ namespace Clovis {
 
 			score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
 
+			int game_phase = pos.get_game_phase();
 			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
-			
-			if (us == BLACK)
+			if (pos.side == BLACK)
 				eval = -eval;
 
 			/*
@@ -349,7 +340,7 @@ namespace Clovis {
 				eval = eval * scaling / MAX_SCALING;
 			*/
 
-			return eval;//insufficient[us] ? min(DRAW_SCORE, eval) : insufficient[them] ? max(DRAW_SCORE, eval) : eval;
+			return eval;
 		}
 		
 		// explicit template instantiations
