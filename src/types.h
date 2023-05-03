@@ -100,8 +100,8 @@ namespace Clovis {
 		EXACT,
 	};
 
-	enum NodeType : int {
-		NODE_ROOT, NODE_PV, NODE_NON_PV
+	enum class Node : int {
+		ROOT, PV, NON_PV
 	};
 
 	enum Direction : int {
