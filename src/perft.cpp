@@ -6,7 +6,7 @@ namespace Clovis {
 
 	namespace Perft {
 
-		void perft_helper(Position& pos, int depth, U64& nodes) {
+		void perft_helper(Position& pos, const int depth, U64& nodes) {
 
 			if (depth == 0) {
 				++nodes;

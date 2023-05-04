@@ -72,7 +72,7 @@ namespace Clovis {
 			while (!ifs.eof()) {
 				while (getline(ifs, line)) {
 					if (line.find("Result") != string::npos) {
-						size_t start = line.find ("\"") + 1, end = line.rfind("\"");
+						size_t start = line.find ('\"') + 1, end = line.rfind('\"');
 						result = line.substr(start, end - start);
 						break;
 					}
@@ -80,7 +80,7 @@ namespace Clovis {
 
 				while (getline(ifs, line)) {
 					if (line.find("FEN") != string::npos) {
-						size_t start = line. find("\"") + 1, end = line.rfind("\"");
+						size_t start = line. find('\"') + 1, end = line.rfind('\"');
 						fen = line.substr(start, end - start);
 						break;
 					}
@@ -107,7 +107,7 @@ namespace Clovis {
 							live = false;
 							break;
 						}
-						if (token.find(".") == string::npos) {
+						if (token.find('.') == string::npos) {
 							if (!pos.do_move(parse(pos, token)))
 								exit(EXIT_FAILURE);
 

@@ -3,7 +3,6 @@
 #include <fstream>
 
 #include "parse.h"
-#include "search.h"
 
 namespace Clovis {
 

@@ -7,10 +7,7 @@
 #include <iomanip>
 #include <chrono>
 
-#include "position.h"
 #include "movelist.h"
-#include "time.h"
-#include "movepicker.h"
 
 namespace Clovis {
 

@@ -7,10 +7,6 @@
 #include <cassert>
 
 #include "search.h"
-#include "position.h"
-#include "movelist.h"
-#include "types.h"
-#include "tt.h"
 
 namespace Clovis {
 

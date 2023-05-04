@@ -4,14 +4,12 @@
 #include <fstream>
 
 #include "search.h"
-#include "position.h"
-#include "types.h"
 
 namespace Clovis {
 
 	namespace Parse {
 		
-		Move parse(const Position& pos, std::string s);
+		Move parse(const Position& pos, std::string move);
 		void generate_dataset();
 
 	}

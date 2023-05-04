@@ -7,7 +7,7 @@ namespace Clovis {
 	namespace CMDLine {
 	
 		// handle any start-up command line arguments
-		void handle_cmd(int argc, char* argv[]) {
+		void handle_cmd(const int argc, char* argv[]) {
 			
 			if (argc < 2) {
 				UCI::loop(argc, argv);
@@ -18,7 +18,7 @@ namespace Clovis {
 				cout << "bench [depth=" << DEFAULT_BENCH_DEPTH 
 					<< "] [threads="    << DEFAULT_BENCH_THREADS 
 					<< "] [hash="       << DEFAULT_BENCH_MB  << "]"  << endl
-					<< "search positions as speficied by OpenBench"  << endl;
+					<< "search positions as specified by OpenBench"  << endl;
 				exit(EXIT_SUCCESS);
 			}
 

@@ -22,12 +22,12 @@ namespace Clovis {
 		}
 
 		// generate bishop moves for a given square with bitboard of blocking pieces
-		Bitboard bishop_otf(Square sq, Bitboard occ) {
+		Bitboard bishop_otf(const Square sq, const Bitboard occ) {
 
 			Bitboard attacks = 0ULL;
 
-			for (const auto& dir1 : { NORTH, SOUTH }) {
-				for (const auto& dir2 : { EAST, WEST }) {
+			for (const auto dir1 : { NORTH, SOUTH }) {
+				for (const auto dir2 : { EAST, WEST }) {
 					Square s = sq;
 					while (valid_dir(s, dir1) && valid_dir(s, dir2)) {
 						s += dir1 + dir2;
@@ -41,11 +41,11 @@ namespace Clovis {
 		}
 
 		// generate rook moves for a given square with bitboard of blocking pieces
-		Bitboard rook_otf(Square sq, Bitboard occ) {
+		Bitboard rook_otf(const Square sq, const Bitboard occ) {
 
 			Bitboard attacks = 0ULL;
 
-			for (const auto& dir : { NORTH, SOUTH, EAST, WEST }) {
+			for (const auto dir : { NORTH, SOUTH, EAST, WEST }) {
 				Square s = sq;
 				while (valid_dir(s, dir)) {
 					s += dir;
@@ -59,12 +59,12 @@ namespace Clovis {
 
 		// set occupancies for bits within an attack mask
 		// returns the occupancy bitboard
-		Bitboard set_occupancy(Bitboard attack_mask, int index, int bits) {
+		Bitboard set_occupancy(Bitboard attack_mask, const int index, const int bits) {
 
 			Bitboard occ = 0ULL;
 
 			for (int i = 0; i < bits; ++i) {
-				Square sq = pop_lsb(attack_mask);
+				const Square sq = pop_lsb(attack_mask);
 				if (index & (1 << i))
 					occ |= sq;
 			}
@@ -76,12 +76,12 @@ namespace Clovis {
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
 				for (int index = 0; index < (1 << popcount(bishop_masks[sq])); ++index) {
-					Bitboard occ = set_occupancy(bishop_masks[sq], index, popcount(bishop_masks[sq]));
+					const Bitboard occ = set_occupancy(bishop_masks[sq], index, popcount(bishop_masks[sq]));
 					bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_rbits[sq]] = bishop_otf(sq, occ);
 				}
 
 				for (int index = 0; index < (1 << popcount(rook_masks[sq])); ++index) {
-					Bitboard occ = set_occupancy(rook_masks[sq], index, popcount(rook_masks[sq]));
+					const Bitboard occ = set_occupancy(rook_masks[sq], index, popcount(rook_masks[sq]));
 					rook_attacks[sq][(occ * rook_magic[sq]) >> rook_rbits[sq]] = rook_otf(sq, occ);
 				}
 			}

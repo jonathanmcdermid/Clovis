@@ -14,8 +14,8 @@ namespace Clovis {
 
 			while (getline(ifs, line)) {
 				if (line.empty()) continue;
-				const size_t idx = line.find("\"");
-				const size_t idx_end = line.find("\"", idx + 1);
+				const size_t idx = line.find('\"');
+				const size_t idx_end = line.find('\"', idx + 1);
 				bm.push_back(line.substr(idx + 1, idx_end - idx - 1));
 			}
 

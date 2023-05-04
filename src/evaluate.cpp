@@ -8,16 +8,16 @@ namespace Clovis {
 
 		array<array<int, PHASE_N>, TI_MISC> T;
 		
-		inline bool is_doubled_pawn(Bitboard bb, Square sq) {
+		inline bool is_doubled_pawn(const Bitboard bb, const Square sq) {
 			return multiple_bits(bb & Bitboards::file_masks[sq]);
 		}
 		
-		inline bool is_isolated_pawn(Bitboard bb, Square sq) {
+		inline bool is_isolated_pawn(const Bitboard bb, const Square sq) {
 			return !(bb & isolated_masks[sq]);
 		}
 
 		template<Colour US>
-		inline bool is_passed_pawn(Bitboard bb, Square sq) {
+		inline bool is_passed_pawn(const Bitboard bb, const Square sq) {
 			return !(bb & passed_masks[US][sq]);
 		}
 
@@ -39,24 +39,24 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		inline bool is_outpost(Square sq, const EvalInfo& ei) {
+		inline bool is_outpost(const Square sq, const EvalInfo& ei) {
 			return (outpost_masks[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US]);
 		}
 		
 		template<Colour US>
-		inline bool is_fianchetto(const Position& pos, Square sq) {
+		inline bool is_fianchetto(const Position& pos, const Square sq) {
 			return fianchetto_bishop_mask[US] & sq && center_mask[US] & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq);
 		}
 
-		inline bool is_open_file(const Position& pos, File f) {
+		inline bool is_open_file(const Position& pos, const File f) {
 			return !(Bitboards::file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
 		}
 		
 		template<Colour US, PieceType PT, bool TRACE>
-		void king_danger(Bitboard attacks, EvalInfo& ei) {
+		void king_danger(const Bitboard attacks, EvalInfo& ei) {
 
-			Bitboard or_att_bb = attacks & outer_ring[ei.ksq[~US]];
-			Bitboard ir_att_bb = attacks & inner_ring[ei.ksq[~US]];
+			const Bitboard or_att_bb = attacks & outer_ring[ei.ksq[~US]];
+			const Bitboard ir_att_bb = attacks & inner_ring[ei.ksq[~US]];
 
 			if (or_att_bb || ir_att_bb) {
 
@@ -69,7 +69,7 @@ namespace Clovis {
 		}
 
 		template<Colour US, PieceType PT>
-		inline void psqt_trace(Square sq) {
+		inline void psqt_trace(const Square sq) {
 			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
 			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
@@ -96,7 +96,7 @@ namespace Clovis {
 			Score score;
 			Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
-			Bitboard transparent_occ =
+			const Bitboard transparent_occ =
 				  PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)] ^ ei.ksq[~US]
 				: PT == ROOK   ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK,  US)] ^ ei.ksq[~US]
 				: pos.occ_bb[BOTH];
@@ -111,8 +111,8 @@ namespace Clovis {
 				if (pinner.has_value())
 					attacks &= Bitboards::between_squares(ei.ksq[US], pinner.value()) | pinner.value();
 
-				Bitboard trades = worthy_trades<US, PT>(pos);
-				Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
+				const Bitboard trades = worthy_trades<US, PT>(pos);
+				const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
 				score += quiet_mobility[PT]   * popcount(safe_attacks & ~pos.occ_bb[BOTH]);
 				score += capture_mobility[PT] * popcount(safe_attacks &  pos.occ_bb[~US]);
@@ -199,12 +199,10 @@ namespace Clovis {
 				score += evaluate_majors<US, ROOK,   true, TRACE>(pos, ei);
 				score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, ei);
 
-				// we dont count kings or pawns in n_att so the max should be 7, barring promotion trolling
+				// we don't count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(ei.n_att[US] < 10);
 
-				int mob = popcount(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
-
-				if (mob > 4) {
+				if (const int mob = popcount(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]); mob > 4) {
 					ei.weight[US] += virtual_mobility * min(13, mob);
 					if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = min(13, mob);
 				}
@@ -236,7 +234,7 @@ namespace Clovis {
 			Bitboard bb = pos.pc_bb[make_piece(PAWN, US)];
 
 			while (bb) {
-				Square sq = pop_lsb(bb);
+				const Square sq = pop_lsb(bb);
 
 				if constexpr (TRACE) psqt_trace<US, PAWN>(sq);
 
@@ -269,16 +267,16 @@ namespace Clovis {
 
 			king_danger<US, PAWN, TRACE>(shift<pawn_push(US)>(pos.pc_bb[make_piece(PAWN, US)]), ei);
 			
-			File kf = file_of(ei.ksq[US]);
-			File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
+			const File kf = file_of(ei.ksq[US]);
+			const File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
 			
 			for (File f = cf - 1; f <= cf + 1; ++f) {
 
 				Bitboard fp = pos.pc_bb[make_piece(PAWN, US)] & Bitboards::file_masks[f];
 
 				if (fp) {
-					//ei.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
-					//if constexpr (TRACE) --T[SAFETY_PAWN_SHIELD + source32[relative_square(US, US == WHITE ? lsb(fp) : msb(fp))]][~US];
+				//	ei.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
+				//	if constexpr (TRACE) --T[SAFETY_PAWN_SHIELD + source32[relative_square(US, US == WHITE ? lsb(fp) : msb(fp))]][~US];
 				} else {
 					ei.weight[~US] += shield_table[0][f];
 					if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
@@ -322,7 +320,7 @@ namespace Clovis {
 
 			score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
 
-			int game_phase = pos.get_game_phase();
+			const int game_phase = pos.get_game_phase();
 			int eval = (score.mg * game_phase + score.eg * (MAX_GAMEPHASE - game_phase)) / MAX_GAMEPHASE;
 			if (pos.side == BLACK)
 				eval = -eval;

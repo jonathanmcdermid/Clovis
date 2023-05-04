@@ -14,12 +14,12 @@ namespace Clovis {
 		constexpr int N_CORES = 8;
 		constexpr int MAX_EPOCHS = 1000000;
 
-		inline double sigmoid(double K, double E) {
+		inline double sigmoid(const double K, const double E) {
 			return 1.0 / (1.0 + exp(-K * E / 400.0));
 		}
 
 		template<typename T>
-		void add_param(T t, TraceIndex ti) {
+		void add_param(T t, const TraceIndex ti) {
 
 			if constexpr (is_same<T, Score>()) {
 				assert(ti < TI_SAFETY);
@@ -87,14 +87,14 @@ namespace Clovis {
 			add_param<short>(attack_factor, SAFETY_N_ATT);
 		}
 		
-		double linear_eval(const TEntry* entry, TGradient* tg) {
+		double linear_eval(const TEntry& entry, TGradient* tg) {
 
 			array<double, PHASE_N> normal;
 			double safety = 0.0;
 			array<array<double, COLOUR_N>, EVALTYPE_N> mg = {0};
 			array<array<double, COLOUR_N>, EVALTYPE_N> eg = {0};
 			
-			for (auto& it : entry->tuples) {
+			for (auto& it : entry.tuples) {
 
 				EvalType et = it.index >= TI_SAFETY ? SAFETY : NORMAL;
 				
@@ -107,10 +107,10 @@ namespace Clovis {
 			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
 			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
 			
-			safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE]);
-			safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK]);
+			safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[WHITE]);
+			safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[BLACK]);
 
-			double eval =  ((normal[MG] + safety) * entry->phase + normal[EG] * (MAX_GAMEPHASE - entry->phase)) / MAX_GAMEPHASE;
+			const double eval =  ((normal[MG] + safety) * entry.phase + normal[EG] * (MAX_GAMEPHASE - entry.phase)) / MAX_GAMEPHASE;
 			
 			if (tg) {
 				tg->eval = eval;
@@ -122,7 +122,7 @@ namespace Clovis {
 		}
 		
 		template<bool STATIC>
-		double mse(long double K) {
+		double mse(const long double K) {
 			
 			double total = 0.0;
 
@@ -130,34 +130,34 @@ namespace Clovis {
 			{
 				#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
 				for (const auto& it : entries)
-					total += pow(it.result - sigmoid(K, (STATIC ? it.seval : linear_eval(&it, NULL))), 2);
+					total += pow(it.result - sigmoid(K, (STATIC ? it.seval : linear_eval(it, nullptr))), 2);
 			}
 
 			return total / (double) entries.size();
 		}
 		
-		void update_single_gradient(TEntry *entry, TVector gradient, double K) {
+		void update_single_gradient(const TEntry& entry, TVector gradient, double K) {
 			
 			TGradient tg;
 			
-			double E = linear_eval(entry, &tg);
-			double S = sigmoid(K, E);
-			double A = (entry->result - S) * S * (1 - S);
+			const double E = linear_eval(entry, &tg);
+			const double S = sigmoid(K, E);
+			const double A = (entry.result - S) * S * (1 - S);
 			
-			double base[PHASE_N] = { A * entry->phase, A * (MAX_GAMEPHASE - entry->phase) };
+			const double base[PHASE_N] = { A * entry.phase, A * (MAX_GAMEPHASE - entry.phase) };
 
-			for (auto& it : entry->tuples) {
+			for (auto& it : entry.tuples) {
 				if (it.index < TI_SAFETY) {
 					gradient[it.index][MG] += base[MG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
 					gradient[it.index][EG] += base[EG] * (it.coefficient[WHITE] - it.coefficient[BLACK]);
 				} else {
-					gradient[it.index][MG] += 2 * base[MG] * tg.safety[WHITE] * it.coefficient[WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE]);
-					gradient[it.index][MG] -= 2 * base[MG] * tg.safety[BLACK] * it.coefficient[BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK]);
+					gradient[it.index][MG] += 2 * base[MG] * tg.safety[WHITE] * it.coefficient[WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[WHITE]);
+					gradient[it.index][MG] -= 2 * base[MG] * tg.safety[BLACK] * it.coefficient[BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[BLACK]);
 				}
 			}
 			
-			gradient[SAFETY_N_ATT][MG] += base[MG] * pow(tg.safety[WHITE], 2.0) * entry->n_att[WHITE] / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[WHITE], 2.0);
-			gradient[SAFETY_N_ATT][MG] -= base[MG] * pow(tg.safety[BLACK], 2.0) * entry->n_att[BLACK] / pow(720.0 - params[SAFETY_N_ATT][MG] * entry->n_att[BLACK], 2.0);
+			gradient[SAFETY_N_ATT][MG] += base[MG] * pow(tg.safety[WHITE], 2.0) * entry.n_att[WHITE] / pow(720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[WHITE], 2.0);
+			gradient[SAFETY_N_ATT][MG] -= base[MG] * pow(tg.safety[BLACK], 2.0) * entry.n_att[BLACK] / pow(720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[BLACK], 2.0);
 			
 		}
 		
@@ -165,8 +165,8 @@ namespace Clovis {
 
 			TVector local = {0};
 
-			for (size_t i = 0; i < entries.size(); ++i)
-				update_single_gradient(&entries[i], local, K);
+			for (auto& entry : entries)
+				update_single_gradient(entry, local, K);
 
 			for (int i = 0; i < TI_MISC; ++i) {
 				gradient[i][MG] += local[i][MG];
@@ -174,7 +174,7 @@ namespace Clovis {
 			}
 		}
 		
-		void print_table(string name, int index, int size, int cols) {
+		void print_table(const string& name, const int index, const int size, const int cols) {
 			
 			cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name << "[] = {" << endl << "\t\t";
 
@@ -233,19 +233,17 @@ namespace Clovis {
 		
 		double find_k() {
 
-			double start = -10, end = 10, step = 1;
-			double curr = start, error, best = mse<true>(start);
+			double start = -10, end = 10, step = 1, best = mse<true>(start);
 
 			for (int epoch = 0; epoch < 10; ++epoch) {
-				curr = start - step;
+				double curr = start - step;
 				
 				while (curr < end) {
 					curr = curr + step;
-					error = mse<true>(curr);
-					
-					if (error <= best)
-						best = error, start = curr;
+					if (const double error = mse<true>(curr); error <= best)
+						best = codecvt_base::error, start = curr;
 				}
+
 				cout.precision(17);
 				cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]" << endl;
 
@@ -271,11 +269,10 @@ namespace Clovis {
 
 				TEntry entry;
 				memset(Eval::T.data(), 0, sizeof(Eval::T));
-				size_t idx = line.find("\"");
-				size_t idx_end = line.find("\"", idx + 1);
-				string res = line.substr(idx + 1, idx_end - idx - 1);
+				const size_t idx = line.find('\"');
+				const size_t idx_end = line.find('\"', idx + 1);
 
-				if (res == "1-0")
+				if (const string res = line.substr(idx + 1, idx_end - idx - 1); res == "1-0")
 					entry.result = 1.0;
 				else if (res == "0-1")
 					entry.result = 0.0;
@@ -298,14 +295,14 @@ namespace Clovis {
 				for (int j = 0; j < TI_N; ++j)
 					if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
 						|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
-						entry.tuples.push_back(TTuple(j, Eval::T[j][WHITE], Eval::T[j][BLACK]));
+						entry.tuples.emplace_back(j, Eval::T[j][WHITE], Eval::T[j][BLACK]);
 
 				entries.push_back(entry);
 			}
 
 			ifs.close();
 			
-			double K = find_k();
+			const double K = find_k();
 			double rate = 1.0;
 			
 			cout << mse<true> (K) << endl;

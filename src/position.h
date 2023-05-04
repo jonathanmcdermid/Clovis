@@ -6,8 +6,8 @@
 #include <sstream>
 #include <iostream>
 #include <optional>
+#include <cstring>
 
-#include "types.h"
 #include "bitboard.h"
 
 namespace Clovis {
@@ -38,9 +38,9 @@ namespace Clovis {
 		void print_bitboards() const;
 		Key make_key() const;
 		Key make_pawn_key() const;
-		void put_piece(Piece pc, Square s);
-		void replace_piece(Piece pc, Square s);
-		void remove_piece(Square s);
+		void put_piece(Piece pc, Square sq);
+		void replace_piece(Piece pc, Square sq);
+		void remove_piece(Square sq);
 		std::optional<Square> get_smallest_attacker(Bitboard attackers, Colour stm) const;
 		bool is_repeat() const;
 
@@ -68,7 +68,7 @@ namespace Clovis {
 
 	// returns whether or not a square is attacked by opposing side
 	template<Colour US>
-	inline bool Position::is_attacked(Square sq) const {
+	inline bool Position::is_attacked(const Square sq) const {
 
 		return ((pc_bb[make_piece(PAWN,   ~US)] & Bitboards::pawn_attacks[US][sq])
 		     || (pc_bb[make_piece(KNIGHT, ~US)] & Bitboards::knight_attacks[sq])
@@ -90,7 +90,7 @@ namespace Clovis {
 	}
 
 	// updates a bitboard of attackers after a piece has moved to include possible x ray attackers
-	inline Bitboard Position::consider_xray(Bitboard occ, Square to, PieceType pt) const {
+	inline Bitboard Position::consider_xray(const Bitboard occ, const Square to, const PieceType pt) const {
 
 		return (pt == PAWN || pt == BISHOP) ? occ & (Bitboards::get_attacks<BISHOP>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
 			: pt == ROOK ? occ & (Bitboards::get_attacks<ROOK>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK]))
@@ -98,7 +98,7 @@ namespace Clovis {
 			: 0ULL;
 	}
 
-	inline Bitboard Position::attackers_to(Square sq) const {
+	inline Bitboard Position::attackers_to(const Square sq) const {
 
 		return (Bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN])
 			 | (Bitboards::pawn_attacks[WHITE][sq] &  pc_bb[B_PAWN])

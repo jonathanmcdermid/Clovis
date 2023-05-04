@@ -7,7 +7,6 @@
 #define NDEBUG
 
 #include <assert.h>
-#include <climits>
 #include <string>
 #include <iostream>
 #include <cmath>
@@ -202,7 +201,7 @@ namespace Clovis {
 
 	struct Score {
 		constexpr Score() = default;
-		constexpr Score(int m, int e) : mg(m), eg(e) {}
+		constexpr Score(const int m, const int e) : mg(m), eg(e) {}
 		Score(const std::array<double, PHASE_N> param) : mg((short)round(param[MG])), eg((short)round(param[EG])) {}
 		Score& operator+=(const Score& rhs) {
 			mg += rhs.mg;
@@ -220,16 +219,16 @@ namespace Clovis {
 		short mg{ 0 }, eg{ 0 };
 	};
 
-	constexpr Score operator-(Score s) { return Score(-s.mg, -s.eg); }
-	constexpr Score operator+(Score s1, Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
-	constexpr Score operator+(Score s, int i) { return Score(s.mg + i, s.eg + i); }
-	constexpr Score operator-(Score s1, Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
-	constexpr Score operator-(Score s, int i) { return Score(s.mg - i, s.eg - i); }
-	constexpr Score operator*(Score s, int i) { return Score(s.mg * i, s.eg * i); }
-	constexpr Score operator*(Score s1, Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
-	constexpr Score operator/(Score s, int i) { return Score(s.mg / i, s.eg / i); }
-	constexpr Score operator/(Score s1, Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
-	constexpr Score operator<<(Score s, int i) { return Score(s.mg << i, s.eg << i); }
+	constexpr Score operator-(const Score s) { return Score(-s.mg, -s.eg); }
+	constexpr Score operator+(const Score s1, const Score s2) { return Score(s1.mg + s2.mg, s1.eg + s2.eg); }
+	constexpr Score operator+(const Score s, const int i) { return Score(s.mg + i, s.eg + i); }
+	constexpr Score operator-(const Score s1, const Score s2) { return Score(s1.mg - s2.mg, s1.eg - s2.eg); }
+	constexpr Score operator-(const Score s, const int i) { return Score(s.mg - i, s.eg - i); }
+	constexpr Score operator*(const Score s, const int i) { return Score(s.mg * i, s.eg * i); }
+	constexpr Score operator*(const Score s1, const Score s2) { return Score(s1.mg * s2.mg, s1.eg * s2.eg); }
+	constexpr Score operator/(const Score s, const int i) { return Score(s.mg / i, s.eg / i); }
+	constexpr Score operator/(const Score s1, const Score s2) { return Score(s1.mg / s2.mg, s1.eg / s2.eg); }
+	constexpr Score operator<<(const Score s, const int i) { return Score(s.mg << i, s.eg << i); }
 
 	constexpr Square operator+(Square sq, Direction dir) { return Square(int(sq) + int(dir)); }
 	constexpr Square operator-(Square sq, Direction dir) { return Square(int(sq) - int(dir)); }
@@ -248,83 +247,83 @@ namespace Clovis {
 		return CastleRights(3 << (c << 1));
 	}
 
-	constexpr Move encode_move(Square from, Square to, Piece piece, Piece promo, bool cap, bool dpush, bool enpassant, bool castling) {
+	constexpr Move encode_move(const Square from, const Square to, const Piece piece, const Piece promo, const bool cap, const bool dpush, const bool enpassant, const bool castling) {
 		return Move(from | (to << 6) | (piece << 12) | (promo << 16) | (cap << 20) | (dpush << 21) | (enpassant << 22) | (castling << 23));
 	}
 
-	constexpr Square move_from_sq(Move m) {
+	constexpr Square move_from_sq(const Move m) {
 		return Square(m & 0x3f);
 	}
 
-	constexpr Square move_to_sq(Move m) {
+	constexpr Square move_to_sq(const Move m) {
 		return Square((m & 0xfc0) >> 6);
 	}
 
-	constexpr Piece move_piece_type(Move m) {
+	constexpr Piece move_piece_type(const Move m) {
 		return Piece((m & 0xf000) >> 12);
 	}
 
-	constexpr Piece move_promotion_type(Move m) {
+	constexpr Piece move_promotion_type(const Move m) {
 		return Piece((m & 0xf0000) >> 16);
 	}
 
-	constexpr bool move_capture(Move m) {
+	constexpr bool move_capture(const Move m) {
 		return m & 0x100000;
 	}
 
-	constexpr bool move_double(Move m) {
+	constexpr bool move_double(const Move m) {
 		return m & 0x200000;
 	}
 
-	constexpr bool move_enpassant(Move m) {
+	constexpr bool move_enpassant(const Move m) {
 		return m & 0x400000;
 	}
 
-	constexpr bool move_castling(Move m) {
+	constexpr bool move_castling(const Move m) {
 		return m & 0x800000;
 	}
 
-	constexpr Direction pawn_push(Colour c) {
+	constexpr Direction pawn_push(const Colour c) {
 		return Direction((8 ^ (c * 0xffffffff)) + c);
 	}
 
-	constexpr File file_of(Square sq) {
+	constexpr File file_of(const Square sq) {
 		return File(sq & 7);
 	}
 
-	constexpr Rank rank_of(Square sq) {
+	constexpr Rank rank_of(const Square sq) {
 		return Rank(sq >> 3);
 	}
 
-	constexpr Rank relative_rank(Colour c, Rank r) {
+	constexpr Rank relative_rank(const Colour c, const Rank r) {
 		return Rank(r ^ (c * 7));
 	}
 
-	constexpr Square relative_square(Colour c, Square sq) {
+	constexpr Square relative_square(const Colour c, const Square sq) {
 		return Square(sq ^ (c * 56));
 	}
 
-	constexpr Square make_square(int f, int r) {
+	constexpr Square make_square(const int f, const int r) {
 		return Square((r << 3) | f);
 	}
 
-	constexpr Square make_square(File f, Rank r) {
+	constexpr Square make_square(const File f, const Rank r) {
 		return Square((r << 3) | f);
 	}
 
-	constexpr Square flip_square(Square sq) {
+	constexpr Square flip_square(const Square sq) {
 		return Square(sq ^ 56);
 	}
 
-	constexpr bool is_valid(Square sq) {
+	constexpr bool is_valid(const Square sq) {
 		return !(sq & 0xffffffc0);
 	}
 
-	constexpr Colour get_side(Piece pc) {
+	constexpr Colour get_side(const Piece pc) {
 		return Colour(pc >> 3);
 	}
 
-	constexpr Piece make_piece(PieceType pt, Colour c) {
+	constexpr Piece make_piece(const PieceType pt, const Colour c) {
 		return Piece((c << 3) | pt);
 	}
 
@@ -332,17 +331,17 @@ namespace Clovis {
 		return PieceType(pc & 7);
 	}
 
-	constexpr Colour operator~(Colour c) { return Colour(c ^ 1); }
+	constexpr Colour operator~(const Colour c) { return Colour(c ^ 1); }
 
-	constexpr int distance_between(Square s1, Square s2) {
+	constexpr int distance_between(const Square s1, const Square s2) {
 		return std::max(abs(file_of(s2) - file_of(s1)), abs(rank_of(s2) - rank_of(s1)));
 	}
 
-	constexpr bool king_side_castle(Square to) {
+	constexpr bool king_side_castle(const Square to) {
 		return file_of(to) == FILE_G;
 	}
 
-	constexpr void get_castle_rook_squares(Square king_tar, Square& rf, Square& rt) {
+	constexpr void get_castle_rook_squares(const Square king_tar, Square& rf, Square& rt) {
 		if (king_side_castle(king_tar)) {
 			rf = king_tar + EAST;
 			rt = king_tar + WEST;
@@ -353,7 +352,7 @@ namespace Clovis {
 	}
 
 	// returns whether or not a direction can be moved to from a given square
-	constexpr bool valid_dir(Square sq, Direction dir) {
+	constexpr bool valid_dir(const Square sq, const Direction dir) {
 		return dir == NORTH ? rank_of(sq) != RANK_8
 			 : dir == SOUTH ? rank_of(sq) != RANK_1
 			 : dir == EAST  ? file_of(sq) != FILE_H
@@ -361,7 +360,7 @@ namespace Clovis {
 			 : false;
 	}
 
-	inline Square str2sq(std::string s) {
+	inline Square str2sq(const std::string& s) {
 		assert(s.length() == 2);
 		return make_square(File(s[0] - 'a'), Rank(s[1] - '1'));
 	}
@@ -377,12 +376,12 @@ namespace Clovis {
 		"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", "-"
 	};
 
-	inline std::string sq2str(Square sq) {
+	inline std::string sq2str(const Square sq) {
 		return sq_names[sq];
 	}
 
 	// convert move to string
-	inline std::string move2str(Move m) {
+	inline std::string move2str(const Move m) {
 		return (move_promotion_type(m))
 		? sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + " pnbrqk  pnbrqk"[move_promotion_type(m)]
 		: sq2str(move_from_sq(m)) + sq2str(move_to_sq(m));

@@ -11,7 +11,7 @@ namespace Clovis {
 		array<KEntry, MAX_PLY> killer_table;
 
 		// return the next ordered move
-		Move MovePicker::get_next(bool play_quiets) {
+		Move MovePicker::get_next(const bool play_quiets) {
 			switch (stage) {
 			case TT_MOVE:
 				++stage;
@@ -29,14 +29,13 @@ namespace Clovis {
 			case WINNING_CAPTURES:
 				while (curr < last) {
 					assert(move_capture(*curr) || piece_type(move_promotion_type(*curr)) == QUEEN);
-					if (curr->move == tt_move)
-						++curr;
-					else if (pos.see_ge(*curr, play_quiets ? -100 : 0))
-						return *curr++;
-					else if (play_quiets)
-						*last_bad_cap++ = *curr++;
-					else
-						++curr;
+					if (curr->move != tt_move) {
+						if (pos.see_ge(*curr, play_quiets ? -100 : 0))
+							return *curr++;
+						if (play_quiets)
+							*last_bad_cap++ = *curr;
+					}
+					++curr;
 				}
 				++stage;
 				[[fallthrough]];
@@ -80,13 +79,13 @@ namespace Clovis {
 
 		void MovePicker::score_captures() {
 			for (auto& sm : ranges::subrange(moves.data(), last))
-				// promotions supercede mvv-lva
+				// promotions supersede mvv-lva
 				sm.score = mvv_lva[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] + ((move_promotion_type(sm) << 6));
 		}
 
 		void MovePicker::score_quiets() {
 
-			auto counter = get_counter_entry(pos.side, prev_move);
+			const auto counter = get_counter_entry(pos.side, prev_move);
 
 			for (auto& sm : ranges::subrange(last_bad_cap, last)) {
 				if      (sm == killer_table[ply].primary)   sm.score = 22000;

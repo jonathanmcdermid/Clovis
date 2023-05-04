@@ -78,7 +78,7 @@ namespace Clovis {
 		}
  
 		template<NodeType N>
-		int quiescence(Position& pos, int alpha, int beta, U64& nodes, int ply, Line& pline) {
+		int quiescence(Position& pos, int alpha, int beta, U64& nodes, const int ply, Line& pline) {
 
 			constexpr bool PV_NODE = N != NODE_NON_PV;
 
@@ -91,7 +91,7 @@ namespace Clovis {
 			if (ply >= MAX_PLY)
 				return Eval::evaluate<false>(pos);
 
-			TTEntry tte = tt.probe(pos.bs->key);
+			const TTEntry tte = tt.probe(pos.bs->key);
 
 			if (!PV_NODE && tte.key == pos.bs->key 
 			&& (tte.flags == HASH_EXACT 
@@ -99,8 +99,9 @@ namespace Clovis {
 			|| (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
 				return tte.eval;
 
-			bool in_check = pos.is_king_in_check();
-			int eval, old_alpha = alpha;
+			const bool in_check = pos.is_king_in_check();
+			const int old_alpha = alpha;
+			int eval;
 
 			if (!in_check) {
 
@@ -119,10 +120,10 @@ namespace Clovis {
 			}
 
 			MovePick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
-			Move curr_move, best_move = MOVE_NONE;
+			Move best_move = MOVE_NONE;
 			int best_eval = INT_MIN;
 
-			while ((curr_move = mp.get_next(in_check)) != MOVE_NONE) {
+			while (const Move curr_move = mp.get_next(in_check)) {
 				// illegal move or non capture
 				if (!pos.do_move(curr_move)) continue;
 
@@ -161,7 +162,7 @@ namespace Clovis {
 		}
 
 		template<NodeType N>
-		int negamax(Position& pos, int alpha, int beta, int depth, int ply, bool is_null, Move prev_move, U64& nodes, Line& pline) {
+		int negamax(Position& pos, int alpha, int beta, int depth, const int ply, const bool is_null, const Move prev_move, U64& nodes, Line& pline) {
 			
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
@@ -204,7 +205,7 @@ namespace Clovis {
 					return tte.eval;
 			}
 
-			bool in_check = pos.is_king_in_check();
+			const bool in_check = pos.is_king_in_check();
 
 			if (!in_check) {
 
@@ -251,12 +252,12 @@ namespace Clovis {
 				++depth;
 
 			MovePick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
-			Move curr_move, best_move = MOVE_NONE;
+			Move best_move = MOVE_NONE;
 			int best_score = INT_MIN, moves_searched = 0;
-			HashFlag eval_type = HASH_ALPHA;
+			HashFlag hash_flag = HASH_ALPHA;
 			bool play_quiets = true;
 
-			while ((curr_move = mp.get_next(play_quiets)) != MOVE_NONE) {
+			while (const Move curr_move = mp.get_next(play_quiets)) {
 				// illegal move
 				if (!pos.do_move(curr_move)) continue;
 
@@ -272,7 +273,7 @@ namespace Clovis {
 					&& move_capture(curr_move) == NO_PIECE
 					&& move_promotion_type(curr_move) == NO_PIECE) {
 						
-						int history_entry = MovePick::get_history_entry(~pos.side, curr_move);
+						const int history_entry = MovePick::get_history_entry(~pos.side, curr_move);
 						// reduction factor
 						int R = lmr_table[depth][min(moves_searched, 63)];
 						// reduce for pv nodes
@@ -321,7 +322,7 @@ namespace Clovis {
 							for (const auto& m : line)
 								*pline.last++ = m;
 						}
-						eval_type = HASH_EXACT;
+						hash_flag = HASH_EXACT;
 						// new best move found
 						alpha = score;
 					}
@@ -337,16 +338,16 @@ namespace Clovis {
 			if (moves_searched == 0)
 				return in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
 
-			tt.new_entry(pos.bs->key, depth, best_score, eval_type, best_move);
+			tt.new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 
-			if (eval_type == HASH_EXACT && move_capture(best_move) == NO_PIECE)
+			if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE)
 				mp.update_history<HASH_EXACT>(best_move, depth);
 
 			return alpha;
 		}
 
 		// begin search
-		void start_search(Position& pos, SearchLimits& limits, SearchInfo& info) {
+		void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info) {
 
 			MoveGen::MoveList ml(pos);
 			ml.remove_illegal(pos);
@@ -386,7 +387,7 @@ namespace Clovis {
 						continue;
 					}
 
-					auto elapsed_time = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
+					const auto elapsed_time = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
 
 					cout << "info depth " << setw(2) << depth
 					     << " score cp "  << setw(4) << info.score

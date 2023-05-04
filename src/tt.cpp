@@ -4,14 +4,14 @@ using namespace std;
 
 namespace Clovis {
 
-	TTable tt; // global transpotision table
+	TTable tt; // global transposition table
 
 	TTable::TTable() : ht(nullptr), pt(nullptr) {
 		resize(132);
 		pt = make_unique<PTEntry[]>(pt_size);
 	}
 
-	void TTable::resize(size_t mb) {
+	void TTable::resize(const size_t mb) {
 		tt_size = mb * 1024 * 1024 / (sizeof(TTBucket));
 		ht = make_unique<TTBucket[]>(tt_size);
 	}
@@ -23,19 +23,19 @@ namespace Clovis {
 	}
 
 	// probe the table to see if an entry exists
-	TTEntry TTable::probe(Key key) {
+	TTEntry TTable::probe(const Key key) {
 
-		TTBucket& b = ht[hash_index(key)];
+		auto& [e1, e2] = ht[hash_index(key)];
 
-		if (b.e1.key == key)
-			return b.e1;
-		if (b.e1.depth > 0)
-			--b.e1.depth;
+		if (e1.key == key)
+			return e1;
+		if (e1.depth > 0)
+			--e1.depth;
 
-		return b.e2;
+		return e2;
 	}
 
-	void TTable::new_entry(Key key, int depth, int eval, HashFlag flags, Move move) {
+	void TTable::new_entry(const Key key, const int depth, const int eval, const HashFlag flags, const Move move) {
 		TTBucket& bucket = ht[hash_index(key)];
 		bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
 	}

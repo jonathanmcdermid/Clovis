@@ -9,18 +9,14 @@
 #include <sstream>
 #include <cmath>
 
-#include "position.h"
 #include "evaluate.h"
-#include "types.h"
-#include "benchmark.h"
-#include "search.h"
 
 namespace Clovis {
 
 	namespace Tuner {
 	
         struct TTuple {
-            constexpr TTuple(int i, int wc, int bc) : index(i), coefficient{ wc, bc } {}
+            constexpr TTuple(const int i, const int wc, const int bc) : index(i), coefficient{ wc, bc } {}
 
             int index;
             std::array<int, COLOUR_N> coefficient;

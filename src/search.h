@@ -1,11 +1,10 @@
 #pragma once
 
 #include <chrono>
+#include <iomanip>
+#include <climits>
 
-#include "uci.h"
-#include "position.h"
 #include "evaluate.h"
-#include "movelist.h"
 #include "movepicker.h"
 #include "tt.h"
 
@@ -40,7 +39,7 @@ namespace Clovis {
 			Line pline;
 		};
 
-		void start_search(Position& pos, SearchLimits& limits, SearchInfo& params);
+		void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info);
 		void clear();
 
 	} // namespace Search

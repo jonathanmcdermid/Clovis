@@ -1,11 +1,5 @@
 #pragma once
 
-#include <immintrin.h>
-#include <cstring>
-#include <cassert>
-#include <iostream>
-#include <string>
-#include <array>
 #include <random>
 
 #include "types.h"
@@ -48,7 +42,7 @@ namespace Clovis {
 		constexpr int bishop_attack_indices = 512;
 		constexpr int rook_attack_indices = 4096;
 
-		// precalculated magic numbers for generating rook attacks
+		// pre-calculated magic numbers for generating rook attacks
 		constexpr std::array<Bitboard, SQ_N> rook_magic = {
 			0x8a80104000800020ULL, 0x140002000100040ULL,  0x2801880a0017001ULL,  0x100081001000420ULL, 
 			0x200020010080420ULL,  0x3001c0002010008ULL,  0x8480008002000100ULL, 0x2080088004402900ULL, 
@@ -68,7 +62,7 @@ namespace Clovis {
 			0x20030a0244872ULL,    0x12001008414402ULL,   0x2006104900a0804ULL,  0x1004081002402ULL, 
 		};
 
-		// precalculated magic numbers for generating bishop attacks
+		// pre-calculated magic numbers for generating bishop attacks
 		constexpr std::array<Bitboard, SQ_N> bishop_magic = {
 			0x40040844404084ULL,   0x2004208a004208ULL,   0x10190041080202ULL,   0x108060845042010ULL, 
 			0x581104180800210ULL,  0x2112080446200010ULL, 0x1080820820060210ULL, 0x3c0808410220200ULL, 
@@ -111,9 +105,9 @@ namespace Clovis {
 		constexpr auto pawn_attacks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
-			for (Colour c : { WHITE, BLACK })
+			for (const auto c : { WHITE, BLACK })
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-					for (Direction dir : { EAST, WEST })
+					for (const auto dir : { EAST, WEST })
 						if (is_valid(sq + pawn_push(c)) && rank_of(sq) == rank_of(sq + dir))
 							arr[c][sq] |= sq + pawn_push(c) + dir;
 
@@ -124,8 +118,8 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-				for (Direction d1 : { NORTH, SOUTH }) {
-					for (Direction d2 : { EAST, WEST }) {
+				for (const auto d1 : { NORTH, SOUTH }) {
+					for (const auto d2 : { EAST, WEST }) {
 						if (is_valid(sq + d1 + d1) && rank_of(sq) == rank_of(sq + d2))
 							arr[sq] |= sq + d1 + d1 + d2;
 						if (is_valid(sq + d1) && rank_of(sq) == rank_of(sq + d2 + d2))
@@ -141,8 +135,8 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-				for (Direction d1 : { NORTH, SOUTH })
-					for (Direction d2 : { EAST, WEST })
+				for (const auto d1 : { NORTH, SOUTH })
+					for (const auto d2 : { EAST, WEST })
 						for (Square s2 = s1 + d1 + d2; is_valid(s2) && rank_of(s2) == rank_of(s2 - d2); s2 += d1 + d2)
 							arr[s1] |= s2;
 
@@ -153,10 +147,10 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
-				for (Direction dir : { NORTH, SOUTH })
+				for (const auto dir : { NORTH, SOUTH })
 					for (Square s2 = s1 + dir; is_valid(s2); s2 += dir)
 						arr[s1] |= s2;
-				for (Direction dir : { EAST, WEST })
+				for (const auto dir : { EAST, WEST })
 					for (Square s2 = s1 + dir; rank_of(s2) == rank_of(s2 - dir); s2 += dir)
 						arr[s1] |= s2;
 			}
@@ -177,8 +171,8 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-				for (Direction d1 : { NO_DIR, NORTH, SOUTH })
-					for (Direction d2 : { NO_DIR, EAST, WEST })
+				for (const auto d1 : { NO_DIR, NORTH, SOUTH })
+					for (const auto d2 : { NO_DIR, EAST, WEST })
 						if (d1 != d2 && is_valid(sq + d1) && rank_of(sq) == rank_of(sq + d2))
 							arr[sq] |= sq + d1 + d2;
 
@@ -189,8 +183,8 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-				for (Direction d1 : { NORTH, SOUTH })
-					for (Direction d2 : { EAST, WEST })
+				for (const auto d1 : { NORTH, SOUTH })
+					for (const auto d2 : { EAST, WEST })
 						for (Square s2 = s1; is_valid(s2 + d1) && rank_of(s2) == rank_of(s2 + d2); s2 += d1 + d2)
 							if (s2 != s1)
 								arr[s1] |= s2;
@@ -202,11 +196,11 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
-				for (Direction dir : { NORTH, SOUTH })
+				for (const auto dir : { NORTH, SOUTH })
 					for (Square s2 = s1; is_valid(s2 + dir); s2 += dir)
 						if (s2 != s1)
 							arr[s1] |= s2;
-				for (Direction dir : { EAST, WEST })
+				for (const auto dir : { EAST, WEST })
 					for (Square s2 = s1; rank_of(s2) == rank_of(s2 + dir); s2 += dir)
 						if (s2 != s1)
 							arr[s1] |= s2;
@@ -245,27 +239,26 @@ namespace Clovis {
 						? empty_rook_attacks[sq1] & empty_rook_attacks[sq2]
 						: 0ULL;
 
-					while (bb) {
-						Square sq3 = pop_lsb(bb);
-						if ((sq1 < sq3 && sq3 < sq2) || (sq1 > sq3 && sq3 > sq2))
+					while (bb)
+						if (const Square sq3 = pop_lsb(bb); 
+							(sq1 < sq3 && sq3 < sq2) || (sq1 > sq3 && sq3 > sq2))
 							arr[sq1][sq2] |= sq3;
-					}
 				}
 			}
 
 			return arr;
 		}();
 
-		extern std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N>  bishop_attacks;
+		extern std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks;
 		extern std::array<std::array<Bitboard, rook_attack_indices>, SQ_N> rook_attacks;
 
 		void print_bitboard(const Bitboard& bb);
 		void init_bitboards();
 
-		constexpr Bitboard between_squares(Square sq1, Square sq2) { return between_bb[sq1][sq2]; }
+		constexpr Bitboard between_squares(const Square sq1, const Square sq2) { return between_bb[sq1][sq2]; }
 
 		template<PieceType PT>
-		constexpr Bitboard get_attacks(Bitboard occ, Square sq) {
+		constexpr Bitboard get_attacks(const Bitboard occ, const Square sq) {
 
 			static_assert(PT != PAWN);
             
@@ -277,7 +270,7 @@ namespace Clovis {
 		}
 
 		template<PieceType PT>
-		constexpr Bitboard get_attacks(Square sq) {
+		constexpr Bitboard get_attacks(const Square sq) {
 
 			static_assert(PT != PAWN);
             
@@ -288,7 +281,7 @@ namespace Clovis {
 				: king_attacks[sq];
 		}
 
-		constexpr Bitboard get_attacks(PieceType pt, Bitboard occ, Square sq) {
+		constexpr Bitboard get_attacks(const PieceType pt, const Bitboard occ, const Square sq) {
 
 			assert(pt != PAWN);
 

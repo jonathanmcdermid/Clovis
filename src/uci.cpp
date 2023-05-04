@@ -86,7 +86,7 @@ namespace Clovis {
 			pos.set(fen.c_str());
 			
 			while (is >> token) {
-				Move move = to_move(pos, token);
+				const Move move = to_move(pos, token);
 				if (move == MOVE_NONE)
 					break;
 				pos.do_move(move);
@@ -94,7 +94,7 @@ namespace Clovis {
 		}
 
 		// main loop for UCI communication
-		void loop(int argc, char* argv[]) {
+		void loop(const int argc, char* argv[]) {
 
 			Position pos(START_POS);
 			string token, cmd;

@@ -2,7 +2,7 @@
 
 using namespace Clovis;
 
-int main(int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
 
 	Bitboards::init_bitboards();
 

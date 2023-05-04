@@ -1,7 +1,5 @@
 #pragma once
 
-#include <array>
-
 #include "position.h"
 #include "tt.h"
 
@@ -135,7 +133,7 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
-				int r = sq / 4, f = sq & 0x3;
+				const int r = sq / 4, f = sq & 0x3;
 				arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r ^ 7)] = sq;
 			}
 
@@ -146,7 +144,7 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr = source32;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
-				int r = sq / 4, f = sq & 0x3;
+				const int r = sq / 4, f = sq & 0x3;
 				arr[make_square(f, r ^ 7) ^ 56] = arr[make_square(f ^ 7, r ^ 7) ^ 56] = sq;
 			}
 
@@ -159,8 +157,7 @@ namespace Clovis {
 			int index = 0;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
-				int r = sq / 4, f = sq & 0x3;
-				if (r >= f) {
+				if (const int r = sq / 4, f = sq & 0x3; r >= f) {
 					arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] = arr[make_square(f ^ 7, r ^ 7)] = index;
 					arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] = arr[make_square(r ^ 7, f ^ 7)] = index;
 					++index;
@@ -170,19 +167,19 @@ namespace Clovis {
 			return arr;
 		}();
 
-		constexpr std::array<const Score*, 7> piecetype_source =
+		constexpr std::array<const Score*, 7> piece_type_source =
 		{ nullptr, pawn_source, knight_source, bishop_source, rook_source, queen_source, king_source };
 
 		constexpr auto piece_table = [] {
 			std::array<std::array<Score, SQ_N>, 15> arr{};
 
-			for (auto col : { WHITE, BLACK }) {
+			for (const auto col : { WHITE, BLACK }) {
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-					for (auto pt : { PAWN, QUEEN })
-						arr[make_piece(pt, col)][sq] = piecetype_source[pt][source32[relative_square(col, sq)]];
-					for (auto pt : { KNIGHT, BISHOP, ROOK, KING })
-						arr[make_piece(pt, col)][sq] = piecetype_source[pt][source16[sq]];
-					//for (auto pt : {})
+					for (const auto pt : { PAWN, QUEEN })
+						arr[make_piece(pt, col)][sq] = piece_type_source[pt][source32[relative_square(col, sq)]];
+					for (const auto pt : { KNIGHT, BISHOP, ROOK, KING })
+						arr[make_piece(pt, col)][sq] = piece_type_source[pt][source16[sq]];
+					//for (const auto pt : {})
 					//    arr[make_piece(pt, col)][sq] = piecetype_source[pt][source10[sq]];
 				}
 			}
@@ -193,7 +190,7 @@ namespace Clovis {
 		constexpr auto passed_table = [] {
 			std::array<std::array<Score, SQ_N>, COLOUR_N> arr{};
 
-			for (auto col : { WHITE, BLACK })
+			for (const auto col : { WHITE, BLACK })
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 					arr[col][sq] = passed_pawn[source32[relative_square(col, sq)]];
 
@@ -203,7 +200,7 @@ namespace Clovis {
 		constexpr auto shield_table = [] {
 			std::array<std::array<short, SQ_N>, COLOUR_N> arr{};
 
-			for (auto col : { WHITE, BLACK })
+			for (const auto col : { WHITE, BLACK })
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 					arr[col][sq] = pawn_shield[source32[relative_square(col, sq)]];
 
@@ -223,7 +220,7 @@ namespace Clovis {
 		constexpr auto passed_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
-			for (Colour c : { WHITE, BLACK })
+			for (const auto c : { WHITE, BLACK })
 				for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
 					for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c))
 						arr[c][s1] |= Bitboards::pawn_attacks[c][s2] | s2;
@@ -234,7 +231,7 @@ namespace Clovis {
 		constexpr auto outpost_pawn_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr = passed_masks;
 
-			for (Colour c : { WHITE, BLACK })
+			for (const auto c : { WHITE, BLACK })
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 					arr[c][sq] &= ~Bitboards::file_masks[sq];
 
@@ -244,7 +241,7 @@ namespace Clovis {
 		constexpr auto rook_on_passer_masks = [] {
 			std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr = passed_masks;
 
-			for (Colour c : { WHITE, BLACK })
+			for (const auto c : { WHITE, BLACK })
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 					arr[c][sq] ^= outpost_pawn_masks[c][sq];
 
@@ -265,10 +262,8 @@ namespace Clovis {
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
 				Bitboard bb = Bitboards::get_attacks<KING>(s1);
-				while (bb) {
-					Square s2 = pop_lsb(bb);
-					arr[s1] |= Bitboards::get_attacks<KING>(s2);
-				}
+				while (bb) 
+					arr[s1] |= Bitboards::get_attacks<KING>(pop_lsb(bb));
 				arr[s1] &= ~(Bitboards::get_attacks<KING>(s1) | s1);
 			}
 

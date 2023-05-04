@@ -4,9 +4,7 @@
 #include <cstring>
 #include <cassert>
 
-#include "position.h"
 #include "movelist.h"
-#include "tt.h"
 
 namespace Clovis {
 
@@ -35,7 +33,7 @@ namespace Clovis {
 		constexpr auto mvv_lva = [] {
 			std::array<std::array<int, 15>, 15> arr{};
 
-			for (Colour c : { WHITE, BLACK })
+			for (const auto c : { WHITE, BLACK })
 				for (PieceType p1 = PAWN; p1 <= KING; ++p1)
 					for (PieceType p2 = PAWN; p2 <= KING; ++p2)
 						arr[make_piece(p1, c)][make_piece(p2, ~c)] = KING - p1 + KING * p2;
@@ -43,15 +41,15 @@ namespace Clovis {
 			return arr;
 		}();
 
-		inline int cft_index(Colour c, Move m) {
+		inline int cft_index(const Colour c, const Move m) {
 			return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m);
 		}
 
-		inline int& get_history_entry(Colour c, Move m) {
+		inline int& get_history_entry(const Colour c, const Move m) {
 			return history_table[cft_index(c, m)];
 		}
 
-		inline Move& get_counter_entry(Colour c, Move m) {
+		inline Move& get_counter_entry(const Colour c, const Move m) {
 			return counter_table[cft_index(c, m)];
 		}
 
@@ -78,46 +76,46 @@ namespace Clovis {
 			reset_history();
 		}
 
-		inline void update_killers(Move m, int ply) {
+		inline void update_killers(const Move m, const int ply) {
 			if (killer_table[ply].primary != m) {
 				killer_table[ply].secondary = killer_table[ply].primary;
 				killer_table[ply].primary = m;
 			}
 		}
 
-		inline void update_history_entry(Move m, Colour c, int bonus) {
+		inline void update_history_entry(const Move m, const Colour c, const int bonus) {
 			int& history_entry = history_table[cft_index(c, m)];
 			history_entry += bonus - (history_entry * abs(bonus) >> 14);
 		}
 
-		inline void update_counter_entry(Colour c, Move prev, Move curr) {
+		inline void update_counter_entry(const Colour c, const Move prev, const Move curr) {
 			counter_table[cft_index(c, prev)] = curr;
 		}
 
-		inline bool is_killer(Move m, int ply) {
+		inline bool is_killer(const Move m, const int ply) {
 			return m == killer_table[ply].primary || m == killer_table[ply].secondary;
 		}
 
 		class MovePicker {
 		public:
-			MovePicker(const Position& p, int pl, Move pm, Move ttm) 
+			MovePicker(const Position& p, const int pl, const Move pm, const Move ttm) 
 				: pos(p), ply(pl), stage(TT_MOVE), curr(moves.data()), last(moves.data()),
 				last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm) {}
-			Move get_next(bool play_quiets);
-			template<HashFlag HF> void update_history(Move best_move, int depth);
+			Move get_next(const bool play_quiets);
+			template<HashFlag HF> void update_history(const Move best_move, const int depth) const;
 		private:
 			void score_captures();
 			void score_quiets();
 			const Position& pos;
 
+			std::array<ScoredMove, MAX_MOVES> moves;
 			int ply, stage;
 			ScoredMove *curr, *last, *last_bad_cap;
-			std::array<ScoredMove, MAX_MOVES> moves;
 			Move prev_move, tt_move;
 		};
 	
 		template<HashFlag HF>
-		void MovePicker::update_history(Move best_move, int depth) {
+		void MovePicker::update_history(const Move best_move, const int depth) const {
 
 			assert(!move_capture(best_move) || move_promotion_type(best_move));
 

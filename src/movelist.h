@@ -1,10 +1,6 @@
 #pragma once
 
-#include <iostream>
-
-#include "types.h"
 #include "position.h"
-#include "bitboard.h"
 
 namespace Clovis {
 
@@ -12,7 +8,7 @@ namespace Clovis {
 
 	struct ScoredMove {
 		constexpr ScoredMove() = default;
-		void operator=(Move m) { move = m; }
+		ScoredMove& operator=(const Move m) { move = m; return *this; }
 		operator Move() const { return move; }
 
 		Move move{ MOVE_NONE };
@@ -27,7 +23,7 @@ namespace Clovis {
 		class MoveList {
 		public:
 			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
-			int size() { return last - moves.data(); }
+			int size() const { return last - moves.data(); }
 			auto begin() const { return moves.data(); }
 			auto end() const { return last; }
 			void remove_illegal(Position& pos) {

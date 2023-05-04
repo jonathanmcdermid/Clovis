@@ -17,11 +17,11 @@ namespace Clovis {
 
 			while (bb) {
 
-				Square src = pop_lsb(bb);
+				const Square src = pop_lsb(bb);
 				Bitboard att = Bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
 
 				while (att) {
-					Square tar = pop_lsb(att);
+					const Square tar = pop_lsb(att);
 					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? 0 : pos.occ_bb[BOTH] & tar, 0, 0, 0);
 				}
 			}
@@ -30,7 +30,7 @@ namespace Clovis {
 		}
 
 		template<typename T, MoveType M, Colour US, bool TC>
-		T* generate_promotions(T* moves, Square src, Square tar) {
+		T* generate_promotions(T* moves, const Square src, const Square tar) {
 
 			if constexpr (M != QUIET_MOVES)
 				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN,  US), TC, 0, 0, 0);
@@ -54,7 +54,8 @@ namespace Clovis {
 
 			while (bb) {
 
-				Square src = pop_lsb(bb), tar = src + pawn_push(US);
+				const Square src = pop_lsb(bb);
+				Square tar = src + pawn_push(US);
 
 				if (rank_of(src) == relative_rank(US, RANK_7)) {
 

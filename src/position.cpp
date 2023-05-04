@@ -15,7 +15,7 @@ namespace Clovis {
 
 		arr.fill(ALL_CASTLING);
 		
-		for (Colour c : { WHITE, BLACK }) {
+		for (const Colour c : { WHITE, BLACK }) {
 			arr[relative_square(c, E1)] &= ~(ks_castle_rights(c) | qs_castle_rights(c));
 			arr[relative_square(c, A1)] &= ~qs_castle_rights(c);
 			arr[relative_square(c, H1)] &= ~ks_castle_rights(c);
@@ -69,20 +69,18 @@ namespace Clovis {
 
 	// returns the square that pins a piece if it exists
 	template<Colour US>
-	optional<Square> Position::get_pinner(Square sq) const {
+	optional<Square> Position::get_pinner(const Square sq) const {
 
-		Square ksq = lsb(pc_bb[make_piece(KING, US)]);
+		const Square ksq = lsb(pc_bb[make_piece(KING, US)]);
 
 		if (Bitboards::get_attacks<QUEEN>(ksq) & sq) {
 			Bitboard candidates = 
 			 ((Bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK,   ~US)])) 
 			| (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
 
-			while (candidates) {
-				Square candidate = pop_lsb(candidates);
-				if (Bitboards::between_squares(ksq, candidate) & sq)
+			while (candidates)
+				if (const Square candidate = pop_lsb(candidates); Bitboards::between_squares(ksq, candidate) & sq)
 					return candidate;
-			}
 		}
 
 		return nullopt;
@@ -94,21 +92,21 @@ namespace Clovis {
 	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>
-	bool Position::discovery_threat(Square sq) const {
-		// pawn is moveless if it attacks no enemies and is blocked by a piece
-		// we dont have to worry about shift because discovery pawns will never be on outer files
-		Bitboard their_moveless_pawns = 
+	bool Position::discovery_threat(const Square sq) const {
+		// pawn is immobile if it attacks no enemies and is blocked by a piece
+		// we don't have to worry about shift because discovery pawns will never be on outer files
+		Bitboard their_immobile_pawns = 
 		 (shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) & 
 		~(shift<pawn_push(US) + EAST>(occ_bb[US]) | shift<pawn_push(US) + WEST>(occ_bb[US]));
 
 		if (side == ~US && bs->enpassant != SQ_NONE)
-			their_moveless_pawns &= ~Bitboards::pawn_attacks[US][bs->enpassant];
+			their_immobile_pawns &= ~Bitboards::pawn_attacks[US][bs->enpassant];
 
 		Bitboard candidates = 
 		 ((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) 
-		| (Bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_moveless_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
+		| (Bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
         
-		Bitboard occupancy = occ_bb[BOTH] ^ candidates;
+		const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
 		while (candidates)
 			if (popcount(Bitboards::between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
@@ -128,8 +126,7 @@ namespace Clovis {
 		for (Rank r = RANK_8; r >= RANK_1; --r) {
 			int empty_count = 0;
 			for (File f = FILE_A; f <= FILE_H; ++f) {
-				Square sq = make_square(f, r);
-				if (pc_table[sq] == NO_PIECE)
+				if (const Square sq = make_square(f, r); pc_table[sq] == NO_PIECE)
 					++empty_count;
 				else {
 					if (empty_count) {
@@ -174,12 +171,11 @@ namespace Clovis {
 		ss >> noskipws;
 
 		while ((ss >> token) && !isspace(token)) {
-			size_t index;
 			if (isdigit(token))
 				sq = sq + (token - '0') * EAST;
 			else if (token == '/')
 				sq = sq + 2 * SOUTH;
-			else if (index = piece_str.find(token); index != string::npos) {
+			else if (size_t index = piece_str.find(token); index != string::npos) {
 				put_piece(Piece(index), sq);
  				put_piece(Piece(index), sq);
 				bs->game_phase += game_phase_inc[Piece(index)];
@@ -201,9 +197,9 @@ namespace Clovis {
 		ss >> token;
 
 		if (token != '-') {
-			auto f = File(token - 'a');
+			const auto f = File(token - 'a');
 			ss >> token;
-			auto r = Rank(token - '1');
+			const auto r = Rank(token - '1');
 			bs->enpassant = make_square(f, r);
 		}
 		else bs->enpassant = SQ_NONE;
@@ -244,8 +240,8 @@ namespace Clovis {
 		return k;
 	}
 
-	bool Position::see_ge(Move move, int threshold) const {
-		// dont even bother
+	bool Position::see_ge(const Move move, const int threshold) const {
+		// don't even bother
 		if (move_promotion_type(move) || move_enpassant(move))
 			return true;
 
@@ -282,7 +278,7 @@ namespace Clovis {
 
 	// updates bitboards to represent a new piece on a square
 	// does not remove info if a piece was already on that square
-	void Position::put_piece(Piece pc, Square sq) {
+	void Position::put_piece(const Piece pc, const Square sq) {
 		assert(!(sq & pc_bb[pc]));
 		assert(!(sq & occ_bb[get_side(pc)]));
 		assert(!(sq & occ_bb[BOTH]));
@@ -294,7 +290,7 @@ namespace Clovis {
 	}
 	
 	// updates bitboards to replace an old piece with a new piece on a square
-	void Position::replace_piece(Piece pc, Square sq) {
+	void Position::replace_piece(const Piece pc, const Square sq) {
 		assert(!(sq & occ_bb[get_side(pc)]));
 		assert((sq & occ_bb[~get_side(pc)]));
 		assert((sq & occ_bb[BOTH]));
@@ -307,7 +303,7 @@ namespace Clovis {
 	}
 
 	// updates bitboards to represent a piece being removed from a square
-	void Position::remove_piece(Square sq) {
+	void Position::remove_piece(const Square sq) {
 		Piece pc = pc_table[sq];
 
 		assert(sq & pc_bb[pc]);
@@ -322,7 +318,7 @@ namespace Clovis {
 	
 	template<bool NM>
 	void Position::new_board_state() {
-		BoardState* bs_new = new BoardState;
+		const auto bs_new = new BoardState;
 		assert(bs_new != bs);
 		// copy old boardstate info to new boardstate and update clocks
 		bs_new->enpassant = bs->enpassant;
@@ -353,17 +349,17 @@ namespace Clovis {
 	void Position::undo_null_move() {
 		side = ~side;
 		assert(bs->prev);
-		BoardState* temp = bs;
+		const BoardState* temp = bs;
 		bs = bs->prev;
 		delete temp;
 	}
 
 	// executes a move and updates the position
-	bool Position::do_move(Move move) {
+	bool Position::do_move(const Move move) {
 		new_board_state<false>();
 		
-		Square src = move_from_sq(move), tar = move_to_sq(move);
-		Piece piece = move_piece_type(move);
+		const Square src = move_from_sq(move), tar = move_to_sq(move);
+		const Piece piece = move_piece_type(move);
 
 		assert(get_side(move_piece_type(move)) == side);
 		assert(get_side(pc_table[src]) == side);
@@ -381,7 +377,7 @@ namespace Clovis {
 
 		if (move_capture(move)) {
 			if (move_enpassant(move)) {
-				Square victim_sq = tar - pawn_push(side);
+				const Square victim_sq = tar - pawn_push(side);
 				bs->captured_piece = make_piece(PAWN, ~side);
 				bs->key  ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
 				bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
@@ -436,18 +432,18 @@ namespace Clovis {
 			}
 		}
 
-		// move gen doesnt check for suicidal king, so we check here
-		bool valid = !is_king_in_check();
+		// move gen doesn't check for suicidal king, so we check here
+		const bool valid = !is_king_in_check();
 		side = ~side;
 		if (!valid) undo_move(move);
 		return valid;
 	}
 
 	// reverts a move and rolls back the position
-	void Position::undo_move(Move move) {
+	void Position::undo_move(const Move move) {
 		side = ~side;
 
-		Square tar = move_to_sq(move);
+		const Square tar = move_to_sq(move);
 
 		put_piece(move_piece_type(move), move_from_sq(move));
 
@@ -469,17 +465,17 @@ namespace Clovis {
 		}
 
 		assert(bs->prev);
-		BoardState* temp = bs;
+		const BoardState* temp = bs;
 		bs = bs->prev;
 		delete temp;
 	}
 
 	// returns the piece type of the least valuable piece on a bitboard of attackers
-	std::optional<Square> Position::get_smallest_attacker(Bitboard attackers, const Colour stm) const {
+	std::optional<Square> Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
 
 		if (attackers & occ_bb[stm])
 			for (PieceType pt = PAWN; pt <= KING; ++pt)
-				if (Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers)
+				if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers)
 					return lsb(bb);
 
 		return nullopt;

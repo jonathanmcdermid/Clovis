@@ -13,7 +13,7 @@ namespace Clovis {
 
 	struct TTEntry {
 		constexpr TTEntry() = default;
-		TTEntry(U64 k, uint8_t d, uint8_t f, short e, Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
+		TTEntry(const U64 k, const uint8_t d, const uint8_t f, const short e, const Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
 
 		Key key{ 0ULL };    // 8 bytes
 		uint8_t depth{ 0 }; // 1 bytes
@@ -23,7 +23,7 @@ namespace Clovis {
 	};
 
 	struct TTBucket {
-		TTEntry& operator[](bool index) { return index ? e2 : e1; }
+		TTEntry& operator[](const bool index) { return index ? e2 : e1; }
 
 		TTEntry e1, e2;
 	};
@@ -58,16 +58,16 @@ namespace Clovis {
 		size_t tt_size;
 	};
 
-	inline int TTable::hash_index(Key key) const {
+	inline int TTable::hash_index(const Key key) const {
 		return key & (tt_size - 1ULL);
 	}
 
-	inline int TTable::pawn_hash_index(Key key) const {
+	inline int TTable::pawn_hash_index(const Key key) const {
 		return key & (pt_size - 1ULL);
 	}
 
 	// probe the pawn table to see if an entry exists
-	inline PTEntry TTable::probe_pawn(Key key) {
+	inline PTEntry TTable::probe_pawn(const Key key) {
 		return pt[pawn_hash_index(key)];
 	}
 
