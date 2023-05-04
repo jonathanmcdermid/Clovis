@@ -1,10 +1,5 @@
 #pragma once
 
-#include <chrono>
-#include <iomanip>
-#include <climits>
-
-#include "evaluate.h"
 #include "movepicker.h"
 #include "tt.h"
 

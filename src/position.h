@@ -1,12 +1,7 @@
 #pragma once
 
 #include <string>
-#include <memory>
-#include <cassert>
-#include <sstream>
-#include <iostream>
 #include <optional>
-#include <cstring>
 
 #include "bitboard.h"
 

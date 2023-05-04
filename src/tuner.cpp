@@ -1,3 +1,10 @@
+#include <thread>
+#include <math.h>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <cmath>
+
 #include "tuner.h"
 
 using namespace std;

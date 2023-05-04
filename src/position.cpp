@@ -1,3 +1,9 @@
+#include <memory>
+#include <cassert>
+#include <sstream>
+#include <iostream>
+#include <cstring>
+
 #include "position.h"
 
 using namespace std;
@@ -26,7 +32,7 @@ namespace Clovis {
 
 	namespace Zobrist {
 
-		constexpr U64 xorshift(U64 state) {
+		constexpr U64 xor_shift(U64 state) {
 			state ^= state >> 12;
 			state ^= state << 25;
 			state ^= state >> 27;
@@ -40,7 +46,7 @@ namespace Clovis {
 			U64 s = state;
 			for (int i = NO_PIECE; i <= B_KING; ++i)
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-					arr[i][sq] = xorshift(s++);
+					arr[i][sq] = xor_shift(s++);
 
 			return arr;
 		}();
@@ -49,7 +55,7 @@ namespace Clovis {
 			std::array<Key, SQ_N> arr{};
 			U64 s = state + SQ_N * 15;
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-				arr[sq] = xorshift(s++);
+				arr[sq] = xor_shift(s++);
 
 			return arr;
 		}();
@@ -58,12 +64,12 @@ namespace Clovis {
 			std::array<Key, 16> arr{};
 			U64 s = state + SQ_N * 16;
 			for (int i = 0; i < 16; ++i)
-				arr[i] = xorshift(s++);
+				arr[i] = xor_shift(s++);
 
 			return arr;
 		}();
 
-		constexpr Key side = xorshift(state + SQ_N * 16 + 16);
+		constexpr Key side = xor_shift(state + SQ_N * 16 + 16);
 
 	} // namespace Zobrist
 

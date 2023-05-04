@@ -1,13 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <sstream>
-#include <cassert>
-
-#include "search.h"
-
 namespace Clovis {
 
 	namespace UCI {

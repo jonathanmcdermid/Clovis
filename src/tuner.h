@@ -1,13 +1,6 @@
 #pragma once
 
-#include <thread>
 #include <vector>
-#include <math.h>
-#include <cstring>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
 
 #include "evaluate.h"
 

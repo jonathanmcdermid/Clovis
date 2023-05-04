@@ -1,3 +1,10 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
+#include <chrono>
+
 #include "perft.h"
 
 using namespace std;
@@ -30,7 +37,7 @@ namespace Clovis {
 
 				if (line.empty()) continue;
 
-				size_t idx = line.find(",");
+				size_t idx = line.find(',');
 				string fen = line.substr(0, idx);
 				istringstream is(line.substr(idx + 1).c_str());
 				int depth = 1;
@@ -52,26 +59,24 @@ namespace Clovis {
 
 			bool failed = false;
 
-			for (auto& it : pp) {
+			for (auto& [fen, nodes] : pp) {
 
 				auto start_time = chrono::steady_clock::now();
-				Position pos(it.fen.c_str());
-				cout << "testing position " << it.fen << endl;
+				Position pos(fen.c_str());
+				cout << "testing position " << fen << endl;
 
-				for (size_t depth = 1; depth - 1 < it.nodes.size(); ++depth) {
+				for (size_t depth = 1; depth - 1 < nodes.size(); ++depth) {
 
-					U64 nodes = 0;
-					perft_helper(pos, depth, nodes);
+					U64 result_nodes = 0;
+					perft_helper(pos, depth, result_nodes);
 
-					if (nodes != it.nodes[depth - 1])
-						failed = true;
-					
-					cout << (failed ? " FAIL! " : " PASS! ") 
-						 << "depth: "    << depth
-						 << "expected: " << setw(10) << it.nodes[depth - 1] 
-						 << " result: "  << setw(10) << nodes
-						 << " time:"     << setw(7)  
-						 << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() << endl;
+					failed = (result_nodes != nodes[depth - 1]);
+					cout << (failed ? " FAIL! " : " PASS! ")
+						<< "depth: "    << depth
+						<< "expected: " << setw(10) << nodes[depth - 1]
+						<< " result: "  << setw(10) << result_nodes
+						<< " time:"     << setw(7)
+						<< chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() << endl;
 				}
 			}
 

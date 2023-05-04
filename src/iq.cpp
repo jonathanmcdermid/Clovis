@@ -1,3 +1,6 @@
+#include <fstream>
+#include <sstream>
+
 #include "iq.h"
 
 using namespace std;
@@ -16,7 +19,7 @@ namespace Clovis {
 
 				if (line.empty()) continue;
 
-				size_t idx = line.find(","), idx_end = line.find(",", idx + 1);
+				size_t idx = line.find(','), idx_end = line.find(',', idx + 1);
 				string fen = line.substr(0, idx);
 				istringstream is(line.substr(idx + 1, idx_end - idx - 1).c_str());
 				vector<Move> moves;

@@ -6,7 +6,7 @@
 
 #define NDEBUG
 
-#include <assert.h>
+#include <cassert>
 #include <string>
 #include <iostream>
 #include <cmath>

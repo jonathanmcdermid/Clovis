@@ -1,12 +1,11 @@
 #include "cmdline.h"
-
-using namespace Clovis;
+#include "bitboard.h"
 
 int main(const int argc, char* argv[]) {
 
-	Bitboards::init_bitboards();
+	Clovis::Bitboards::init_bitboards();
 
-	CMDLine::handle_cmd(argc, argv);
+	Clovis::CMDLine::handle_cmd(argc, argv);
 
 	return EXIT_SUCCESS;
 }

@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "evaluate.h"
 
 using namespace std;
@@ -17,7 +19,7 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		inline bool is_passed_pawn(const Bitboard bb, const Square sq) {
+		bool is_passed_pawn(const Bitboard bb, const Square sq) {
 			return !(bb & passed_masks[US][sq]);
 		}
 
@@ -39,12 +41,12 @@ namespace Clovis {
 		}
 
 		template<Colour US>
-		inline bool is_outpost(const Square sq, const EvalInfo& ei) {
+		bool is_outpost(const Square sq, const EvalInfo& ei) {
 			return (outpost_masks[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US]);
 		}
 		
 		template<Colour US>
-		inline bool is_fianchetto(const Position& pos, const Square sq) {
+		bool is_fianchetto(const Position& pos, const Square sq) {
 			return fianchetto_bishop_mask[US] & sq && center_mask[US] & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq);
 		}
 
@@ -69,7 +71,7 @@ namespace Clovis {
 		}
 
 		template<Colour US, PieceType PT>
-		inline void psqt_trace(const Square sq) {
+		void psqt_trace(const Square sq) {
 			if constexpr (PT == PAWN)   ++T[PAWN_PSQT   + source32[relative_square(US, sq)]][US];
 			if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
 			if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
@@ -79,7 +81,7 @@ namespace Clovis {
 		}
 
 		template<Colour US, PieceType PT>
-		inline Bitboard worthy_trades(const Position& pos) {
+		Bitboard worthy_trades(const Position& pos) {
 
 			static_assert(PT >= KNIGHT && PT <= QUEEN);
 

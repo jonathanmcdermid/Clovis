@@ -137,10 +137,10 @@ namespace Clovis {
 				<< move_to_sq(*m)
 				<< piece_str[move_promotion_type(*m)] << '\t'
 				<< piece_str[move_piece_type(*m)]     << '\t'
-				<< int(move_capture(*m))              << '\t'
-				<< int(move_double(*m))               << '\t'
-				<< int(move_enpassant(*m))            << '\t'
-				<< int(move_castling(*m))             << '\t';
+				<< static_cast<int>(move_capture(*m))              << '\t'
+				<< static_cast<int>(move_double(*m))               << '\t'
+				<< static_cast<int>(move_enpassant(*m))            << '\t'
+				<< static_cast<int>(move_castling(*m))             << '\t';
 
 				if constexpr (is_same<T, ScoredMove>())
 					cout << m->score;

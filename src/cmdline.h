@@ -1,11 +1,5 @@
 #pragma once
 
-#include "uci.h"
-#include "perft.h"
-#include "tuner.h"
-#include "benchmark.h"
-#include "iq.h"
-
 namespace Clovis {
 
 	namespace CMDLine {

@@ -1,4 +1,7 @@
+#include <sstream>
+
 #include "uci.h"
+#include "search.h"
 
 using namespace std;
 

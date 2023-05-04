@@ -1,4 +1,11 @@
+#include <cstring>
+
 #include "cmdline.h"
+#include "uci.h"
+#include "perft.h"
+#include "tuner.h"
+#include "benchmark.h"
+#include "iq.h"
 
 using namespace std;
 

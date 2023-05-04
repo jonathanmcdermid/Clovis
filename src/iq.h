@@ -1,7 +1,5 @@
 #pragma once
 
-#include <fstream>
-
 #include "parse.h"
 
 namespace Clovis {
