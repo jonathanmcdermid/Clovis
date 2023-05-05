@@ -1,19 +1,18 @@
 #include <thread>
-#include <math.h>
+#include <cmath>
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include <cmath>
 
 #include "tuner.h"
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace Tuner {
+	namespace tuner {
 
-		typedef array<array<double, PHASE_N>, TI_MISC> TVector;
+		using TVector = array<array<double, PHASE_N>, TI_MISC>;
 		
 		vector<TEntry> entries;
 		TVector params;
@@ -30,19 +29,19 @@ namespace Clovis {
 
 			if constexpr (is_same<T, Score>()) {
 				assert(ti < TI_SAFETY);
-				params[ti][MG] = (double) t.mg;
-				params[ti][EG] = (double) t.eg;
+				params[ti][MG] = static_cast<double>(t.mg);
+				params[ti][EG] = static_cast<double>(t.eg);
 			} else {
 				static_assert(is_same<T, short>());
 				assert(ti >= TI_SAFETY);
-				params[ti][MG] = (double) t;
+				params[ti][MG] = static_cast<double>(t);
 				params[ti][EG] = 0.0;
 			}
 		}
 		
 		void init_params() {
 
-			using namespace Eval;
+			using namespace eval;
 			
 			for (auto& it : pawn_source)
 				add_param<Score>(it, TraceIndex(&it + PAWN_PSQT - pawn_source));
@@ -96,7 +95,7 @@ namespace Clovis {
 		
 		double linear_eval(const TEntry& entry, TGradient* tg) {
 
-			array<double, PHASE_N> normal;
+			array<double, PHASE_N> normal{};
 			double safety = 0.0;
 			array<array<double, COLOUR_N>, EVALTYPE_N> mg = {0};
 			array<array<double, COLOUR_N>, EVALTYPE_N> eg = {0};
@@ -199,7 +198,7 @@ namespace Clovis {
 		
 		void print_params() {
 
-			using namespace Eval;
+			using namespace eval;
 			
 			print_table("pawn_source",      PAWN_PSQT,        sizeof(pawn_source)      / sizeof(Score), 4);
 			print_table("knight_source",    KNIGHT_PSQT,      sizeof(knight_source)    / sizeof(Score), 4);
@@ -275,7 +274,7 @@ namespace Clovis {
 				if (line.empty()) continue;
 
 				TEntry entry;
-				memset(Eval::T.data(), 0, sizeof(Eval::T));
+				memset(eval::T.data(), 0, sizeof(eval::T));
 				const size_t idx = line.find('\"');
 				const size_t idx_end = line.find('\"', idx + 1);
 
@@ -291,18 +290,18 @@ namespace Clovis {
 
 				entry.phase = pos.get_game_phase();
 
-				entry.static_eval = Eval::evaluate<true>(pos);
+				entry.static_eval = eval::evaluate<true>(pos);
 				if (pos.side == BLACK) entry.static_eval = -entry.static_eval;
 
 				entry.stm = pos.side;
 
-				entry.n_att[WHITE] = Eval::T[SAFETY_N_ATT][WHITE];
-				entry.n_att[BLACK] = Eval::T[SAFETY_N_ATT][BLACK];
+				entry.n_att[WHITE] = eval::T[SAFETY_N_ATT][WHITE];
+				entry.n_att[BLACK] = eval::T[SAFETY_N_ATT][BLACK];
 
 				for (int j = 0; j < TI_N; ++j)
-					if ((j < TI_SAFETY && Eval::T[j][WHITE] - Eval::T[j][BLACK] != 0)
-						|| (j >= TI_SAFETY && (Eval::T[j][WHITE] != 0 || Eval::T[j][BLACK] != 0)))
-						entry.tuples.emplace_back(j, Eval::T[j][WHITE], Eval::T[j][BLACK]);
+					if ((j < TI_SAFETY && eval::T[j][WHITE] - eval::T[j][BLACK] != 0)
+						|| (j >= TI_SAFETY && (eval::T[j][WHITE] != 0 || eval::T[j][BLACK] != 0)))
+						entry.tuples.emplace_back(j, eval::T[j][WHITE], eval::T[j][BLACK]);
 
 				entries.push_back(entry);
 			}
@@ -341,6 +340,6 @@ namespace Clovis {
 			}
 		}
 
-	} // namespace Tuner
+	} // namespace tuner
 
-} // namespace Clovis
+} // namespace clovis

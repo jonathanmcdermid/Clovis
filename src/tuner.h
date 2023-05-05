@@ -4,9 +4,9 @@
 
 #include "evaluate.h"
 
-namespace Clovis {
+namespace clovis {
 
-	namespace Tuner {
+	namespace tuner {
 	
         struct TTuple {
             constexpr TTuple(const int i, const int wc, const int bc) : index(i), coefficient{ wc, bc } {}
@@ -34,6 +34,6 @@ namespace Clovis {
 
         void tune_eval();
 
-	} // namespace Tuner
+	} // namespace tuner
 
-} // namespace Clovis
+} // namespace clovis

@@ -3,11 +3,11 @@
 #include "position.h"
 #include "tt.h"
 
-namespace Clovis {
+namespace clovis {
 
 	struct Position;
 
-	namespace Eval {
+	namespace eval {
 
 		struct EvalInfo : PTEntry {
 			constexpr EvalInfo() = default;
@@ -211,8 +211,8 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-				arr[sq] = (file_of(sq) != FILE_A ? Bitboards::file_masks[sq + WEST] : 0ULL)
-				        | (file_of(sq) != FILE_H ? Bitboards::file_masks[sq + EAST] : 0ULL);
+				arr[sq] = (file_of(sq) != FILE_A ? bitboards::file_masks[sq + WEST] : 0ULL)
+				        | (file_of(sq) != FILE_H ? bitboards::file_masks[sq + EAST] : 0ULL);
 
 			return arr;
 		}();
@@ -223,7 +223,7 @@ namespace Clovis {
 			for (const auto c : { WHITE, BLACK })
 				for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
 					for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c))
-						arr[c][s1] |= Bitboards::pawn_attacks[c][s2] | s2;
+						arr[c][s1] |= bitboards::pawn_attacks[c][s2] | s2;
 
 			return arr;
 		}();
@@ -233,7 +233,7 @@ namespace Clovis {
 
 			for (const auto c : { WHITE, BLACK })
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-					arr[c][sq] &= ~Bitboards::file_masks[sq];
+					arr[c][sq] &= ~bitboards::file_masks[sq];
 
 			return arr;
 		}();
@@ -252,7 +252,7 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-				arr[sq] = Bitboards::get_attacks<KING>(sq) | sq;
+				arr[sq] = bitboards::get_attacks<KING>(sq) | sq;
 
 			return arr;
 		}();
@@ -261,18 +261,18 @@ namespace Clovis {
 			std::array<Bitboard, SQ_N> arr{};
 
 			for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
-				Bitboard bb = Bitboards::get_attacks<KING>(s1);
+				Bitboard bb = bitboards::get_attacks<KING>(s1);
 				while (bb) 
-					arr[s1] |= Bitboards::get_attacks<KING>(pop_lsb(bb));
-				arr[s1] &= ~(Bitboards::get_attacks<KING>(s1) | s1);
+					arr[s1] |= bitboards::get_attacks<KING>(pop_lsb(bb));
+				arr[s1] &= ~(bitboards::get_attacks<KING>(s1) | s1);
 			}
 
 			return arr;
 		}();
 
 		constexpr Bitboard outpost_masks[COLOUR_N] = { 
-			Bitboards::rank_masks[A4] | Bitboards::rank_masks[A5] | Bitboards::rank_masks[A6],
-			Bitboards::rank_masks[A3] | Bitboards::rank_masks[A4] | Bitboards::rank_masks[A5] 
+			bitboards::rank_masks[A4] | bitboards::rank_masks[A5] | bitboards::rank_masks[A6],
+			bitboards::rank_masks[A3] | bitboards::rank_masks[A4] | bitboards::rank_masks[A5] 
 		};
 
 		constexpr Bitboard light_mask = 0x55aa55aa55aa55aaULL;
@@ -287,6 +287,6 @@ namespace Clovis {
 		
 		extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
-	} // namespace Eval
+	} // namespace eval
 
-} // namespace Clovis
+} // namespace clovis

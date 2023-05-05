@@ -2,7 +2,7 @@
 
 #include "position.h"
 
-namespace Clovis {
+namespace clovis {
 
 	struct Position;
 
@@ -15,7 +15,7 @@ namespace Clovis {
 		int score{ 0 };
 	};
 
-	namespace MoveGen {
+	namespace move_gen {
 
 		template<typename T, MoveType M> T* generate(const Position& pos, T* moves);
 		template<typename T> void print_moves(const T* m, const T* end);
@@ -35,6 +35,6 @@ namespace Clovis {
 			Move* last;
 		};
 
-	} // namespace MoveGen
+	} // namespace move_gen
 
-} // namsepace Clovis
+} // namsepace clovis

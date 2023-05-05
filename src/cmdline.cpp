@@ -9,15 +9,15 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace CMDLine {
+	namespace cmdline {
 	
 		// handle any start-up command line arguments
 		void handle_cmd(const int argc, char* argv[]) {
 			
 			if (argc < 2) {
-				UCI::loop(argc, argv);
+				uci::loop(argc, argv);
 				exit(EXIT_SUCCESS);
 			}
 
@@ -30,33 +30,33 @@ namespace Clovis {
 			}
 
 			if (!strcmp(argv[1], "bench")) {
-				Bench::benchmark(argc, argv);
+				bench::benchmark(argc, argv);
 				exit(EXIT_SUCCESS);
 			}
 
 			if (!strcmp(argv[1], "perft")) {
-				Perft::perft();
+				perft::perft();
 				exit(EXIT_SUCCESS);
 			}
 
 			if (!strcmp(argv[1], "iq")) {
-				IQ::iq_test();
+				iq::iq_test();
 				exit(EXIT_SUCCESS);
 			}
 
 			if (!strcmp(argv[1], "tune")) {
-				Tuner::tune_eval();
+				tuner::tune_eval();
 				exit(EXIT_SUCCESS);
 			}
 			
 			if (!strcmp(argv[1], "generate")) {
-				Parse::generate_data();
+				parse::generate_data();
 				exit(EXIT_SUCCESS);
 			}
 
 			exit(EXIT_FAILURE);
 		}
 		
-	} // namespace Bench
+	} // namespace bench
 
-} // namespace Clovis
+} // namespace clovis

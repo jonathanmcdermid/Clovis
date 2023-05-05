@@ -5,9 +5,9 @@
 
 #include "movelist.h"
 
-namespace Clovis {
+namespace clovis {
 
-    namespace Perft {
+    namespace perft {
 
 		struct PerftPosition {
 			std::string fen;
@@ -16,6 +16,6 @@ namespace Clovis {
 
 		void perft();
 
-    } // namespace Perft
+    } // namespace perft
 
-} // namespace Clovis
+} // namespace clovis

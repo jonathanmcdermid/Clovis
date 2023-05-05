@@ -9,18 +9,18 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace Perft {
+	namespace perft {
 
-		void perft_helper(Position& pos, const int depth, uint64_t& nodes) {
+		void perft_helper(Position& pos, const size_t depth, uint64_t& nodes) {
 
 			if (depth == 0) {
 				++nodes;
 				return;
 			}
 
-			for (const auto& m : MoveGen::MoveList(pos)) {
+			for (const auto& m : move_gen::MoveList(pos)) {
 				if (!pos.do_move(m)) continue;
 				perft_helper(pos, depth - 1, nodes);
 				pos.undo_move(m);
@@ -72,17 +72,17 @@ namespace Clovis {
 
 					failed = (result_nodes != nodes[depth - 1]);
 					cout << (failed ? " FAIL! " : " PASS! ")
-						<< "depth: "    << depth
-						<< "expected: " << setw(10) << nodes[depth - 1]
-						<< " result: "  << setw(10) << result_nodes
-						<< " time:"     << setw(7)
-						<< chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() << endl;
+						 << "depth: "    << depth
+						 << "expected: " << setw(10) << nodes[depth - 1]
+						 << " result: "  << setw(10) << result_nodes
+						 << " time:"     << setw(7)
+						 << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() << endl;
 				}
 			}
 
 			cout << "Done!" << endl << (failed ? "Some tests failed." : "All tests passed!") << endl;
 		}
 
-	} // namespace Perft
+	} // namespace perft
 
-} // namespace Clovis
+} // namespace clovis

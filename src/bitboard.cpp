@@ -2,9 +2,9 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace Bitboards {
+	namespace bitboards {
 
 		array<array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks;
 		array<array<Bitboard, rook_attack_indices>,   SQ_N> rook_attacks;
@@ -89,4 +89,4 @@ namespace Clovis {
 
 	} // namespace Bitboards
 
-} // namespace Clovis
+} // namespace clovis

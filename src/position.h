@@ -5,7 +5,7 @@
 
 #include "bitboard.h"
 
-namespace Clovis {
+namespace clovis {
 
 	constexpr std::string_view piece_str = " PNBRQK  pnbrqk";
 
@@ -65,12 +65,12 @@ namespace Clovis {
 	template<Colour US>
 	bool Position::is_attacked(const Square sq) const {
 
-		return ((pc_bb[make_piece(PAWN,   ~US)] & Bitboards::pawn_attacks[US][sq])
-		     || (pc_bb[make_piece(KNIGHT, ~US)] & Bitboards::knight_attacks[sq])
-		     || (pc_bb[make_piece(BISHOP, ~US)] & Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
-		     || (pc_bb[make_piece(ROOK,   ~US)] & Bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
-		     || (pc_bb[make_piece(QUEEN,  ~US)] & Bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
-		     || (pc_bb[make_piece(KING,   ~US)] & Bitboards::king_attacks[sq]));
+		return ((pc_bb[make_piece(PAWN,   ~US)] & bitboards::pawn_attacks[US][sq])
+		     || (pc_bb[make_piece(KNIGHT, ~US)] & bitboards::knight_attacks[sq])
+		     || (pc_bb[make_piece(BISHOP, ~US)] & bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq))
+		     || (pc_bb[make_piece(ROOK,   ~US)] & bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq))
+		     || (pc_bb[make_piece(QUEEN,  ~US)] & bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq))
+		     || (pc_bb[make_piece(KING,   ~US)] & bitboards::king_attacks[sq]));
 	}
 
 	template <Colour US>
@@ -87,20 +87,20 @@ namespace Clovis {
 	// updates a bitboard of attackers after a piece has moved to include possible x ray attackers
 	inline Bitboard Position::consider_xray(const Bitboard occ, const Square to, const PieceType pt) const {
 
-		return (pt == PAWN || pt == BISHOP) ? occ & (Bitboards::get_attacks<BISHOP>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
-			: pt == ROOK ? occ & (Bitboards::get_attacks<ROOK>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK]))
+		return (pt == PAWN || pt == BISHOP) ? occ & (bitboards::get_attacks<BISHOP>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
+			: pt == ROOK ? occ & (bitboards::get_attacks<ROOK>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK]))
 			: pt == QUEEN ? consider_xray(occ, to, BISHOP) | consider_xray(occ, to, ROOK)
 			: 0ULL;
 	}
 
 	inline Bitboard Position::attackers_to(const Square sq) const {
 
-		return (Bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN])
-			 | (Bitboards::pawn_attacks[WHITE][sq] &  pc_bb[B_PAWN])
-			 | (Bitboards::knight_attacks[sq]      & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT]))
-			 | (Bitboards::king_attacks[sq]        & (pc_bb[W_KING]   | pc_bb[B_KING]))
-			 | (Bitboards::get_attacks<ROOK>  (occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK]   | pc_bb[B_ROOK]))
-			 | (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
+		return (bitboards::pawn_attacks[BLACK][sq] &  pc_bb[W_PAWN])
+			 | (bitboards::pawn_attacks[WHITE][sq] &  pc_bb[B_PAWN])
+			 | (bitboards::knight_attacks[sq]      & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT]))
+			 | (bitboards::king_attacks[sq]        & (pc_bb[W_KING]   | pc_bb[B_KING]))
+			 | (bitboards::get_attacks<ROOK>  (occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK]   | pc_bb[B_ROOK]))
+			 | (bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
 	}
 
 	inline int Position::get_game_phase() const {
@@ -134,4 +134,4 @@ namespace Clovis {
 		return is_insufficient<WHITE>() && is_insufficient<BLACK>();
 	}
 
-} // namespace Clovis
+} // namespace clovis

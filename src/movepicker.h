@@ -5,9 +5,9 @@
 
 #include "movelist.h"
 
-namespace Clovis {
+namespace clovis {
 
-	namespace MovePick {
+	namespace move_pick {
 
 		// colour * from square * to square table size
 		constexpr size_t cft_size = COLOUR_N * SQ_N * SQ_N;
@@ -127,6 +127,6 @@ namespace Clovis {
 			}
 		}
 
-	} // namespace MovePick
+	} // namespace move_pick
 
-} // namespace Clovis
+} // namespace clovis

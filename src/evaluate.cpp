@@ -4,14 +4,14 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace Eval {
+	namespace eval {
 
 		array<array<int, PHASE_N>, TI_MISC> T;
 		
 		inline bool is_doubled_pawn(const Bitboard bb, const Square sq) {
-			return multiple_bits(bb & Bitboards::file_masks[sq]);
+			return multiple_bits(bb & bitboards::file_masks[sq]);
 		}
 		
 		inline bool is_isolated_pawn(const Bitboard bb, const Square sq) {
@@ -30,8 +30,8 @@ namespace Clovis {
 				return false;
 
 			do {
-				const int support = popcount(Bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]);
-				const int danger  = popcount(Bitboards::pawn_attacks[ US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]);
+				const int support = popcount(bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]);
+				const int danger  = popcount(bitboards::pawn_attacks[ US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]);
 				if (danger > support)
 					return false;
 				sq += pawn_push(US);
@@ -47,11 +47,11 @@ namespace Clovis {
 		
 		template<Colour US>
 		bool is_fianchetto(const Position& pos, const Square sq) {
-			return fianchetto_bishop_mask[US] & sq && center_mask[US] & Bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq);
+			return fianchetto_bishop_mask[US] & sq && center_mask[US] & bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq);
 		}
 
 		inline bool is_open_file(const Position& pos, const File f) {
-			return !(Bitboards::file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
+			return !(bitboards::file_masks[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]));
 		}
 		
 		template<Colour US, PieceType PT, bool TRACE>
@@ -106,12 +106,12 @@ namespace Clovis {
 			while (bb) {
 				Square sq = pop_lsb(bb);
 				score += piece_table[make_piece(PT, US)][sq];
-				Bitboard attacks = Bitboards::get_attacks<PT>(transparent_occ, sq);
+				Bitboard attacks = bitboards::get_attacks<PT>(transparent_occ, sq);
 
 				auto pinner = pos.get_pinner<US>(sq);
 
 				if (pinner.has_value())
-					attacks &= Bitboards::between_squares(ei.ksq[US], pinner.value()) | pinner.value();
+					attacks &= bitboards::between_squares(ei.ksq[US], pinner.value()) | pinner.value();
 
 				const Bitboard trades = worthy_trades<US, PT>(pos);
 				const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
@@ -142,25 +142,25 @@ namespace Clovis {
 							score += bishop_outpost_bonus;
 							if constexpr (TRACE) ++T[BISHOP_OUTPOST][US];
 						}
-						if (multiple_bits(Bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)])) {
+						if (multiple_bits(bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)])) {
 							score -= tall_pawn_penalty;
 							if constexpr (TRACE) --T[TALL_PAWN][US];
 						}
 					}
 				}
 				if constexpr (PT == ROOK) {
-					if (!(Bitboards::file_masks[sq] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]))) {
+					if (!(bitboards::file_masks[sq] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN]))) {
 
 						score += rook_open_file_bonus;
 						if constexpr (TRACE) ++T[ROOK_FULL][US];
 
 					} else {
 
-						if (!(Bitboards::file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)])) {
+						if (!(bitboards::file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)])) {
 							score += rook_semi_open_file_bonus;
 							if constexpr (TRACE) ++T[ROOK_SEMI][US];
 						}
-						else if (Bitboards::file_masks[sq] & pos.pc_bb[make_piece(PAWN, ~US)]) {
+						else if (bitboards::file_masks[sq] & pos.pc_bb[make_piece(PAWN, ~US)]) {
 							score -= rook_closed_file_penalty;
 							if constexpr (TRACE) --T[ROOK_CLOSED][US];
 						}
@@ -204,7 +204,7 @@ namespace Clovis {
 				// we don't count kings or pawns in n_att so the max should be 7, barring promotion trolling
 				assert(ei.n_att[US] < 10);
 
-				if (const int mob = popcount(Bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]); mob > 4) {
+				if (const int mob = popcount(bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]); mob > 4) {
 					ei.weight[US] += virtual_mobility * min(13, mob);
 					if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = min(13, mob);
 				}
@@ -263,7 +263,7 @@ namespace Clovis {
 					if constexpr (TRACE) ++T[CANDIDATE_PASSER + static_cast<int>(relative_rank(US, rank_of(sq)))][US];
 				}
 
-				ei.pawn_attacks[US] |= Bitboards::pawn_attacks[US][sq];
+				ei.pawn_attacks[US] |= bitboards::pawn_attacks[US][sq];
 				ei.potential_pawn_attacks[US] |= outpost_pawn_masks[US][sq];
 			}
 
@@ -274,7 +274,7 @@ namespace Clovis {
 			
 			for (File f = cf - 1; f <= cf + 1; ++f) {
 
-				if (const Bitboard fp = pos.pc_bb[make_piece(PAWN, US)] & Bitboards::file_masks[f]; fp) {
+				if (const Bitboard fp = pos.pc_bb[make_piece(PAWN, US)] & bitboards::file_masks[f]; fp) {
 				//	ei.weight[~US] -= *shield_table[US][US == WHITE ? lsb(fp) : msb(fp)];
 				//	if constexpr (TRACE) --T[SAFETY_PAWN_SHIELD + source32[relative_square(US, US == WHITE ? lsb(fp) : msb(fp))]][~US];
 				} else {
@@ -345,6 +345,6 @@ namespace Clovis {
 		template int evaluate<true> (const Position& pos);
 		template int evaluate<false>(const Position& pos);
 
-	} // namespace Eval
+	} // namespace eval
 
-} // namespace Clovis
+} // namespace clovis

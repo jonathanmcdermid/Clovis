@@ -3,9 +3,9 @@
 #include "movepicker.h"
 #include "tt.h"
 
-namespace Clovis {
+namespace clovis {
 
-	namespace Search {
+	namespace search {
 
 		struct SearchLimits {
 			constexpr SearchLimits() = default;
@@ -37,6 +37,6 @@ namespace Clovis {
 		void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info);
 		void clear();
 
-	} // namespace Search
+	} // namespace search
 
-} // namespace Clovis
+} // namespace clovis

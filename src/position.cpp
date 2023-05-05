@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
 #if defined (__GNUC__)
 	constexpr string_view symbols[] = { "·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚" };
@@ -77,15 +77,13 @@ namespace Clovis {
 	template<Colour US>
 	optional<Square> Position::get_pinner(const Square sq) const {
 
-		const Square ksq = lsb(pc_bb[make_piece(KING, US)]);
-
-		if (Bitboards::get_attacks<QUEEN>(ksq) & sq) {
+		if (const Square ksq = lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq) {
 			Bitboard candidates = 
-			 ((Bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK,   ~US)])) 
-			| (Bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
+			 ((bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK,   ~US)])) 
+			| (bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
 
 			while (candidates)
-				if (const Square candidate = pop_lsb(candidates); Bitboards::between_squares(ksq, candidate) & sq)
+				if (const Square candidate = pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq)
 					return candidate;
 		}
 
@@ -106,16 +104,16 @@ namespace Clovis {
 		~(shift<pawn_push(US) + EAST>(occ_bb[US]) | shift<pawn_push(US) + WEST>(occ_bb[US]));
 
 		if (side == ~US && bs->enpassant != SQ_NONE)
-			their_immobile_pawns &= ~Bitboards::pawn_attacks[US][bs->enpassant];
+			their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->enpassant];
 
 		Bitboard candidates = 
-		 ((Bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) 
-		| (Bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
+		 ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) 
+		| (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
         
 		const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
 		while (candidates)
-			if (popcount(Bitboards::between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
+			if (popcount(bitboards::between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
 				return true;
 
 		return false;
@@ -182,9 +180,9 @@ namespace Clovis {
 			else if (token == '/')
 				sq = sq + 2 * SOUTH;
 			else if (size_t index = piece_str.find(token); index != string::npos) {
-				put_piece(Piece(index), sq);
- 				put_piece(Piece(index), sq);
-				bs->game_phase += game_phase_inc[Piece(index)];
+				put_piece(static_cast<Piece>(index), sq);
+ 				put_piece(static_cast<Piece>(index), sq);
+				bs->game_phase += game_phase_inc[static_cast<Piece>(index)];
 				sq += EAST;
 			}
 		}
@@ -203,9 +201,9 @@ namespace Clovis {
 		ss >> token;
 
 		if (token != '-') {
-			const auto f = File(token - 'a');
+			const auto f = static_cast<File>(token - 'a');
 			ss >> token;
-			const auto r = Rank(token - '1');
+			const auto r = static_cast<Rank>(token - '1');
 			bs->enpassant = make_square(f, r);
 		}
 		else bs->enpassant = SQ_NONE;
@@ -252,7 +250,8 @@ namespace Clovis {
 			return true;
 
 		int gain[32], d = 0;
-		Square from = move_from_sq(move), to = move_to_sq(move);
+		Square from = move_from_sq(move);
+		const Square to = move_to_sq(move);
 		Bitboard occ = occ_bb[BOTH], attackers = attackers_to(to);
 		Colour stm = side;
 
@@ -310,7 +309,7 @@ namespace Clovis {
 
 	// updates bitboards to represent a piece being removed from a square
 	void Position::remove_piece(const Square sq) {
-		Piece pc = pc_table[sq];
+		const Piece pc = pc_table[sq];
 
 		assert(sq & pc_bb[pc]);
 		assert(sq & occ_bb[get_side(pc)]);
@@ -519,11 +518,11 @@ namespace Clovis {
 	void Position::print_bitboards() const {
 
 		for (PieceType pt = PAWN; pt <= KING; ++pt) {
-			Bitboards::print_bitboard(pc_bb[make_piece(pt, WHITE)]);
-			Bitboards::print_bitboard(pc_bb[make_piece(pt, BLACK)]);
+			bitboards::print_bitboard(pc_bb[make_piece(pt, WHITE)]);
+			bitboards::print_bitboard(pc_bb[make_piece(pt, BLACK)]);
 		}
 		for (auto it : occ_bb)
-			Bitboards::print_bitboard(it);
+			bitboards::print_bitboard(it);
 	}
 
-} // namespace Clovis
+} // namespace clovis

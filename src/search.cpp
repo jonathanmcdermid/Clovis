@@ -7,9 +7,9 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace Search {
+	namespace search {
 
 		constexpr double log_table[] = {
 			0.000000,
@@ -38,7 +38,7 @@ namespace Clovis {
 		constexpr int lmr_reduction = 2;
 
 		constexpr auto lmr_table = [] {
-			std::array<std::array<int, 64>, MAX_PLY + 1> arr{};
+			array<array<int, 64>, MAX_PLY + 1> arr{};
 
 			for (int depth = 1; depth <= MAX_PLY; ++depth)
 				for (int ordered = 1; ordered < 64; ++ordered)
@@ -53,7 +53,7 @@ namespace Clovis {
 		constexpr int iid_divisor[2] = { 2, 4 };
 
 		constexpr auto iid_table = [] {
-			std::array<std::array<int, MAX_PLY + 1>, 2> arr{};
+			array<array<int, MAX_PLY + 1>, 2> arr{};
 
 			for (int depth = 1; depth <= MAX_PLY; ++depth)
 				for (int i = 0; i < 2; ++i)
@@ -78,7 +78,7 @@ namespace Clovis {
 
 		// reset transposition table, set search to standard conditions
 		void clear() {
-			MovePick::clear();
+			move_pick::clear();
 			tt.clear();
 		}
  
@@ -94,7 +94,7 @@ namespace Clovis {
 			if (pos.is_draw())
 				return DRAW_SCORE;
 			if (ply >= MAX_PLY)
-				return Eval::evaluate<false>(pos);
+				return eval::evaluate<false>(pos);
 
 			const TTEntry tte = tt.probe(pos.bs->key);
 
@@ -110,7 +110,7 @@ namespace Clovis {
 
 			if (!in_check) {
 
-				eval = Eval::evaluate<false>(pos);
+				eval = eval::evaluate<false>(pos);
 	
 				// use TT score instead of static eval if conditions are right
 				// conditions: valid TTE and either 
@@ -124,7 +124,7 @@ namespace Clovis {
 					alpha = eval;
 			}
 
-			MovePick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
+			move_pick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
 			Move best_move = MOVE_NONE;
 			int best_eval = INT_MIN;
 
@@ -185,7 +185,7 @@ namespace Clovis {
 			++nodes;
 
 			if (ply >= MAX_PLY)
-				return Eval::evaluate<false>(pos);
+				return eval::evaluate<false>(pos);
 
 			// mate distance pruning
 			// if me have found a mate, no point in finding a longer mate
@@ -214,7 +214,7 @@ namespace Clovis {
 
 			if (!in_check) {
 
-				int score = tte.key == pos.bs->key ? tte.eval : Eval::evaluate<false>(pos);
+				int score = tte.key == pos.bs->key ? tte.eval : eval::evaluate<false>(pos);
 
 				// reverse futility pruning
 				// if evaluation is above a certain threshold, we can trust that it will maintain it in the future
@@ -256,7 +256,7 @@ namespace Clovis {
 			else
 				++depth;
 
-			MovePick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
+			move_pick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
 			Move best_move = MOVE_NONE;
 			int best_score = INT_MIN, moves_searched = 0;
 			HashFlag hash_flag = HASH_ALPHA;
@@ -278,13 +278,13 @@ namespace Clovis {
 					&& move_capture(curr_move) == NO_PIECE
 					&& move_promotion_type(curr_move) == NO_PIECE) {
 						
-						const int history_entry = MovePick::get_history_entry(~pos.side, curr_move);
+						const int history_entry = move_pick::get_history_entry(~pos.side, curr_move);
 						// reduction factor
 						int R = lmr_table[depth][min(moves_searched, 63)];
 						// reduce for pv nodes
 						R -= PV_NODE;
 						// reduce for killers
-						R -= MovePick::is_killer(curr_move, ply);
+						R -= move_pick::is_killer(curr_move, ply);
 						// reduce based on history heuristic and lmr reduction
 						R = clamp(R - clamp(history_entry / lmr_history_divisor, -lmr_history_min, lmr_history_max), 0, depth - lmr_reduction);
 						// search current move with reduced depth:
@@ -309,8 +309,8 @@ namespace Clovis {
 				if (score >= beta) {
 					if (move_capture(curr_move) == NO_PIECE) {
 						mp.update_history<HASH_BETA>(curr_move, depth);
-						MovePick::update_killers(curr_move, ply);
-						MovePick::update_counter_entry(pos.side, prev_move, curr_move);
+						move_pick::update_killers(curr_move, ply);
+						move_pick::update_counter_entry(pos.side, prev_move, curr_move);
 					}
 					tt.new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
 					return beta;
@@ -354,7 +354,7 @@ namespace Clovis {
 		// begin search
 		void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info) {
 
-			MoveGen::MoveList ml(pos);
+			move_gen::MoveList ml(pos);
 			ml.remove_illegal(pos);
 
 			if (ml.size() > 1) {
@@ -364,8 +364,8 @@ namespace Clovis {
 
 				int beta = CHECKMATE_SCORE, alpha = -beta;
 
-				MovePick::reset_killers();
-				MovePick::age_history();
+				move_pick::reset_killers();
+				move_pick::age_history();
 
 				info.nodes = 0;
 
@@ -420,6 +420,6 @@ namespace Clovis {
 			cout << "bestmove " << info.pline.moves[0] << endl;
 		}
 
-	} // namespace Search
+	} // namespace search
 
-} // namespace Clovis
+} // namespace clovis

@@ -2,9 +2,9 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace MovePick {
+	namespace move_pick {
 
 		array<int, cft_size> history_table;
 		array<Move, cft_size> counter_table;
@@ -20,7 +20,7 @@ namespace Clovis {
 				[[fallthrough]];
 			case INIT_CAPTURES:
 				curr = last_bad_cap = moves.data();
-				last = MoveGen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
+				last = move_gen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
 				score_captures();
 				sort(moves.data(), last, [](const ScoredMove& lhs, const ScoredMove& rhs) {
 					return lhs.score > rhs.score; });
@@ -42,7 +42,7 @@ namespace Clovis {
 			case INIT_QUIETS:
 				if (play_quiets) {
 					curr = last_bad_cap;
-					last = MoveGen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
+					last = move_gen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
 					score_quiets();
 					sort(last_bad_cap, last, [](const ScoredMove& lhs, const ScoredMove& rhs) {
 						return lhs.score > rhs.score; });
@@ -95,6 +95,6 @@ namespace Clovis {
 			}
 		}
 
-	} // namespace MovePick
+	} // namespace move_pick
 
-} // namespace Clovis
+} // namespace clovis

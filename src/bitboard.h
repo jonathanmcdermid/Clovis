@@ -4,7 +4,7 @@
 
 #include "types.h"
 
-namespace Clovis {
+namespace clovis {
 
 	constexpr Bitboard sqbb(const Square sq) { return 1ULL << sq; }
 
@@ -37,7 +37,7 @@ namespace Clovis {
 		else return bb >> -D;
 	}
 
-	namespace Bitboards {
+	namespace bitboards {
 
 		constexpr int bishop_attack_indices = 512;
 		constexpr int rook_attack_indices = 4096;
@@ -240,8 +240,7 @@ namespace Clovis {
 						: 0ULL;
 
 					while (bb)
-						if (const Square sq3 = pop_lsb(bb); 
-							(sq1 < sq3 && sq3 < sq2) || (sq1 > sq3 && sq3 > sq2))
+						if (const Square sq3 = pop_lsb(bb); (sq1 < sq3 && sq3 < sq2) || (sq1 > sq3 && sq3 > sq2))
 							arr[sq1][sq2] |= sq3;
 				}
 			}
@@ -294,4 +293,4 @@ namespace Clovis {
 
 	} // namespace Bitboards
 
-} // namespace Clovis
+} // namespace clovis

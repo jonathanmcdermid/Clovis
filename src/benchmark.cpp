@@ -6,9 +6,9 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 	
-	namespace Bench {
+	namespace bench {
 		
 		void benchmark(const int argc, char* argv[]) {
 
@@ -30,7 +30,7 @@ namespace Clovis {
 
 			tt.resize(mb);
 			
-			Search::SearchLimits limits;
+			search::SearchLimits limits;
 			limits.depth = depth;
 
 			uint64_t total_nodes = 0ULL;
@@ -39,11 +39,11 @@ namespace Clovis {
 			for (auto& it : bm) {
 				auto start_time = chrono::steady_clock::now();
 				Position pos(it.c_str());
-				Search::SearchInfo info;
-				Search::start_search(pos, limits, info);
+				search::SearchInfo info;
+				search::start_search(pos, limits, info);
 				total_time += chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
 				total_nodes += info.nodes;
-				Search::clear();
+				search::clear();
 			}
 
 			cout << "bench: " << total_nodes 
@@ -52,6 +52,6 @@ namespace Clovis {
 			     << " ms"     << endl;
 		}
 
-	} // namespace Bench
+	} // namespace bench
 
-} // namespace Clovis
+} // namespace clovis

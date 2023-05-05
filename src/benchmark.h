@@ -1,11 +1,11 @@
 #pragma once
 
-namespace Clovis {
+namespace clovis {
 	
-	namespace Bench {
+	namespace bench {
 		
 		void benchmark(int argc, char* argv[]);
 
-	} // namespace Bench
+	} // namespace bench
 
-} // namespace Clovis
+} // namespace clovis

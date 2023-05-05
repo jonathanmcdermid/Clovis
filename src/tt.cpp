@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
 	TTable tt; // global transposition table
 
@@ -18,8 +18,8 @@ namespace Clovis {
 
 	// empty transposition table
 	void TTable::clear() {
-		ht.reset(new TTBucket[tt_size]);
-		pt.reset(new PTEntry[pt_size]);
+		ht = make_unique<TTBucket[]>(tt_size);
+		pt = make_unique<PTEntry[]>(pt_size);
 	}
 
 	// probe the table to see if an entry exists
@@ -40,4 +40,4 @@ namespace Clovis {
 		bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
 	}
 
-} // namespace Clovis
+} // namespace clovis

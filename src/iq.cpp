@@ -5,9 +5,9 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 
-	namespace IQ {
+	namespace iq {
 
 		void iq_test() {
 
@@ -26,14 +26,14 @@ namespace Clovis {
 				Position pos(fen.c_str());
 
 				while (is >> token)
-					moves.push_back(Parse::parse(pos, token));
+					moves.push_back(parse::parse(pos, token));
 
 				iq.emplace_back(fen, moves);
 			}
 			
 			ifs.close();
 
-			Search::SearchLimits limits;
+			search::SearchLimits limits;
 			limits.time = { 100000, 100000 };
 			int passes = 0, fails = 0;
 			
@@ -41,8 +41,8 @@ namespace Clovis {
 
 				Position pos(it.fen.c_str());
 				pos.print_position();
-				Search::SearchInfo info;
-				Search::start_search(pos, limits, info);
+				search::SearchInfo info;
+				search::start_search(pos, limits, info);
 
 				if (ranges::find(it.moves.begin(), it.moves.end(), info.pline.moves[0]) != it.moves.end()) {
 					cout << "PASS!" << endl;
@@ -58,10 +58,10 @@ namespace Clovis {
 				cout << passes << " tests passed!" << endl
 				     << fails  << " tests failed!" << endl;
 
-				Search::clear();
+				search::clear();
 			}
 		}
 
-	} // namespace IQ
+	} // namespace iq
 
-} // namespace Clovis
+} // namespace clovis

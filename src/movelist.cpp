@@ -2,9 +2,9 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
     
-	namespace MoveGen {
+	namespace move_gen {
     
 		template<typename T, MoveType M, PieceType PT, Colour US>
 		T* generate_majors(const Position& pos, T* moves) {
@@ -18,11 +18,11 @@ namespace Clovis {
 			while (bb) {
 
 				const Square src = pop_lsb(bb);
-				Bitboard att = Bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
+				Bitboard att = bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
 
 				while (att) {
 					const Square tar = pop_lsb(att);
-					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? 0 : pos.occ_bb[BOTH] & tar, 0, 0, 0);
+					*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.occ_bb[BOTH] & tar, false, false, false);
 				}
 			}
 
@@ -33,11 +33,11 @@ namespace Clovis {
 		T* generate_promotions(T* moves, const Square src, const Square tar) {
 
 			if constexpr (M != QUIET_MOVES)
-				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN,  US), TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN,  US), TC, false, false, false);
 			if constexpr (M != CAPTURE_MOVES) {
-				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, 0, 0, 0);
-				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(BISHOP, US), TC, 0, 0, 0);
-				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(ROOK,   US), TC, 0, 0, 0);
+				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, false, false, false);
+				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(BISHOP, US), TC, false, false, false);
+				*moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(ROOK,   US), TC, false, false, false);
 			}
 
 			return moves;
@@ -59,7 +59,7 @@ namespace Clovis {
 
 				if (rank_of(src) == relative_rank(US, RANK_7)) {
 
-					Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
+					Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
 					if (!(pos.occ_bb[BOTH] & tar))
 						moves = generate_promotions<T, M, US, false>(moves, src, tar);
@@ -71,22 +71,22 @@ namespace Clovis {
 				} else {
 					if (QUIETS && !(pos.occ_bb[BOTH] & tar)) {
 						// single push
-						*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 0, 0, 0, 0);
+						*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, false, false, false, false);
 						// double push
 						if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
-							*moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, 0, 1, 0, 0);
+							*moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, false, true, false, false);
  					}
 					if constexpr (CAPTURES) {
 
-						Bitboard att = Bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
+						Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
 						while (att) {
 							tar = pop_lsb(att);
-							*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, 1, 0, 0, 0);
+							*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
 						}
 
-						if (Bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
-							*moves++ = encode_move(src, pos.bs->enpassant, make_piece(PAWN, US), NO_PIECE, 1, 0, 1, 0);
+						if (bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
+							*moves++ = encode_move(src, pos.bs->enpassant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
 					}
 				}
 			}
@@ -96,12 +96,12 @@ namespace Clovis {
 				if (pos.bs->castle & ks_castle_rights(US)
 				&& !(pos.occ_bb[BOTH] & (relative_square(US, F1) | relative_square(US, G1)))
 				&& !pos.is_attacked<US>(relative_square(US, F1)))
-					*moves++ = encode_move(relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, 0, 0, 0, 1);
+					*moves++ = encode_move(relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, false, false, false, true);
 
 				if (pos.bs->castle & qs_castle_rights(US)
 				&& !(pos.occ_bb[BOTH] & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1)))
 				&& !pos.is_attacked<US>(relative_square(US, D1)))
-					*moves++ = encode_move(relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE, 0, 0, 0, 1);
+					*moves++ = encode_move(relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE, false, false, false, true);
 			}
 
 			moves = generate_majors<T, M, KNIGHT, US>(pos, moves);
@@ -163,6 +163,6 @@ namespace Clovis {
 		template void print_moves<Move>(const Move* m, const Move* end);
 		template void print_moves<ScoredMove>(const ScoredMove* m, const ScoredMove* end);
     
-	} // namespace MoveGen
+	} // namespace move_gen
 
-} // namespace Clovis
+} // namespace clovis

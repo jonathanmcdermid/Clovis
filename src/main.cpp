@@ -3,9 +3,9 @@
 
 int main(const int argc, char* argv[]) {
 
-	Clovis::Bitboards::init_bitboards();
+	clovis::bitboards::init_bitboards();
 
-	Clovis::CMDLine::handle_cmd(argc, argv);
+	clovis::cmdline::handle_cmd(argc, argv);
 
 	return EXIT_SUCCESS;
 }

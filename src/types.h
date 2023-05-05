@@ -14,7 +14,7 @@
 
 #define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
-namespace Clovis {
+namespace clovis {
 
 	typedef uint64_t Key;
 	typedef uint64_t Bitboard;
@@ -426,4 +426,4 @@ BASE_OPERATORS(Square)
 #undef INCR_OPERATORS
 #undef BASE_OPERATORS
 
-} // namespace Clovis
+} // namespace clovis

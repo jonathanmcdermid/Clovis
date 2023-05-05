@@ -4,9 +4,9 @@
 
 #include "parse.h"
 
-namespace Clovis {
+namespace clovis {
 
-	namespace IQ {
+	namespace iq {
 
 		struct IQPosition {
 			std::string fen;
@@ -15,6 +15,6 @@ namespace Clovis {
 
 		void iq_test();
 
-	} // namespace IQ
+	} // namespace iq
 
-} // namespace Clovis
+} // namespace clovis

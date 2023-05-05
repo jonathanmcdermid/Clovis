@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-namespace Clovis {
+namespace clovis {
 
 	constexpr size_t pt_size = 131072;
 
@@ -75,4 +75,4 @@ namespace Clovis {
 
 	extern TTable tt;
 
-} // Clovis
+} // clovis

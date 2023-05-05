@@ -1,11 +1,11 @@
 #pragma once
 
-namespace Clovis {
+namespace clovis {
 
-	namespace UCI {
+	namespace uci {
 
 		void loop(int argc, char* argv[]);
 
-	} // namespace UCI
+	} // namespace uci
 	
-} // namespace Clovis
+} // namespace clovis

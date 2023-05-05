@@ -1,11 +1,11 @@
 #pragma once
 
-namespace Clovis {
+namespace clovis {
 
-	namespace CMDLine {
+	namespace cmdline {
 
 		void handle_cmd(int argc, char* argv[]);
 
-	} // namespace Bench
+	} // namespace bench
 
-} // namespace Clovis
+} // namespace clovis

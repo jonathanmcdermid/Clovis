@@ -5,9 +5,9 @@
 
 using namespace std;
 
-namespace Clovis {
+namespace clovis {
 	
-	namespace UCI {
+	namespace uci {
 
 		constexpr string_view version_no = "Clovis III";
 		constexpr string_view authors = "Jonathan McDermid";
@@ -33,7 +33,7 @@ namespace Clovis {
 		// begin search
 		void go(Position& pos, istringstream& is) {
 
-			Search::SearchLimits limits;
+			search::SearchLimits limits;
 			string token;
 
 			while (is >> token) {
@@ -47,11 +47,11 @@ namespace Clovis {
 				else if (token == "movetime")	is >> limits.move_time;
 				else if (token == "mate")		is >> limits.mate;
 				else if (token == "perft")		is >> limits.perft;
-				else if (token == "infinite")	limits.infinite = 1;
+				else if (token == "infinite")	limits.infinite = true;
 			}
 
-			Search::SearchInfo info;
-			Search::start_search(pos, limits, info);
+			search::SearchInfo info;
+			search::start_search(pos, limits, info);
 		}
 
 		// convert string to move if it is legal
@@ -60,7 +60,7 @@ namespace Clovis {
 			if (str.length() == 5)
 				str[4] = static_cast<char>(tolower(str[4]));
 
-			for (const auto& move : MoveGen::MoveList(pos))
+			for (const auto& move : move_gen::MoveList(pos))
 				if (str == move2str(move))
 					return move;
 
@@ -93,7 +93,7 @@ namespace Clovis {
 			}
 		}
 
-		// main loop for UCI communication
+		// main loop for uci communication
 		void loop(const int argc, char* argv[]) {
 
 			Position pos(START_POS);
@@ -117,12 +117,12 @@ namespace Clovis {
 					<< "uciok" << endl;
 				else if (token == "go")         go(pos, is);
 				else if (token == "position")   position(pos, is);
-				else if (token == "ucinewgame") Search::clear();
+				else if (token == "ucinewgame") search::clear();
 				else if (token == "isready")    cout << "readyok" << endl;
 				else if (token == "setoption")	set_option(is);
 			} while (token != "quit" && argc == 1);
 		}
 
-	} // namespace UCI
+	} // namespace uci
 
-} // namespace Clovis
+} // namespace clovis
