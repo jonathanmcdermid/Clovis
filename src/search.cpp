@@ -83,7 +83,7 @@ namespace Clovis {
 		}
  
 		template<NodeType N>
-		int quiescence(Position& pos, int alpha, int beta, U64& nodes, const int ply, Line& pline) {
+		int quiescence(Position& pos, int alpha, int beta, uint64_t& nodes, const int ply, Line& pline) {
 
 			constexpr bool PV_NODE = N != NODE_NON_PV;
 
@@ -167,7 +167,7 @@ namespace Clovis {
 		}
 
 		template<NodeType N>
-		int negamax(Position& pos, int alpha, int beta, int depth, const int ply, const bool is_null, const Move prev_move, U64& nodes, Line& pline) {
+		int negamax(Position& pos, int alpha, int beta, int depth, const int ply, const bool is_null, const Move prev_move, uint64_t& nodes, Line& pline) {
 			
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
@@ -266,7 +266,7 @@ namespace Clovis {
 				// illegal move
 				if (!pos.do_move(curr_move)) continue;
 
-				int score;
+				int score = INT_MIN;
 				Line line;
 				++moves_searched;
 
@@ -296,7 +296,7 @@ namespace Clovis {
 					else if (!PV_NODE || moves_searched > 1)
 						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
 					// full PV search if all options are exhausted
-					if (PV_NODE && (moves_searched == 1 || (score > alpha && (ROOT_NODE || score < beta))))
+					if (PV_NODE && (moves_searched == 1 || ((ROOT_NODE || score < beta) && score > alpha)))
 						score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, false, curr_move, nodes, line);
 				}
 
@@ -408,8 +408,10 @@ namespace Clovis {
 
 					if (elapsed_time > allocated_time / 3) break;
 
-					if (depth > asp_depth)
-						alpha = info.score - delta, beta = info.score + delta;
+					if (depth > asp_depth) {
+						alpha = info.score - delta;
+						beta  = info.score + delta;
+					}
 				}
 			}
 			else

@@ -44,7 +44,7 @@ namespace Clovis {
 				Search::SearchInfo info;
 				Search::start_search(pos, limits, info);
 
-				if (find(it.moves.begin(), it.moves.end(), info.pline.moves[0]) != it.moves.end()) {
+				if (ranges::find(it.moves.begin(), it.moves.end(), info.pline.moves[0]) != it.moves.end()) {
 					cout << "PASS!" << endl;
 					++passes;
 				} else {

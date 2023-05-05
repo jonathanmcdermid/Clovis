@@ -32,18 +32,18 @@ namespace Clovis {
 
 	namespace Zobrist {
 
-		constexpr U64 xor_shift(U64 state) {
+		constexpr uint64_t xor_shift(uint64_t state) {
 			state ^= state >> 12;
 			state ^= state << 25;
 			state ^= state >> 27;
 			return state * 0x2545F4914F6CDD1DUll;
 		}
 
-		constexpr U64 state = 0xB1FACE5ULL;
+		constexpr uint64_t state = 0xB1FACE5ULL;
 
 		constexpr auto piece_square = [] {
 			std::array<std::array<Key, SQ_N>, 15> arr{};
-			U64 s = state;
+			uint64_t s = state;
 			for (int i = NO_PIECE; i <= B_KING; ++i)
 				for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 					arr[i][sq] = xor_shift(s++);
@@ -53,7 +53,7 @@ namespace Clovis {
 
 		constexpr auto enpassant = [] {
 			std::array<Key, SQ_N> arr{};
-			U64 s = state + SQ_N * 15;
+			uint64_t s = state + SQ_N * 15;
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 				arr[sq] = xor_shift(s++);
 
@@ -62,7 +62,7 @@ namespace Clovis {
 
 		constexpr auto castling = [] {
 			std::array<Key, 16> arr{};
-			U64 s = state + SQ_N * 16;
+			uint64_t s = state + SQ_N * 16;
 			for (int i = 0; i < 16; ++i)
 				arr[i] = xor_shift(s++);
 

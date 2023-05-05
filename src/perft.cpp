@@ -13,7 +13,7 @@ namespace Clovis {
 
 	namespace Perft {
 
-		void perft_helper(Position& pos, const int depth, U64& nodes) {
+		void perft_helper(Position& pos, const int depth, uint64_t& nodes) {
 
 			if (depth == 0) {
 				++nodes;
@@ -41,14 +41,14 @@ namespace Clovis {
 				string fen = line.substr(0, idx);
 				istringstream is(line.substr(idx + 1).c_str());
 				int depth = 1;
-				vector<U64> nv;
+				vector<uint64_t> nv;
 
 				while (is >> token) {
 
 					assert(token.length() == 2);
 					assert(token[1] - '0' == depth);
 					is >> token;
-					nv.push_back(U64(stoull(token)));
+					nv.push_back(stoull(token));
 					++depth;
 				}
 
@@ -67,7 +67,7 @@ namespace Clovis {
 
 				for (size_t depth = 1; depth - 1 < nodes.size(); ++depth) {
 
-					U64 result_nodes = 0;
+					uint64_t result_nodes = 0;
 					perft_helper(pos, depth, result_nodes);
 
 					failed = (result_nodes != nodes[depth - 1]);

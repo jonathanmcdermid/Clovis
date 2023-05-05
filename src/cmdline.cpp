@@ -50,7 +50,7 @@ namespace Clovis {
 			}
 			
 			if (!strcmp(argv[1], "generate")) {
-				Parse::generate_dataset();
+				Parse::generate_data();
 				exit(EXIT_SUCCESS);
 			}
 

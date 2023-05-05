@@ -28,9 +28,6 @@ namespace Clovis {
 
 			if (name == "Hash")
 				tt.resize(clamp(stoi(value), 1, 10000));
-
-			if (name == "Threads")
-				return;
 		}
 
 		// begin search
@@ -61,7 +58,7 @@ namespace Clovis {
 		Move to_move(const Position& pos, string& str) {
 
 			if (str.length() == 5)
-				str[4] = char(tolower(str[4]));
+				str[4] = static_cast<char>(tolower(str[4]));
 
 			for (const auto& move : MoveGen::MoveList(pos))
 				if (str == move2str(move))

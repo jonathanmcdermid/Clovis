@@ -9,9 +9,9 @@ namespace Clovis {
 
 	namespace Eval {
 
-		struct EvalInfo : public PTEntry {
+		struct EvalInfo : PTEntry {
 			constexpr EvalInfo() = default;
-			EvalInfo(const PTEntry& pte) : PTEntry(pte) {}
+			explicit EvalInfo(const PTEntry& pte) : PTEntry(pte) {}
 
 			std::array<int, COLOUR_N> n_att{ 0,0 };
 		};
@@ -180,7 +180,7 @@ namespace Clovis {
 					for (const auto pt : { KNIGHT, BISHOP, ROOK, KING })
 						arr[make_piece(pt, col)][sq] = piece_type_source[pt][source16[sq]];
 					//for (const auto pt : {})
-					//    arr[make_piece(pt, col)][sq] = piecetype_source[pt][source10[sq]];
+					//    arr[make_piece(pt, col)][sq] = piece_type_source[pt][source10[sq]];
 				}
 			}
 

@@ -9,7 +9,7 @@ namespace Clovis {
 	namespace Parse {
 		
 		Move parse(const Position& pos, std::string move);
-		void generate_dataset();
+		void generate_data();
 
 	}
 

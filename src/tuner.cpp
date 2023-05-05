@@ -117,7 +117,7 @@ namespace Clovis {
 			safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[WHITE]);
 			safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[BLACK]);
 
-			const double eval =  ((normal[MG] + safety) * entry.phase + normal[EG] * (MAX_GAMEPHASE - entry.phase)) / MAX_GAMEPHASE;
+			const double eval =  ((normal[MG] + safety) * entry.phase + normal[EG] * (MAX_GAME_PHASE - entry.phase)) / MAX_GAME_PHASE;
 			
 			if (tg) {
 				tg->eval = eval;
@@ -137,7 +137,7 @@ namespace Clovis {
 			{
 				#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
 				for (const auto& it : entries)
-					total += pow(it.result - sigmoid(K, (STATIC ? it.seval : linear_eval(it, nullptr))), 2);
+					total += pow(it.result - sigmoid(K, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
 			}
 
 			return total / (double) entries.size();
@@ -151,7 +151,7 @@ namespace Clovis {
 			const double S = sigmoid(K, E);
 			const double A = (entry.result - S) * S * (1 - S);
 			
-			const double base[PHASE_N] = { A * entry.phase, A * (MAX_GAMEPHASE - entry.phase) };
+			const double base[PHASE_N] = { A * entry.phase, A * (MAX_GAME_PHASE - entry.phase) };
 
 			for (auto& it : entry.tuples) {
 				if (it.index < TI_SAFETY) {
@@ -291,8 +291,8 @@ namespace Clovis {
 
 				entry.phase = pos.get_game_phase();
 
-				entry.seval = Eval::evaluate<true>(pos);
-				if (pos.side == BLACK) entry.seval = -entry.seval;
+				entry.static_eval = Eval::evaluate<true>(pos);
+				if (pos.side == BLACK) entry.static_eval = -entry.static_eval;
 
 				entry.stm = pos.side;
 

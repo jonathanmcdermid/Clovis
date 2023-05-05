@@ -22,10 +22,10 @@ namespace Clovis {
 
 		class MoveList {
 		public:
-			MoveList(const Position& pos) : last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
-			int size() const { return last - moves.data(); }
-			auto begin() const { return moves.data(); }
-			auto end() const { return last; }
+			explicit MoveList(const Position& pos) : moves{}, last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
+			[[nodiscard]] int size() const { return static_cast<int>(last - moves.data()); }
+			[[nodiscard]] auto begin() const { return moves.data(); }
+			[[nodiscard]] auto end() const { return last; }
 			void remove_illegal(Position& pos) {
 				last = std::remove_if(moves.data(), last, [&pos](const Move& move)
 					{ return pos.do_move(move) ? (void)pos.undo_move(move), false : true; });

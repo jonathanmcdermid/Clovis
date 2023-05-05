@@ -10,7 +10,7 @@ namespace Clovis {
 	
 	namespace Bench {
 		
-		void benchmark(int argc, char* argv[]) {
+		void benchmark(const int argc, char* argv[]) {
 
 			vector<string> bm;
 			ifstream ifs("src/bench.csv");
@@ -33,7 +33,7 @@ namespace Clovis {
 			Search::SearchLimits limits;
 			limits.depth = depth;
 
-			U64 total_nodes = 0ULL;
+			uint64_t total_nodes = 0ULL;
 			Duration total_time = 0LL;
 
 			for (auto& it : bm) {

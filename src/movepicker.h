@@ -100,8 +100,8 @@ namespace Clovis {
 			MovePicker(const Position& p, const int pl, const Move pm, const Move ttm) 
 				: pos(p), ply(pl), stage(TT_MOVE), curr(moves.data()), last(moves.data()),
 				last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm) {}
-			Move get_next(const bool play_quiets);
-			template<HashFlag HF> void update_history(const Move best_move, const int depth) const;
+			Move get_next(bool play_quiets);
+			template<HashFlag HF> void update_history(Move best_move, int depth) const;
 		private:
 			void score_captures();
 			void score_quiets();

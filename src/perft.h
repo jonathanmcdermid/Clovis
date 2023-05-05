@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "movelist.h"
 
@@ -10,7 +11,7 @@ namespace Clovis {
 
 		struct PerftPosition {
 			std::string fen;
-			std::vector<U64> nodes;
+			std::vector<uint64_t> nodes;
 		};
 
 		void perft();

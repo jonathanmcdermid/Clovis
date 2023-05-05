@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include "parse.h"
 #include "evaluate.h"
@@ -66,7 +67,7 @@ namespace Clovis {
 			return encode_move(from, to, piece, NO_PIECE, move.find('x') != string::npos, 0, 0, 0);
 		}
 
-		void generate_dataset() {
+		void generate_data() {
 
 			ifstream ifs("src/games.pgn");
 			ofstream ofs("src/tuner.epd");

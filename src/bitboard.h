@@ -1,38 +1,38 @@
 #pragma once
 
-#include <random>
+#include <bit>
 
 #include "types.h"
 
 namespace Clovis {
 
-	constexpr Bitboard sqbb(Square sq) { return 1ULL << sq; }
+	constexpr Bitboard sqbb(const Square sq) { return 1ULL << sq; }
 
-	constexpr Bitboard operator|(Square sq1, Square sq2) { return sqbb(sq1) | sqbb(sq2); }
-	constexpr Bitboard operator&(Bitboard bb, Square sq) { return bb & sqbb(sq); }
-	constexpr Bitboard operator|(Bitboard bb, Square sq) { return bb | sqbb(sq); }
-	constexpr Bitboard operator^(Bitboard bb, Square sq) { return bb ^ sqbb(sq); }
-	constexpr Bitboard& operator|=(Bitboard& bb, Square sq) { return bb |= sqbb(sq); }
-	constexpr Bitboard& operator^=(Bitboard& bb, Square sq) { return bb ^= sqbb(sq); }
+	constexpr Bitboard operator|(const Square sq1, const Square sq2) { return sqbb(sq1) | sqbb(sq2); }
+	constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sqbb(sq); }
+	constexpr Bitboard operator|(const Bitboard bb, const Square sq) { return bb | sqbb(sq); }
+	constexpr Bitboard operator^(const Bitboard bb, const Square sq) { return bb ^ sqbb(sq); }
+	constexpr Bitboard& operator|=(Bitboard& bb, const Square sq) { return bb |= sqbb(sq); }
+	constexpr Bitboard& operator^=(Bitboard& bb, const Square sq) { return bb ^= sqbb(sq); }
 
-	constexpr Square lsb(Bitboard bb) {
+	constexpr Square lsb(const Bitboard bb) {
 		assert(bb);
-		return (Square) std::countr_zero(bb);
+		return static_cast<Square>(std::countr_zero(bb));
 	}
 
 	constexpr Square pop_lsb(Bitboard& bb) {
 		assert(bb);
-		Square sq = lsb(bb);
+		const Square sq = lsb(bb);
 		bb &= bb - 1;
 		return sq;
 	}
 
-	constexpr bool multiple_bits(Bitboard bb) {
+	constexpr bool multiple_bits(const Bitboard bb) {
 		return bb & (bb - 1);
 	}
 
 	template<Direction D>
-	constexpr Bitboard shift(Bitboard bb) {
+	constexpr Bitboard shift(const Bitboard bb) {
 		if constexpr (D >= 0) return bb << D;
 		else return bb >> -D;
 	}
@@ -43,7 +43,7 @@ namespace Clovis {
 		constexpr int rook_attack_indices = 4096;
 
 		// pre-calculated magic numbers for generating rook attacks
-		constexpr std::array<Bitboard, SQ_N> rook_magic = {
+		constexpr auto rook_magic = std::array{
 			0x8a80104000800020ULL, 0x140002000100040ULL,  0x2801880a0017001ULL,  0x100081001000420ULL, 
 			0x200020010080420ULL,  0x3001c0002010008ULL,  0x8480008002000100ULL, 0x2080088004402900ULL, 
 			0x800098204000ULL,     0x2024401000200040ULL, 0x100802000801000ULL,  0x120800800801000ULL, 
@@ -63,7 +63,7 @@ namespace Clovis {
 		};
 
 		// pre-calculated magic numbers for generating bishop attacks
-		constexpr std::array<Bitboard, SQ_N> bishop_magic = {
+		constexpr auto bishop_magic = std::array{
 			0x40040844404084ULL,   0x2004208a004208ULL,   0x10190041080202ULL,   0x108060845042010ULL, 
 			0x581104180800210ULL,  0x2112080446200010ULL, 0x1080820820060210ULL, 0x3c0808410220200ULL, 
 			0x4050404440404ULL,    0x21001420088ULL,      0x24d0080801082102ULL, 0x1020a0a020400ULL, 
