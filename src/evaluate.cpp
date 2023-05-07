@@ -260,7 +260,7 @@ namespace clovis {
 				}
 				else if (is_candidate_passer<US>(pos, sq)) {
 					score += candidate_passer[relative_rank(US, rank_of(sq))];
-					if constexpr (TRACE) ++T[CANDIDATE_PASSER + static_cast<int>(relative_rank(US, rank_of(sq)))][US];
+					if constexpr (TRACE) ++T[CANDIDATE_PASSER + static_cast<uint64_t>(relative_rank(US, rank_of(sq)))][US];
 				}
 
 				ei.pawn_attacks[US] |= bitboards::pawn_attacks[US][sq];
