@@ -31,7 +31,7 @@ namespace clovis {
 
 			int score{ 0 };
 			uint64_t nodes{ 0ULL };
-			Line pline;
+			Line pv_line;
 		};
 
 		void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info);

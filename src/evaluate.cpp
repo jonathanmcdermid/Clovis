@@ -306,11 +306,11 @@ namespace clovis {
 			if constexpr (TRACE) memset(T.data(), 0, sizeof(T));
 			if constexpr (TRACE) ++T[TEMPO][pos.side];
 
-			EvalInfo ei(tt.probe_pawn(pos.bs->pkey));
+			EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
 
-			if (TRACE || ei.key != pos.bs->pkey) {
+			if (TRACE || ei.key != pos.bs->pawn_key) {
 				ei = EvalInfo();
-				ei.key = pos.bs->pkey;
+				ei.key = pos.bs->pawn_key;
 				ei.ksq[WHITE] = lsb(pos.pc_bb[W_KING]);
 				ei.ksq[BLACK] = lsb(pos.pc_bb[B_KING]);
 				ei.score = evaluate_pawns<WHITE, TRACE>(pos, ei) - evaluate_pawns<BLACK, TRACE>(pos, ei);

@@ -15,9 +15,9 @@ namespace clovis {
 
 		int castle{ 0 }, hmc{ 0 }, fmc{ 0 }, ply_null{ 0 }, game_phase{ 0 };
 		Piece captured_piece{ NO_PIECE };
-		Square enpassant{ SQ_NONE };
+		Square en_passant{ SQ_NONE };
 		BoardState* prev{ nullptr };
-		Key key{ 0ULL }, pkey{ 0ULL };
+		Key key{ 0ULL }, pawn_key{ 0ULL };
 	};
 
 	struct Position {

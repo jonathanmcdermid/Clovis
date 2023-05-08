@@ -30,7 +30,7 @@ namespace clovis {
 		return arr;
 	}();
 
-	namespace Zobrist {
+	namespace zobrist {
 
 		constexpr uint64_t xor_shift(uint64_t state) {
 			state ^= state >> 12;
@@ -51,7 +51,7 @@ namespace clovis {
 			return arr;
 		}();
 
-		constexpr auto enpassant = [] {
+		constexpr auto en_passant = [] {
 			std::array<Key, SQ_N> arr{};
 			uint64_t s = state + SQ_N * 15;
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -71,7 +71,7 @@ namespace clovis {
 
 		constexpr Key side = xor_shift(state + SQ_N * 16 + 16);
 
-	} // namespace Zobrist
+	} // namespace zobrist
 
 	// returns the square that pins a piece if it exists
 	template<Colour US>
@@ -103,8 +103,8 @@ namespace clovis {
 		 (shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) & 
 		~(shift<pawn_push(US) + EAST>(occ_bb[US]) | shift<pawn_push(US) + WEST>(occ_bb[US]));
 
-		if (side == ~US && bs->enpassant != SQ_NONE)
-			their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->enpassant];
+		if (side == ~US && bs->en_passant != SQ_NONE)
+			their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant];
 
 		Bitboard candidates = 
 		 ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) 
@@ -157,7 +157,7 @@ namespace clovis {
 			if (bs->castle & BLACK_QS) fen.put('q');
 		}
 
-		fen << " " + (bs->enpassant == SQ_NONE ? "-" : sq2str(bs->enpassant)) << " " << to_string(bs->hmc) << " " << to_string(bs->fmc);
+		fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " " << to_string(bs->hmc) << " " << to_string(bs->fmc);
 		
 		return fen.str();
 	}
@@ -204,13 +204,13 @@ namespace clovis {
 			const auto f = static_cast<File>(token - 'a');
 			ss >> token;
 			const auto r = static_cast<Rank>(token - '1');
-			bs->enpassant = make_square(f, r);
+			bs->en_passant = make_square(f, r);
 		}
-		else bs->enpassant = SQ_NONE;
+		else bs->en_passant = SQ_NONE;
 
 		ss >> skipws >> bs->hmc >> bs->fmc;
 		bs->key = make_key();
-		bs->pkey = make_pawn_key();
+		bs->pawn_key = make_pawn_key();
 		bs->ply_null = 0;
 	}
 
@@ -220,15 +220,15 @@ namespace clovis {
 
 		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 			if (pc_table[sq] != NO_PIECE)
-				k ^= Zobrist::piece_square[pc_table[sq]][sq];
+				k ^= zobrist::piece_square[pc_table[sq]][sq];
 
-		if (bs->enpassant != SQ_NONE)
-			k ^= Zobrist::enpassant[bs->enpassant];
+		if (bs->en_passant != SQ_NONE)
+			k ^= zobrist::en_passant[bs->en_passant];
 
 		if (side == BLACK)
-			k ^= Zobrist::side;
+			k ^= zobrist::side;
 
-		k ^= Zobrist::castling[bs->castle];
+		k ^= zobrist::castling[bs->castle];
 
 		return k;
 	}
@@ -239,14 +239,14 @@ namespace clovis {
 
 		for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 			if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING)
-				k ^= Zobrist::piece_square[pc_table[sq]][sq];
+				k ^= zobrist::piece_square[pc_table[sq]][sq];
 
 		return k;
 	}
 
 	bool Position::see_ge(const Move move, const int threshold) const {
 		// don't even bother
-		if (move_promotion_type(move) || move_enpassant(move))
+		if (move_promotion_type(move) || move_en_passant(move))
 			return true;
 
 		int gain[32], d = 0;
@@ -325,22 +325,22 @@ namespace clovis {
 	void Position::new_board_state() {
 		const auto bs_new = new BoardState;
 		assert(bs_new != bs);
-		// copy old boardstate info to new boardstate and update clocks
-		bs_new->enpassant = bs->enpassant;
+		// copy old board state info to new board state and update clocks
+		bs_new->en_passant = bs->en_passant;
 		bs_new->castle = bs->castle;
 		bs_new->hmc = bs->hmc + 1;
 		bs_new->fmc = bs->fmc + (side == BLACK);
 		bs_new->ply_null = (NM) ? 0 : bs->ply_null + 1;
-		bs_new->key = bs->key ^ Zobrist::side;;
-		bs_new->pkey = bs->pkey;
+		bs_new->key = bs->key ^ zobrist::side;
+		bs_new->pawn_key = bs->pawn_key;
 		bs_new->game_phase = bs->game_phase;
 		bs_new->prev = bs;
-		// position now refers to new boardstate
+		// position now refers to new board state
 		bs = bs_new;
 		
-		if (bs->enpassant != SQ_NONE) {
-			bs->key ^= Zobrist::enpassant[bs->enpassant];
-			bs->enpassant = SQ_NONE;
+		if (bs->en_passant != SQ_NONE) {
+			bs->key ^= zobrist::en_passant[bs->en_passant];
+			bs->en_passant = SQ_NONE;
 		}
 	}
 	
@@ -375,24 +375,24 @@ namespace clovis {
 		bs->captured_piece = pc_table[tar];
 
 		// update castling rights
-		bs->key ^= Zobrist::castling[bs->castle];
+		bs->key ^= zobrist::castling[bs->castle];
 		bs->castle &= castling_rights[src];
 		bs->castle &= castling_rights[tar];
-		bs->key ^= Zobrist::castling[bs->castle];
+		bs->key ^= zobrist::castling[bs->castle];
 
 		if (move_capture(move)) {
-			if (move_enpassant(move)) {
+			if (move_en_passant(move)) {
 				const Square victim_sq = tar - pawn_push(side);
 				bs->captured_piece = make_piece(PAWN, ~side);
-				bs->key  ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
-				bs->pkey ^= Zobrist::piece_square[bs->captured_piece][victim_sq];
+				bs->key  ^= zobrist::piece_square[bs->captured_piece][victim_sq];
+				bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
 				remove_piece(victim_sq);
 				put_piece(piece, tar);
 			} else {
 				if (piece_type(bs->captured_piece) == PAWN)
-					bs->pkey ^= Zobrist::piece_square[bs->captured_piece][tar];
+					bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][tar];
 
-				bs->key ^= Zobrist::piece_square[pc_table[tar]][tar];
+				bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
 				replace_piece(piece, tar);
 			}
 			bs->game_phase -= game_phase_inc[bs->captured_piece];
@@ -401,37 +401,37 @@ namespace clovis {
 		else
 			put_piece(piece, tar);
 		
-		bs->key ^= Zobrist::piece_square[pc_table[src]][src];
-		bs->key ^= Zobrist::piece_square[pc_table[src]][tar];
+		bs->key ^= zobrist::piece_square[pc_table[src]][src];
+		bs->key ^= zobrist::piece_square[pc_table[src]][tar];
 		remove_piece(src);
 
 		if (piece_type(piece) == PAWN) {
 			if (move_double(move)) {
-				bs->enpassant = tar - pawn_push(side);
-				bs->key ^= Zobrist::enpassant[bs->enpassant];
+				bs->en_passant = tar - pawn_push(side);
+				bs->key ^= zobrist::en_passant[bs->en_passant];
 			}
 			else if (move_promotion_type(move)) {
-				bs->key  ^= Zobrist::piece_square[pc_table[tar]][tar];
-				bs->pkey ^= Zobrist::piece_square[piece][tar];
+				bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
+				bs->pawn_key ^= zobrist::piece_square[piece][tar];
 				remove_piece(tar);
 				put_piece(move_promotion_type(move), tar);
-				bs->key ^= Zobrist::piece_square[pc_table[tar]][tar];
+				bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
 				bs->game_phase -= game_phase_inc[PAWN];
 				bs->game_phase += game_phase_inc[move_promotion_type(move)];
 			}
-			bs->pkey ^= Zobrist::piece_square[piece][src];
-			bs->pkey ^= Zobrist::piece_square[piece][tar];
+			bs->pawn_key ^= zobrist::piece_square[piece][src];
+			bs->pawn_key ^= zobrist::piece_square[piece][tar];
 			bs->hmc = 0;
 		}
 		else if (piece_type(piece) == KING) {
-			bs->pkey ^= Zobrist::piece_square[piece][src];
-			bs->pkey ^= Zobrist::piece_square[piece][tar];
+			bs->pawn_key ^= zobrist::piece_square[piece][src];
+			bs->pawn_key ^= zobrist::piece_square[piece][tar];
 			
 			if (move_castling(move)) {
 				Square rt, rf;
 				get_castle_rook_squares(tar, rf, rt);
-				bs->key ^= Zobrist::piece_square[pc_table[rf]][rf];
-				bs->key ^= Zobrist::piece_square[pc_table[rf]][rt];
+				bs->key ^= zobrist::piece_square[pc_table[rf]][rf];
+				bs->key ^= zobrist::piece_square[pc_table[rf]][rt];
 				remove_piece(rf);
 				put_piece(make_piece(ROOK, side), rt);
 			}
@@ -453,7 +453,7 @@ namespace clovis {
 		put_piece(move_piece_type(move), move_from_sq(move));
 
 		if (move_capture(move)) {
-			if (move_enpassant(move)) {
+			if (move_en_passant(move)) {
 				remove_piece(tar);
 				put_piece(bs->captured_piece, tar - pawn_push(side));
 			}

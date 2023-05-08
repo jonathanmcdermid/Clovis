@@ -6,14 +6,14 @@
 
 namespace clovis {
 
-	constexpr Bitboard sqbb(const Square sq) { return 1ULL << sq; }
+	constexpr Bitboard sq_bb(const Square sq) { return 1ULL << sq; }
 
-	constexpr Bitboard operator|(const Square sq1, const Square sq2) { return sqbb(sq1) | sqbb(sq2); }
-	constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sqbb(sq); }
-	constexpr Bitboard operator|(const Bitboard bb, const Square sq) { return bb | sqbb(sq); }
-	constexpr Bitboard operator^(const Bitboard bb, const Square sq) { return bb ^ sqbb(sq); }
-	constexpr Bitboard& operator|=(Bitboard& bb, const Square sq) { return bb |= sqbb(sq); }
-	constexpr Bitboard& operator^=(Bitboard& bb, const Square sq) { return bb ^= sqbb(sq); }
+	constexpr Bitboard operator|(const Square sq1, const Square sq2) { return sq_bb(sq1) | sq_bb(sq2); }
+	constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sq_bb(sq); }
+	constexpr Bitboard operator|(const Bitboard bb, const Square sq) { return bb | sq_bb(sq); }
+	constexpr Bitboard operator^(const Bitboard bb, const Square sq) { return bb ^ sq_bb(sq); }
+	constexpr Bitboard& operator|=(Bitboard& bb, const Square sq) { return bb |= sq_bb(sq); }
+	constexpr Bitboard& operator^=(Bitboard& bb, const Square sq) { return bb ^= sq_bb(sq); }
 
 	constexpr Square lsb(const Bitboard bb) {
 		assert(bb);
@@ -209,7 +209,7 @@ namespace clovis {
 			return arr;
 		}();
 
-		constexpr auto bishop_rbits = [] {
+		constexpr auto bishop_bit_count = [] {
 			std::array<int, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -218,7 +218,7 @@ namespace clovis {
 			return arr;
 		}();
 
-		constexpr auto rook_rbits = [] {
+		constexpr auto rook_bit_count = [] {
 			std::array<int, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -262,8 +262,8 @@ namespace clovis {
 			static_assert(PT != PAWN);
             
 			return PT == KNIGHT    ? knight_attacks[sq]
-			        : PT == BISHOP ? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_rbits[sq]]
-				: PT == ROOK   ? rook_attacks  [sq][(occ & rook_masks  [sq]) * rook_magic[sq]   >> rook_rbits  [sq]]
+			        : PT == BISHOP ? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_bit_count[sq]]
+				: PT == ROOK   ? rook_attacks  [sq][(occ & rook_masks  [sq]) * rook_magic[sq]   >> rook_bit_count  [sq]]
 				: PT == QUEEN  ? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
 				: king_attacks[sq];
 		}

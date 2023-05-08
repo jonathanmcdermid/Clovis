@@ -51,7 +51,7 @@ namespace clovis {
 
 	private:
 		[[nodiscard]] size_t hash_index(Key key) const;
-		[[nodiscard]] size_t pawn_hash_index(Key key) const;
+		[[nodiscard]] static size_t pawn_hash_index(Key key);
 		std::unique_ptr<TTBucket[]> ht;
 		std::unique_ptr<PTEntry[]> pt;
 		size_t tt_size;
@@ -61,7 +61,7 @@ namespace clovis {
 		return key & (tt_size - 1ULL);
 	}
 
-	inline size_t TTable::pawn_hash_index(const Key key) const {
+	inline size_t TTable::pawn_hash_index(const Key key) {
 		return key & (pt_size - 1ULL);
 	}
 

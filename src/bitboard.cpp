@@ -77,12 +77,12 @@ namespace clovis {
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
 				for (int index = 0; index < (1 << popcount(bishop_masks[sq])); ++index) {
 					const Bitboard occ = set_occupancy(bishop_masks[sq], index, popcount(bishop_masks[sq]));
-					bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_rbits[sq]] = bishop_otf(sq, occ);
+					bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_bit_count[sq]] = bishop_otf(sq, occ);
 				}
 
 				for (int index = 0; index < (1 << popcount(rook_masks[sq])); ++index) {
 					const Bitboard occ = set_occupancy(rook_masks[sq], index, popcount(rook_masks[sq]));
-					rook_attacks[sq][(occ * rook_magic[sq]) >> rook_rbits[sq]] = rook_otf(sq, occ);
+					rook_attacks[sq][(occ * rook_magic[sq]) >> rook_bit_count[sq]] = rook_otf(sq, occ);
 				}
 			}
 		}

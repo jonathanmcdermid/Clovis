@@ -43,7 +43,7 @@ namespace clovis {
     0000 1111 0000 0000 0000 0000   promoted piece
     0001 0000 0000 0000 0000 0000   capture flag
     0010 0000 0000 0000 0000 0000   double push flag
-    0100 0000 0000 0000 0000 0000   enpassant flag
+    0100 0000 0000 0000 0000 0000   en_passant flag
     1000 0000 0000 0000 0000 0000   castling flag
     */
 
@@ -183,7 +183,7 @@ namespace clovis {
 	
 	enum EvalType : int {
 		NORMAL, 
-		SAFETY, EVALTYPE_N
+		SAFETY, EVAL_TYPE_N
 	};
 
 	enum CastleRights {
@@ -270,7 +270,7 @@ namespace clovis {
 		return m & 0x200000;
 	}
 
-	constexpr bool move_enpassant(const Move m) {
+	constexpr bool move_en_passant(const Move m) {
 		return m & 0x400000;
 	}
 

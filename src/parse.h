@@ -11,6 +11,6 @@ namespace clovis {
 		Move parse(const Position& pos, std::string move);
 		void generate_data();
 
-	}
+	} // namespace parse
 
 } // namespace clovis

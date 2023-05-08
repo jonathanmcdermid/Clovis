@@ -109,7 +109,7 @@ namespace clovis {
 				token.clear();
 				is >> skipws >> token;
 				if (token == "quit" || token == "stop")	break;
-				else if (token == "uci")
+				if (token == "uci")
 					cout << "id name " << version_no << endl
 					<< "option name Hash type spin default 16 min 1 max 10000" << endl
 					<< "option name Threads type spin default 1 min 1 max 1" << endl

@@ -85,8 +85,8 @@ namespace clovis {
 							*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
 						}
 
-						if (bitboards::pawn_attacks[US][src] & pos.bs->enpassant)
-							*moves++ = encode_move(src, pos.bs->enpassant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
+						if (bitboards::pawn_attacks[US][src] & pos.bs->en_passant)
+							*moves++ = encode_move(src, pos.bs->en_passant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
 					}
 				}
 			}
@@ -123,7 +123,7 @@ namespace clovis {
 		template<typename T>
 		void print_moves(const T* m, const T* end) {
 			
-			cout << "move\tpiece\tcapture\tdouble\tenpass\tcastle";
+			cout << "move\tpiece\tcapture\tdouble\ten pass\tcastle";
 
 			if constexpr (is_same<T, ScoredMove>())
 				cout << "\tscore";
@@ -139,7 +139,7 @@ namespace clovis {
 				<< piece_str[move_piece_type(*m)]     << '\t'
 				<< static_cast<int>(move_capture(*m))              << '\t'
 				<< static_cast<int>(move_double(*m))               << '\t'
-				<< static_cast<int>(move_enpassant(*m))            << '\t'
+				<< static_cast<int>(move_en_passant(*m))            << '\t'
 				<< static_cast<int>(move_castling(*m))             << '\t';
 
 				if constexpr (is_same<T, ScoredMove>())

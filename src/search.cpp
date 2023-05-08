@@ -83,7 +83,7 @@ namespace clovis {
 		}
  
 		template<NodeType N>
-		int quiescence(Position& pos, int alpha, int beta, uint64_t& nodes, const int ply, Line& pline) {
+		int quiescence(Position& pos, int alpha, int beta, uint64_t& nodes, const int ply, Line& pv_line) {
 
 			constexpr bool PV_NODE = N != NODE_NON_PV;
 
@@ -148,10 +148,10 @@ namespace clovis {
 					// new best move found
 					if (eval > alpha) {
 						if constexpr (PV_NODE) {
-							pline.last = pline.moves.data();
-							*pline.last++ = curr_move;
+							pv_line.last = pv_line.moves.data();
+							*pv_line.last++ = curr_move;
 							for (const auto& m : line)
-								*pline.last++ = m;
+								*pv_line.last++ = m;
 						}
 						alpha = eval;
 					}
@@ -167,7 +167,7 @@ namespace clovis {
 		}
 
 		template<NodeType N>
-		int negamax(Position& pos, int alpha, int beta, int depth, const int ply, const bool is_null, const Move prev_move, uint64_t& nodes, Line& pline) {
+		int negamax(Position& pos, int alpha, int beta, int depth, const int ply, const bool is_null, const Move prev_move, uint64_t& nodes, Line& pv_line) {
 			
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
@@ -180,7 +180,7 @@ namespace clovis {
 			}
 
 			if (depth <= 0)
-				return quiescence<N>(pos, alpha, beta, nodes, ply, pline);
+				return quiescence<N>(pos, alpha, beta, nodes, ply, pv_line);
 
 			++nodes;
 
@@ -200,7 +200,7 @@ namespace clovis {
 			if (tte.key == pos.bs->key) {
 				if (PV_NODE && tte.move != MOVE_NONE) {
 					assert(pline.last == pline.moves.data());
-					*pline.last++ = tte.move;
+					*pv_line.last++ = tte.move;
 				}
 				if (!PV_NODE
 				&& tte.depth >= depth
@@ -248,7 +248,7 @@ namespace clovis {
 					if (tte.key == pos.bs->key) {
 						if constexpr (PV_NODE) {
 							assert(pline.last == pline.moves.data());
-							*pline.last++ = tte.move;
+							*pv_line.last++ = tte.move;
 						}
 					}
 				}
@@ -318,14 +318,15 @@ namespace clovis {
 
 				if (score > best_score) {
 					// new best move found
-					best_move = curr_move, best_score = score;
+					best_move = curr_move;
+					best_score = score;
                     
 					if (score > alpha) {
 						if constexpr (PV_NODE) {
-							pline.last = pline.moves.data();
-							*pline.last++ = curr_move;
+							pv_line.last = pv_line.moves.data();
+							*pv_line.last++ = curr_move;
 							for (const auto& m : line)
-								*pline.last++ = m;
+								*pv_line.last++ = m;
 						}
 						hash_flag = HASH_EXACT;
 						// new best move found
@@ -371,7 +372,7 @@ namespace clovis {
 
 				for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth) {
 
-					info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pline);
+					info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pv_line);
 
 					if (stop) {
 						stop = false;
@@ -401,7 +402,7 @@ namespace clovis {
 					     << " nps "       << setw(8) << 1000ULL * info.nodes / (elapsed_time + 1)
 					     << " pv ";
 
-					for (auto& it : info.pline)
+					for (auto& it : info.pv_line)
 						cout << it << " ";
 
 					cout << endl;
@@ -415,9 +416,9 @@ namespace clovis {
 				}
 			}
 			else
-				*info.pline.last++ = *ml.begin();
+				*info.pv_line.last++ = *ml.begin();
 
-			cout << "bestmove " << info.pline.moves[0] << endl;
+			cout << "bestmove " << info.pv_line.moves[0] << endl;
 		}
 
 	} // namespace search

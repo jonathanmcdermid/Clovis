@@ -35,7 +35,7 @@ namespace clovis {
 
 				return encode_move(from, to, make_piece(PAWN, pos.side),
 					promo, move.find('x') != string::npos,
-					abs(rank_of(to) - rank_of(from)) == 2, pos.bs->enpassant == to, false);
+					abs(rank_of(to) - rank_of(from)) == 2, pos.bs->en_passant == to, false);
 			}
 			// major moves
 			const Piece piece = make_piece(static_cast<PieceType>(piece_str.find(move[0])), pos.side);
@@ -57,10 +57,10 @@ namespace clovis {
 			else if (move[2] == 'x' || move.length() == 4) {
 				// there are multiple matching pieces that attack this square
 				if (isdigit(move[1]))
-					while (rank_of(from) != Rank(move[1] - '1'))
+					while (rank_of(from) != static_cast<Rank>(move[1] - '1'))
 						from = pop_lsb(bb);
 				else
-					while (file_of(from) != File(move[1] - 'a'))
+					while (file_of(from) != static_cast<File>(move[1] - 'a'))
 						from = pop_lsb(bb);
 			}
 
@@ -125,7 +125,7 @@ namespace clovis {
 								search::start_search(pos, limits, info);
 								
 								if (info.score < MIN_CHECKMATE_SCORE && info.score > -MIN_CHECKMATE_SCORE) {
-									for (const auto& it : info.pline)
+									for (const auto& it : info.pv_line)
 										pos.do_move(it);
 
 									if (ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end()) {
@@ -138,8 +138,8 @@ namespace clovis {
 										}
 									}
 
-									for_each(make_reverse_iterator(info.pline.last),
-										make_reverse_iterator(info.pline.moves.data()),
+									for_each(make_reverse_iterator(info.pv_line.last),
+										make_reverse_iterator(info.pv_line.moves.data()),
 										[&](const Move& m) { pos.undo_move(m); });
 								}
 							}

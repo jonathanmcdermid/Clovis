@@ -12,7 +12,7 @@ namespace clovis {
 		void iq_test() {
 
 			vector<IQPosition> iq;
-			ifstream ifs("src/iqtest.epd");
+			ifstream ifs("src/iq_test.epd");
 			string line, token;
 
 			while (getline(ifs, line)) {
@@ -44,7 +44,7 @@ namespace clovis {
 				search::SearchInfo info;
 				search::start_search(pos, limits, info);
 
-				if (ranges::find(it.moves.begin(), it.moves.end(), info.pline.moves[0]) != it.moves.end()) {
+				if (ranges::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) != it.moves.end()) {
 					cout << "PASS!" << endl;
 					++passes;
 				} else {

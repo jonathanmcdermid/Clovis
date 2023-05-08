@@ -37,4 +37,4 @@ namespace clovis {
 
 	} // namespace move_gen
 
-} // namsepace clovis
+} // namespace clovis

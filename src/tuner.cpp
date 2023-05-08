@@ -97,8 +97,8 @@ namespace clovis {
 
 			array<double, PHASE_N> normal{};
 			double safety = 0.0;
-			array<array<double, COLOUR_N>, EVALTYPE_N> mg{};
-			array<array<double, COLOUR_N>, EVALTYPE_N> eg{};
+			array<array<double, COLOUR_N>, EVAL_TYPE_N> mg{};
+			array<array<double, COLOUR_N>, EVAL_TYPE_N> eg{};
 			
 			for (auto& it : entry.tuples) {
 
@@ -167,7 +167,7 @@ namespace clovis {
 			
 		}
 		
-		void compute_gradient(TVector gradient, double k) {
+		void compute_gradient(TVector gradient, const double k) {
 
 			TVector local{};
 
@@ -265,7 +265,7 @@ namespace clovis {
 
 			init_params();
 			
-			TVector adagrad{};
+			TVector adaptive_gradient{};
 			ifstream ifs("src/tuner.epd");
 			string line;
 
@@ -321,11 +321,11 @@ namespace clovis {
 
 				for (size_t i = 0; i < TI_MISC; ++i) {
 
-					adagrad[i][MG] += pow((k / 200.0) * gradient[i][MG] / 16384, 2.0);
-					adagrad[i][EG] += pow((k / 200.0) * gradient[i][EG] / 16384, 2.0);
+					adaptive_gradient[i][MG] += pow((k / 200.0) * gradient[i][MG] / 16384, 2.0);
+					adaptive_gradient[i][EG] += pow((k / 200.0) * gradient[i][EG] / 16384, 2.0);
 					
-					params[i][MG] += (k / 200.0) * (gradient[i][MG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][MG]));
-					params[i][EG] += (k / 200.0) * (gradient[i][EG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][EG]));
+					params[i][MG] += (k / 200.0) * (gradient[i][MG] / 16384) * (rate / sqrt(1e-8 + adaptive_gradient[i][MG]));
+					params[i][EG] += (k / 200.0) * (gradient[i][EG] / 16384) * (rate / sqrt(1e-8 + adaptive_gradient[i][EG]));
 					
 					params[i][MG] = max(0.0, params[i][MG]);
 					params[i][EG] = max(0.0, params[i][EG]);
