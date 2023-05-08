@@ -11,13 +11,14 @@ namespace clovis {
 
 	struct TTEntry {
 		constexpr TTEntry() = default;
-		TTEntry(const Key k, const uint8_t d, const uint8_t f, const short e, const Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
+		TTEntry(const Key k, const int d, const HashFlag f, const int e, const Move m)
+		: depth(static_cast<uint8_t>(d)), flags(static_cast<uint8_t>(f)), eval(static_cast<int16_t>(e)), move(m), key(k) {}
 
-		Key key{ 0ULL };    // 8 bytes
 		uint8_t depth{ 0 }; // 1 bytes
 		uint8_t flags{ 0 }; // 1 bytes
-		short eval{ 0 };    // 2 bytes
+		int16_t eval{ 0 };  // 2 bytes
 		Move move{ 0 };     // 4 bytes
+		Key key{ 0ULL };    // 8 bytes
 	};
 
 	struct TTBucket {
@@ -29,43 +30,43 @@ namespace clovis {
 	struct PTEntry {
 		constexpr PTEntry() = default;
 
+		short weight[COLOUR_N]{ 0 };
 		Score score;
+		Square ksq[COLOUR_N]{ SQ_NONE };
 		Key key{ 0ULL };
 		Bitboard pawn_attacks[COLOUR_N]{ 0ULL }, passers[COLOUR_N]{ 0ULL }, potential_pawn_attacks[COLOUR_N]{ 0ULL };
-		Square ksq[COLOUR_N]{ SQ_NONE };
-		short weight[COLOUR_N]{ 0 };
 	};
 
 	class TTable {
 
 	public:
 		TTable();
-		void resize(size_t mb);
+		void resize(int mb);
 		void clear();
 
 		void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
 		void new_pawn_entry(const PTEntry& pte);
-		PTEntry probe_pawn(Key key);
-		TTEntry probe(Key key);
+		[[nodiscard]] PTEntry probe_pawn(Key key) const;
+		[[nodiscard]] TTEntry probe(Key key);
 
 	private:
-		[[nodiscard]] int hash_index(Key key) const;
-		[[nodiscard]] int pawn_hash_index(Key key) const;
+		[[nodiscard]] size_t hash_index(Key key) const;
+		[[nodiscard]] size_t pawn_hash_index(Key key) const;
 		std::unique_ptr<TTBucket[]> ht;
 		std::unique_ptr<PTEntry[]> pt;
 		size_t tt_size;
 	};
 
-	inline int TTable::hash_index(const Key key) const {
-		return static_cast<int>(key & (tt_size - 1ULL));
+	inline size_t TTable::hash_index(const Key key) const {
+		return key & (tt_size - 1ULL);
 	}
 
-	inline int TTable::pawn_hash_index(const Key key) const {
-		return static_cast<int>(key & (pt_size - 1ULL));
+	inline size_t TTable::pawn_hash_index(const Key key) const {
+		return key & (pt_size - 1ULL);
 	}
 
 	// probe the pawn table to see if an entry exists
-	inline PTEntry TTable::probe_pawn(const Key key) {
+	inline PTEntry TTable::probe_pawn(const Key key) const {
 		return pt[pawn_hash_index(key)];
 	}
 

@@ -291,6 +291,6 @@ namespace clovis {
 				: king_attacks[sq];
 		}
 
-	} // namespace Bitboards
+	} // namespace bitboards
 
 } // namespace clovis

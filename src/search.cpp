@@ -159,7 +159,7 @@ namespace clovis {
 			}
 
 			if (in_check && best_eval == INT_MIN)
-				return - CHECKMATE_SCORE + ply;
+				return ply - CHECKMATE_SCORE;
 
 			tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
@@ -341,7 +341,7 @@ namespace clovis {
 
 			// no legal moves
 			if (moves_searched == 0)
-				return in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
+				return in_check ? ply - CHECKMATE_SCORE : - DRAW_SCORE;
 
 			tt.new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 

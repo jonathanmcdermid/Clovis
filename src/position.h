@@ -13,11 +13,11 @@ namespace clovis {
 	struct BoardState {
 		constexpr BoardState() = default;
 
-		BoardState* prev{ nullptr };
+		int castle{ 0 }, hmc{ 0 }, fmc{ 0 }, ply_null{ 0 }, game_phase{ 0 };
 		Piece captured_piece{ NO_PIECE };
 		Square enpassant{ SQ_NONE };
+		BoardState* prev{ nullptr };
 		Key key{ 0ULL }, pkey{ 0ULL };
-		int castle{ 0 }, hmc{ 0 }, fmc{ 0 }, ply_null{ 0 }, game_phase{ 0 };
 	};
 
 	struct Position {
@@ -54,11 +54,11 @@ namespace clovis {
 		[[nodiscard]] bool is_draw() const;
 		[[nodiscard]] bool is_material_draw() const;
 
+		Colour side;
+		BoardState* bs;
 		std::array<Piece, SQ_N> pc_table;
 		std::array<Bitboard, 15> pc_bb;
 		std::array<Bitboard, COLOUR_N + 1> occ_bb;
-		BoardState* bs;
-		Colour side;
 	};
 
 	// returns whether or not a square is attacked by opposing side

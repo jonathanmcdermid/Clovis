@@ -40,7 +40,7 @@ namespace clovis {
 			return arr;
 		}();
 
-		inline int cft_index(const Colour c, const Move m) {
+		inline size_t cft_index(const Colour c, const Move m) {
 			return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m);
 		}
 
@@ -105,8 +105,8 @@ namespace clovis {
 		private:
 			void score_captures();
 			void score_quiets();
-			const Position& pos;
 
+			const Position& pos;
 			std::array<ScoredMove, MAX_MOVES> moves;
 			int ply, stage;
 			ScoredMove *curr, *last, *last_bad_cap;

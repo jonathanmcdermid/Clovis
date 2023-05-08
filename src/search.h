@@ -10,10 +10,10 @@ namespace clovis {
 		struct SearchLimits {
 			constexpr SearchLimits() = default;
 
-			std::array<int, COLOUR_N> time{ {5000, 5000} }, inc{ {0, 0} };
 			int move_time{ 0 }, start_time{ 0 }, moves_left{ 20 }, depth{ 0 }, mate{ 0 }, perft{ 0 };
+			std::array<int, COLOUR_N> time{ {5000, 5000} }, inc{ {0, 0} };
 			bool infinite{ false };
-			uint64_t nodes{0};
+			uint64_t nodes{ 0 };
 		};
 
 		struct Line {
@@ -22,7 +22,7 @@ namespace clovis {
 			[[nodiscard]] const Move* begin() const { return moves.data(); }
 			[[nodiscard]] const Move* end()   const { return last; }
 
-			std::array<Move, MAX_PLY> moves;
+			std::array<Move, MAX_PLY> moves{};
 			Move* last{ moves.data() };
 		};
 

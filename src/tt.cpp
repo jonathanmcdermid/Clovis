@@ -11,8 +11,8 @@ namespace clovis {
 		pt = make_unique<PTEntry[]>(pt_size);
 	}
 
-	void TTable::resize(const size_t mb) {
-		tt_size = mb * 1024 * 1024 / (sizeof(TTBucket));
+	void TTable::resize(const int mb) {
+		tt_size = static_cast<size_t>(mb) * 1024 * 1024 / (sizeof(TTBucket));
 		ht = make_unique<TTBucket[]>(tt_size);
 	}
 

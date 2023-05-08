@@ -87,6 +87,6 @@ namespace clovis {
 			}
 		}
 
-	} // namespace Bitboards
+	} // namespace bitboards
 
 } // namespace clovis

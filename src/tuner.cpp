@@ -20,8 +20,8 @@ namespace clovis {
 		constexpr int N_CORES = 8;
 		constexpr int MAX_EPOCHS = 1000000;
 
-		inline double sigmoid(const double K, const double E) {
-			return 1.0 / (1.0 + exp(-K * E / 400.0));
+		inline double sigmoid(const double k, const double e) {
+			return 1.0 / (1.0 + exp(-k * e / 400.0));
 		}
 
 		template<typename T>
@@ -44,25 +44,25 @@ namespace clovis {
 			using namespace eval;
 			
 			for (auto& it : pawn_source)
-				add_param<Score>(it, TraceIndex(&it + PAWN_PSQT - pawn_source));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source));
 			for (auto& it : knight_source)
-				add_param<Score>(it, TraceIndex(&it + KNIGHT_PSQT - knight_source));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source));
 			for (auto& it : bishop_source)
-				add_param<Score>(it, TraceIndex(&it + BISHOP_PSQT - bishop_source));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source));
 			for (auto& it : rook_source)
-				add_param<Score>(it, TraceIndex(&it + ROOK_PSQT - rook_source));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source));
 			for (auto& it : queen_source)
-				add_param<Score>(it, TraceIndex(&it + QUEEN_PSQT - queen_source));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source));
 			for (auto& it : king_source)
-				add_param<Score>(it, TraceIndex(&it + KING_PSQT - king_source));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source));
 			for (auto& it : passed_pawn)
-				add_param<Score>(it, TraceIndex(&it + PASSED_PAWN - passed_pawn));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn));
 			for (auto& it : candidate_passer)
-				add_param<Score>(it, TraceIndex(&it + CANDIDATE_PASSER - candidate_passer));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer));
 			for (auto& it : quiet_mobility)
-				add_param<Score>(it, TraceIndex(&it + QUIET_MOBILITY - quiet_mobility));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility));
 			for (auto& it : capture_mobility)
-				add_param<Score>(it, TraceIndex(&it + CAPTURE_MOBILITY - capture_mobility));
+				add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility));
 			
 			add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
 			add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
@@ -83,11 +83,11 @@ namespace clovis {
 			add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
 			
 			for (auto& it : pawn_shield)
-				add_param<short>(it, TraceIndex(&it + SAFETY_PAWN_SHIELD - pawn_shield));
+				add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield));
 			for (auto& it : inner_ring_attack)
-				add_param<short>(it, TraceIndex(&it + SAFETY_INNER_RING - inner_ring_attack));
+				add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack));
 			for (auto& it : outer_ring_attack)
-				add_param<short>(it, TraceIndex(&it + SAFETY_OUTER_RING - outer_ring_attack));
+				add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack));
 			
 			add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
 			add_param<short>(attack_factor, SAFETY_N_ATT);
@@ -97,12 +97,12 @@ namespace clovis {
 
 			array<double, PHASE_N> normal{};
 			double safety = 0.0;
-			array<array<double, COLOUR_N>, EVALTYPE_N> mg = {0};
-			array<array<double, COLOUR_N>, EVALTYPE_N> eg = {0};
+			array<array<double, COLOUR_N>, EVALTYPE_N> mg{};
+			array<array<double, COLOUR_N>, EVALTYPE_N> eg{};
 			
 			for (auto& it : entry.tuples) {
 
-				EvalType et = it.index >= TI_SAFETY ? SAFETY : NORMAL;
+				const EvalType et = it.index >= TI_SAFETY ? SAFETY : NORMAL;
 				
 				mg[et][WHITE] += it.coefficient[WHITE] * params[it.index][MG];
 				mg[et][BLACK] += it.coefficient[BLACK] * params[it.index][MG];
@@ -128,7 +128,7 @@ namespace clovis {
 		}
 		
 		template<bool STATIC>
-		double mse(const long double K) {
+		double mse(const double k) {
 			
 			double total = 0.0;
 
@@ -136,21 +136,21 @@ namespace clovis {
 			{
 				#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
 				for (const auto& it : entries)
-					total += pow(it.result - sigmoid(K, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
+					total += pow(it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
 			}
 
-			return total / entries.size();
+			return total / static_cast<double>(entries.size());
 		}
 		
-		void update_single_gradient(const TEntry& entry, TVector gradient, double K) {
+		void update_single_gradient(const TEntry& entry, TVector gradient, const double k) {
 			
 			TGradient tg;
 			
-			const double E = linear_eval(entry, &tg);
-			const double S = sigmoid(K, E);
-			const double A = (entry.result - S) * S * (1 - S);
+			const double e = linear_eval(entry, &tg);
+			const double s = sigmoid(k, e);
+			const double a = (entry.result - s) * s * (1 - s);
 			
-			const double base[PHASE_N] = { A * entry.phase, A * (MAX_GAME_PHASE - entry.phase) };
+			const double base[PHASE_N] = { a * entry.phase, a * (MAX_GAME_PHASE - entry.phase) };
 
 			for (auto& it : entry.tuples) {
 				if (it.index < TI_SAFETY) {
@@ -167,12 +167,12 @@ namespace clovis {
 			
 		}
 		
-		void compute_gradient(TVector gradient, double K) {
+		void compute_gradient(TVector gradient, double k) {
 
-			TVector local = {0};
+			TVector local{};
 
 			for (auto& entry : entries)
-				update_single_gradient(entry, local, K);
+				update_single_gradient(entry, local, k);
 
 			for (int i = 0; i < TI_MISC; ++i) {
 				gradient[i][MG] += local[i][MG];
@@ -242,12 +242,12 @@ namespace clovis {
 			double start = -10, end = 10, step = 1, best = mse<true>(start);
 
 			for (int epoch = 0; epoch < 10; ++epoch) {
-				double curr = start - step;
 				
-				while (curr < end) {
-					curr = curr + step;
-					if (const double error = mse<true>(curr); error <= best)
-						best = codecvt_base::error, start = curr;
+				for (double curr = start; curr < end; curr += step) {
+					if (const double error = mse<true>(curr); error <= best) {
+						best = error;
+						start = curr;
+					}
 				}
 
 				cout.precision(17);
@@ -265,7 +265,7 @@ namespace clovis {
 
 			init_params();
 			
-			TVector adagrad = {0};
+			TVector adagrad{};
 			ifstream ifs("src/tuner.epd");
 			string line;
 
@@ -308,24 +308,24 @@ namespace clovis {
 
 			ifs.close();
 			
-			const double K = find_k();
+			const double k = find_k();
 			double rate = 1.0;
 			
-			cout << mse<true> (K) << endl;
-			cout << mse<false>(K) << endl;
+			cout << mse<true>(k) << endl;
+			cout << mse<false>(k) << endl;
 			
 			for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch) {
 
-				TVector gradient = {0};
-				compute_gradient(gradient, K);
+				TVector gradient{};
+				compute_gradient(gradient, k);
 
-				for (int i = 0; i < TI_MISC; ++i) {
+				for (size_t i = 0; i < TI_MISC; ++i) {
 
-					adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / 16384, 2.0);
-					adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / 16384, 2.0);
+					adagrad[i][MG] += pow((k / 200.0) * gradient[i][MG] / 16384, 2.0);
+					adagrad[i][EG] += pow((k / 200.0) * gradient[i][EG] / 16384, 2.0);
 					
-					params[i][MG] += (K / 200.0) * (gradient[i][MG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][MG]));
-					params[i][EG] += (K / 200.0) * (gradient[i][EG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][EG]));
+					params[i][MG] += (k / 200.0) * (gradient[i][MG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][MG]));
+					params[i][EG] += (k / 200.0) * (gradient[i][EG] / 16384) * (rate / sqrt(1e-8 + adagrad[i][EG]));
 					
 					params[i][MG] = max(0.0, params[i][MG]);
 					params[i][EG] = max(0.0, params[i][EG]);
@@ -336,7 +336,7 @@ namespace clovis {
 				if (epoch % 100 == 0)
 					print_params();
 
-				cout << "Epoch [" << epoch << "] Error = [" << mse<false>(K) << "], Rate = [" << rate << "]" << endl;
+				cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate << "]" << endl;
 			}
 		}
 

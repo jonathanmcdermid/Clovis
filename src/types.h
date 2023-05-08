@@ -27,9 +27,9 @@ namespace clovis {
 	constexpr int CHECKMATE_SCORE = 25000;
 	constexpr int MIN_CHECKMATE_SCORE = CHECKMATE_SCORE - MAX_PLY;
 	constexpr int DRAW_SCORE = 0;
-	constexpr int DEFAULT_BENCH_MB = 16;
 	constexpr int DEFAULT_BENCH_DEPTH = 13;
 	constexpr int DEFAULT_BENCH_THREADS = 1;
+	constexpr int DEFAULT_BENCH_MB = 16;
 
 	constexpr auto game_phase_inc = std::array{ 0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0 };
 	constexpr auto piece_value = std::array{ 0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000 };
@@ -198,7 +198,7 @@ namespace clovis {
 	struct Score {
 		constexpr Score() = default;
 		constexpr Score(const short m, const short e) : mg(m), eg(e) {}
-		explicit Score(const std::array<double, PHASE_N> param) : mg(round(param[MG])), eg(round(param[EG])) {}
+		explicit Score(const std::array<double, PHASE_N> param) : mg(static_cast<short>(round(param[MG]))), eg(static_cast<short>(round(param[EG]))) {}
 		Score& operator+=(const Score& rhs) {
 			mg = mg + rhs.mg;
 			eg = eg + rhs.eg;

@@ -30,9 +30,8 @@ namespace clovis {
 				return false;
 
 			do {
-				const int support = popcount(bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]);
-				const int danger  = popcount(bitboards::pawn_attacks[ US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]);
-				if (danger > support)
+				if (popcount(bitboards::pawn_attacks[US] [sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]) 
+				  > popcount(bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN,  US)]))
 					return false;
 				sq += pawn_push(US);
 			} while (rank_of(sq) != relative_rank(US, RANK_7));
@@ -116,7 +115,7 @@ namespace clovis {
 				const Bitboard trades = worthy_trades<US, PT>(pos);
 				const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
-				score += quiet_mobility[PT]   * popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				score += quiet_mobility[PT] *   popcount(safe_attacks & ~pos.occ_bb[BOTH]);
 				score += capture_mobility[PT] * popcount(safe_attacks & pos.occ_bb[~US]);
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
