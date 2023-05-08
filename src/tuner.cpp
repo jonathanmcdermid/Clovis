@@ -104,14 +104,14 @@ namespace clovis {
 
 				EvalType et = it.index >= TI_SAFETY ? SAFETY : NORMAL;
 				
-				mg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][MG];
-				mg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][MG];
-				eg[et][WHITE] += (double) it.coefficient[WHITE] * params[it.index][EG];
-				eg[et][BLACK] += (double) it.coefficient[BLACK] * params[it.index][EG];
+				mg[et][WHITE] += it.coefficient[WHITE] * params[it.index][MG];
+				mg[et][BLACK] += it.coefficient[BLACK] * params[it.index][MG];
+				eg[et][WHITE] += it.coefficient[WHITE] * params[it.index][EG];
+				eg[et][BLACK] += it.coefficient[BLACK] * params[it.index][EG];
 			}
 
-			normal[MG] = (double) mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
-			normal[EG] = (double) eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
+			normal[MG] = mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
+			normal[EG] = eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
 			
 			safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[WHITE]);
 			safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[BLACK]);
@@ -139,7 +139,7 @@ namespace clovis {
 					total += pow(it.result - sigmoid(K, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
 			}
 
-			return total / (double) entries.size();
+			return total / entries.size();
 		}
 		
 		void update_single_gradient(const TEntry& entry, TVector gradient, double K) {

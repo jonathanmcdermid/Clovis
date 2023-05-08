@@ -42,7 +42,7 @@ namespace clovis {
 
 			for (int depth = 1; depth <= MAX_PLY; ++depth)
 				for (int ordered = 1; ordered < 64; ++ordered)
-					arr[depth][ordered] = int(0.75 + log_table[depth] * log_table[ordered] / 2.25);
+					arr[depth][ordered] = static_cast<int>(0.75 + log_table[depth] * log_table[ordered] / 2.25);
 
 			return arr;
 		}();

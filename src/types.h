@@ -18,8 +18,7 @@ namespace clovis {
 
 	typedef uint64_t Key;
 	typedef uint64_t Bitboard;
-
-	typedef long long Duration;
+	typedef int64_t Duration;
 
 	constexpr int MAX_SCALING = 32;
 	constexpr int MAX_GAME_PHASE = 24;
@@ -216,16 +215,16 @@ namespace clovis {
 		short mg{ 0 }, eg{ 0 };
 	};
 
-	constexpr Score operator-(const Score s) { return { -s.mg, -s.eg }; }
-	constexpr Score operator+(const Score s1, const Score s2) { return { s1.mg + s2.mg, s1.eg + s2.eg }; }
-	constexpr Score operator+(const Score s, const short i) { return { s.mg + i, s.eg + i }; }
-	constexpr Score operator-(const Score s1, const Score s2) { return { s1.mg - s2.mg, s1.eg - s2.eg }; }
-	constexpr Score operator-(const Score s, const short i) { return { s.mg - i, s.eg - i }; }
-	constexpr Score operator*(const Score s, const short i) { return { s.mg * i, s.eg * i }; }
-	constexpr Score operator*(const Score s1, const Score s2) { return { s1.mg * s2.mg, s1.eg * s2.eg }; }
-	constexpr Score operator/(const Score s, const short i) { return { s.mg / i, s.eg / i }; }
-	constexpr Score operator/(const Score s1, const Score s2) { return { s1.mg / s2.mg, s1.eg / s2.eg }; }
-	constexpr Score operator<<(const Score s, const short i) { return { s.mg << i, s.eg << i }; }
+	constexpr Score operator-(const Score s) { return { static_cast<short>(-s.mg), static_cast<short>(-s.eg) }; }
+	constexpr Score operator+(const Score s1, const Score s2) { return { static_cast<short>(s1.mg + s2.mg), static_cast<short>(s1.eg + s2.eg) }; }
+	constexpr Score operator+(const Score s, const short i) { return { static_cast<short>(s.mg + i), static_cast<short>(s.eg + i) }; }
+	constexpr Score operator-(const Score s1, const Score s2) { return { static_cast<short>(s1.mg - s2.mg), static_cast<short>(s1.eg - s2.eg) }; }
+	constexpr Score operator-(const Score s, const short i) { return { static_cast<short>(s.mg - i), static_cast<short>(s.eg - i) }; }
+	constexpr Score operator*(const Score s, const short i) { return { static_cast<short>(s.mg * i), static_cast<short>(s.eg * i) }; }
+	constexpr Score operator*(const Score s1, const Score s2) { return { static_cast<short>(s1.mg * s2.mg), static_cast<short>(s1.eg * s2.eg) }; }
+	constexpr Score operator/(const Score s, const short i) { return { static_cast<short>(s.mg / i), static_cast<short>(s.eg / i) }; }
+	constexpr Score operator/(const Score s1, const Score s2) { return { static_cast<short>(s1.mg / s2.mg), static_cast<short>(s1.eg / s2.eg) }; }
+	constexpr Score operator<<(const Score s, const short i) { return { static_cast<short>(s.mg << i), static_cast<short>(s.eg << i) }; }
 	constexpr Square operator+(const Square sq, const Direction dir) { return static_cast<Square>(static_cast<int>(sq) + static_cast<int>(dir)); }
 	constexpr Square operator-(const Square sq, const Direction dir) { return static_cast<Square>(static_cast<int>(sq) - static_cast<int>(dir)); }
 	constexpr Square& operator+=(Square& sq, const Direction dir) { return sq = sq + dir; }
