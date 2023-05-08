@@ -65,8 +65,8 @@ namespace clovis {
 				ei.weight[US] += inner_ring_attack[PT] * popcount(ir_att_bb) + outer_ring_attack[PT] * popcount(or_att_bb);
 
 				if constexpr (PT != PAWN) ++ei.n_att[US];
-				if constexpr (TRACE) T[SAFETY_INNER_RING + static_cast<int>(PT)][US] += popcount(ir_att_bb);
-				if constexpr (TRACE) T[SAFETY_OUTER_RING + static_cast<int>(PT)][US] += popcount(or_att_bb);
+				if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += popcount(ir_att_bb);
+				if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += popcount(or_att_bb);
 			}
 		}
 
@@ -116,13 +116,13 @@ namespace clovis {
 				const Bitboard trades = worthy_trades<US, PT>(pos);
 				const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
-				score += quiet_mobility[PT]   * static_cast<short>(popcount(safe_attacks & ~pos.occ_bb[BOTH]));
-				score += capture_mobility[PT] * static_cast<short>(popcount(safe_attacks &  pos.occ_bb[~US]));
+				score += quiet_mobility[PT]   * popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				score += capture_mobility[PT] * popcount(safe_attacks & pos.occ_bb[~US]);
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
 				if constexpr (TRACE) psqt_trace<US, PT>(sq);
-				if constexpr (TRACE) T[QUIET_MOBILITY   + static_cast<int>(PT)][US] += popcount(safe_attacks & ~pos.occ_bb[BOTH]);
-				if constexpr (TRACE) T[CAPTURE_MOBILITY + static_cast<int>(PT)][US] += popcount(safe_attacks &  pos.occ_bb[~US]);
+				if constexpr (TRACE) T[QUIET_MOBILITY   + PT][US] += popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += popcount(safe_attacks &  pos.occ_bb[~US]);
 				if constexpr (PT == KNIGHT) {
 					if (is_outpost<US>(sq, ei)) {
 						score += knight_outpost_bonus;
@@ -255,12 +255,12 @@ namespace clovis {
 					if (rank_of(sq) != relative_rank(US, RANK_7)) {
 						score += passed_table[US][sq];
 						if constexpr (TRACE)
-							++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
+							++T[PASSED_PAWN + relative_square(US, sq)][US];
 					}
 				}
 				else if (is_candidate_passer<US>(pos, sq)) {
 					score += candidate_passer[relative_rank(US, rank_of(sq))];
-					if constexpr (TRACE) ++T[CANDIDATE_PASSER + static_cast<uint64_t>(relative_rank(US, rank_of(sq)))][US];
+					if constexpr (TRACE) ++T[CANDIDATE_PASSER + relative_rank(US, rank_of(sq))][US];
 				}
 
 				ei.pawn_attacks[US] |= bitboards::pawn_attacks[US][sq];

@@ -29,12 +29,12 @@ namespace clovis {
 
 			if constexpr (is_same<T, Score>()) {
 				assert(ti < TI_SAFETY);
-				params[ti][MG] = static_cast<double>(t.mg);
-				params[ti][EG] = static_cast<double>(t.eg);
+				params[ti][MG] = t.mg;
+				params[ti][EG] = t.eg;
 			} else {
 				static_assert(is_same<T, short>());
 				assert(ti >= TI_SAFETY);
-				params[ti][MG] = static_cast<double>(t);
+				params[ti][MG] = t;
 				params[ti][EG] = 0.0;
 			}
 		}
