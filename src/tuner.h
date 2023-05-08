@@ -26,8 +26,8 @@ namespace clovis {
             TEntry() = default;
 
             Colour stm{ WHITE };
-            int16_t static_eval{ 0 };
             double result{ 0.0 }, phase{ 0.0 };
+            int static_eval{ 0 };
             std::array<int, COLOUR_N> safety{ 0 }, n_att{ 0 };
             std::vector<TTuple> tuples;
         };

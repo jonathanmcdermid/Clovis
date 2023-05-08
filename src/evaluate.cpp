@@ -300,7 +300,7 @@ namespace clovis {
 		}
 
 		template<bool TRACE>
-		int16_t evaluate(const Position& pos) {
+		int evaluate(const Position& pos) {
 
 			Score score = (pos.side == WHITE) ? tempo_bonus : -tempo_bonus;
 			
@@ -321,7 +321,7 @@ namespace clovis {
 			score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
 
 			const int game_phase = pos.get_game_phase();
-			int16_t eval = (score.mg * game_phase + score.eg * (MAX_GAME_PHASE - game_phase)) / MAX_GAME_PHASE;
+			int eval = (score.mg * game_phase + score.eg * (MAX_GAME_PHASE - game_phase)) / MAX_GAME_PHASE;
 			if (pos.side == BLACK)
 				eval = -eval;
 
@@ -342,8 +342,8 @@ namespace clovis {
 		}
 		
 		// explicit template instantiations
-		template int16_t evaluate<true> (const Position& pos);
-		template int16_t evaluate<false>(const Position& pos);
+		template int evaluate<true> (const Position& pos);
+		template int evaluate<false>(const Position& pos);
 
 	} // namespace eval
 

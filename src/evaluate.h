@@ -283,7 +283,7 @@ namespace clovis {
 
 		constexpr Bitboard center_mask[COLOUR_N] = { D5 | E5, D4 | E4 };
 
-		template<bool TRACE> int16_t evaluate(const Position& pos);
+		template<bool TRACE> int evaluate(const Position& pos);
 		
 		extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 

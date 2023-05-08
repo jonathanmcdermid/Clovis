@@ -24,9 +24,9 @@ namespace clovis {
 	constexpr int MAX_GAME_PHASE = 24;
 	constexpr int MAX_PLY = 64;
 	constexpr int MAX_MOVES = 256;
-	constexpr int16_t CHECKMATE_SCORE = 25000;
-	constexpr int16_t MIN_CHECKMATE_SCORE = CHECKMATE_SCORE - MAX_PLY;
-	constexpr int16_t DRAW_SCORE = 0;
+	constexpr int CHECKMATE_SCORE = 25000;
+	constexpr int MIN_CHECKMATE_SCORE = CHECKMATE_SCORE - MAX_PLY;
+	constexpr int DRAW_SCORE = 0;
 	constexpr int DEFAULT_BENCH_MB = 16;
 	constexpr int DEFAULT_BENCH_DEPTH = 13;
 	constexpr int DEFAULT_BENCH_THREADS = 1;
@@ -198,7 +198,7 @@ namespace clovis {
 	struct Score {
 		constexpr Score() = default;
 		constexpr Score(const short m, const short e) : mg(m), eg(e) {}
-		explicit Score(const std::array<double, PHASE_N> param) : mg(static_cast<int16_t>(round(param[MG]))), eg(static_cast<int16_t>(round(param[EG]))) {}
+		explicit Score(const std::array<double, PHASE_N> param) : mg(round(param[MG])), eg(round(param[EG])) {}
 		Score& operator+=(const Score& rhs) {
 			mg = mg + rhs.mg;
 			eg = eg + rhs.eg;
@@ -212,7 +212,7 @@ namespace clovis {
 		bool operator==(const Score& rhs) const {
 			return mg == rhs.mg && eg == rhs.eg;
 		}
-		int16_t mg{ 0 }, eg{ 0 };
+		short mg{ 0 }, eg{ 0 };
 	};
 
 	constexpr Score operator-(const Score s) { return { static_cast<short>(-s.mg), static_cast<short>(-s.eg) }; }

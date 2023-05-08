@@ -129,7 +129,7 @@ namespace clovis {
 										pos.do_move(it);
 
 									if (ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end()) {
-										if (const int16_t eval = pos.side == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos); 
+										if (const int eval = pos.side == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos); 
 										   (result == "1-0" && eval > -500)
 										|| (result == "0-1" && eval < 500)
 										|| (result == "1/2-1/2" && (eval > -500 && eval < 500))) {
