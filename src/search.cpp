@@ -70,7 +70,7 @@ namespace clovis {
 		constexpr int null_reduction = 3;
         
 		constexpr int asp_depth = 3;
-		constexpr int delta = 45;
+		constexpr int16_t delta = 45;
 
 		bool stop = false;
 
@@ -84,7 +84,7 @@ namespace clovis {
 		}
  
 		template<NodeType N>
-		int quiescence(Position& pos, int16_t alpha, int16_t beta, uint64_t& nodes, const uint8_t ply, Line& pline) {
+		int16_t quiescence(Position& pos, int16_t alpha, int16_t beta, uint64_t& nodes, const uint8_t ply, Line& pline) {
 
 			constexpr bool PV_NODE = N != NODE_NON_PV;
 
@@ -106,8 +106,8 @@ namespace clovis {
 				return tte.eval;
 
 			const bool in_check = pos.is_king_in_check();
-			const int old_alpha = alpha;
-			int eval;
+			const int16_t old_alpha = alpha;
+			int16_t eval;
 
 			if (!in_check) {
 
@@ -127,7 +127,7 @@ namespace clovis {
 
 			move_pick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
 			Move best_move = MOVE_NONE;
-			int best_eval = INT_MIN;
+			int16_t best_eval = INT16_MIN;
 
 			while (const Move curr_move = mp.get_next(in_check)) {
 				// illegal move or non capture
@@ -159,8 +159,8 @@ namespace clovis {
 				}
 			}
 
-			if (in_check && best_eval == INT_MIN)
-				return - CHECKMATE_SCORE + ply;
+			if (in_check && best_eval == INT16_MIN)
+				return ply - CHECKMATE_SCORE;
 
 			tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
@@ -168,7 +168,7 @@ namespace clovis {
 		}
 
 		template<NodeType N>
-		int negamax(Position& pos, int16_t alpha, int16_t beta, uint8_t depth, const uint8_t ply, const bool is_null, const Move prev_move, uint64_t& nodes, Line& pline) {
+		int16_t negamax(Position& pos, int16_t alpha, int16_t beta, uint8_t depth, const uint8_t ply, const bool is_null, const Move prev_move, uint64_t& nodes, Line& pline) {
 			
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
@@ -215,7 +215,7 @@ namespace clovis {
 
 			if (!in_check) {
 
-				int score = tte.key == pos.bs->key ? tte.eval : eval::evaluate<false>(pos);
+				int16_t score = tte.key == pos.bs->key ? tte.eval : eval::evaluate<false>(pos);
 
 				// reverse futility pruning
 				// if evaluation is above a certain threshold, we can trust that it will maintain it in the future
@@ -259,7 +259,8 @@ namespace clovis {
 
 			move_pick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
 			Move best_move = MOVE_NONE;
-			int best_score = INT_MIN, moves_searched = 0;
+			int16_t best_score = INT16_MIN;
+			int moves_searched = 0;
 			HashFlag hash_flag = HASH_ALPHA;
 			bool play_quiets = true;
 
@@ -267,7 +268,7 @@ namespace clovis {
 				// illegal move
 				if (!pos.do_move(curr_move)) continue;
 
-				int score = INT_MIN;
+				int16_t score = INT16_MIN;
 				Line line;
 				++moves_searched;
 
@@ -342,7 +343,7 @@ namespace clovis {
 
 			// no legal moves
 			if (moves_searched == 0)
-				return in_check ? - CHECKMATE_SCORE + ply : - DRAW_SCORE;
+				return in_check ? ply - CHECKMATE_SCORE : - DRAW_SCORE;
 
 			tt.new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 
@@ -363,14 +364,14 @@ namespace clovis {
 				start_time = chrono::steady_clock::now();
 				allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
 
-				int beta = CHECKMATE_SCORE, alpha = -beta;
+				int16_t beta = CHECKMATE_SCORE, alpha = -beta;
 
 				move_pick::reset_killers();
 				move_pick::age_history();
 
 				info.nodes = 0;
 
-				for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth) {
+				for (uint8_t depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth) {
 
 					info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, false, MOVE_NONE, info.nodes, info.pline);
 
@@ -395,7 +396,7 @@ namespace clovis {
 
 					const auto elapsed_time = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
 
-					cout << "info depth " << setw(2) << depth
+					cout << "info depth " << setw(2) << static_cast<int>(depth)
 					     << " score cp "  << setw(4) << info.score
 					     << " nodes "     << setw(8) << info.nodes
 					     << " time "      << setw(6) << elapsed_time

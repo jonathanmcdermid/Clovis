@@ -11,7 +11,7 @@ namespace clovis {
 
 	struct TTEntry {
 		constexpr TTEntry() = default;
-		TTEntry(const Key k, const uint8_t d, const uint8_t f, const int16_t e, const Move m) : key(k), depth(d), flags(f), eval(e), move(m) {}
+		TTEntry(const Key k, const uint8_t d, const uint8_t f, const int16_t e, const Move m) : depth(d), flags(f), eval(e), move(m), key(k) {}
 
 		uint8_t depth{ 0 }; // 1 bytes
 		uint8_t flags{ 0 }; // 1 bytes

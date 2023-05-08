@@ -97,8 +97,8 @@ namespace clovis {
 
 			array<double, PHASE_N> normal{};
 			double safety = 0.0;
-			array<array<double, COLOUR_N>, EVALTYPE_N> mg = {0};
-			array<array<double, COLOUR_N>, EVALTYPE_N> eg = {0};
+			array<array<double, COLOUR_N>, EVALTYPE_N> mg{};
+			array<array<double, COLOUR_N>, EVALTYPE_N> eg{};
 			
 			for (auto& it : entry.tuples) {
 
@@ -128,7 +128,7 @@ namespace clovis {
 		}
 		
 		template<bool STATIC>
-		double mse(const long double K) {
+		double mse(const double K) {
 			
 			double total = 0.0;
 
@@ -169,7 +169,7 @@ namespace clovis {
 		
 		void compute_gradient(TVector gradient, double K) {
 
-			TVector local = {0};
+			TVector local{};
 
 			for (auto& entry : entries)
 				update_single_gradient(entry, local, K);
