@@ -26,7 +26,7 @@ namespace clovis {
 			arr[relative_square(c, A1)] &= ~qs_castle_rights(c);
 			arr[relative_square(c, H1)] &= ~ks_castle_rights(c);
 		}
-			
+		
 		return arr;
 	}();
 
@@ -166,7 +166,7 @@ namespace clovis {
 	void Position::set(const char* fen) {
 
 		memset(this, 0, sizeof(Position));
-		bs = new BoardState;
+		bs = make_unique<BoardState>();
 
 		istringstream ss(fen);
 		unsigned char token;
@@ -323,8 +323,7 @@ namespace clovis {
 	
 	template<bool NM>
 	void Position::new_board_state() {
-		const auto bs_new = new BoardState;
-		assert(bs_new != bs);
+		auto bs_new = make_unique<BoardState>();
 		// copy old board state info to new board state and update clocks
 		bs_new->en_passant = bs->en_passant;
 		bs_new->castle = bs->castle;
@@ -334,14 +333,12 @@ namespace clovis {
 		bs_new->key = bs->key ^ zobrist::side;
 		bs_new->pawn_key = bs->pawn_key;
 		bs_new->game_phase = bs->game_phase;
-		bs_new->prev = bs;
-		// position now refers to new board state
-		bs = bs_new;
-		
-		if (bs->en_passant != SQ_NONE) {
-			bs->key ^= zobrist::en_passant[bs->en_passant];
-			bs->en_passant = SQ_NONE;
+		bs_new->prev = std::move(bs);
+		if (bs_new->en_passant != SQ_NONE) {
+			bs_new->key ^= zobrist::en_passant[bs_new->en_passant];
+			bs_new->en_passant = SQ_NONE;
 		}
+		bs = std::move(bs_new);
 	}
 	
 	// executes a null move and updates the position
@@ -354,9 +351,7 @@ namespace clovis {
 	void Position::undo_null_move() {
 		side = ~side;
 		assert(bs->prev);
-		const BoardState* temp = bs;
-		bs = bs->prev;
-		delete temp;
+		bs = std::move(bs->prev);
 	}
 
 	// executes a move and updates the position
@@ -457,8 +452,7 @@ namespace clovis {
 				remove_piece(tar);
 				put_piece(bs->captured_piece, tar - pawn_push(side));
 			}
-			else
-				replace_piece(bs->captured_piece, tar);
+			else replace_piece(bs->captured_piece, tar);
 		} else {
 			if (move_castling(move)) {
 				Square rt, rf;
@@ -470,13 +464,11 @@ namespace clovis {
 		}
 
 		assert(bs->prev);
-		const BoardState* temp = bs;
-		bs = bs->prev;
-		delete temp;
+		bs = std::move(bs->prev);
 	}
 
 	// returns the piece type of the least valuable piece on a bitboard of attackers
-	std::optional<Square> Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
+	optional<Square> Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
 
 		if (attackers & occ_bb[stm])
 			for (PieceType pt = PAWN; pt <= KING; ++pt)
@@ -488,12 +480,12 @@ namespace clovis {
 
 	bool Position::is_repeat() const {
 
-		const BoardState* temp = bs;
+		const BoardState* temp = bs.get();
 
 		for (int end = min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
-			
-			assert(temp->prev->prev->prev->prev);
-			temp = temp->prev->prev->prev->prev;
+
+			assert(temp->prev && temp->prev->prev && temp->prev->prev->prev && temp->prev->prev->prev->prev);
+			temp = temp->prev->prev->prev->prev.get();
 
 			if (temp->key == bs->key)
 				return true;

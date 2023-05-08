@@ -2,6 +2,7 @@
 
 #include <string>
 #include <optional>
+#include <memory>
 
 #include "bitboard.h"
 
@@ -16,7 +17,7 @@ namespace clovis {
 		int castle{ 0 }, hmc{ 0 }, fmc{ 0 }, ply_null{ 0 }, game_phase{ 0 };
 		Piece captured_piece{ NO_PIECE };
 		Square en_passant{ SQ_NONE };
-		BoardState* prev{ nullptr };
+		std::unique_ptr<BoardState> prev{ nullptr };
 		Key key{ 0ULL }, pawn_key{ 0ULL };
 	};
 
@@ -55,7 +56,7 @@ namespace clovis {
 		[[nodiscard]] bool is_material_draw() const;
 
 		Colour side;
-		BoardState* bs;
+		std::unique_ptr<BoardState> bs;
 		std::array<Piece, SQ_N> pc_table;
 		std::array<Bitboard, 15> pc_bb;
 		std::array<Bitboard, COLOUR_N + 1> occ_bb;
