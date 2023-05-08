@@ -130,7 +130,7 @@ namespace clovis {
 		constexpr short virtual_mobility = 14;
 
 		constexpr auto source32 = [] {
-			std::array<Bitboard, SQ_N> arr{};
+			std::array<Square, SQ_N> arr{};
 
 			for (Square sq = SQ_ZERO; sq < 32; ++sq) {
 				const int r = sq / 4, f = sq & 0x3;
@@ -141,7 +141,7 @@ namespace clovis {
 		}();
 
 		constexpr auto source16 = [] {
-			std::array<Bitboard, SQ_N> arr = source32;
+			std::array<Square, SQ_N> arr = source32;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
 				const int r = sq / 4, f = sq & 0x3;
@@ -152,9 +152,9 @@ namespace clovis {
 		}();
 
 		constexpr auto source10 = [] {
-			std::array<Bitboard, SQ_N> arr{};
+			std::array<Square, SQ_N> arr{};
 
-			int index = 0;
+			Square index = SQ_ZERO;
 
 			for (Square sq = SQ_ZERO; sq < 16; ++sq) {
 				if (const int r = sq / 4, f = sq & 0x3; r >= f) {
