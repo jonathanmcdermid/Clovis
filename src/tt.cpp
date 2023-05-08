@@ -35,7 +35,7 @@ namespace clovis {
 		return e2;
 	}
 
-	void TTable::new_entry(const Key key, const uint8_t depth, const int16_t eval, const HashFlag flags, const Move move) {
+	void TTable::new_entry(const Key key, const int depth, const int eval, const HashFlag flags, const Move move) {
 		TTBucket& bucket = ht[hash_index(key)];
 		bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
 	}

@@ -1,7 +1,6 @@
 #include <chrono>
 #include <iomanip>
 #include <climits>
-#include <algorithm>
 
 #include "search.h"
 #include "evaluate.h"
@@ -84,7 +83,7 @@ namespace clovis {
 		}
  
 		template<NodeType N>
-		int quiescence(Position& pos, int16_t alpha, int16_t beta, uint64_t& nodes, const uint8_t ply, Line& pline) {
+		int quiescence(Position& pos, int alpha, int beta, uint64_t& nodes, const int ply, Line& pline) {
 
 			constexpr bool PV_NODE = N != NODE_NON_PV;
 
@@ -168,7 +167,7 @@ namespace clovis {
 		}
 
 		template<NodeType N>
-		int negamax(Position& pos, int16_t alpha, int16_t beta, uint8_t depth, const uint8_t ply, const bool is_null, const Move prev_move, uint64_t& nodes, Line& pline) {
+		int negamax(Position& pos, int alpha, int beta, int depth, const int ply, const bool is_null, const Move prev_move, uint64_t& nodes, Line& pline) {
 			
 			constexpr bool ROOT_NODE = N == NODE_ROOT;
 			constexpr bool PV_NODE   = N != NODE_NON_PV;
@@ -180,7 +179,7 @@ namespace clovis {
 				return 0;
 			}
 
-			if (depth == 0)
+			if (depth <= 0)
 				return quiescence<N>(pos, alpha, beta, nodes, ply, pline);
 
 			++nodes;
@@ -190,8 +189,8 @@ namespace clovis {
 
 			// mate distance pruning
 			// if me have found a mate, no point in finding a longer mate
-			alpha = max(alpha, static_cast<int16_t>(-CHECKMATE_SCORE + ply));
-			beta  = min(beta,  static_cast<int16_t>( CHECKMATE_SCORE - ply + 1));
+			alpha = max(alpha, - CHECKMATE_SCORE + ply);
+			beta  = min(beta,    CHECKMATE_SCORE - ply + 1);
 
 			if (alpha >= beta)
 				return alpha;
