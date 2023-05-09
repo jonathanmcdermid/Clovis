@@ -87,6 +87,10 @@ namespace clovis {
 		return std::nullopt;
 	}
 	
+	// explicit template instantiations
+	template std::optional<Square> Position::get_pinner<WHITE>(Square sq) const;
+	template std::optional<Square> Position::get_pinner<BLACK>(Square sq) const;
+	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>
 	bool Position::discovery_threat(const Square sq) const {
@@ -111,6 +115,10 @@ namespace clovis {
 
 		return false;
 	}
+	
+	// explicit template instantiations
+	template bool Position::discovery_threat<WHITE>(Square sq) const;
+	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
 	std::string Position::get_fen() const {
 

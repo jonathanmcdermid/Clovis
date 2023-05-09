@@ -337,6 +337,10 @@ namespace clovis {
 
 			return eval;
 		}
+		
+		// explicit template instantiations
+		template int evaluate<true> (const Position& pos);
+		template int evaluate<false>(const Position& pos);
 
 	} // namespace eval
 
