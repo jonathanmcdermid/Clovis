@@ -54,13 +54,13 @@ namespace clovis {
 
 	enum Colour : int {
 		WHITE, BLACK,
-		BOTH,
-		COLOUR_N = 2
+		COLOUR_N,
+		BOTH = COLOUR_N
 	};
 
 	enum PieceType : int {
-		PIECETYPE_NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,
-		PIECETYPE_N = 6
+		PIECE_TYPE_NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,
+		PIECE_TYPE_N = KING
 	};
 
 	enum Piece {
@@ -120,9 +120,9 @@ namespace clovis {
 		A6, B6, C6, D6, E6, F6, G6, H6,
 		A7, B7, C7, D7, E7, F7, G7, H7,
 		A8, B8, C8, D8, E8, F8, G8, H8,
-		SQ_NONE,
-		SQ_ZERO = 0,
-		SQ_N = 64
+		SQ_N,
+		SQ_ZERO = A1,
+		SQ_NONE = SQ_N
 	};
 
 	enum File : int {
@@ -200,13 +200,13 @@ namespace clovis {
 		constexpr Score(const short m, const short e) : mg(m), eg(e) {}
 		explicit Score(const std::array<double, PHASE_N> param) : mg(static_cast<short>(round(param[MG]))), eg(static_cast<short>(round(param[EG]))) {}
 		Score& operator+=(const Score& rhs) {
-			mg = mg + rhs.mg;
-			eg = eg + rhs.eg;
+			mg = static_cast<short>(mg + rhs.mg);
+			eg = static_cast<short>(eg + rhs.eg);
 			return *this;
 		}
 		Score& operator-=(const Score& rhs) {
-			mg = mg - rhs.mg;
-			eg = eg - rhs.eg;
+			mg = static_cast<short>(mg - rhs.mg);
+			eg = static_cast<short>(eg - rhs.eg);
 			return *this;
 		}
 		bool operator==(const Score& rhs) const {
@@ -398,29 +398,29 @@ namespace clovis {
 			os << " pnbrqk  pnbrqk"[move_promotion_type(m)];
 		return os;
 	}
-    
-#define INCR_OPERATORS(T)						\
-constexpr T& operator++(T& d) { return d = T(int(d) + 1); }		\
-constexpr T& operator--(T& d) { return d = T(int(d) - 1); }
 
-#define BASE_OPERATORS(T)						\
-constexpr T operator+(T d1, int d2) { return T(int(d1) + d2); }		\
-constexpr T operator-(T d1, int d2) { return T(int(d1) - d2); }		\
-constexpr T operator-(T d) { return T(-int(d)); }			\
-constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }		\
-constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }					
+#define INCR_OPERATORS(T) \
+    constexpr T& operator++(T& d) { return d = static_cast<T>(static_cast<int>(d) + 1); } \
+    constexpr T& operator--(T& d) { return d = static_cast<T>(static_cast<int>(d) - 1); }
 
-INCR_OPERATORS(Piece)
-INCR_OPERATORS(PieceType)
-INCR_OPERATORS(File)
-INCR_OPERATORS(Rank)
-INCR_OPERATORS(Direction)
-INCR_OPERATORS(Square)
+#define BASE_OPERATORS(T) \
+	constexpr T operator-(T d) { return static_cast<T>(-static_cast<int>(d)); } \
+    constexpr T operator+(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) + d2); } \
+    constexpr T operator-(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) - d2); } \
+    constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; } \
+    constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }
 
-BASE_OPERATORS(File)
-BASE_OPERATORS(Rank)
-BASE_OPERATORS(Direction)
-BASE_OPERATORS(Square)
+	INCR_OPERATORS(Piece)
+	INCR_OPERATORS(PieceType)
+	INCR_OPERATORS(File)
+	INCR_OPERATORS(Rank)
+	INCR_OPERATORS(Direction)
+	INCR_OPERATORS(Square)
+
+	BASE_OPERATORS(File)
+	BASE_OPERATORS(Rank)
+	BASE_OPERATORS(Direction)
+	BASE_OPERATORS(Square)
 
 #undef INCR_OPERATORS
 #undef BASE_OPERATORS
