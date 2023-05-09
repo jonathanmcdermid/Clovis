@@ -50,7 +50,7 @@ namespace clovis {
 
 		constexpr auto en_passant = [] {
 			std::array<Key, SQ_N> arr{};
-			uint64_t s = state + SQ_N * 15;
+			uint64_t s = state + 15ULL * SQ_N;
 			for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
 				arr[sq] = xor_shift(s++);
 
@@ -59,14 +59,14 @@ namespace clovis {
 
 		constexpr auto castling = [] {
 			std::array<Key, 16> arr{};
-			uint64_t s = state + SQ_N * 16;
+			uint64_t s = state + 16ULL * SQ_N;
 			for (int i = 0; i < 16; ++i)
 				arr[i] = xor_shift(s++);
 
 			return arr;
 		}();
 
-		constexpr Key side = xor_shift(state + SQ_N * 16 + 16);
+		constexpr Key side = xor_shift(state + 16ULL * SQ_N + 16);
 
 	} // namespace zobrist
 
@@ -165,7 +165,7 @@ namespace clovis {
 		bs = std::make_unique<BoardState>();
 
 		std::istringstream ss(fen);
-		unsigned char token;
+		char token;
 		Square sq = A8;
 
 		ss >> std::noskipws;
