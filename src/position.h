@@ -135,4 +135,10 @@ namespace clovis {
 		return is_insufficient<WHITE>() && is_insufficient<BLACK>();
 	}
 
+	// explicit template instantiations
+	template std::optional<Square> Position::get_pinner<WHITE>(Square sq) const;
+	template std::optional<Square> Position::get_pinner<BLACK>(Square sq) const;
+	template bool Position::discovery_threat<WHITE>(Square sq) const;
+	template bool Position::discovery_threat<BLACK>(Square sq) const;
+
 } // namespace clovis

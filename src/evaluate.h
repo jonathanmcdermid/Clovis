@@ -282,10 +282,14 @@ namespace clovis {
 		constexpr Bitboard fianchetto_bishop_mask[COLOUR_N] = { B2 | G2, B7 | G7 };
 
 		constexpr Bitboard center_mask[COLOUR_N] = { D5 | E5, D4 | E4 };
-
-		template<bool TRACE> int evaluate(const Position& pos);
 		
 		extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
+
+		template<bool TRACE> int evaluate(const Position& pos);
+
+		// explicit template instantiations
+		template int evaluate<true>(const Position& pos);
+		template int evaluate<false>(const Position& pos);
 
 	} // namespace eval
 
