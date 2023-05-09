@@ -28,7 +28,7 @@ namespace clovis {
 		[[nodiscard]] bool see_ge(Move move, int threshold) const;
 		void do_null_move();
 		void undo_null_move();
-		bool do_move(Move move);
+		[[nodiscard]] bool do_move(Move move);
 		void undo_move(Move move);
 		void print_position() const;
 		void print_bitboards() const;

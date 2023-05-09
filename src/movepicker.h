@@ -8,8 +8,7 @@
 namespace clovis {
 
 	namespace move_pick {
-
-		// colour * from square * to square table size
+		
 		constexpr size_t cft_size = COLOUR_N * SQ_N * SQ_N;
 
 		struct KEntry {
@@ -100,7 +99,7 @@ namespace clovis {
 			MovePicker(const Position& p, const int pl, const Move pm, const Move ttm) 
 				: pos(p), ply(pl), stage(TT_MOVE), curr(moves.data()), last(moves.data()),
 				last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm) {}
-			Move get_next(bool play_quiets);
+			[[nodiscard]] Move get_next(bool play_quiets);
 			template<HashFlag HF> void update_history(Move best_move, int depth) const;
 		private:
 			void score_captures();

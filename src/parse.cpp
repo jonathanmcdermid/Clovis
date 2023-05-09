@@ -126,7 +126,8 @@ namespace clovis {
 								
 								if (info.score < MIN_CHECKMATE_SCORE && info.score > -MIN_CHECKMATE_SCORE) {
 									for (const auto& it : info.pv_line)
-										pos.do_move(it);
+										if (!pos.do_move(it))
+											exit(EXIT_FAILURE);
 
 									if (ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end()) {
 										if (const int eval = pos.side == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos); 
