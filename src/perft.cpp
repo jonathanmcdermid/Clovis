@@ -7,8 +7,6 @@
 
 #include "perft.h"
 
-using namespace std;
-
 namespace clovis {
 
 	namespace perft {
@@ -29,19 +27,19 @@ namespace clovis {
 
 		void perft() {
 
-			vector<PerftPosition> pp;
-			ifstream ifs("src/perft.epd");
-			string line, token;
+			std::vector<PerftPosition> pp;
+			std::ifstream ifs("src/perft.epd");
+			std::string line, token;
 
 			while (getline(ifs, line)) {
 
 				if (line.empty()) continue;
 
 				size_t idx = line.find(',');
-				string fen = line.substr(0, idx);
-				istringstream is(line.substr(idx + 1).c_str());
+				std::string fen = line.substr(0, idx);
+				std::istringstream is(line.substr(idx + 1).c_str());
 				int depth = 1;
-				vector<uint64_t> nv;
+				std::vector<uint64_t> nv;
 
 				while (is >> token) {
 
@@ -61,9 +59,9 @@ namespace clovis {
 
 			for (auto& [fen, nodes] : pp) {
 
-				auto start_time = chrono::steady_clock::now();
+				auto start_time = std::chrono::steady_clock::now();
 				Position pos(fen.c_str());
-				cout << "testing position " << fen << endl;
+				std::cout << "testing position " << fen << std::endl;
 
 				for (size_t depth = 1; depth - 1 < nodes.size(); ++depth) {
 
@@ -71,16 +69,16 @@ namespace clovis {
 					perft_helper(pos, depth, result_nodes);
 
 					failed = (result_nodes != nodes[depth - 1]);
-					cout << (failed ? " FAIL! " : " PASS! ")
+					std::cout << (failed ? " FAIL! " : " PASS! ")
 						 << "depth: "    << depth
-						 << "expected: " << setw(10) << nodes[depth - 1]
-						 << " result: "  << setw(10) << result_nodes
-						 << " time:"     << setw(7)
-						 << chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() << endl;
+						 << "expected: " << std::setw(10) << nodes[depth - 1]
+						 << " result: "  << std::setw(10) << result_nodes
+						 << " time:"     << std::setw(7)
+						 << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() << std::endl;
 				}
 			}
 
-			cout << "Done!" << endl << (failed ? "Some tests failed." : "All tests passed!") << endl;
+			std::cout << "Done!" << std::endl << (failed ? "Some tests failed." : "All tests passed!") << std::endl;
 		}
 
 	} // namespace perft

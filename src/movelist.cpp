@@ -1,7 +1,5 @@
 #include "movelist.h"
 
-using namespace std;
-
 namespace clovis {
     
 	namespace move_gen {
@@ -123,17 +121,17 @@ namespace clovis {
 		template<typename T>
 		void print_moves(const T* m, const T* end) {
 			
-			cout << "move\tpiece\tcapture\tdouble\ten pass\tcastle";
+			std::cout << "move\tpiece\tcapture\tdouble\ten pass\tcastle";
 
-			if constexpr (is_same<T, ScoredMove>())
-				cout << "\tscore";
+			if constexpr (std::is_same<T, ScoredMove>())
+				std::cout << "\tscore";
 
-			cout << endl;
+			std::cout << std::endl;
 
 			int count = 0;
 
 			while (m != end) {
-				cout << move_from_sq(*m)
+				std::cout << move_from_sq(*m)
 				<< move_to_sq(*m)
 				<< piece_str[move_promotion_type(*m)] << '\t'
 				<< piece_str[move_piece_type(*m)]     << '\t'
@@ -142,15 +140,15 @@ namespace clovis {
 				<< static_cast<int>(move_en_passant(*m))            << '\t'
 				<< static_cast<int>(move_castling(*m))             << '\t';
 
-				if constexpr (is_same<T, ScoredMove>())
-					cout << m->score;
+				if constexpr (std::is_same<T, ScoredMove>())
+					std::cout << m->score;
 
-				cout << endl;
+				std::cout << std::endl;
 
 				++m, ++count;
 			}
 
-			cout << "Total move count:" << count << endl;
+			std::cout << "Total move count:" << count << std::endl;
 		}
 		
 		// explicit template instantiations

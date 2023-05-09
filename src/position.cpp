@@ -6,14 +6,12 @@
 
 #include "position.h"
 
-using namespace std;
-
 namespace clovis {
 
 #if defined (__GNUC__)
-	constexpr string_view symbols[] = { "·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚" };
+	constexpr std::string_view symbols[] = { "·","♙","♘","♗","♖","♕","♔","","","♟︎","♞","♝","♜","♛","♚" };
 #else
-	constexpr string_view symbols[] = { ".","P","N","B","R","Q","K","","","p","k","b","r","q","k" };
+	constexpr std::string_view symbols[] = { ".","P","N","B","R","Q","K","","","p","k","b","r","q","k" };
 #endif
 	
 	constexpr auto castling_rights = [] {
@@ -75,7 +73,7 @@ namespace clovis {
 
 	// returns the square that pins a piece if it exists
 	template<Colour US>
-	optional<Square> Position::get_pinner(const Square sq) const {
+	std::optional<Square> Position::get_pinner(const Square sq) const {
 
 		if (const Square ksq = lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq) {
 			Bitboard candidates = 
@@ -87,12 +85,12 @@ namespace clovis {
 					return candidate;
 		}
 
-		return nullopt;
+		return std::nullopt;
 	}
 	
 	// explicit template instantiations
-	template optional<Square> Position::get_pinner<WHITE>(Square sq) const;
-	template optional<Square> Position::get_pinner<BLACK>(Square sq) const;
+	template std::optional<Square> Position::get_pinner<WHITE>(Square sq) const;
+	template std::optional<Square> Position::get_pinner<BLACK>(Square sq) const;
 	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>
@@ -113,7 +111,7 @@ namespace clovis {
 		const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
 		while (candidates)
-			if (popcount(bitboards::between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
+			if (std::popcount(bitboards::between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
 				return true;
 
 		return false;
@@ -123,9 +121,9 @@ namespace clovis {
 	template bool Position::discovery_threat<WHITE>(Square sq) const;
 	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
-	string Position::get_fen() const {
+	std::string Position::get_fen() const {
 
-		stringstream fen;
+		std::stringstream fen;
 		
 		for (Rank r = RANK_8; r >= RANK_1; --r) {
 			int empty_count = 0;
@@ -157,29 +155,29 @@ namespace clovis {
 			if (bs->castle & BLACK_QS) fen.put('q');
 		}
 
-		fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " " << to_string(bs->hmc) << " " << to_string(bs->fmc);
+		fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " " << std::to_string(bs->hmc) << " " << std::to_string(bs->fmc);
 		
 		return fen.str();
 	}
 
-	// sets position to the state specified by FEN string
+	// sets position to the state specified by FEN std::string
 	void Position::set(const char* fen) {
 
 		memset(this, 0, sizeof(Position));
-		bs = make_unique<BoardState>();
+		bs = std::make_unique<BoardState>();
 
-		istringstream ss(fen);
+		std::istringstream ss(fen);
 		unsigned char token;
 		Square sq = A8;
 
-		ss >> noskipws;
+		ss >> std::noskipws;
 
 		while ((ss >> token) && !isspace(token)) {
 			if (isdigit(token))
 				sq = sq + (token - '0') * EAST;
 			else if (token == '/')
 				sq = sq + 2 * SOUTH;
-			else if (size_t index = piece_str.find(token); index != string::npos) {
+			else if (size_t index = piece_str.find(token); index != std::string::npos) {
 				put_piece(static_cast<Piece>(index), sq);
  				put_piece(static_cast<Piece>(index), sq);
 				bs->game_phase += game_phase_inc[static_cast<Piece>(index)];
@@ -208,7 +206,7 @@ namespace clovis {
 		}
 		else bs->en_passant = SQ_NONE;
 
-		ss >> skipws >> bs->hmc >> bs->fmc;
+		ss >> std::skipws >> bs->hmc >> bs->fmc;
 		bs->key = make_key();
 		bs->pawn_key = make_pawn_key();
 		bs->ply_null = 0;
@@ -263,7 +261,7 @@ namespace clovis {
 			assert(d < 32);
 			gain[d] = piece_value[pc_table[from]] - gain[d - 1];
 
-			if (max(-gain[d - 1], gain[d]) < threshold)
+			if (std::max(-gain[d - 1], gain[d]) < threshold)
 				break;
 
 			attackers ^= from;
@@ -276,7 +274,7 @@ namespace clovis {
 		}
 
 		while (--d)
-			gain[d - 1] = -max(-gain[d - 1], gain[d]);
+			gain[d - 1] = -std::max(-gain[d - 1], gain[d]);
 
 		return gain[0] >= threshold;
 	}
@@ -323,7 +321,7 @@ namespace clovis {
 	
 	template<bool NM>
 	void Position::new_board_state() {
-		auto bs_new = make_unique<BoardState>();
+		auto bs_new = std::make_unique<BoardState>();
 		// copy old board state info to new board state and update clocks
 		bs_new->en_passant = bs->en_passant;
 		bs_new->castle = bs->castle;
@@ -468,21 +466,21 @@ namespace clovis {
 	}
 
 	// returns the piece type of the least valuable piece on a bitboard of attackers
-	optional<Square> Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
+	std::optional<Square> Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
 
 		if (attackers & occ_bb[stm])
 			for (PieceType pt = PAWN; pt <= KING; ++pt)
 				if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers)
 					return lsb(bb);
 
-		return nullopt;
+		return std::nullopt;
 	}
 
 	bool Position::is_repeat() const {
 
 		const BoardState* temp = bs.get();
 
-		for (int end = min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
+		for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
 
 			assert(temp->prev && temp->prev->prev && temp->prev->prev->prev && temp->prev->prev->prev->prev);
 			temp = temp->prev->prev->prev->prev.get();
@@ -498,12 +496,12 @@ namespace clovis {
 	void Position::print_position() const {
 
 		for (Rank r = RANK_8; r >= RANK_1; --r) {
-			cout << r + 1 << ' ';
+			std::cout << r + 1 << ' ';
 			for (File f = FILE_A; f < FILE_N; ++f)
-				cout << symbols[pc_table[make_square(f,r)]] << " ";
-			cout << endl;
+				std::cout << symbols[pc_table[make_square(f,r)]] << " ";
+			std::cout << std::endl;
 		}
-		cout << "  a b c d e f g h" << endl << endl << get_fen() << endl << endl;
+		std::cout << "  a b c d e f g h" << std::endl << std::endl << get_fen() << std::endl << std::endl;
 	}
 
 	// prints the bitboards for this position

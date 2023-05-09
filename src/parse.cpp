@@ -6,17 +6,15 @@
 #include "evaluate.h"
 #include "movepicker.h"
 
-using namespace std;
-
 namespace clovis {
 
 	namespace parse {
 
-		Move parse(const Position& pos, string move) {
+		Move parse(const Position& pos, std::string move) {
 			if (move[move.length() - 1] == '+' || move[move.length() - 1] == '#')
 				move = move.substr(0, move.length() - 1);
 
-			if (move.find("O-O") != string::npos)
+			if (move.find("O-O") != std::string::npos)
 				return encode_move(relative_square(pos.side, E1),
 					relative_square(pos.side, move == "O-O" ? G1 : C1),
 					make_piece(KING, pos.side), NO_PIECE, false, false, false, true);
@@ -34,7 +32,7 @@ namespace clovis {
 					: to - pawn_push(pos.side);
 
 				return encode_move(from, to, make_piece(PAWN, pos.side),
-					promo, move.find('x') != string::npos,
+					promo, move.find('x') != std::string::npos,
 					abs(rank_of(to) - rank_of(from)) == 2, pos.bs->en_passant == to, false);
 			}
 			// major moves
@@ -64,19 +62,19 @@ namespace clovis {
 						from = pop_lsb(bb);
 			}
 
-			return encode_move(from, to, piece, NO_PIECE, move.find('x') != string::npos, false, false, false);
+			return encode_move(from, to, piece, NO_PIECE, move.find('x') != std::string::npos, false, false, false);
 		}
 
 		void generate_data() {
 
-			ifstream ifs("src/games.pgn");
-			ofstream ofs("src/tuner.epd");
+			std::ifstream ifs("src/games.pgn");
+			std::ofstream ofs("src/tuner.epd");
 
-			string line, result, fen;
+			std::string line, result, fen;
 			
 			while (!ifs.eof()) {
 				while (getline(ifs, line)) {
-					if (line.find("Result") != string::npos) {
+					if (line.find("Result") != std::string::npos) {
 						size_t start = line.find ('\"') + 1, end = line.rfind('\"');
 						result = line.substr(start, end - start);
 						break;
@@ -84,7 +82,7 @@ namespace clovis {
 				}
 
 				while (getline(ifs, line)) {
-					if (line.find("FEN") != string::npos) {
+					if (line.find("FEN") != std::string::npos) {
 						size_t start = line. find('\"') + 1, end = line.rfind('\"');
 						fen = line.substr(start, end - start);
 						break;
@@ -94,25 +92,25 @@ namespace clovis {
 				Position pos(fen.c_str());
 
 				while (getline(ifs, line))
-					if (line.find(to_string(pos.bs->fmc) + "... ") != string::npos 
-						|| line.find(to_string(pos.bs->fmc) + ". ") != string::npos)
+					if (line.find(std::to_string(pos.bs->fmc) + "... ") != std::string::npos 
+						|| line.find(std::to_string(pos.bs->fmc) + ". ") != std::string::npos)
 						break;
 
 				bool live = true;
-				vector<Key> keys;
+				std::vector<Key> keys;
 
 				do {
-					istringstream ss(line);
+					std::istringstream ss(line);
 					while (true) {
-						string token;
-						ss >> skipws >> token;
+						std::string token;
+						ss >> std::skipws >> token;
 						if (token.empty())
 							break;
 						if (token == result) {
 							live = false;
 							break;
 						}
-						if (token.find('.') == string::npos) {
+						if (token.find('.') == std::string::npos) {
 							if (!pos.do_move(parse(pos, token)))
 								exit(EXIT_FAILURE);
 
@@ -129,18 +127,18 @@ namespace clovis {
 										if (!pos.do_move(it))
 											exit(EXIT_FAILURE);
 
-									if (ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end()) {
+									if (std::ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end()) {
 										if (const int eval = pos.side == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos); 
 										   (result == "1-0" && eval > -500)
 										|| (result == "0-1" && eval < 500)
 										|| (result == "1/2-1/2" && (eval > -500 && eval < 500))) {
 											keys.push_back(pos.bs->key);
-											ofs << pos.get_fen() + " \"" + result + "\";" << endl;
+											ofs << pos.get_fen() + " \"" + result + "\";" << std::endl;
 										}
 									}
 
-									for_each(make_reverse_iterator(info.pv_line.last),
-										make_reverse_iterator(info.pv_line.moves.data()),
+									std::for_each(std::make_reverse_iterator(info.pv_line.last),
+										std::make_reverse_iterator(info.pv_line.moves.data()),
 										[&](const Move& m) { pos.undo_move(m); });
 								}
 							}

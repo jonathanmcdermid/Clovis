@@ -1,25 +1,23 @@
 #include "tt.h"
 
-using namespace std;
-
 namespace clovis {
 
 	TTable tt; // global transposition table
 
 	TTable::TTable() : ht(nullptr), pt(nullptr) {
 		resize(132);
-		pt = make_unique<PTEntry[]>(pt_size);
+		pt = std::make_unique<PTEntry[]>(pt_size);
 	}
 
 	void TTable::resize(const int mb) {
 		tt_size = static_cast<size_t>(mb) * 1024 * 1024 / (sizeof(TTBucket));
-		ht = make_unique<TTBucket[]>(tt_size);
+		ht = std::make_unique<TTBucket[]>(tt_size);
 	}
 
 	// empty transposition table
 	void TTable::clear() {
-		ht = make_unique<TTBucket[]>(tt_size);
-		pt = make_unique<PTEntry[]>(pt_size);
+		ht = std::make_unique<TTBucket[]>(tt_size);
+		pt = std::make_unique<PTEntry[]>(pt_size);
 	}
 
 	// probe the table to see if an entry exists

@@ -4,19 +4,17 @@
 #include "benchmark.h"
 #include "search.h"
 
-using namespace std;
-
 namespace clovis {
 	
 	namespace bench {
 		
 		void benchmark(const int argc, char* argv[]) {
 
-			vector<string> bm;
-			ifstream ifs("src/bench.csv");
-			string line;
+			std::vector<std::string> bm;
+			std::ifstream ifs("src/bench.csv");
+			std::string line;
 
-			while (getline(ifs, line)) {
+			while (std::getline(ifs, line)) {
 				if (line.empty()) continue;
 				const size_t idx = line.find('\"');
 				const size_t idx_end = line.find('\"', idx + 1);
@@ -37,19 +35,19 @@ namespace clovis {
 			Duration total_time = 0LL;
 
 			for (auto& it : bm) {
-				auto start_time = chrono::steady_clock::now();
+				auto start_time = std::chrono::steady_clock::now();
 				Position pos(it.c_str());
 				search::SearchInfo info;
 				search::start_search(pos, limits, info);
-				total_time += chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
+				total_time += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count();
 				total_nodes += info.nodes;
 				search::clear();
 			}
 
-			cout << "bench: " << total_nodes 
+			std::cout << "bench: " << total_nodes 
 			     << " nps: "  << 1000ULL * total_nodes / (total_time + 1) 
 			     << " time: " << total_time 
-			     << " ms"     << endl;
+			     << " ms"     << std::endl;
 		}
 
 	} // namespace bench

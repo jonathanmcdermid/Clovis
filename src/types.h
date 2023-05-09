@@ -375,7 +375,7 @@ namespace clovis {
 		return sq_names[sq];
 	}
 
-	// convert move to string
+	// convert move to std::string
 	inline std::string move2str(const Move m) {
 		return (move_promotion_type(m))
 		? sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + " pnbrqk  pnbrqk"[move_promotion_type(m)]

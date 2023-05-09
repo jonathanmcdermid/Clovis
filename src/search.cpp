@@ -5,8 +5,6 @@
 #include "search.h"
 #include "evaluate.h"
 
-using namespace std;
-
 namespace clovis {
 
 	namespace search {
@@ -38,7 +36,7 @@ namespace clovis {
 		constexpr int lmr_reduction = 2;
 
 		constexpr auto lmr_table = [] {
-			array<array<int, 64>, MAX_PLY + 1> arr{};
+			std::array<std::array<int, 64>, MAX_PLY + 1> arr{};
 
 			for (int depth = 1; depth <= MAX_PLY; ++depth)
 				for (int ordered = 1; ordered < 64; ++ordered)
@@ -53,7 +51,7 @@ namespace clovis {
 		constexpr int iid_divisor[2] = { 2, 4 };
 
 		constexpr auto iid_table = [] {
-			array<array<int, MAX_PLY + 1>, 2> arr{};
+			std::array<std::array<int, MAX_PLY + 1>, 2> arr{};
 
 			for (int depth = 1; depth <= MAX_PLY; ++depth)
 				for (int i = 0; i < 2; ++i)
@@ -73,7 +71,7 @@ namespace clovis {
 
 		bool stop = false;
 
-		chrono::steady_clock::time_point start_time;
+		std::chrono::steady_clock::time_point start_time;
 		Duration allocated_time;
 
 		// reset transposition table, set search to standard conditions
@@ -112,10 +110,9 @@ namespace clovis {
 
 				eval = eval::evaluate<false>(pos);
 	
-				// use TT score instead of static eval if conditions are right
-				// conditions: valid TTE and either 
-				// 1. alpha flag + lower hash score than static eval
-				// 2. beta flag + higher hash score than static eval
+				// use TT score instead of static eval if valid TTE and either 
+				// 1. alpha flag + lower tt score than static eval
+				// 2. beta flag + higher tt score than static eval
 				if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval)))
 					eval = tte.eval;
 				if (eval >= beta)
@@ -174,7 +171,7 @@ namespace clovis {
 
 			assert(PV_NODE || (alpha == beta - 1));
 
-			if (nodes & 2047 && chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count() > allocated_time) {
+			if (nodes & 2047 && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() > allocated_time) {
 				stop = true;
 				return 0;
 			}
@@ -189,8 +186,8 @@ namespace clovis {
 
 			// mate distance pruning
 			// if me have found a mate, no point in finding a longer mate
-			alpha = max(alpha, - CHECKMATE_SCORE + ply);
-			beta  = min(beta,    CHECKMATE_SCORE - ply + 1);
+			alpha = std::max(alpha, - CHECKMATE_SCORE + ply);
+			beta  = std::min(beta,    CHECKMATE_SCORE - ply + 1);
 
 			if (alpha >= beta)
 				return alpha;
@@ -280,13 +277,13 @@ namespace clovis {
 						
 						const int history_entry = move_pick::get_history_entry(~pos.side, curr_move);
 						// reduction factor
-						int R = lmr_table[depth][min(moves_searched, 63)];
+						int R = lmr_table[depth][std::min(moves_searched, 63)];
 						// reduce for pv nodes
 						R -= PV_NODE;
 						// reduce for killers
 						R -= move_pick::is_killer(curr_move, ply);
 						// reduce based on history heuristic and lmr reduction
-						R = clamp(R - clamp(history_entry / lmr_history_divisor, -lmr_history_min, lmr_history_max), 0, depth - lmr_reduction);
+						R = std::clamp(R - std::clamp(history_entry / lmr_history_divisor, -lmr_history_min, lmr_history_max), 0, depth - lmr_reduction);
 						// search current move with reduced depth:
 						score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, false, curr_move, nodes, line);
 						// if search does not fail low, we search again without reduction
@@ -360,7 +357,7 @@ namespace clovis {
 
 			if (ml.size() > 1) {
 
-				start_time = chrono::steady_clock::now();
+				start_time = std::chrono::steady_clock::now();
 				allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
 
 				int beta = CHECKMATE_SCORE, alpha = -beta;
@@ -393,19 +390,19 @@ namespace clovis {
 						continue;
 					}
 
-					const auto elapsed_time = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start_time).count();
+					const auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count();
 
-					cout << "info depth " << setw(2) << depth
-					     << " score cp "  << setw(4) << info.score
-					     << " nodes "     << setw(8) << info.nodes
-					     << " time "      << setw(6) << elapsed_time
-					     << " nps "       << setw(8) << 1000ULL * info.nodes / (elapsed_time + 1)
-					     << " pv ";
+					std::cout << "info depth " << std::setw(2) << depth
+					          << " score cp "  << std::setw(4) << info.score
+					          << " nodes "     << std::setw(8) << info.nodes
+					          << " time "      << std::setw(6) << elapsed_time
+					          << " nps "       << std::setw(8) << 1000ULL * info.nodes / (elapsed_time + 1)
+					          << " pv ";
 
 					for (auto& it : info.pv_line)
-						cout << it << " ";
+						std::cout << it << " ";
 
-					cout << endl;
+					std::cout << std::endl;
 
 					if (elapsed_time > allocated_time / 3) break;
 
@@ -418,7 +415,7 @@ namespace clovis {
 			else
 				*info.pv_line.last++ = *ml.begin();
 
-			cout << "bestmove " << info.pv_line.moves[0] << endl;
+			std::cout << "bestmove " << info.pv_line.moves[0] << std::endl;
 		}
 
 	} // namespace search
