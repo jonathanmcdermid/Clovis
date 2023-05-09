@@ -7,8 +7,6 @@
 
 namespace clovis {
 
-	constexpr size_t pt_size = 131072;
-
 	struct TTEntry {
 		constexpr TTEntry() = default;
 		TTEntry(const Key k, const int d, const HashFlag f, const int e, const Move m)
@@ -26,7 +24,7 @@ namespace clovis {
 
 		TTEntry e1, e2;
 	};
-	
+
 	struct PTEntry {
 		constexpr PTEntry() = default;
 
@@ -38,9 +36,8 @@ namespace clovis {
 	};
 
 	class TTable {
-
 	public:
-		TTable();
+		TTable() : ht(std::make_unique<TTBucket[]>(tt_size)), pt(std::make_unique<PTEntry[]>(pt_size)) {}
 		void resize(int mb);
 		void clear();
 
@@ -50,14 +47,15 @@ namespace clovis {
 		[[nodiscard]] TTEntry probe(Key key);
 
 	private:
-		[[nodiscard]] size_t hash_index(Key key) const;
+		[[nodiscard]] static size_t hash_index(Key key);
 		[[nodiscard]] static size_t pawn_hash_index(Key key);
+		static constexpr size_t pt_size = 131072;
+		static inline size_t tt_size = 4194304;
 		std::unique_ptr<TTBucket[]> ht;
 		std::unique_ptr<PTEntry[]> pt;
-		size_t tt_size;
 	};
 
-	inline size_t TTable::hash_index(const Key key) const {
+	inline size_t TTable::hash_index(const Key key) {
 		return key & (tt_size - 1ULL);
 	}
 

@@ -4,13 +4,8 @@ namespace clovis {
 
 	TTable tt; // global transposition table
 
-	TTable::TTable() : ht(nullptr), pt(nullptr) {
-		resize(132);
-		pt = std::make_unique<PTEntry[]>(pt_size);
-	}
-
 	void TTable::resize(const int mb) {
-		tt_size = static_cast<size_t>(mb) * 1024 * 1024 / (sizeof(TTBucket));
+		tt_size = std::bit_floor(static_cast<size_t>(mb) * 1024 * 1024 / sizeof(TTBucket));
 		ht = std::make_unique<TTBucket[]>(tt_size);
 	}
 
