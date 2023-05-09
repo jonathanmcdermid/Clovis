@@ -2,7 +2,6 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
-#include <cstring>
 
 #include "position.h"
 
@@ -162,8 +161,7 @@ namespace clovis {
 
 	// sets position to the state specified by FEN std::string
 	void Position::set(const char* fen) {
-
-		memset(this, 0, sizeof(Position));
+		
 		bs = std::make_unique<BoardState>();
 
 		std::istringstream ss(fen);
