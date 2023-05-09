@@ -249,7 +249,7 @@ namespace clovis {
 		}();
 
 		extern std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks;
-		extern std::array<std::array<Bitboard, rook_attack_indices>, SQ_N> rook_attacks;
+		extern std::array<std::array<Bitboard, rook_attack_indices>,   SQ_N> rook_attacks;
 
 		void print_bitboard(const Bitboard& bb);
 		void init_bitboards();
