@@ -2,6 +2,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 #include "position.h"
 
@@ -23,7 +24,7 @@ namespace clovis {
 			arr[relative_square(c, A1)] &= ~qs_castle_rights(c);
 			arr[relative_square(c, H1)] &= ~ks_castle_rights(c);
 		}
-		
+			
 		return arr;
 	}();
 
@@ -87,6 +88,10 @@ namespace clovis {
 		return std::nullopt;
 	}
 	
+	// explicit template instantiations
+	template std::optional<Square> Position::get_pinner<WHITE>(Square sq) const;
+	template std::optional<Square> Position::get_pinner<BLACK>(Square sq) const;
+	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>
 	bool Position::discovery_threat(const Square sq) const {
@@ -111,6 +116,10 @@ namespace clovis {
 
 		return false;
 	}
+	
+	// explicit template instantiations
+	template bool Position::discovery_threat<WHITE>(Square sq) const;
+	template bool Position::discovery_threat<BLACK>(Square sq) const;
 
 	std::string Position::get_fen() const {
 
@@ -154,7 +163,8 @@ namespace clovis {
 	// sets position to the state specified by FEN std::string
 	void Position::set(const char* fen) {
 		
-		bs = std::make_unique<BoardState>();
+		memset(this, 0, sizeof(Position));
+		bs = new BoardState;
 
 		std::istringstream ss(fen);
 		char token;
@@ -311,8 +321,7 @@ namespace clovis {
 	
 	template<bool NM>
 	void Position::new_board_state() {
-		auto bs_new = std::make_unique<BoardState>();
-		// copy old board state info to new board state and update clocks
+		const auto bs_new = new BoardState;
 		bs_new->en_passant = bs->en_passant;
 		bs_new->castle = bs->castle;
 		bs_new->hmc = bs->hmc + 1;
@@ -321,12 +330,14 @@ namespace clovis {
 		bs_new->key = bs->key ^ zobrist::side;
 		bs_new->pawn_key = bs->pawn_key;
 		bs_new->game_phase = bs->game_phase;
-		bs_new->prev = std::move(bs);
-		if (bs_new->en_passant != SQ_NONE) {
-			bs_new->key ^= zobrist::en_passant[bs_new->en_passant];
-			bs_new->en_passant = SQ_NONE;
+		bs_new->prev = bs;
+		// position now refers to new board state
+		bs = bs_new;
+		
+		if (bs->en_passant != SQ_NONE) {
+			bs->key ^= zobrist::en_passant[bs->en_passant];
+			bs->en_passant = SQ_NONE;
 		}
-		bs = std::move(bs_new);
 	}
 	
 	// executes a null move and updates the position
@@ -339,7 +350,9 @@ namespace clovis {
 	void Position::undo_null_move() {
 		side = ~side;
 		assert(bs->prev);
-		bs = std::move(bs->prev);
+		const BoardState* temp = bs;
+		bs = bs->prev;
+		delete temp;
 	}
 
 	// executes a move and updates the position
@@ -440,7 +453,8 @@ namespace clovis {
 				remove_piece(tar);
 				put_piece(bs->captured_piece, tar - pawn_push(side));
 			}
-			else replace_piece(bs->captured_piece, tar);
+			else
+				replace_piece(bs->captured_piece, tar);
 		} else {
 			if (move_castling(move)) {
 				Square rt, rf;
@@ -452,7 +466,9 @@ namespace clovis {
 		}
 
 		assert(bs->prev);
-		bs = std::move(bs->prev);
+		const BoardState* temp = bs;
+		bs = bs->prev;
+		delete temp;
 	}
 
 	// returns the piece type of the least valuable piece on a bitboard of attackers
@@ -468,12 +484,12 @@ namespace clovis {
 
 	bool Position::is_repeat() const {
 
-		const BoardState* temp = bs.get();
+		const BoardState* temp = bs;
 
 		for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
 
 			assert(temp->prev && temp->prev->prev && temp->prev->prev->prev && temp->prev->prev->prev->prev);
-			temp = temp->prev->prev->prev->prev.get();
+			temp = temp->prev->prev->prev->prev;
 
 			if (temp->key == bs->key)
 				return true;
