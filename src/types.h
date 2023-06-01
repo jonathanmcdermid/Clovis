@@ -215,6 +215,15 @@ namespace clovis {
 		short mg{ 0 }, eg{ 0 };
 	};
 
+	struct ScoredMove {
+		constexpr ScoredMove() = default;
+		ScoredMove& operator=(const Move m) { move = m; return *this; }
+		operator Move() const { return move; }
+
+		Move move{ MOVE_NONE };
+		int score{ 0 };
+	};
+
 	constexpr Score operator-(const Score s) { return { static_cast<short>(-s.mg), static_cast<short>(-s.eg) }; }
 	constexpr Score operator+(const Score s1, const Score s2) { return { static_cast<short>(s1.mg + s2.mg), static_cast<short>(s1.eg + s2.eg) }; }
 	constexpr Score operator+(const Score s, const short i) { return { static_cast<short>(s.mg + i), static_cast<short>(s.eg + i) }; }

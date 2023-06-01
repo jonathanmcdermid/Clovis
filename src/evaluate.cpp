@@ -113,7 +113,7 @@ namespace clovis {
 				const Bitboard trades = worthy_trades<US, PT>(pos);
 				const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
-				score += quiet_mobility[PT] *   std::popcount(safe_attacks & ~pos.occ_bb[BOTH]);
+				score += quiet_mobility[PT]   * std::popcount(safe_attacks & ~pos.occ_bb[BOTH]);
 				score += capture_mobility[PT] * std::popcount(safe_attacks & pos.occ_bb[~US]);
 
 				if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);

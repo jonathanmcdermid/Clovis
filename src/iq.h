@@ -4,17 +4,13 @@
 
 #include "parse.h"
 
-namespace clovis {
+namespace clovis::iq {
 
-	namespace iq {
+	struct IQPosition {
+		std::string fen;
+		std::vector<Move> moves;
+	};
 
-		struct IQPosition {
-			std::string fen;
-			std::vector<Move> moves;
-		};
+	void iq_test();
 
-		void iq_test();
-
-	} // namespace iq
-
-} // namespace clovis
+} // namespace clovis::iq

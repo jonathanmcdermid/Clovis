@@ -4,13 +4,9 @@
 
 #include "search.h"
 
-namespace clovis {
-
-	namespace parse {
+namespace clovis::parse {
 		
-		Move parse(const Position& pos, std::string move);
-		void generate_data();
+	Move parse(const Position& pos, std::string move);
+	void generate_data();
 
-	} // namespace parse
-
-} // namespace clovis
+} // namespace clovis::parse

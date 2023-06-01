@@ -12,8 +12,8 @@ namespace clovis {
 	constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sq_bb(sq); }
 	constexpr Bitboard operator|(const Bitboard bb, const Square sq) { return bb | sq_bb(sq); }
 	constexpr Bitboard operator^(const Bitboard bb, const Square sq) { return bb ^ sq_bb(sq); }
-	constexpr Bitboard& operator|=(Bitboard& bb, const Square sq) { return bb |= sq_bb(sq); }
-	constexpr Bitboard& operator^=(Bitboard& bb, const Square sq) { return bb ^= sq_bb(sq); }
+	constexpr Bitboard& operator|=(Bitboard& bb, const Square sq)    { return bb |= sq_bb(sq); }
+	constexpr Bitboard& operator^=(Bitboard& bb, const Square sq)    { return bb ^= sq_bb(sq); }
 
 	constexpr Square lsb(const Bitboard bb) {
 		assert(bb);
