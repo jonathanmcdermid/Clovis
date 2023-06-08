@@ -23,7 +23,7 @@ namespace clovis::uci {
 			value = token;
 
 		if (name == "Hash")
-			tt.resize(std::clamp(stoi(value), 1, 10000));
+			transposition::resize(std::clamp(stoi(value), 1, 10000));
 	}
 
 	// begin search

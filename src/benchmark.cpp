@@ -24,7 +24,7 @@ namespace clovis::bench {
 		const int depth = argc > 2 ? atoi(argv[2]) : DEFAULT_BENCH_DEPTH;
 		const int mb    = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
 
-		tt.resize(mb);
+		transposition::resize(mb);
 		
 		search::SearchLimits limits;
 		limits.depth = depth;

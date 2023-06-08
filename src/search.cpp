@@ -75,7 +75,7 @@ namespace clovis::search {
 	// reset transposition table, set search to standard conditions
 	void clear() {
 		move_pick::clear();
-		tt.clear();
+		transposition::clear();
 	}
  
 	template<NodeType N>
@@ -92,7 +92,7 @@ namespace clovis::search {
 		if (ply >= MAX_PLY)
 			return eval::evaluate<false>(pos);
 
-		const TTEntry tte = tt.probe(pos.bs->key);
+		const auto tte = transposition::probe(pos.bs->key);
 
 		if (!PV_NODE && tte.key == pos.bs->key 
 		&& (tte.flags == HASH_EXACT 
@@ -133,7 +133,7 @@ namespace clovis::search {
 
 			// fail high
  			if (eval >= beta) {
-				tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
+				transposition::new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
 				return beta;
 			}
 			if (eval > best_eval) {
@@ -155,7 +155,7 @@ namespace clovis::search {
 		if (in_check && best_eval == INT_MIN)
 			return ply - CHECKMATE_SCORE;
 
-		tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+		transposition::new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
 		return alpha;
 	}
@@ -189,7 +189,7 @@ namespace clovis::search {
 		if (alpha >= beta)
 			return alpha;
 
-		TTEntry tte = tt.probe(pos.bs->key);
+		auto tte = transposition::probe(pos.bs->key);
 
 		if (tte.key == pos.bs->key) {
 			if (PV_NODE && tte.move != MOVE_NONE) {
@@ -237,7 +237,7 @@ namespace clovis::search {
 
 				Line line;
 				negamax<N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, false, prev_move, nodes, line);
-				tte = tt.probe(pos.bs->key);
+				tte = transposition::probe(pos.bs->key);
 
 				if (tte.key == pos.bs->key) {
 					if constexpr (PV_NODE) {
@@ -306,7 +306,7 @@ namespace clovis::search {
 					move_pick::update_killers(curr_move, ply);
 					move_pick::update_counter_entry(pos.side, prev_move, curr_move);
 				}
-				tt.new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
+				transposition::new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
 				return beta;
 			}
 
@@ -338,7 +338,7 @@ namespace clovis::search {
 		if (moves_searched == 0)
 			return in_check ? ply - CHECKMATE_SCORE : - DRAW_SCORE;
 
-		tt.new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
+		transposition::new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 
 		if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE)
 			mp.update_history<HASH_EXACT>(best_move, depth);
