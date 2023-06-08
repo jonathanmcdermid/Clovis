@@ -259,7 +259,7 @@ namespace clovis::eval {
 		for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
 			Bitboard bb = bitboards::get_attacks<KING>(s1);
 			while (bb) 
-				arr[s1] |= bitboards::get_attacks<KING>(pop_lsb(bb));
+				arr[s1] |= bitboards::get_attacks<KING>(bitboards::pop_lsb(bb));
 			arr[s1] &= ~(bitboards::get_attacks<KING>(s1) | s1);
 		}
 

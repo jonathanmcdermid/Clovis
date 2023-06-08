@@ -13,11 +13,11 @@ namespace clovis::move_gen {
 
 		while (bb) {
 
-			const Square src = pop_lsb(bb);
+			const Square src = bitboards::pop_lsb(bb);
 			Bitboard att = bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
 
 			while (att) {
-				const Square tar = pop_lsb(att);
+				const Square tar = bitboards::pop_lsb(att);
 				*moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.occ_bb[BOTH] & tar, false, false, false);
 			}
 		}
@@ -50,7 +50,7 @@ namespace clovis::move_gen {
 
 		while (bb) {
 
-			const Square src = pop_lsb(bb);
+			const Square src = bitboards::pop_lsb(bb);
 			Square tar = src + pawn_push(US);
 
 			if (rank_of(src) == relative_rank(US, RANK_7)) {
@@ -61,7 +61,7 @@ namespace clovis::move_gen {
 					moves = generate_promotions<T, M, US, false>(moves, src, tar);
 
 				while (att) {
-					tar = pop_lsb(att);
+					tar = bitboards::pop_lsb(att);
 					moves = generate_promotions<T, M, US, true>(moves, src, tar);
 				}
 			} else {
@@ -77,7 +77,7 @@ namespace clovis::move_gen {
 					Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
 					while (att) {
-						tar = pop_lsb(att);
+						tar = bitboards::pop_lsb(att);
 						*moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
 					}
 

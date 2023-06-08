@@ -110,8 +110,8 @@ namespace clovis {
 	inline bool Position::is_king_in_check() const {
 
 		return (side == WHITE)
-			? is_attacked<WHITE>(lsb(pc_bb[W_KING]))
-			: is_attacked<BLACK>(lsb(pc_bb[B_KING]));
+			? is_attacked<WHITE>(bitboards::lsb(pc_bb[W_KING]))
+			: is_attacked<BLACK>(bitboards::lsb(pc_bb[B_KING]));
 	}
 
 	inline bool Position::stm_has_promoted() const {

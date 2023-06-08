@@ -75,13 +75,13 @@ namespace clovis {
 	template<Colour US>
 	std::optional<Square> Position::get_pinner(const Square sq) const {
 
-		if (const Square ksq = lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq) {
+		if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq) {
 			Bitboard candidates = 
-			 ((bitboards::get_attacks<ROOK>  (occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK,   ~US)])) 
+			 ((bitboards::get_attacks<ROOK  >(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK,   ~US)])) 
 			| (bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
 
 			while (candidates)
-				if (const Square candidate = pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq)
+				if (const Square candidate = bitboards::pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq)
 					return candidate;
 		}
 
@@ -98,8 +98,8 @@ namespace clovis {
 		// pawn is immobile if it attacks no enemies and is blocked by a piece
 		// we don't have to worry about shift because discovery pawns will never be on outer files
 		Bitboard their_immobile_pawns = 
-		 (shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) & 
-		~(shift<pawn_push(US) + EAST>(occ_bb[US]) | shift<pawn_push(US) + WEST>(occ_bb[US]));
+		 (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) & 
+		~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
 		if (side == ~US && bs->en_passant != SQ_NONE)
 			their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant];
@@ -111,7 +111,7 @@ namespace clovis {
 		const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
 		while (candidates)
-			if (std::popcount(bitboards::between_squares(sq, pop_lsb(candidates)) & occupancy) == 1)
+			if (std::popcount(bitboards::between_squares(sq, bitboards::pop_lsb(candidates)) & occupancy) == 1)
 				return true;
 
 		return false;
@@ -477,7 +477,7 @@ namespace clovis {
 		if (attackers & occ_bb[stm])
 			for (PieceType pt = PAWN; pt <= KING; ++pt)
 				if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers)
-					return lsb(bb);
+					return bitboards::lsb(bb);
 
 		return std::nullopt;
 	}

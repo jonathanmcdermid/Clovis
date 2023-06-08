@@ -37,27 +37,27 @@ namespace clovis::parse {
 		const Piece piece = make_piece(static_cast<PieceType>(piece_str.find(move[0])), pos.side);
 		const Square to = str2sq(move.substr(move.length() - 2));
 		Bitboard bb = bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece];
-		Square from = pop_lsb(bb);
+		Square from = bitboards::pop_lsb(bb);
 
 		if (move[1] == 'x' || move.length() == 3) {
 			// one of the pieces that attacks this square is pinned
 			if (bb) {
 				if (pos.side == WHITE)
 					while (pos.get_pinner<WHITE>(from).has_value())
-						from = pop_lsb(bb);
+						from = bitboards::pop_lsb(bb);
 				else
 					while (pos.get_pinner<BLACK>(from).has_value())
-						from = pop_lsb(bb);
+						from = bitboards::pop_lsb(bb);
 			}
 		}
 		else if (move[2] == 'x' || move.length() == 4) {
 			// there are multiple matching pieces that attack this square
 			if (isdigit(move[1]))
 				while (rank_of(from) != static_cast<Rank>(move[1] - '1'))
-					from = pop_lsb(bb);
+					from = bitboards::pop_lsb(bb);
 			else
 				while (file_of(from) != static_cast<File>(move[1] - 'a'))
-					from = pop_lsb(bb);
+					from = bitboards::pop_lsb(bb);
 		}
 
 		return encode_move(from, to, piece, NO_PIECE, move.find('x') != std::string::npos, false, false, false);

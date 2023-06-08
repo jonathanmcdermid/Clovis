@@ -63,7 +63,6 @@ namespace clovis {
 		return key & (pt_size - 1ULL);
 	}
 
-	// probe the pawn table to see if an entry exists
 	inline PTEntry TTable::probe_pawn(const Key key) const {
 		return pt[pawn_hash_index(key)];
 	}

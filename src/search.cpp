@@ -102,11 +102,10 @@ namespace clovis::search {
 
 		const bool in_check = pos.is_king_in_check();
 		const int old_alpha = alpha;
-		int eval;
 
 		if (!in_check) {
 
-			eval = eval::evaluate<false>(pos);
+			int eval = eval::evaluate<false>(pos);
 	
 			// use TT score instead of static eval if valid TTE and either 
 			// 1. alpha flag + lower tt score than static eval
@@ -128,7 +127,7 @@ namespace clovis::search {
 			if (!pos.do_move(curr_move)) continue;
 
 			Line line;
-			eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1, line);
+			int eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1, line);
 
 			pos.undo_move(curr_move);
 
