@@ -97,7 +97,7 @@ namespace clovis::move_pick {
 		MovePicker(const Position& p, const int pl, const Move pm, const Move ttm) 
 			: pos(p), ply(pl), stage(TT_MOVE), curr(moves.data()), last(moves.data()),
 			last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm) {}
-		[[nodiscard]] Move get_next(bool play_quiets);
+		Move get_next(bool play_quiets);
 		template<HashFlag HF> void update_history(Move best_move, int depth) const;
 	private:
 		void score_captures();

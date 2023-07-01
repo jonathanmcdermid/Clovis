@@ -51,15 +51,15 @@ namespace clovis::transposition {
 		pt = std::make_unique<PTEntry []>(pt_size);
 	}
 
-	[[nodiscard]] static inline size_t hash_index(const Key key) {
+	static inline size_t hash_index(const Key key) {
 		return key & (tt_size - 1ULL);
 	}
 
-	[[nodiscard]] static inline size_t pawn_hash_index(const Key key) {
+	static inline size_t pawn_hash_index(const Key key) {
 		return key & (pt_size - 1ULL);
 	}
 
-	[[nodiscard]] static inline TTEntry probe(const Key key) {
+	static inline TTEntry probe(const Key key) {
 
 		auto& [e1, e2] = ht[hash_index(key)];
 
@@ -69,9 +69,9 @@ namespace clovis::transposition {
 			--e1.depth;
 
 		return e2;
-	}
+	} 
 
-	[[nodiscard]] static inline PTEntry probe_pawn(const Key key) {
+	static inline PTEntry probe_pawn(const Key key) {
 		return pt[pawn_hash_index(key)];
 	}
 

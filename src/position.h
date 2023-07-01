@@ -22,37 +22,37 @@ namespace clovis {
 
 	struct Position {
 		explicit Position(const char* fen) : side{ WHITE }, bs{ nullptr }, pc_table{}, pc_bb{}, occ_bb{} { set(fen); }
-		[[nodiscard]] std::string get_fen() const;
+		std::string get_fen() const;
 		void set(const char* fen);
-		[[nodiscard]] bool see_ge(Move move, int threshold) const;
+		bool see_ge(Move move, int threshold) const;
 		void do_null_move();
 		void undo_null_move();
 		[[nodiscard]] bool do_move(Move move);
 		void undo_move(Move move);
 		void print_position() const;
 		void print_bitboards() const;
-		[[nodiscard]] Key make_key() const;
-		[[nodiscard]] Key make_pawn_key() const;
+		Key make_key() const;
+		Key make_pawn_key() const;
 		void put_piece(Piece pc, Square sq);
 		void replace_piece(Piece pc, Square sq);
 		void remove_piece(Square sq);
-		[[nodiscard]] std::optional<Square> get_smallest_attacker(Bitboard attackers, Colour stm) const;
-		[[nodiscard]] bool is_repeat() const;
+		std::optional<Square> get_smallest_attacker(Bitboard attackers, Colour stm) const;
+		bool is_repeat() const;
 
 		template <bool NM> void new_board_state();
-		template <Colour US> [[nodiscard]] std::optional<Square> get_pinner(Square sq) const;
-		template <Colour US> [[nodiscard]] bool discovery_threat(Square sq) const;
-		template <Colour US> [[nodiscard]] bool is_insufficient() const;
-		template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
+		template <Colour US> std::optional<Square> get_pinner(Square sq) const;
+		template <Colour US> bool discovery_threat(Square sq) const;
+		template <Colour US> bool is_insufficient() const;
+		template <Colour US> bool is_attacked(Square sq) const;
 
-		[[nodiscard]] Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
-		[[nodiscard]] Bitboard attackers_to(Square sq) const;
-		[[nodiscard]] int get_game_phase() const;
-		[[nodiscard]] bool is_king_in_check() const;
-		[[nodiscard]] bool stm_has_promoted() const;
-		[[nodiscard]] bool is_draw_50() const;
-		[[nodiscard]] bool is_draw() const;
-		[[nodiscard]] bool is_material_draw() const;
+		Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
+		Bitboard attackers_to(Square sq) const;
+		int get_game_phase() const;
+		bool is_king_in_check() const;
+		bool stm_has_promoted() const;
+		bool is_draw_50() const;
+		bool is_draw() const;
+		bool is_material_draw() const;
 
 		Colour side;
 		BoardState* bs;

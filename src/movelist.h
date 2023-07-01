@@ -10,9 +10,9 @@ namespace clovis::move_gen {
 	class MoveList {
 	public:
 		explicit MoveList(const Position& pos) : moves{}, last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
-		[[nodiscard]] int size() const { return static_cast<int>(last - moves.data()); }
-		[[nodiscard]] auto begin() const { return moves.data(); }
-		[[nodiscard]] auto end() const { return last; }
+		int size() const { return static_cast<int>(last - moves.data()); }
+		auto begin() const { return moves.data(); }
+		auto end() const { return last; }
 		void remove_illegal(Position& pos) {
 			last = std::remove_if(moves.data(), last, [&pos](const Move& move)
 				{ return pos.do_move(move) ? (void)pos.undo_move(move), false : true; });

@@ -16,9 +16,9 @@ namespace clovis::search {
 
 	struct Line {
 		constexpr Line() = default;
-		[[nodiscard]] int move_count()    const { return static_cast<int>(last - moves.data()); }
-		[[nodiscard]] const Move* begin() const { return moves.data(); }
-		[[nodiscard]] const Move* end()   const { return last; }
+		int move_count()    const { return static_cast<int>(last - moves.data()); }
+		const Move* begin() const { return moves.data(); }
+		const Move* end()   const { return last; }
 
 		std::array<Move, MAX_PLY> moves{};
 		Move* last{ moves.data() };
