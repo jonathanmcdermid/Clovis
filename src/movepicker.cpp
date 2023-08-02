@@ -86,8 +86,8 @@ namespace clovis::move_pick {
 		for (auto& sm : std::ranges::subrange(last_bad_cap, last)) {
 			if      (sm == killer_table[ply].primary)   sm.score = 22000;
 			else if (sm == killer_table[ply].secondary) sm.score = 21000;
-			else if (sm == counter)                sm.score = 20000;
-			else sm.score = get_history_entry(pos.side, sm);
+			else if (sm == counter)                     sm.score = 20000;
+			else                                        sm.score = get_history_entry(pos.side, sm);
 		}
 	}
 
