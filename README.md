@@ -92,4 +92,3 @@ This engine uses ideas from various sources
 - [Cute Chess](https://cutechess.com/)
 
 Special thanks to the engine testers!
-
