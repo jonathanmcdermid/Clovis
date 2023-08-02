@@ -283,8 +283,4 @@ namespace clovis::eval {
 
 	template<bool TRACE> int evaluate(const Position& pos);
 
-	// explicit template instantiations
-	template int evaluate<true>(const Position& pos);
-	template int evaluate<false>(const Position& pos);
-
 } // namespace clovis::eval

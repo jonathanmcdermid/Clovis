@@ -41,12 +41,12 @@ namespace clovis::transposition {
 	static std::unique_ptr<TTBucket[]> ht = std::make_unique<TTBucket[]>(tt_size);
 	static std::unique_ptr<PTEntry []> pt = std::make_unique<PTEntry []>(pt_size);
 
-	static void resize(const int mb) {
+	static inline void resize(const int mb) {
 		tt_size = std::bit_floor(static_cast<size_t>(mb) * 1024 * 1024 / sizeof(TTBucket));
 		ht = std::make_unique<TTBucket[]>(tt_size);
 	}
 
-	static void clear() {
+	static inline void clear() {
 		ht = std::make_unique<TTBucket[]>(tt_size);
 		pt = std::make_unique<PTEntry []>(pt_size);
 	}
