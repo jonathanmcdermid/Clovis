@@ -32,7 +32,7 @@ namespace clovis::bench {
 		uint64_t total_nodes = 0ULL;
 		Duration total_time = 0LL;
 
-		for (auto& it : bm) {
+		for (const auto& it : bm) {
 			auto start_time = std::chrono::steady_clock::now();
 			Position pos(it.c_str());
 			search::SearchInfo info;
