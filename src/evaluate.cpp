@@ -86,11 +86,10 @@ namespace clovis::eval {
 	}
 	
 	template<Colour US, PieceType PT, bool SAFETY, bool TRACE>
-	Score evaluate_majors(const Position& pos, EvalInfo& ei) {
+	void evaluate_majors(const Position& pos, EvalInfo& ei, Score& score) {
 
 		static_assert(PT >= KNIGHT && PT <= QUEEN);
 
-		Score score;
 		Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
 		const Bitboard transparent_occ =
@@ -180,8 +179,6 @@ namespace clovis::eval {
 				}
 			}
 		}
-
-		return score;
 	}
 
 	template<Colour US, bool TRACE>
@@ -191,10 +188,10 @@ namespace clovis::eval {
 
 		if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8) {
 
-			score += evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei);
-			score += evaluate_majors<US, BISHOP, true, TRACE>(pos, ei);
-			score += evaluate_majors<US, ROOK,   true, TRACE>(pos, ei);
-			score += evaluate_majors<US, QUEEN,  true, TRACE>(pos, ei);
+			evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei, score);
+			evaluate_majors<US, BISHOP, true, TRACE>(pos, ei, score);
+			evaluate_majors<US, ROOK,   true, TRACE>(pos, ei, score);
+			evaluate_majors<US, QUEEN,  true, TRACE>(pos, ei, score);
 
 			// we don't count kings or pawns in n_att so the max should be 7, barring promotion trolling
 			assert(ei.n_att[US] < 10);
@@ -212,10 +209,10 @@ namespace clovis::eval {
 
 		} else {
 
-			score += evaluate_majors<US, KNIGHT, false, TRACE>(pos, ei);
-			score += evaluate_majors<US, BISHOP, false, TRACE>(pos, ei);
-			score += evaluate_majors<US, ROOK,   false, TRACE>(pos, ei);
-			score += evaluate_majors<US, QUEEN,  false, TRACE>(pos, ei);
+			evaluate_majors<US, KNIGHT, false, TRACE>(pos, ei, score);
+			evaluate_majors<US, BISHOP, false, TRACE>(pos, ei, score);
+			evaluate_majors<US, ROOK,   false, TRACE>(pos, ei, score);
+			evaluate_majors<US, QUEEN,  false, TRACE>(pos, ei, score);
 			
 			if constexpr (TRACE) for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
 		}
