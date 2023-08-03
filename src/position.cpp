@@ -326,7 +326,7 @@ namespace clovis {
 		bs_new->castle = bs->castle;
 		bs_new->hmc = bs->hmc + 1;
 		bs_new->fmc = bs->fmc + (side == BLACK);
-		bs_new->ply_null = (NM) ? 0 : bs->ply_null + 1;
+		bs_new->ply_null = NM ? 0 : bs->ply_null + 1;
 		bs_new->key = bs->key ^ zobrist::side;
 		bs_new->pawn_key = bs->pawn_key;
 		bs_new->game_phase = bs->game_phase;
@@ -380,7 +380,7 @@ namespace clovis {
 			if (move_en_passant(move)) {
 				const Square victim_sq = tar - pawn_push(side);
 				bs->captured_piece = make_piece(PAWN, ~side);
-				bs->key  ^= zobrist::piece_square[bs->captured_piece][victim_sq];
+				bs->key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
 				bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
 				remove_piece(victim_sq);
 				put_piece(piece, tar);
