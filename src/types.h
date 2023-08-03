@@ -96,7 +96,7 @@ namespace clovis {
 	};
 
 	enum NodeType : int {
-		NODE_ROOT, NODE_PV, NODE_NON_PV
+		NODE_ROOT, NODE_PV, NODE_NON_PV, NODE_NULL
 	};
 
 	enum Direction : int {
