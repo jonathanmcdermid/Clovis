@@ -73,7 +73,7 @@ namespace clovis {
 
 	// returns the square that pins a piece if it exists
 	template<Colour US>
-	std::optional<Square> Position::get_pinner(const Square sq) const {
+	Square Position::get_pinner(const Square sq) const {
 
 		if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq) {
 			Bitboard candidates = 
@@ -85,12 +85,12 @@ namespace clovis {
 					return candidate;
 		}
 
-		return std::nullopt;
+		return SQ_NONE;
 	}
 	
 	// explicit template instantiations
-	template std::optional<Square> Position::get_pinner<WHITE>(Square sq) const;
-	template std::optional<Square> Position::get_pinner<BLACK>(Square sq) const;
+	template Square Position::get_pinner<WHITE>(Square sq) const;
+	template Square Position::get_pinner<BLACK>(Square sq) const;
 	
 	// returns if a square is in danger of a discovery attack by a rook or bishop
 	template<Colour US>
@@ -267,10 +267,9 @@ namespace clovis {
 			attackers ^= from;
 			occ ^= from;
 			attackers |= consider_xray(occ, to, piece_type(pc_table[from]));
-			auto smallest_attacker = get_smallest_attacker(attackers, stm);
-			if (!smallest_attacker.has_value())
+			from = get_smallest_attacker(attackers, stm);
+			if (from == SQ_NONE)
 				break;
-			from = smallest_attacker.value();
 		}
 
 		while (--d)
@@ -472,14 +471,14 @@ namespace clovis {
 	}
 
 	// returns the piece type of the least valuable piece on a bitboard of attackers
-	std::optional<Square> Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
+	Square Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
 
 		if (attackers & occ_bb[stm])
 			for (PieceType pt = PAWN; pt <= KING; ++pt)
 				if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers)
 					return bitboards::lsb(bb);
 
-		return std::nullopt;
+		return SQ_NONE;
 	}
 
 	bool Position::is_repeat() const {

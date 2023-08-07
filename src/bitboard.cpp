@@ -3,7 +3,7 @@
 namespace clovis::bitboards {
 
 	std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks;
-	std::array<std::array<Bitboard, rook_attack_indices>,   SQ_N> rook_attacks;
+	std::array<std::array<Bitboard, rook_attack_indices  >, SQ_N> rook_attacks;
 
 	// prints a bitboard, useful for debugging
 	void print_bitboard(const Bitboard& bb) {

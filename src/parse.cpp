@@ -43,10 +43,10 @@ namespace clovis::parse {
 			// one of the pieces that attacks this square is pinned
 			if (bb) {
 				if (pos.side == WHITE)
-					while (pos.get_pinner<WHITE>(from).has_value())
+					while (pos.get_pinner<WHITE>(from) != SQ_NONE)
 						from = bitboards::pop_lsb(bb);
 				else
-					while (pos.get_pinner<BLACK>(from).has_value())
+					while (pos.get_pinner<BLACK>(from) != SQ_NONE)
 						from = bitboards::pop_lsb(bb);
 			}
 		}

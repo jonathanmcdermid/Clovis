@@ -7,6 +7,7 @@ namespace clovis::uci {
 
 	constexpr std::string_view version_no = "Clovis III";
 	constexpr std::string_view authors = "Jonathan McDermid";
+	constexpr std::string_view start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 	void set_option(std::istringstream& is) {
 
@@ -70,7 +71,7 @@ namespace clovis::uci {
 
 		is >> token;
 		if (token == "startpos") {
-			fen = START_POS;
+			fen = start_position;
 			is >> token;
 		}
 		else if (token == "fen")
@@ -92,7 +93,7 @@ namespace clovis::uci {
 	// main loop for uci communication
 	void loop(const int argc, char* argv[]) {
 
-		Position pos(START_POS);
+		Position pos(start_position.data());
 		std::string token, cmd;
 
 		for (int i = 0; i < argc; ++i)

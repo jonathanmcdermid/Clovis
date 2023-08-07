@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <optional>
 
 #include "bitboard.h"
 
@@ -36,11 +35,11 @@ namespace clovis {
 		void put_piece(Piece pc, Square sq);
 		void replace_piece(Piece pc, Square sq);
 		void remove_piece(Square sq);
-		std::optional<Square> get_smallest_attacker(Bitboard attackers, Colour stm) const;
+		Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
 		bool is_repeat() const;
 
 		template <bool NM> void new_board_state();
-		template <Colour US> std::optional<Square> get_pinner(Square sq) const;
+		template <Colour US> Square get_pinner(Square sq) const;
 		template <Colour US> bool discovery_threat(Square sq) const;
 		template <Colour US> bool is_insufficient() const;
 		template <Colour US> bool is_attacked(Square sq) const;

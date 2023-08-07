@@ -12,8 +12,6 @@
 #include <cmath>
 #include <array>
 
-#define START_POS "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
 namespace clovis {
 
 	typedef uint64_t Key;

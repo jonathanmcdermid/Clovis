@@ -207,30 +207,30 @@ namespace clovis::tuner {
 		print_table("quiet_mobility",   QUIET_MOBILITY,   7, 7);
 		print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
 		
-		std::cout << "\t\tconstexpr Score double_pawn_penalty = "   << Score(params[DOUBLE_PAWN])       << ";" << std::endl
-		<< "\t\tconstexpr Score isolated_pawn_penalty = "      << Score(params[ISOLATED_PAWN])     << ";" << std::endl
-		<< "\t\tconstexpr Score bishop_pair_bonus = "          << Score(params[BISHOP_PAIR])       << ";" << std::endl
-		<< "\t\tconstexpr Score rook_open_file_bonus = "       << Score(params[ROOK_FULL])         << ";" << std::endl
-		<< "\t\tconstexpr Score rook_semi_open_file_bonus = "  << Score(params[ROOK_SEMI])         << ";" << std::endl
-		<< "\t\tconstexpr Score rook_closed_file_penalty = "   << Score(params[ROOK_CLOSED])       << ";" << std::endl
-		<< "\t\tconstexpr Score tempo_bonus = "                << Score(params[TEMPO])             << ";" << std::endl
-		<< "\t\tconstexpr Score king_open_penalty = "          << Score(params[KING_OPEN])         << ";" << std::endl
-		<< "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN])     << ";" << std::endl
-		<< "\t\tconstexpr Score knight_outpost_bonus = "       << Score(params[KNIGHT_OUTPOST])    << ";" << std::endl
-		<< "\t\tconstexpr Score bishop_outpost_bonus = "       << Score(params[BISHOP_OUTPOST])    << ";" << std::endl
-		<< "\t\tconstexpr Score weak_queen_penalty = "         << Score(params[WEAK_QUEEN])        << ";" << std::endl
-		<< "\t\tconstexpr Score rook_on_our_passer_file = "    << Score(params[ROOK_OUR_PASSER])   << ";" << std::endl
-		<< "\t\tconstexpr Score rook_on_their_passer_file = "  << Score(params[ROOK_THEIR_PASSER]) << ";" << std::endl
-		<< "\t\tconstexpr Score tall_pawn_penalty = "          << Score(params[TALL_PAWN])         << ";" << std::endl
-		<< "\t\tconstexpr Score fianchetto_bonus = "           << Score(params[FIANCHETTO])        << ";" << std::endl
-		<< "\t\tconstexpr Score rook_on_seventh = "            << Score(params[ROOK_ON_SEVENTH])   << ";" << std::endl << std::endl;
+		std::cout << "\t\tconstexpr Score double_pawn_penalty = "        << Score(params[DOUBLE_PAWN])       << ";" << std::endl
+		          << "\t\tconstexpr Score isolated_pawn_penalty = "      << Score(params[ISOLATED_PAWN])     << ";" << std::endl
+		          << "\t\tconstexpr Score bishop_pair_bonus = "          << Score(params[BISHOP_PAIR])       << ";" << std::endl
+		          << "\t\tconstexpr Score rook_open_file_bonus = "       << Score(params[ROOK_FULL])         << ";" << std::endl
+		          << "\t\tconstexpr Score rook_semi_open_file_bonus = "  << Score(params[ROOK_SEMI])         << ";" << std::endl
+		          << "\t\tconstexpr Score rook_closed_file_penalty = "   << Score(params[ROOK_CLOSED])       << ";" << std::endl
+		          << "\t\tconstexpr Score tempo_bonus = "                << Score(params[TEMPO])             << ";" << std::endl
+		          << "\t\tconstexpr Score king_open_penalty = "          << Score(params[KING_OPEN])         << ";" << std::endl
+		          << "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN])     << ";" << std::endl
+		          << "\t\tconstexpr Score knight_outpost_bonus = "       << Score(params[KNIGHT_OUTPOST])    << ";" << std::endl
+		          << "\t\tconstexpr Score bishop_outpost_bonus = "       << Score(params[BISHOP_OUTPOST])    << ";" << std::endl
+		          << "\t\tconstexpr Score weak_queen_penalty = "         << Score(params[WEAK_QUEEN])        << ";" << std::endl
+		          << "\t\tconstexpr Score rook_on_our_passer_file = "    << Score(params[ROOK_OUR_PASSER])   << ";" << std::endl
+		          << "\t\tconstexpr Score rook_on_their_passer_file = "  << Score(params[ROOK_THEIR_PASSER]) << ";" << std::endl
+		          << "\t\tconstexpr Score tall_pawn_penalty = "          << Score(params[TALL_PAWN])         << ";" << std::endl
+		          << "\t\tconstexpr Score fianchetto_bonus = "           << Score(params[FIANCHETTO])        << ";" << std::endl
+		          << "\t\tconstexpr Score rook_on_seventh = "            << Score(params[ROOK_ON_SEVENTH])   << ";" << std::endl << std::endl;
 		
 		print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(pawn_shield) / sizeof(short), 4);
 		print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
 		print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 		
-		std::cout << "\t\tconstexpr short attack_factor = " << round(params[SAFETY_N_ATT][MG])            << ";" << std::endl 
-		<< "\t\tconstexpr short virtual_mobility = "   << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << std::endl;
+		std::cout << "\t\tconstexpr short attack_factor = "    << round(params[SAFETY_N_ATT][MG])            << ";" << std::endl 
+		          << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << std::endl;
 	}
 	
 	double find_k() {

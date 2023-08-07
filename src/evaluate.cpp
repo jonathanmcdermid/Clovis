@@ -102,10 +102,10 @@ namespace clovis::eval {
 			score += piece_table[make_piece(PT, US)][sq];
 			Bitboard attacks = bitboards::get_attacks<PT>(transparent_occ, sq);
 
-			auto pinner = pos.get_pinner<US>(sq);
+			Square pinner = pos.get_pinner<US>(sq);
 
-			if (pinner.has_value())
-				attacks &= bitboards::between_squares(ei.ksq[US], pinner.value()) | pinner.value();
+			if (pinner != SQ_NONE)
+				attacks &= bitboards::between_squares(ei.ksq[US], pinner) | pinner;
 
 			const Bitboard trades = worthy_trades<US, PT>(pos);
 			const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
@@ -334,7 +334,7 @@ namespace clovis::eval {
 	}
 	
 	// explicit template instantiations
-	template int evaluate<true> (const Position& pos);
+	template int evaluate<true >(const Position& pos);
 	template int evaluate<false>(const Position& pos);
 
 } // namespace clovis::eval
