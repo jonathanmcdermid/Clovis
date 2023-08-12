@@ -247,7 +247,7 @@ namespace clovis::eval {
 				if (rank_of(sq) != relative_rank(US, RANK_7)) {
 					score += passed_table[US][sq];
 					if constexpr (TRACE)
-						++T[PASSED_PAWN + relative_square(US, sq)][US];
+						++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
 				}
 			}
 			else if (is_candidate_passer<US>(pos, sq)) {
