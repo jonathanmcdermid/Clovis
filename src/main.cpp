@@ -9,6 +9,8 @@ int main(const int argc, char* argv[]) {
 
 	clovis::bitboards::init_bitboards();
 
+	clovis::tuner::tune_eval();
+
 	const std::string_view arg = argc > 1 ? argv[1] : "";
 
 	if (argc < 2)            clovis::uci::loop(argc, argv);

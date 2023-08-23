@@ -138,7 +138,7 @@ namespace clovis::tuner {
 		return total / static_cast<double>(entries.size());
 	}
 	
-	void update_single_gradient(const TEntry& entry, TVector gradient, const double k) {
+	void update_single_gradient(const TEntry& entry, TVector& gradient, const double k) {
 		
 		TGradient tg;
 		
@@ -163,17 +163,14 @@ namespace clovis::tuner {
 		
 	}
 	
-	void compute_gradient(TVector gradient, const double k) {
+	TVector compute_gradient(const double k) {
 
-		TVector local{};
+		TVector gradient{};
 
 		for (auto& entry : entries)
-			update_single_gradient(entry, local, k);
+			update_single_gradient(entry, gradient, k);
 
-		for (int i = 0; i < TI_MISC; ++i) {
-			gradient[i][MG] += local[i][MG];
-			gradient[i][EG] += local[i][EG];
-		}
+		return gradient;
 	}
 	
 	void print_table(const std::string& name, const int index, const int size, const int cols) {
@@ -307,13 +304,12 @@ namespace clovis::tuner {
 		const double k = find_k();
 		double rate = 1.0;
 		
-		std::cout << mse<true>(k) << std::endl;
+		std::cout << mse<true >(k) << std::endl;
 		std::cout << mse<false>(k) << std::endl;
 		
 		for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch) {
 
-			TVector gradient{};
-			compute_gradient(gradient, k);
+			TVector gradient = compute_gradient(k);
 
 			for (size_t i = 0; i < TI_MISC; ++i) {
 
