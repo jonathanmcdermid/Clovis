@@ -65,8 +65,8 @@ namespace clovis::parse {
 
 	void generate_data() {
 
-		std::ifstream ifs("src/games.pgn");
-		std::ofstream ofs("src/tuner.epd");
+		std::ifstream ifs("../src/games.pgn");
+		std::ofstream ofs("../src/tuner.epd");
 
 		std::string line, result, fen;
 		

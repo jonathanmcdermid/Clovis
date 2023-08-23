@@ -128,9 +128,9 @@ namespace clovis::tuner {
 		
 		double total = 0.0;
 
-		#pragma omp parallel shared(total)
+		//#pragma omp parallel shared(total)
 		{
-			#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
+			//#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
 			for (const auto& it : entries)
 				total += pow(it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
 		}
@@ -262,7 +262,7 @@ namespace clovis::tuner {
 		init_params();
 		
 		TVector adaptive_gradient{};
-		std::ifstream ifs("src/tuner.epd");
+		std::ifstream ifs("../src/tuner.epd");
 		std::string line;
 
 		while (getline(ifs, line)) {
