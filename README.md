@@ -23,8 +23,11 @@ Clovis requires `make` and a compiler with C++20 support.
 ```
 git clone https://github.com/jonathanmcdermid/Clovis
 cd Clovis
+mkdir build
+cd build
+cmake ..
 make
-./build/Clovis
+./Clovis
 ```
 
 Commands for the engine can be issued using the standard [UCI format](http://page.mi.fu-berlin.de/block/uci.htm)
