@@ -30,11 +30,6 @@ else()
 	message(WARNING "Unsupported compiler")
 endif()
 
-find_package(OpenMP)
-if(OpenMP_CXX_FOUND)
-	target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
-endif()
-
 # Set output directory
 set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
 set_target_properties(${PROJECT_NAME} PROPERTIES
