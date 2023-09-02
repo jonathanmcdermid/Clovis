@@ -37,11 +37,22 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Chocolatey (if not installed)
+      if: matrix.os == 'windows-latest' && matrix.c_compiler == 'cl'
+      run: |
+        if (-Not (Test-Path -Path "C:\ProgramData\chocolatey\bin\choco.exe")) {
+          Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        }
+
+    - name: Install OpenMP (if not installed)
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install openmp --source="'https://conda.anaconda.org/conda-forge/'" -y
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
