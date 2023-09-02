@@ -128,12 +128,18 @@ namespace clovis::tuner {
 		
 		double total = 0.0;
 		
+		// OpenMP isnt working for MSVC builds currently
+		#ifdef _WIN32
+		for (const auto& it : entries)
+			total += std::pow(it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
+		#else
 		#pragma omp parallel shared(total)
 		{
 			#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
 			for (const auto& it : entries)
 				total += std::pow(it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
 		}
+		#endif
 
 		return total / static_cast<double>(entries.size());
 	}
