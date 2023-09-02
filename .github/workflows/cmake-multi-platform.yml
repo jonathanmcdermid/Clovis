@@ -44,6 +44,18 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Diagnostic Info
+      run: |
+        echo "GitHub Actions Runner OS: ${{ runner.os }}"
+        echo "C++ Compiler Version: ${{ matrix.cpp_compiler }}"
+        echo "CMake Build Type: ${{ matrix.build_type }}"
+        echo "GitHub Workspace: ${{ github.workspace }}"
+        echo "CMake Output Directory: ${{ steps.strings.outputs.build-output-dir }}"
+        echo "CMake Command:"
+        echo "  cmake -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }} -DOpenMP_CXX_FLAGS=\"/openmp\""
+        echo "CMake Cache Content:"
+        cat "${{ steps.strings.outputs.build-output-dir }}/CMakeCache.txt"
+      
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
