@@ -51,6 +51,13 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        ${{ if eq(matrix.c_compiler, 'gcc') }}
+        -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -lomp"
+        -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -lomp"
+        ${{ else if eq(matrix.c_compiler, 'cl') }}
+        -DOpenMP_CXX_FLAGS="/openmp"
+        -DOpenMP_C_FLAGS="/openmp"
+        ${{ endif }}
         -S ${{ github.workspace }}
 
     - name: Build
