@@ -13,7 +13,7 @@ file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 # Set compiler flags
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wshadow -pedantic -Wuseless-cast -Wold-style-cast -fopenmp -Wno-deprecated-enum-enum-conversion -std=c++20")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -fPIC -D_LINUX_")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto -DNDEBUG")
@@ -28,11 +28,6 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
 else()
 	message(WARNING "Unsupported compiler")
-endif()
-
-find_package(OpenMP)
-if(OpenMP_CXX_FOUND)
-	target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
 # Set output directory
