@@ -12,6 +12,10 @@ jobs:
 
     strategy:
       fail-fast: false
+
+      # Set up a matrix to run the following 3 configurations:
+      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
+      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
@@ -33,38 +37,21 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
       run: |
-        # Set the build directory based on the OS
-        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-          echo "build-output-dir=${{ github.workspace }}/build-linux" >> "$GITHUB_OUTPUT"
-        else
-          echo "build-output-dir=${{ github.workspace }}/build-windows" >> "$GITHUB_OUTPUT"
-        mkdir -p ${{ github.workspace }}/build-windows  # Create the build directory for Windows
-        fi
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-
-    - name: Diagnostic Info
-      run: |
-        echo "GitHub Actions Runner OS: ${{ runner.os }}"
-        echo "C++ Compiler Version: ${{ matrix.cpp_compiler }}"
-        echo "CMake Build Type: ${{ matrix.build_type }}"
-        echo "GitHub Workspace: ${{ github.workspace }}"
-        echo "CMake Output Directory: ${{ steps.strings.outputs.build-output-dir }}"
-        echo "CMake Command:"
-        echo "  cmake -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }} -DOpenMP_CXX_FLAGS=\"/openmp\""
-        echo "CMake Cache Content:"
-        cat "${{ steps.strings.outputs.build-output-dir }}/CMakeCache.txt"
-      
     - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
-        -DOpenMP_CXX_FLAGS="/openmp"
 
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
