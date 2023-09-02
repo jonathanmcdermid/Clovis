@@ -42,33 +42,24 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Install Chocolatey (if not installed)
-      if: matrix.os == 'windows-latest' && matrix.c_compiler == 'cl'
-      run: |
-        if (-Not (Test-Path -Path "C:\ProgramData\chocolatey\bin\choco.exe")) {
-          Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        }
-
-    - name: Install OpenMP (if not installed)
-      if: matrix.os == 'windows-latest'
-      run: |
-        choco install openmp --source="'https://conda.anaconda.org/conda-forge/'" -y
-
-    - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+    - name: Configure CMake for GCC
+      if: matrix.c_compiler == 'gcc'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        ${{ if eq(matrix.c_compiler, 'gcc') }}
         -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -lomp"
         -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -lomp"
-        ${{ else if eq(matrix.c_compiler, 'cl') }}
-        -DOpenMP_CXX_FLAGS="/openmp"
-        -DOpenMP_C_FLAGS="/openmp"
-        ${{ endif }}
+        -S ${{ github.workspace }}
+
+    - name: Configure CMake for MSVC
+      if: matrix.c_compiler == 'cl'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
     - name: Build
