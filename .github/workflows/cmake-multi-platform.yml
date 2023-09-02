@@ -41,7 +41,9 @@ jobs:
           echo "build-output-dir=${{ github.workspace }}/build-linux" >> "$GITHUB_OUTPUT"
         else
           echo "build-output-dir=${{ github.workspace }}/build-windows" >> "$GITHUB_OUTPUT"
+        mkdir -p ${{ github.workspace }}/build-windows  # Create the build directory for Windows
         fi
+
 
     - name: Diagnostic Info
       run: |
