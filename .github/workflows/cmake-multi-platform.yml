@@ -46,20 +46,12 @@ jobs:
       if: matrix.c_compiler == 'gcc'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -lomp"
-        -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -lomp"
         -S ${{ github.workspace }}
 
     - name: Configure CMake for MSVC
       if: matrix.c_compiler == 'cl'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
     - name: Build
