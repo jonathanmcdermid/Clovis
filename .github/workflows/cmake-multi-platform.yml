@@ -60,8 +60,8 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DOpenMP_CXX_FLAGS="/openmp"
-        -DOpenMP_C_FLAGS="/openmp"
+        -DOpenMP_CXX_FLAGS="/openmp /GR-"
+        -DOpenMP_C_FLAGS="/openmp /GR-"
         -S ${{ github.workspace }}
 
     - name: Build
