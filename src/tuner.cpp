@@ -1,4 +1,4 @@
-#include <omp.h>
+#include <thread>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -13,7 +13,6 @@ namespace clovis::tuner {
 	std::vector<TEntry> entries;
 	TVector params;
 
-	constexpr int N_CORES = 8;
 	constexpr int MAX_EPOCHS = 1000000;
 
 	inline double sigmoid(const double k, const double e) {
@@ -123,23 +122,27 @@ namespace clovis::tuner {
 		return eval;
 	}
 	
-	template<bool STATIC>
+	template <bool STATIC>
 	double mse(const double k) {
-		
-		double total = 0.0;
-		
-		// OpenMP isnt working for MSVC builds currently
-		#ifdef _WIN32
-		for (const auto& it : entries)
-			total += std::pow(it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
-		#else
-		#pragma omp parallel shared(total)
-		{
-			#pragma omp for schedule(static, entries.size() / N_CORES) reduction(+:total)
-			for (const auto& it : entries)
+
+		const int n_threads = std::thread::hardware_concurrency();
+		std::atomic<double> total(0.0);
+		std::vector<std::thread> threads(n_threads);
+
+		const std::size_t chunk_size = entries.size() / n_threads;
+
+		auto compute_chunk = [&](std::size_t start, std::size_t end) {
+			for (std::size_t i = start; i < end; ++i) {
+				const auto& it = entries[i];
 				total += std::pow(it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
-		}
-		#endif
+			}
+		};
+
+		for (int i = 0; i < n_threads; ++i)
+			threads[i] = std::thread(compute_chunk, i * chunk_size, i * chunk_size + chunk_size);
+
+		for (int i = 0; i < n_threads; ++i)
+			threads[i].join();
 
 		return total / static_cast<double>(entries.size());
 	}
