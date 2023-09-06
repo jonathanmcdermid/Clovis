@@ -55,7 +55,7 @@ constexpr int null_reduction = 3;
 constexpr int asp_depth = 3;
 constexpr int delta = 45;
 
-bool stop = false;
+std::atomic<bool> stop = false;
 
 std::chrono::steady_clock::time_point start_time;
 Duration allocated_time;
