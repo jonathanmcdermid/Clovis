@@ -1,5 +1,6 @@
 #include "search.h"
 
+#include <atomic>
 #include <chrono>
 #include <climits>
 #include <iomanip>
