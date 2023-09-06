@@ -38,51 +38,38 @@ namespace clovis::tuner {
 
 		using namespace eval;
 		
-		for (auto& it : pawn_source)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source));
-		for (auto& it : knight_source)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source));
-		for (auto& it : bishop_source)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source));
-		for (auto& it : rook_source)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source));
-		for (auto& it : queen_source)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source));
-		for (auto& it : king_source)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source));
-		for (auto& it : passed_pawn)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn));
-		for (auto& it : candidate_passer)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer));
-		for (auto& it : quiet_mobility)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility));
-		for (auto& it : capture_mobility)
-			add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility));
+		for (auto& it : pawn_source     ) add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT        - pawn_source     ));
+		for (auto& it : knight_source   ) add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT      - knight_source   ));
+		for (auto& it : bishop_source   ) add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT      - bishop_source   ));
+		for (auto& it : rook_source     ) add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT        - rook_source     ));
+		for (auto& it : queen_source    ) add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT       - queen_source    ));
+		for (auto& it : king_source     ) add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT        - king_source     ));
+		for (auto& it : passed_pawn     ) add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN      - passed_pawn     ));
+		for (auto& it : candidate_passer) add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer));
+		for (auto& it : quiet_mobility  ) add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY   - quiet_mobility  ));
+		for (auto& it : capture_mobility) add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility));
 		
-		add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
-		add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
-		add_param<Score>(bishop_pair_bonus, BISHOP_PAIR);
-		add_param<Score>(rook_open_file_bonus, ROOK_FULL);
-		add_param<Score>(rook_semi_open_file_bonus, ROOK_SEMI);
-		add_param<Score>(rook_closed_file_penalty, ROOK_CLOSED);
-		add_param<Score>(tempo_bonus, TEMPO);
-		add_param<Score>(king_open_penalty, KING_OPEN);
-		add_param<Score>(king_adjacent_open_penalty, KING_ADJ_OPEN);
-		add_param<Score>(knight_outpost_bonus, KNIGHT_OUTPOST);
-		add_param<Score>(bishop_outpost_bonus, BISHOP_OUTPOST);
-		add_param<Score>(weak_queen_penalty, WEAK_QUEEN);
-		add_param<Score>(rook_on_our_passer_file, ROOK_OUR_PASSER);
-		add_param<Score>(rook_on_their_passer_file, ROOK_THEIR_PASSER);
-		add_param<Score>(tall_pawn_penalty, TALL_PAWN);
-		add_param<Score>(fianchetto_bonus, FIANCHETTO);
-		add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
+		add_param<Score>(double_pawn_penalty       , DOUBLE_PAWN      );
+		add_param<Score>(isolated_pawn_penalty     , ISOLATED_PAWN    );
+		add_param<Score>(bishop_pair_bonus         , BISHOP_PAIR      );
+		add_param<Score>(rook_open_file_bonus      , ROOK_FULL        );
+		add_param<Score>(rook_semi_open_file_bonus , ROOK_SEMI        );
+		add_param<Score>(rook_closed_file_penalty  , ROOK_CLOSED      );
+		add_param<Score>(tempo_bonus               , TEMPO            );
+		add_param<Score>(king_open_penalty         , KING_OPEN        );
+		add_param<Score>(king_adjacent_open_penalty, KING_ADJ_OPEN    );
+		add_param<Score>(knight_outpost_bonus      , KNIGHT_OUTPOST   );
+		add_param<Score>(bishop_outpost_bonus      , BISHOP_OUTPOST   );
+		add_param<Score>(weak_queen_penalty        , WEAK_QUEEN       );
+		add_param<Score>(rook_on_our_passer_file   , ROOK_OUR_PASSER  );
+		add_param<Score>(rook_on_their_passer_file , ROOK_THEIR_PASSER);
+		add_param<Score>(tall_pawn_penalty         , TALL_PAWN        );
+		add_param<Score>(fianchetto_bonus          , FIANCHETTO       );
+		add_param<Score>(rook_on_seventh           , ROOK_ON_SEVENTH  );
 		
-		for (auto& it : pawn_shield)
-			add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield));
-		for (auto& it : inner_ring_attack)
-			add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack));
-		for (auto& it : outer_ring_attack)
-			add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack));
+		for (auto& it : pawn_shield      ) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield      ));
+		for (auto& it : inner_ring_attack) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING  - inner_ring_attack));
+		for (auto& it : outer_ring_attack) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING  - outer_ring_attack));
 		
 		add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
 		add_param<short>(attack_factor, SAFETY_N_ATT);
@@ -202,34 +189,34 @@ namespace clovis::tuner {
 
 		using namespace eval;
 		
-		print_table("pawn_source",      PAWN_PSQT,        sizeof(pawn_source)      / sizeof(Score), 4);
-		print_table("knight_source",    KNIGHT_PSQT,      sizeof(knight_source)    / sizeof(Score), 4);
-		print_table("bishop_source",    BISHOP_PSQT,      sizeof(bishop_source)    / sizeof(Score), 4);
-		print_table("rook_source",      ROOK_PSQT,        sizeof(rook_source)      / sizeof(Score), 4);
-		print_table("queen_source",     QUEEN_PSQT,       sizeof(queen_source)     / sizeof(Score), 4);
-		print_table("king_source",      KING_PSQT,        sizeof(king_source)      / sizeof(Score), 4);
-		print_table("passed_pawn",      PASSED_PAWN,      sizeof(passed_pawn)      / sizeof(Score), 4);
+		print_table("pawn_source"     , PAWN_PSQT       , sizeof(pawn_source)      / sizeof(Score), 4);
+		print_table("knight_source"   , KNIGHT_PSQT     , sizeof(knight_source)    / sizeof(Score), 4);
+		print_table("bishop_source"   , BISHOP_PSQT     , sizeof(bishop_source)    / sizeof(Score), 4);
+		print_table("rook_source"     , ROOK_PSQT       , sizeof(rook_source)      / sizeof(Score), 4);
+		print_table("queen_source"    , QUEEN_PSQT      , sizeof(queen_source)     / sizeof(Score), 4);
+		print_table("king_source"     , KING_PSQT       , sizeof(king_source)      / sizeof(Score), 4);
+		print_table("passed_pawn"     , PASSED_PAWN     , sizeof(passed_pawn)      / sizeof(Score), 4);
 		print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
-		print_table("quiet_mobility",   QUIET_MOBILITY,   7, 7);
+		print_table("quiet_mobility"  , QUIET_MOBILITY  , 7, 7);
 		print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
 		
-		std::cout << "\t\tconstexpr Score double_pawn_penalty = "        << Score(params[DOUBLE_PAWN])       << ";" << std::endl
-		          << "\t\tconstexpr Score isolated_pawn_penalty = "      << Score(params[ISOLATED_PAWN])     << ";" << std::endl
-		          << "\t\tconstexpr Score bishop_pair_bonus = "          << Score(params[BISHOP_PAIR])       << ";" << std::endl
-		          << "\t\tconstexpr Score rook_open_file_bonus = "       << Score(params[ROOK_FULL])         << ";" << std::endl
-		          << "\t\tconstexpr Score rook_semi_open_file_bonus = "  << Score(params[ROOK_SEMI])         << ";" << std::endl
-		          << "\t\tconstexpr Score rook_closed_file_penalty = "   << Score(params[ROOK_CLOSED])       << ";" << std::endl
-		          << "\t\tconstexpr Score tempo_bonus = "                << Score(params[TEMPO])             << ";" << std::endl
-		          << "\t\tconstexpr Score king_open_penalty = "          << Score(params[KING_OPEN])         << ";" << std::endl
-		          << "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN])     << ";" << std::endl
-		          << "\t\tconstexpr Score knight_outpost_bonus = "       << Score(params[KNIGHT_OUTPOST])    << ";" << std::endl
-		          << "\t\tconstexpr Score bishop_outpost_bonus = "       << Score(params[BISHOP_OUTPOST])    << ";" << std::endl
-		          << "\t\tconstexpr Score weak_queen_penalty = "         << Score(params[WEAK_QUEEN])        << ";" << std::endl
-		          << "\t\tconstexpr Score rook_on_our_passer_file = "    << Score(params[ROOK_OUR_PASSER])   << ";" << std::endl
+		std::cout << "\t\tconstexpr Score double_pawn_penalty = "        << Score(params[DOUBLE_PAWN      ]) << ";" << std::endl
+		          << "\t\tconstexpr Score isolated_pawn_penalty = "      << Score(params[ISOLATED_PAWN    ]) << ";" << std::endl
+		          << "\t\tconstexpr Score bishop_pair_bonus = "          << Score(params[BISHOP_PAIR      ]) << ";" << std::endl
+		          << "\t\tconstexpr Score rook_open_file_bonus = "       << Score(params[ROOK_FULL        ]) << ";" << std::endl
+		          << "\t\tconstexpr Score rook_semi_open_file_bonus = "  << Score(params[ROOK_SEMI        ]) << ";" << std::endl
+		          << "\t\tconstexpr Score rook_closed_file_penalty = "   << Score(params[ROOK_CLOSED      ]) << ";" << std::endl
+		          << "\t\tconstexpr Score tempo_bonus = "                << Score(params[TEMPO            ]) << ";" << std::endl
+		          << "\t\tconstexpr Score king_open_penalty = "          << Score(params[KING_OPEN        ]) << ";" << std::endl
+		          << "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN    ]) << ";" << std::endl
+		          << "\t\tconstexpr Score knight_outpost_bonus = "       << Score(params[KNIGHT_OUTPOST   ]) << ";" << std::endl
+		          << "\t\tconstexpr Score bishop_outpost_bonus = "       << Score(params[BISHOP_OUTPOST   ]) << ";" << std::endl
+		          << "\t\tconstexpr Score weak_queen_penalty = "         << Score(params[WEAK_QUEEN       ]) << ";" << std::endl
+		          << "\t\tconstexpr Score rook_on_our_passer_file = "    << Score(params[ROOK_OUR_PASSER  ]) << ";" << std::endl
 		          << "\t\tconstexpr Score rook_on_their_passer_file = "  << Score(params[ROOK_THEIR_PASSER]) << ";" << std::endl
-		          << "\t\tconstexpr Score tall_pawn_penalty = "          << Score(params[TALL_PAWN])         << ";" << std::endl
-		          << "\t\tconstexpr Score fianchetto_bonus = "           << Score(params[FIANCHETTO])        << ";" << std::endl
-		          << "\t\tconstexpr Score rook_on_seventh = "            << Score(params[ROOK_ON_SEVENTH])   << ";" << std::endl << std::endl;
+		          << "\t\tconstexpr Score tall_pawn_penalty = "          << Score(params[TALL_PAWN        ]) << ";" << std::endl
+		          << "\t\tconstexpr Score fianchetto_bonus = "           << Score(params[FIANCHETTO       ]) << ";" << std::endl
+		          << "\t\tconstexpr Score rook_on_seventh = "            << Score(params[ROOK_ON_SEVENTH  ]) << ";" << std::endl << std::endl;
 		
 		print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(pawn_shield) / sizeof(short), 4);
 		print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
