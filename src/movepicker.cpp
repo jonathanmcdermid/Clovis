@@ -81,16 +81,11 @@ void MovePicker::score_captures() {
 void MovePicker::score_quiets() {
     const auto counter = get_counter_entry(pos.side, prev_move);
 
-    for (auto &sm : std::ranges::subrange(last_bad_cap, last)) {
-        if (sm == killer_table[ply].primary)
-            sm.score = 22000;
-        else if (sm == killer_table[ply].secondary)
-            sm.score = 21000;
-        else if (sm == counter)
-            sm.score = 20000;
-        else
-            sm.score = get_history_entry(pos.side, sm);
-    }
+    for (auto &sm : std::ranges::subrange(last_bad_cap, last))
+        sm.score = sm == killer_table[ply].primary     ? 22000
+                   : sm == killer_table[ply].secondary ? 21000
+                   : sm == counter                     ? 20000
+                                                       : get_history_entry(pos.side, sm);
 }
 
 } // namespace clovis::move_pick
