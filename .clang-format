@@ -1,21 +1,9 @@
 BasedOnStyle: Google
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
-AlignOperands: true
-AlignTrailingComments: true
-AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortFunctionsOnASingleLine: Inline
-AllowShortLoopsOnASingleLine: true
-AllowShortIfStatementsOnASingleLine: true
-AllowShortCaseLabelsOnASingleLine: true
-AllowShortBlocksOnASingleLine: Always
-AllowShortEnumsOnASingleLine: true
-AllowShortLambdasOnASingleLine: true
-IndentWidth: 4
-
 Language: Cpp
-MaxEmptyLinesToKeep: 1
-NamespaceIndentation: All
+
+AlignConsecutiveAssignments: true
+AlignAfterOpenBracket: AlwaysBreak
+AllowShortCaseLabelsOnASingleLine: true
+IndentWidth: 4
+ColumnLimit: 100
 SpacesBeforeTrailingComments: 1
-Standard: Cpp03
-UseTab: Never

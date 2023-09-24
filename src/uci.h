@@ -2,6 +2,6 @@
 
 namespace clovis::uci {
 
-    void loop(int argc, char *argv[]);
+void loop(int argc, char *argv[]);
 
 } // namespace clovis::uci
