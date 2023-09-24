@@ -12,6 +12,7 @@ AllowShortBlocksOnASingleLine: Always
 AllowShortEnumsOnASingleLine: true
 AllowShortLambdasOnASingleLine: true
 IndentWidth: 4
+
 Language: Cpp
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
