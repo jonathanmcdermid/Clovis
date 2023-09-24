@@ -245,7 +245,9 @@ int negamax(
         else {
             if (moves_searched > 1 && depth > lmr_depth && move_capture(curr_move) == NO_PIECE &&
                 move_promotion_type(curr_move) == NO_PIECE) {
-                const int history_entry = move_pick::get_history_entry(~pos.side, curr_move);
+                const int lmr_history_value = std::clamp(
+                    move_pick::get_history_entry(~pos.side, curr_move) / lmr_history_divisor,
+                    -lmr_history_min, lmr_history_max);
                 // reduction factor
                 int R = lmr_table[depth][std::min(moves_searched, 63)];
                 // reduce for pv nodes
@@ -253,10 +255,7 @@ int negamax(
                 // reduce for killers
                 R -= move_pick::is_killer(curr_move, ply);
                 // reduce based on history heuristic and lmr reduction
-                R = std::clamp(
-                    R - std::clamp(
-                            history_entry / lmr_history_divisor, -lmr_history_min, lmr_history_max),
-                    0, depth - lmr_reduction);
+                R = std::clamp(R - lmr_history_value, 0, depth - lmr_reduction);
                 // search current move with reduced depth:
                 score = -negamax<NODE_NON_PV>(
                     pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, curr_move, nodes, line);
