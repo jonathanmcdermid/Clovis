@@ -59,16 +59,22 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: | 
         set -x  # Enable verbose output
-        expected=$(git show --summary | grep -Po '(?<=bench: )[0-9]+?(?=$)')
-        echo "expected value: '$expected'"
+        expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+' | head -n 1)
         ./build/Clovis bench > output
-        actual=$(grep -Po '(?<=bench: )[0-9]+?(?=$)' output)
-        echo "actual value: '$actual'"
+        actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
         if [[ "$expected" != "$actual" ]]; then
-          echo "Values did not match."
+          echo "Values did not match. actual: '$actual' expected: '$expected'"
           exit 1
         fi
       shell: /usr/bin/bash -e {0}
+
+      # Archive the output file as an artifact
+    - name: Archive Output
+      if: always()  # Ensure this step runs even if the previous step fails
+      uses: actions/upload-artifact@v2
+      with:
+        name: bench-output
+        path: output
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
