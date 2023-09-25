@@ -8,10 +8,8 @@
 namespace clovis::bench {
 
 void benchmark(const int argc, char *argv[]) {
-    if (argc < 3) return;
-
     std::vector<std::string> bm;
-    std::ifstream ifs(argv[2]);
+    std::ifstream ifs("/src/bench.csv");
     std::string line;
 
     while (std::getline(ifs, line)) {
@@ -23,8 +21,8 @@ void benchmark(const int argc, char *argv[]) {
 
     ifs.close();
 
-    const int depth = argc > 2 ? atoi(argv[3]) : DEFAULT_BENCH_DEPTH;
-    const int mb    = argc > 4 ? atoi(argv[5]) : DEFAULT_BENCH_MB;
+    const int depth = argc > 2 ? atoi(argv[2]) : DEFAULT_BENCH_DEPTH;
+    const int mb    = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
 
     transposition::resize(mb);
 
