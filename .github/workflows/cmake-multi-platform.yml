@@ -60,6 +60,8 @@ jobs:
       run: | 
         expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
         echo "Expected value: '$expected'"
+        pwd
+        ls -l
         ./build/Clovis bench > output
         actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
         echo "Actual value: '$actual'"
