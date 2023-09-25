@@ -40,9 +40,10 @@ Move MovePicker::get_next(const bool play_quiets) {
                 curr = last_bad_cap;
                 last = move_gen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
                 score_quiets();
-                std::stable_sort(last_bad_cap, last, [](const ScoredMove &lhs, const ScoredMove &rhs) {
-                    return lhs.score > rhs.score;
-                });
+                std::stable_sort(
+                    last_bad_cap, last, [](const ScoredMove &lhs, const ScoredMove &rhs) {
+                        return lhs.score > rhs.score;
+                    });
             }
             ++stage;
             [[fallthrough]];
