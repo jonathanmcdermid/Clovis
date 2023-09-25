@@ -9,7 +9,7 @@ namespace clovis::bench {
 
 void benchmark(const int argc, char *argv[]) {
     std::vector<std::string> bm;
-    std::ifstream ifs("../src/bench.csv");
+    std::ifstream ifs("src/bench.csv");
     std::string line;
 
     while (std::getline(ifs, line)) {
