@@ -58,6 +58,8 @@ jobs:
     - name: Bench
       if: matrix.os == 'ubuntu-latest'
       run: | 
+        set -x  # Enable verbose output
+        expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
         expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
         echo "Expected value: '$expected'"
         pwd
@@ -69,6 +71,7 @@ jobs:
           echo "Values did not match. actual: '$actual' expected: '$expected'"
           exit 1
         fi
+      shell: /usr/bin/bash -e {0}
 
     # Archive the output file as an artifact
     - name: Archive Output
