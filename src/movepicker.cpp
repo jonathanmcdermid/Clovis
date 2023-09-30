@@ -11,17 +11,15 @@ Move MovePicker::get_next(const bool play_quiets) {
     switch (stage) {
         case TT_MOVE:
             ++stage;
-            if (tt_move != MOVE_NONE &&
-                (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move)))
+            if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move)))
                 return tt_move;
             [[fallthrough]];
         case INIT_CAPTURES:
             curr = last_bad_cap = moves.data();
-            last                = move_gen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
+            last = move_gen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
             score_captures();
-            std::stable_sort(moves.data(), last, [](const ScoredMove &lhs, const ScoredMove &rhs) {
-                return lhs.score > rhs.score;
-            });
+            std::stable_sort(
+                moves.data(), last, [](const ScoredMove &lhs, const ScoredMove &rhs) { return lhs.score > rhs.score; });
             ++stage;
             [[fallthrough]];
         case WINNING_CAPTURES:
@@ -40,10 +38,9 @@ Move MovePicker::get_next(const bool play_quiets) {
                 curr = last_bad_cap;
                 last = move_gen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
                 score_quiets();
-                std::stable_sort(
-                    last_bad_cap, last, [](const ScoredMove &lhs, const ScoredMove &rhs) {
-                        return lhs.score > rhs.score;
-                    });
+                std::stable_sort(last_bad_cap, last, [](const ScoredMove &lhs, const ScoredMove &rhs) {
+                    return lhs.score > rhs.score;
+                });
             }
             ++stage;
             [[fallthrough]];
@@ -75,8 +72,7 @@ Move MovePicker::get_next(const bool play_quiets) {
 void MovePicker::score_captures() {
     for (auto &sm : std::ranges::subrange(moves.data(), last))
         // promotions supersede mvv-lva
-        sm.score = mvv_lva[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] +
-                   ((move_promotion_type(sm) << 6));
+        sm.score = mvv_lva[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] + ((move_promotion_type(sm) << 6));
 }
 
 void MovePicker::score_quiets() {

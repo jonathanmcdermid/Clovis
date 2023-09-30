@@ -11,8 +11,7 @@ void print_moves(const T *m, const T *end);
 
 class MoveList {
    public:
-    explicit MoveList(const Position &pos)
-        : moves{}, last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
+    explicit MoveList(const Position &pos) : moves{}, last(generate<Move, ALL_MOVES>(pos, moves.data())) {}
     int size() const { return static_cast<int>(last - moves.data()); }
     auto begin() const { return moves.data(); }
     auto end() const { return last; }

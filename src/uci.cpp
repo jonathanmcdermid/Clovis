@@ -7,9 +7,8 @@
 namespace clovis::uci {
 
 constexpr std::string_view version_no = "Clovis III";
-constexpr std::string_view authors    = "Jonathan McDermid";
-constexpr std::string_view start_position =
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+constexpr std::string_view authors = "Jonathan McDermid";
+constexpr std::string_view start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 void set_option(std::istringstream &is) {
     // format for option setting is setoption name X value Y

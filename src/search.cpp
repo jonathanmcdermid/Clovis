@@ -9,55 +9,51 @@
 namespace clovis::search {
 
 constexpr double log_table[] = {
-    0.000000, 0.000000, 0.693147, 1.098612, 1.386294, 1.609438, 1.791759, 1.945910, 2.079442,
-    2.197225, 2.302585, 2.397895, 2.484907, 2.564949, 2.639057, 2.708050, 2.772589, 2.833213,
-    2.890372, 2.944439, 2.995732, 3.044522, 3.091042, 3.135494, 3.178054, 3.218876, 3.258097,
-    3.295837, 3.332205, 3.367296, 3.401197, 3.433987, 3.465736, 3.496508, 3.526361, 3.555348,
-    3.583519, 3.610918, 3.637586, 3.663562, 3.688879, 3.713572, 3.737670, 3.761200, 3.784190,
-    3.806662, 3.828641, 3.850148, 3.871201, 3.891820, 3.912023, 3.931826, 3.951244, 3.970292,
-    3.988984, 4.007333, 4.025352, 4.043051, 4.060443, 4.077537, 4.094345, 4.110874, 4.127134,
-    4.143135, 4.158883};
+    0.000000, 0.000000, 0.693147, 1.098612, 1.386294, 1.609438, 1.791759, 1.945910, 2.079442, 2.197225, 2.302585,
+    2.397895, 2.484907, 2.564949, 2.639057, 2.708050, 2.772589, 2.833213, 2.890372, 2.944439, 2.995732, 3.044522,
+    3.091042, 3.135494, 3.178054, 3.218876, 3.258097, 3.295837, 3.332205, 3.367296, 3.401197, 3.433987, 3.465736,
+    3.496508, 3.526361, 3.555348, 3.583519, 3.610918, 3.637586, 3.663562, 3.688879, 3.713572, 3.737670, 3.761200,
+    3.784190, 3.806662, 3.828641, 3.850148, 3.871201, 3.891820, 3.912023, 3.931826, 3.951244, 3.970292, 3.988984,
+    4.007333, 4.025352, 4.043051, 4.060443, 4.077537, 4.094345, 4.110874, 4.127134, 4.143135, 4.158883};
 
-constexpr int lmr_depth           = 2;
-constexpr int lmr_history_min     = 2;
-constexpr int lmr_history_max     = 2;
+constexpr int lmr_depth = 2;
+constexpr int lmr_history_min = 2;
+constexpr int lmr_history_max = 2;
 constexpr int lmr_history_divisor = 4000;
-constexpr int lmr_reduction       = 2;
+constexpr int lmr_reduction = 2;
 
 constexpr auto lmr_table = [] {
     std::array<std::array<int, 64>, MAX_PLY + 1> arr{};
 
     for (int depth = 1; depth <= MAX_PLY; ++depth)
         for (int ordered = 1; ordered < 64; ++ordered)
-            arr[depth][ordered] =
-                static_cast<int>(0.75 + log_table[depth] * log_table[ordered] / 2.25);
+            arr[depth][ordered] = static_cast<int>(0.75 + log_table[depth] * log_table[ordered] / 2.25);
 
     return arr;
 }();
 
-constexpr int iid_depth[2]     = {5, 7};
+constexpr int iid_depth[2] = {5, 7};
 constexpr int iid_reduction[2] = {5, 4};
-constexpr int iid_factor[2]    = {1, 4};
-constexpr int iid_divisor[2]   = {2, 4};
+constexpr int iid_factor[2] = {1, 4};
+constexpr int iid_divisor[2] = {2, 4};
 
 constexpr auto iid_table = [] {
     std::array<std::array<int, MAX_PLY + 1>, 2> arr{};
 
     for (int depth = 1; depth <= MAX_PLY; ++depth)
-        for (int i = 0; i < 2; ++i)
-            arr[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
+        for (int i = 0; i < 2; ++i) arr[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
 
     return arr;
 }();
 
 constexpr int futility_factor = 75;
-constexpr int futility_depth  = 8;
+constexpr int futility_depth = 8;
 
-constexpr int null_depth     = 3;
+constexpr int null_depth = 3;
 constexpr int null_reduction = 3;
 
 constexpr int asp_depth = 3;
-constexpr int delta     = 45;
+constexpr int delta = 45;
 
 bool stop = false;
 
@@ -97,15 +93,14 @@ int quiescence(Position &pos, int alpha, int beta, uint64_t &nodes, const int pl
         // use TT score instead of static eval if valid TTE and either
         // 1. alpha flag + lower tt score than static eval
         // 2. beta flag + higher tt score than static eval
-        if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval)))
-            eval = tte.eval;
+        if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval))) eval = tte.eval;
         if (eval >= beta) return beta;
         if (eval > alpha) alpha = eval;
     }
 
     move_pick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
     Move best_move = MOVE_NONE;
-    int best_eval  = INT_MIN;
+    int best_eval = INT_MIN;
 
     while (const Move curr_move = mp.get_next(in_check)) {
         // illegal move or non capture
@@ -127,7 +122,7 @@ int quiescence(Position &pos, int alpha, int beta, uint64_t &nodes, const int pl
             // new best move found
             if (eval > alpha) {
                 if constexpr (PV_NODE) {
-                    pv_line.last    = pv_line.moves.data();
+                    pv_line.last = pv_line.moves.data();
                     *pv_line.last++ = curr_move;
                     for (const auto &m : line) *pv_line.last++ = m;
                 }
@@ -138,25 +133,24 @@ int quiescence(Position &pos, int alpha, int beta, uint64_t &nodes, const int pl
 
     if (in_check && best_eval == INT_MIN) return ply - CHECKMATE_SCORE;
 
-    transposition::new_entry(
-        pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+    transposition::new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
     return alpha;
 }
 
 template <NodeType N>
 int negamax(
-    Position &pos, int alpha, int beta, int depth, const int ply, const Move prev_move,
-    uint64_t &nodes, Line &pv_line) {
+    Position &pos, int alpha, int beta, int depth, const int ply, const Move prev_move, uint64_t &nodes,
+    Line &pv_line) {
     constexpr bool NULL_NODE = N == NODE_NULL;
     constexpr bool ROOT_NODE = N == NODE_ROOT;
-    constexpr bool PV_NODE   = N == NODE_ROOT || N == NODE_PV;
+    constexpr bool PV_NODE = N == NODE_ROOT || N == NODE_PV;
 
     assert(PV_NODE || (alpha == beta - 1));
 
-    if (nodes & 2047 && std::chrono::duration_cast<std::chrono::milliseconds>(
-                            std::chrono::steady_clock::now() - start_time)
-                                .count() > allocated_time) {
+    if (nodes & 2047 &&
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() >
+            allocated_time) {
         stop = true;
         return 0;
     }
@@ -170,7 +164,7 @@ int negamax(
     // mate distance pruning
     // if me have found a mate, no point in finding a longer mate
     alpha = std::max(alpha, -CHECKMATE_SCORE + ply);
-    beta  = std::min(beta, CHECKMATE_SCORE - ply + 1);
+    beta = std::min(beta, CHECKMATE_SCORE - ply + 1);
 
     if (alpha >= beta) return alpha;
 
@@ -195,15 +189,13 @@ int negamax(
         // reverse futility pruning
         // if evaluation is above a certain threshold, we can trust that it
         // will maintain it in the future
-        if (!PV_NODE && depth <= futility_depth && score - depth * futility_factor > beta)
-            return score;
+        if (!PV_NODE && depth <= futility_depth && score - depth * futility_factor > beta) return score;
 
         // null move pruning
         if (!PV_NODE && !NULL_NODE && depth >= null_depth && pos.stm_has_promoted()) {
             pos.do_null_move();
             Line line;
-            score = -negamax<NODE_NULL>(
-                pos, -beta, -beta + 1, depth - null_reduction, ply + 1, MOVE_NULL, nodes, line);
+            score = -negamax<NODE_NULL>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, MOVE_NULL, nodes, line);
             pos.undo_null_move();
 
             if (score >= beta) return beta;
@@ -230,7 +222,7 @@ int negamax(
     Move best_move = MOVE_NONE;
     int best_score = INT_MIN, moves_searched = 0;
     HashFlag hash_flag = HASH_ALPHA;
-    bool play_quiets   = true;
+    bool play_quiets = true;
 
     while (const Move curr_move = mp.get_next(play_quiets)) {
         // illegal move
@@ -246,8 +238,8 @@ int negamax(
             if (moves_searched > 1 && depth > lmr_depth && move_capture(curr_move) == NO_PIECE &&
                 move_promotion_type(curr_move) == NO_PIECE) {
                 const int lmr_history_value = std::clamp(
-                    move_pick::get_history_entry(~pos.side, curr_move) / lmr_history_divisor,
-                    -lmr_history_min, lmr_history_max);
+                    move_pick::get_history_entry(~pos.side, curr_move) / lmr_history_divisor, -lmr_history_min,
+                    lmr_history_max);
                 // reduction factor
                 int R = lmr_table[depth][std::min(moves_searched, 63)];
                 // reduce for pv nodes
@@ -257,20 +249,16 @@ int negamax(
                 // reduce based on history heuristic and lmr reduction
                 R = std::clamp(R - lmr_history_value, 0, depth - lmr_reduction);
                 // search current move with reduced depth:
-                score = -negamax<NODE_NON_PV>(
-                    pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, curr_move, nodes, line);
+                score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, curr_move, nodes, line);
                 // if search does not fail low, we search again without
                 // reduction
                 if (R && score > alpha)
-                    score = -negamax<NODE_NON_PV>(
-                        pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+                    score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
             } else if (!PV_NODE || moves_searched > 1)
-                score = -negamax<NODE_NON_PV>(
-                    pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+                score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
             // full PV search if all options are exhausted
             if (PV_NODE && (moves_searched == 1 || ((ROOT_NODE || score < beta) && score > alpha)))
-                score = -negamax<NODE_PV>(
-                    pos, -beta, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+                score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
         }
 
         pos.undo_move(curr_move);
@@ -290,12 +278,12 @@ int negamax(
 
         if (score > best_score) {
             // new best move found
-            best_move  = curr_move;
+            best_move = curr_move;
             best_score = score;
 
             if (score > alpha) {
                 if constexpr (PV_NODE) {
-                    pv_line.last    = pv_line.moves.data();
+                    pv_line.last = pv_line.moves.data();
                     *pv_line.last++ = curr_move;
                     for (const auto &m : line) *pv_line.last++ = m;
                 }
@@ -305,8 +293,7 @@ int negamax(
             }
         }
 
-        if (!ROOT_NODE && score > -MIN_CHECKMATE_SCORE && moves_searched >= (4 + depth * depth))
-            play_quiets = false;
+        if (!ROOT_NODE && score > -MIN_CHECKMATE_SCORE && moves_searched >= (4 + depth * depth)) play_quiets = false;
     }
 
     // no legal moves
@@ -314,8 +301,7 @@ int negamax(
 
     transposition::new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 
-    if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE)
-        mp.update_history<HASH_EXACT>(best_move, depth);
+    if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE) mp.update_history<HASH_EXACT>(best_move, depth);
 
     return alpha;
 }
@@ -327,8 +313,7 @@ void start_search(Position &pos, const SearchLimits &limits, SearchInfo &info) {
 
     if (ml.size() > 1) {
         start_time = std::chrono::steady_clock::now();
-        allocated_time =
-            limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
+        allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
 
         int beta = CHECKMATE_SCORE, alpha = -beta;
 
@@ -337,10 +322,8 @@ void start_search(Position &pos, const SearchLimits &limits, SearchInfo &info) {
 
         info.nodes = 0;
 
-        for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth);
-             ++depth) {
-            info.score =
-                negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, MOVE_NONE, info.nodes, info.pv_line);
+        for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth) {
+            info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, MOVE_NONE, info.nodes, info.pv_line);
 
             if (stop) {
                 stop = false;
@@ -361,14 +344,13 @@ void start_search(Position &pos, const SearchLimits &limits, SearchInfo &info) {
                 continue;
             }
 
-            const auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                          std::chrono::steady_clock::now() - start_time)
-                                          .count();
+            const auto elapsed_time =
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time)
+                    .count();
 
-            std::cout << "info depth " << std::setw(2) << depth << " score cp " << std::setw(4)
-                      << info.score << " nodes " << std::setw(8) << info.nodes << " time "
-                      << std::setw(6) << elapsed_time << " nps " << std::setw(8)
-                      << 1000ULL * info.nodes / (elapsed_time + 1) << " pv ";
+            std::cout << "info depth " << std::setw(2) << depth << " score cp " << std::setw(4) << info.score
+                      << " nodes " << std::setw(8) << info.nodes << " time " << std::setw(6) << elapsed_time << " nps "
+                      << std::setw(8) << 1000ULL * info.nodes / (elapsed_time + 1) << " pv ";
 
             for (auto &it : info.pv_line) std::cout << it << " ";
 
@@ -378,7 +360,7 @@ void start_search(Position &pos, const SearchLimits &limits, SearchInfo &info) {
 
             if (depth > asp_depth) {
                 alpha = info.score - delta;
-                beta  = info.score + delta;
+                beta = info.score + delta;
             }
         }
     } else

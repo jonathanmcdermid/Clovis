@@ -30,7 +30,7 @@ void perft() {
     while (getline(ifs, line)) {
         if (line.empty()) continue;
 
-        size_t idx      = line.find(',');
+        size_t idx = line.find(',');
         std::string fen = line.substr(0, idx);
         std::istringstream is(line.substr(idx + 1).c_str());
         int depth = 1;
@@ -61,9 +61,8 @@ void perft() {
             perft_helper(pos, depth, result_nodes);
 
             failed = (result_nodes != nodes[depth - 1]);
-            std::cout << (failed ? " FAIL! " : " PASS! ") << "depth: " << depth
-                      << "expected: " << std::setw(10) << nodes[depth - 1]
-                      << " result: " << std::setw(10) << result_nodes << " time:" << std::setw(7)
+            std::cout << (failed ? " FAIL! " : " PASS! ") << "depth: " << depth << "expected: " << std::setw(10)
+                      << nodes[depth - 1] << " result: " << std::setw(10) << result_nodes << " time:" << std::setw(7)
                       << std::chrono::duration_cast<std::chrono::milliseconds>(
                              std::chrono::steady_clock::now() - start_time)
                              .count()
@@ -71,8 +70,7 @@ void perft() {
         }
     }
 
-    std::cout << "Done!" << std::endl
-              << (failed ? "Some tests failed." : "All tests passed!") << std::endl;
+    std::cout << "Done!" << std::endl << (failed ? "Some tests failed." : "All tests passed!") << std::endl;
 }
 
 } // namespace clovis::perft

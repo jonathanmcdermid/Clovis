@@ -9,11 +9,9 @@
 namespace clovis {
 
 #if defined(__GNUC__)
-constexpr std::string_view symbols[] = {"·", "♙",      "♘", "♗", "♖", "♕", "♔", "",
-                                        "",  "♟︎", "♞", "♝", "♜", "♛", "♚"};
+constexpr std::string_view symbols[] = {"·", "♙", "♘", "♗", "♖", "♕", "♔", "", "", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 #else
-constexpr std::string_view symbols[] = {".", "P", "N", "B", "R", "Q", "K", "",
-                                        "",  "p", "k", "b", "r", "q", "k"};
+constexpr std::string_view symbols[] = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "k", "b", "r", "q", "k"};
 #endif
 
 constexpr auto castling_rights = [] {
@@ -73,8 +71,7 @@ constexpr Key side = xor_shift(state + 16ULL * SQ_N + 16);
 // returns the square that pins a piece if it exists
 template <Colour US>
 Square Position::get_pinner(const Square sq) const {
-    if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
-        bitboards::get_attacks<QUEEN>(ksq) & sq) {
+    if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq) {
         Bitboard candidates =
             ((bitboards::get_attacks<ROOK>(occ_bb[BOTH] ^ sq, ksq) &
               (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
@@ -103,24 +100,19 @@ bool Position::discovery_threat(const Square sq) const {
     // be on outer files
     Bitboard their_immobile_pawns =
         (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
-        ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) |
-          bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
+        ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
-    if (side == ~US && bs->en_passant != SQ_NONE)
-        their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant];
+    if (side == ~US && bs->en_passant != SQ_NONE) their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant];
 
     Bitboard candidates =
-        ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) &
-          (pc_bb[make_piece(ROOK, ~US)])) |
+        ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
          (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) &
           (pc_bb[make_piece(BISHOP, ~US)])));
 
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
     while (candidates)
-        if (std::popcount(
-                bitboards::between_squares(sq, bitboards::pop_lsb(candidates)) & occupancy) == 1)
-            return true;
+        if (std::popcount(bitboards::between_squares(sq, bitboards::pop_lsb(candidates)) & occupancy) == 1) return true;
 
     return false;
 }
@@ -160,8 +152,8 @@ std::string Position::get_fen() const {
         if (bs->castle & BLACK_QS) fen.put('q');
     }
 
-    fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " "
-        << std::to_string(bs->hmc) << " " << std::to_string(bs->fmc);
+    fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " " << std::to_string(bs->hmc) << " "
+        << std::to_string(bs->fmc);
 
     return fen.str();
 }
@@ -210,13 +202,13 @@ void Position::set(const char *fen) {
     if (token != '-') {
         const auto f = static_cast<File>(token - 'a');
         ss >> token;
-        const auto r   = static_cast<Rank>(token - '1');
+        const auto r = static_cast<Rank>(token - '1');
         bs->en_passant = make_square(f, r);
     } else
         bs->en_passant = SQ_NONE;
 
     ss >> std::skipws >> bs->hmc >> bs->fmc;
-    bs->key      = make_key();
+    bs->key = make_key();
     bs->pawn_key = make_pawn_key();
     bs->ply_null = 0;
 }
@@ -251,7 +243,7 @@ bool Position::see_ge(const Move move, const int threshold) const {
     if (move_promotion_type(move) || move_en_passant(move)) return true;
 
     int gain[32], d = 0;
-    Square from     = move_from_sq(move);
+    Square from = move_from_sq(move);
     const Square to = move_to_sq(move);
     Bitboard occ = occ_bb[BOTH], attackers = attackers_to(to);
     Colour stm = side;
@@ -320,16 +312,16 @@ void Position::remove_piece(const Square sq) {
 
 template <bool NM>
 void Position::new_board_state() {
-    const auto bs_new  = new BoardState;
+    const auto bs_new = new BoardState;
     bs_new->en_passant = bs->en_passant;
-    bs_new->castle     = bs->castle;
-    bs_new->hmc        = bs->hmc + 1;
-    bs_new->fmc        = bs->fmc + (side == BLACK);
-    bs_new->ply_null   = NM ? 0 : bs->ply_null + 1;
-    bs_new->key        = bs->key ^ zobrist::side;
-    bs_new->pawn_key   = bs->pawn_key;
+    bs_new->castle = bs->castle;
+    bs_new->hmc = bs->hmc + 1;
+    bs_new->fmc = bs->fmc + (side == BLACK);
+    bs_new->ply_null = NM ? 0 : bs->ply_null + 1;
+    bs_new->key = bs->key ^ zobrist::side;
+    bs_new->pawn_key = bs->pawn_key;
     bs_new->game_phase = bs->game_phase;
-    bs_new->prev       = bs;
+    bs_new->prev = bs;
     // position now refers to new board state
     bs = bs_new;
 
@@ -350,7 +342,7 @@ void Position::undo_null_move() {
     side = ~side;
     assert(bs->prev);
     const BoardState *temp = bs;
-    bs                     = bs->prev;
+    bs = bs->prev;
     delete temp;
 }
 
@@ -378,14 +370,13 @@ bool Position::do_move(const Move move) {
     if (move_capture(move)) {
         if (move_en_passant(move)) {
             const Square victim_sq = tar - pawn_push(side);
-            bs->captured_piece     = make_piece(PAWN, ~side);
+            bs->captured_piece = make_piece(PAWN, ~side);
             bs->key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
             bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
             remove_piece(victim_sq);
             put_piece(piece, tar);
         } else {
-            if (piece_type(bs->captured_piece) == PAWN)
-                bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][tar];
+            if (piece_type(bs->captured_piece) == PAWN) bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][tar];
 
             bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
             replace_piece(piece, tar);
@@ -431,7 +422,7 @@ bool Position::do_move(const Move move) {
 
     // move gen doesn't check for suicidal king, so we check here
     const bool valid = !is_king_in_check();
-    side             = ~side;
+    side = ~side;
     if (!valid) undo_move(move);
     return valid;
 }
@@ -462,7 +453,7 @@ void Position::undo_move(const Move move) {
 
     assert(bs->prev);
     const BoardState *temp = bs;
-    bs                     = bs->prev;
+    bs = bs->prev;
     delete temp;
 }
 
@@ -471,8 +462,7 @@ void Position::undo_move(const Move move) {
 Square Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
     if (attackers & occ_bb[stm])
         for (PieceType pt = PAWN; pt <= KING; ++pt)
-            if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers)
-                return bitboards::lsb(bb);
+            if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers) return bitboards::lsb(bb);
 
     return SQ_NONE;
 }
@@ -481,9 +471,7 @@ bool Position::is_repeat() const {
     const BoardState *temp = bs;
 
     for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
-        assert(
-            temp->prev && temp->prev->prev && temp->prev->prev->prev &&
-            temp->prev->prev->prev->prev);
+        assert(temp->prev && temp->prev->prev && temp->prev->prev->prev && temp->prev->prev->prev->prev);
         temp = temp->prev->prev->prev->prev;
 
         if (temp->key == bs->key) return true;
@@ -496,14 +484,10 @@ bool Position::is_repeat() const {
 void Position::print_position() const {
     for (Rank r = RANK_8; r >= RANK_1; --r) {
         std::cout << r + 1 << ' ';
-        for (File f = FILE_A; f < FILE_N; ++f)
-            std::cout << symbols[pc_table[make_square(f, r)]] << " ";
+        for (File f = FILE_A; f < FILE_N; ++f) std::cout << symbols[pc_table[make_square(f, r)]] << " ";
         std::cout << std::endl;
     }
-    std::cout << "  a b c d e f g h" << std::endl
-              << std::endl
-              << get_fen() << std::endl
-              << std::endl;
+    std::cout << "  a b c d e f g h" << std::endl << std::endl << get_fen() << std::endl << std::endl;
 }
 
 // prints the bitboards for this position

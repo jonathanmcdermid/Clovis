@@ -6,19 +6,17 @@ template <typename T, MoveType M, PieceType PT, Colour US>
 T *generate_majors(const Position &pos, T *moves) {
     Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
-    Bitboard tar_bb = M == ALL_MOVES     ? ~pos.occ_bb[US]
-                      : M == QUIET_MOVES ? ~pos.occ_bb[BOTH]
-                                         : pos.occ_bb[~US];
+    Bitboard tar_bb = M == ALL_MOVES ? ~pos.occ_bb[US] : M == QUIET_MOVES ? ~pos.occ_bb[BOTH] : pos.occ_bb[~US];
 
     while (bb) {
         const Square src = bitboards::pop_lsb(bb);
-        Bitboard att     = bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
+        Bitboard att = bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
 
         while (att) {
             const Square tar = bitboards::pop_lsb(att);
-            *moves++         = encode_move(
-                        src, tar, make_piece(PT, US), NO_PIECE,
-                M == QUIET_MOVES ? false : pos.occ_bb[BOTH] & tar, false, false, false);
+            *moves++ = encode_move(
+                src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.occ_bb[BOTH] & tar, false, false,
+                false);
         }
     }
 
@@ -28,15 +26,11 @@ T *generate_majors(const Position &pos, T *moves) {
 template <typename T, MoveType M, Colour US, bool TC>
 T *generate_promotions(T *moves, const Square src, const Square tar) {
     if constexpr (M != QUIET_MOVES)
-        *moves++ = encode_move(
-            src, tar, make_piece(PAWN, US), make_piece(QUEEN, US), TC, false, false, false);
+        *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN, US), TC, false, false, false);
     if constexpr (M != CAPTURE_MOVES) {
-        *moves++ = encode_move(
-            src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, false, false, false);
-        *moves++ = encode_move(
-            src, tar, make_piece(PAWN, US), make_piece(BISHOP, US), TC, false, false, false);
-        *moves++ = encode_move(
-            src, tar, make_piece(PAWN, US), make_piece(ROOK, US), TC, false, false, false);
+        *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, false, false, false);
+        *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(BISHOP, US), TC, false, false, false);
+        *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(ROOK, US), TC, false, false, false);
     }
 
     return moves;
@@ -46,49 +40,43 @@ T *generate_promotions(T *moves, const Square src, const Square tar) {
 template <typename T, MoveType M, Colour US>
 T *generate_all(const Position &pos, T *moves) {
     constexpr bool CAPTURES = M != QUIET_MOVES;
-    constexpr bool QUIETS   = M != CAPTURE_MOVES;
+    constexpr bool QUIETS = M != CAPTURE_MOVES;
 
     Bitboard bb = pos.pc_bb[make_piece(PAWN, US)];
 
     while (bb) {
         const Square src = bitboards::pop_lsb(bb);
-        Square tar       = src + pawn_push(US);
+        Square tar = src + pawn_push(US);
 
         if (rank_of(src) == relative_rank(US, RANK_7)) {
             Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
-            if (!(pos.occ_bb[BOTH] & tar))
-                moves = generate_promotions<T, M, US, false>(moves, src, tar);
+            if (!(pos.occ_bb[BOTH] & tar)) moves = generate_promotions<T, M, US, false>(moves, src, tar);
 
             while (att) {
-                tar   = bitboards::pop_lsb(att);
+                tar = bitboards::pop_lsb(att);
                 moves = generate_promotions<T, M, US, true>(moves, src, tar);
             }
         } else {
             if (QUIETS && !(pos.occ_bb[BOTH] & tar)) {
                 // single push
-                *moves++ = encode_move(
-                    src, tar, make_piece(PAWN, US), NO_PIECE, false, false, false, false);
+                *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, false, false, false, false);
                 // double push
-                if (rank_of(src) == relative_rank(US, RANK_2) &&
-                    !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
+                if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
                     *moves++ = encode_move(
-                        src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, false, true,
-                        false, false);
+                        src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, false, true, false, false);
             }
             if constexpr (CAPTURES) {
                 Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
                 while (att) {
-                    tar      = bitboards::pop_lsb(att);
-                    *moves++ = encode_move(
-                        src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
+                    tar = bitboards::pop_lsb(att);
+                    *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
                 }
 
                 if (bitboards::pawn_attacks[US][src] & pos.bs->en_passant)
-                    *moves++ = encode_move(
-                        src, pos.bs->en_passant, make_piece(PAWN, US), NO_PIECE, true, false, true,
-                        false);
+                    *moves++ =
+                        encode_move(src, pos.bs->en_passant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
             }
         }
     }
@@ -98,16 +86,15 @@ T *generate_all(const Position &pos, T *moves) {
             !(pos.occ_bb[BOTH] & (relative_square(US, F1) | relative_square(US, G1))) &&
             !pos.is_attacked<US>(relative_square(US, F1)))
             *moves++ = encode_move(
-                relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE,
-                false, false, false, true);
+                relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, false, false, false,
+                true);
 
         if (pos.bs->castle & qs_castle_rights(US) &&
-            !(pos.occ_bb[BOTH] &
-              (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
+            !(pos.occ_bb[BOTH] & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
             !pos.is_attacked<US>(relative_square(US, D1)))
             *moves++ = encode_move(
-                relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE,
-                false, false, false, true);
+                relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE, false, false, false,
+                true);
     }
 
     moves = generate_majors<T, M, KNIGHT, US>(pos, moves);
@@ -121,8 +108,7 @@ T *generate_all(const Position &pos, T *moves) {
 
 template <typename T, MoveType M>
 T *generate(const Position &pos, T *moves) {
-    return (pos.side == WHITE) ? generate_all<T, M, WHITE>(pos, moves)
-                               : generate_all<T, M, BLACK>(pos, moves);
+    return (pos.side == WHITE) ? generate_all<T, M, WHITE>(pos, moves) : generate_all<T, M, BLACK>(pos, moves);
 }
 
 template <typename T>
@@ -136,10 +122,9 @@ void print_moves(const T *m, const T *end) {
     int count = 0;
 
     while (m != end) {
-        std::cout << move_from_sq(*m) << move_to_sq(*m) << piece_str[move_promotion_type(*m)]
-                  << '\t' << piece_str[move_piece_type(*m)] << '\t'
-                  << static_cast<int>(move_capture(*m)) << '\t' << static_cast<int>(move_double(*m))
-                  << '\t' << static_cast<int>(move_en_passant(*m)) << '\t'
+        std::cout << move_from_sq(*m) << move_to_sq(*m) << piece_str[move_promotion_type(*m)] << '\t'
+                  << piece_str[move_piece_type(*m)] << '\t' << static_cast<int>(move_capture(*m)) << '\t'
+                  << static_cast<int>(move_double(*m)) << '\t' << static_cast<int>(move_en_passant(*m)) << '\t'
                   << static_cast<int>(move_castling(*m)) << '\t';
 
         if constexpr (std::is_same<T, ScoredMove>()) std::cout << m->score;

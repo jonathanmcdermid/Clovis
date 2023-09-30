@@ -40,13 +40,9 @@ inline size_t cft_index(const Colour c, const Move m) {
     return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m);
 }
 
-inline int &get_history_entry(const Colour c, const Move m) {
-    return history_table[cft_index(c, m)];
-}
+inline int &get_history_entry(const Colour c, const Move m) { return history_table[cft_index(c, m)]; }
 
-inline Move &get_counter_entry(const Colour c, const Move m) {
-    return counter_table[cft_index(c, m)];
-}
+inline Move &get_counter_entry(const Colour c, const Move m) { return counter_table[cft_index(c, m)]; }
 
 inline void age_history() {
     for (auto &it : history_table) it >>= 4;
@@ -67,7 +63,7 @@ inline void clear() {
 inline void update_killers(const Move m, const int ply) {
     if (killer_table[ply].primary != m) {
         killer_table[ply].secondary = killer_table[ply].primary;
-        killer_table[ply].primary   = m;
+        killer_table[ply].primary = m;
     }
 }
 

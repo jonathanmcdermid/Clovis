@@ -20,9 +20,7 @@ struct BoardState {
 };
 
 struct Position {
-    explicit Position(const char *fen) : side{WHITE}, bs{nullptr}, pc_table{}, pc_bb{}, occ_bb{} {
-        set(fen);
-    }
+    explicit Position(const char *fen) : side{WHITE}, bs{nullptr}, pc_table{}, pc_bb{}, occ_bb{} { set(fen); }
     std::string get_fen() const;
     void set(const char *fen);
     bool see_ge(Move move, int threshold) const;
@@ -82,31 +80,24 @@ bool Position::is_attacked(const Square sq) const {
 template <Colour US>
 bool Position::is_insufficient() const {
     return (
-        std::popcount(pc_bb[make_piece(PAWN, US)]) == 0 &&
-        (std::popcount(pc_bb[make_piece(ROOK, US)]) == 0) &&
-        (std::popcount(pc_bb[make_piece(QUEEN, US)]) == 0) &&
-        (std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3) &&
-        (std::popcount(pc_bb[make_piece(BISHOP, US)]) +
-             std::popcount(pc_bb[make_piece(KNIGHT, US)]) <
-         2));
+        std::popcount(pc_bb[make_piece(PAWN, US)]) == 0 && (std::popcount(pc_bb[make_piece(ROOK, US)]) == 0) &&
+        (std::popcount(pc_bb[make_piece(QUEEN, US)]) == 0) && (std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3) &&
+        (std::popcount(pc_bb[make_piece(BISHOP, US)]) + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2));
 }
 
 // updates a bitboard of attackers after a piece has moved to include
 // possible x ray attackers
-inline Bitboard Position::consider_xray(
-    const Bitboard occ, const Square to, const PieceType pt) const {
-    return (pt == PAWN || pt == BISHOP)
-               ? occ & (bitboards::get_attacks<BISHOP>(occ, to) &
-                        (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
-           : pt == ROOK  ? occ & (bitboards::get_attacks<ROOK>(occ, to) &
+inline Bitboard Position::consider_xray(const Bitboard occ, const Square to, const PieceType pt) const {
+    return (pt == PAWN || pt == BISHOP) ? occ & (bitboards::get_attacks<BISHOP>(occ, to) &
+                                                 (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
+           : pt == ROOK                 ? occ & (bitboards::get_attacks<ROOK>(occ, to) &
                                  (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK]))
-           : pt == QUEEN ? consider_xray(occ, to, BISHOP) | consider_xray(occ, to, ROOK)
-                         : 0ULL;
+           : pt == QUEEN                ? consider_xray(occ, to, BISHOP) | consider_xray(occ, to, ROOK)
+                                        : 0ULL;
 }
 
 inline Bitboard Position::attackers_to(const Square sq) const {
-    return (bitboards::pawn_attacks[BLACK][sq] & pc_bb[W_PAWN]) |
-           (bitboards::pawn_attacks[WHITE][sq] & pc_bb[B_PAWN]) |
+    return (bitboards::pawn_attacks[BLACK][sq] & pc_bb[W_PAWN]) | (bitboards::pawn_attacks[WHITE][sq] & pc_bb[B_PAWN]) |
            (bitboards::knight_attacks[sq] & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT])) |
            (bitboards::king_attacks[sq] & (pc_bb[W_KING] | pc_bb[B_KING])) |
            (bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq) &
@@ -123,16 +114,14 @@ inline bool Position::is_king_in_check() const {
 }
 
 inline bool Position::stm_has_promoted() const {
-    return pc_bb[make_piece(KNIGHT, side)] | pc_bb[make_piece(BISHOP, side)] |
-           pc_bb[make_piece(ROOK, side)] | pc_bb[make_piece(QUEEN, side)];
+    return pc_bb[make_piece(KNIGHT, side)] | pc_bb[make_piece(BISHOP, side)] | pc_bb[make_piece(ROOK, side)] |
+           pc_bb[make_piece(QUEEN, side)];
 }
 
 inline bool Position::is_draw_50() const { return (bs->hmc >= 100); }
 
 inline bool Position::is_draw() const { return is_repeat() || is_material_draw() || is_draw_50(); }
 
-inline bool Position::is_material_draw() const {
-    return is_insufficient<WHITE>() && is_insufficient<BLACK>();
-}
+inline bool Position::is_material_draw() const { return is_insufficient<WHITE>() && is_insufficient<BLACK>(); }
 
 } // namespace clovis

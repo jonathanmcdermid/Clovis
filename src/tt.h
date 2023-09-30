@@ -36,19 +36,18 @@ struct PTEntry {
     Score score;
     Square ksq[COLOUR_N]{SQ_NONE};
     Key key{0ULL};
-    Bitboard pawn_attacks[COLOUR_N]{0ULL}, passers[COLOUR_N]{0ULL},
-        potential_pawn_attacks[COLOUR_N]{0ULL};
+    Bitboard pawn_attacks[COLOUR_N]{0ULL}, passers[COLOUR_N]{0ULL}, potential_pawn_attacks[COLOUR_N]{0ULL};
 };
 
-static size_t tt_size    = 4194304;
+static size_t tt_size = 4194304;
 constexpr size_t pt_size = 131072;
 
 static std::unique_ptr<TTBucket[]> ht = std::make_unique<TTBucket[]>(tt_size);
-static std::unique_ptr<PTEntry[]> pt  = std::make_unique<PTEntry[]>(pt_size);
+static std::unique_ptr<PTEntry[]> pt = std::make_unique<PTEntry[]>(pt_size);
 
 static inline void resize(const int mb) {
     tt_size = std::bit_floor(static_cast<size_t>(mb) * 1024 * 1024 / sizeof(TTBucket));
-    ht      = std::make_unique<TTBucket[]>(tt_size);
+    ht = std::make_unique<TTBucket[]>(tt_size);
 }
 
 static inline void clear() {
@@ -71,9 +70,8 @@ static inline TTEntry probe(const Key key) {
 
 static inline PTEntry probe_pawn(const Key key) { return pt[pawn_hash_index(key)]; }
 
-static inline void new_entry(
-    const Key key, const int depth, const int eval, const HashFlag flags, const Move move) {
-    TTBucket &bucket                = ht[hash_index(key)];
+static inline void new_entry(const Key key, const int depth, const int eval, const HashFlag flags, const Move move) {
+    TTBucket &bucket = ht[hash_index(key)];
     bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
 }
 

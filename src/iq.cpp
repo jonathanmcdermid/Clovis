@@ -36,8 +36,7 @@ void iq_test() {
         search::SearchInfo info;
         search::start_search(pos, limits, info);
 
-        if (std::ranges::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) !=
-            it.moves.end()) {
+        if (std::ranges::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) != it.moves.end()) {
             std::cout << "PASS!" << std::endl;
             ++passes;
         } else {
@@ -47,8 +46,7 @@ void iq_test() {
             ++fails;
         }
 
-        std::cout << passes << " tests passed!" << std::endl
-                  << fails << " tests failed!" << std::endl;
+        std::cout << passes << " tests passed!" << std::endl << fails << " tests failed!" << std::endl;
 
         search::clear();
     }

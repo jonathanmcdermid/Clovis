@@ -34,20 +34,13 @@ void add_param(T t, const TraceIndex ti) {
 void init_params() {
     using namespace eval;
 
-    for (auto &it : pawn_source)
-        add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source));
-    for (auto &it : knight_source)
-        add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source));
-    for (auto &it : bishop_source)
-        add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source));
-    for (auto &it : rook_source)
-        add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source));
-    for (auto &it : queen_source)
-        add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source));
-    for (auto &it : king_source)
-        add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source));
-    for (auto &it : passed_pawn)
-        add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn));
+    for (auto &it : pawn_source) add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source));
+    for (auto &it : knight_source) add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source));
+    for (auto &it : bishop_source) add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source));
+    for (auto &it : rook_source) add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source));
+    for (auto &it : queen_source) add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source));
+    for (auto &it : king_source) add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source));
+    for (auto &it : passed_pawn) add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn));
     for (auto &it : candidate_passer)
         add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer));
     for (auto &it : quiet_mobility)
@@ -73,8 +66,7 @@ void init_params() {
     add_param<Score>(fianchetto_bonus, FIANCHETTO);
     add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
 
-    for (auto &it : pawn_shield)
-        add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield));
+    for (auto &it : pawn_shield) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield));
     for (auto &it : inner_ring_attack)
         add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack));
     for (auto &it : outer_ring_attack)
@@ -102,17 +94,14 @@ double linear_eval(const TEntry &entry, TGradient *tg) {
     normal[MG] = mg[NORMAL][WHITE] - mg[NORMAL][BLACK];
     normal[EG] = eg[NORMAL][WHITE] - eg[NORMAL][BLACK];
 
-    safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] /
-              (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[WHITE]);
-    safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] /
-              (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[BLACK]);
+    safety += mg[SAFETY][WHITE] * mg[SAFETY][WHITE] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[WHITE]);
+    safety -= mg[SAFETY][BLACK] * mg[SAFETY][BLACK] / (720.0 - params[SAFETY_N_ATT][MG] * entry.n_att[BLACK]);
 
     const double eval =
-        ((normal[MG] + safety) * entry.phase + normal[EG] * (MAX_GAME_PHASE - entry.phase)) /
-        MAX_GAME_PHASE;
+        ((normal[MG] + safety) * entry.phase + normal[EG] * (MAX_GAME_PHASE - entry.phase)) / MAX_GAME_PHASE;
 
     if (tg) {
-        tg->eval          = eval;
+        tg->eval = eval;
         tg->safety[WHITE] = mg[SAFETY][WHITE];
         tg->safety[BLACK] = mg[SAFETY][BLACK];
     }
@@ -131,8 +120,7 @@ double mse(const double k) {
     auto compute_chunk = [&](std::size_t start, std::size_t end) {
         for (std::size_t i = start; i < end; ++i) {
             const auto &it = entries[i];
-            total += std::pow(
-                it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
+            total += std::pow(it.result - sigmoid(k, (STATIC ? it.static_eval : linear_eval(it, nullptr))), 2);
         }
     };
 
@@ -180,18 +168,15 @@ TVector compute_gradient(const double k) {
 }
 
 void print_table(const std::string &name, const int index, const int size, const int cols) {
-    std::cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name
-              << "[] = {" << std::endl
+    std::cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name << "[] = {" << std::endl
               << "\t\t";
 
     for (int i = 0; i < size; ++i) {
         if (!(i % cols)) std::cout << '\t';
         if (index < TI_SAFETY)
-            std::cout << Score(params[index + i]) << ","
-                      << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+            std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
         else
-            std::cout << round(params[index + i][MG]) << ","
-                      << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+            std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
     }
 
     std::cout << "};" << std::endl << std::endl;
@@ -211,49 +196,33 @@ void print_params() {
     print_table("quiet_mobility", QUIET_MOBILITY, 7, 7);
     print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
 
-    std::cout << "\t\tconstexpr Score double_pawn_penalty = " << Score(params[DOUBLE_PAWN]) << ";"
-              << std::endl
-              << "\t\tconstexpr Score isolated_pawn_penalty = " << Score(params[ISOLATED_PAWN])
-              << ";" << std::endl
-              << "\t\tconstexpr Score bishop_pair_bonus = " << Score(params[BISHOP_PAIR]) << ";"
-              << std::endl
-              << "\t\tconstexpr Score rook_open_file_bonus = " << Score(params[ROOK_FULL]) << ";"
-              << std::endl
-              << "\t\tconstexpr Score rook_semi_open_file_bonus = " << Score(params[ROOK_SEMI])
-              << ";" << std::endl
-              << "\t\tconstexpr Score rook_closed_file_penalty = " << Score(params[ROOK_CLOSED])
-              << ";" << std::endl
+    std::cout << "\t\tconstexpr Score double_pawn_penalty = " << Score(params[DOUBLE_PAWN]) << ";" << std::endl
+              << "\t\tconstexpr Score isolated_pawn_penalty = " << Score(params[ISOLATED_PAWN]) << ";" << std::endl
+              << "\t\tconstexpr Score bishop_pair_bonus = " << Score(params[BISHOP_PAIR]) << ";" << std::endl
+              << "\t\tconstexpr Score rook_open_file_bonus = " << Score(params[ROOK_FULL]) << ";" << std::endl
+              << "\t\tconstexpr Score rook_semi_open_file_bonus = " << Score(params[ROOK_SEMI]) << ";" << std::endl
+              << "\t\tconstexpr Score rook_closed_file_penalty = " << Score(params[ROOK_CLOSED]) << ";" << std::endl
               << "\t\tconstexpr Score tempo_bonus = " << Score(params[TEMPO]) << ";" << std::endl
-              << "\t\tconstexpr Score king_open_penalty = " << Score(params[KING_OPEN]) << ";"
+              << "\t\tconstexpr Score king_open_penalty = " << Score(params[KING_OPEN]) << ";" << std::endl
+              << "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN]) << ";" << std::endl
+              << "\t\tconstexpr Score knight_outpost_bonus = " << Score(params[KNIGHT_OUTPOST]) << ";" << std::endl
+              << "\t\tconstexpr Score bishop_outpost_bonus = " << Score(params[BISHOP_OUTPOST]) << ";" << std::endl
+              << "\t\tconstexpr Score weak_queen_penalty = " << Score(params[WEAK_QUEEN]) << ";" << std::endl
+              << "\t\tconstexpr Score rook_on_our_passer_file = " << Score(params[ROOK_OUR_PASSER]) << ";" << std::endl
+              << "\t\tconstexpr Score rook_on_their_passer_file = " << Score(params[ROOK_THEIR_PASSER]) << ";"
               << std::endl
-              << "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN])
-              << ";" << std::endl
-              << "\t\tconstexpr Score knight_outpost_bonus = " << Score(params[KNIGHT_OUTPOST])
-              << ";" << std::endl
-              << "\t\tconstexpr Score bishop_outpost_bonus = " << Score(params[BISHOP_OUTPOST])
-              << ";" << std::endl
-              << "\t\tconstexpr Score weak_queen_penalty = " << Score(params[WEAK_QUEEN]) << ";"
-              << std::endl
-              << "\t\tconstexpr Score rook_on_our_passer_file = " << Score(params[ROOK_OUR_PASSER])
-              << ";" << std::endl
-              << "\t\tconstexpr Score rook_on_their_passer_file = "
-              << Score(params[ROOK_THEIR_PASSER]) << ";" << std::endl
-              << "\t\tconstexpr Score tall_pawn_penalty = " << Score(params[TALL_PAWN]) << ";"
-              << std::endl
-              << "\t\tconstexpr Score fianchetto_bonus = " << Score(params[FIANCHETTO]) << ";"
-              << std::endl
-              << "\t\tconstexpr Score rook_on_seventh = " << Score(params[ROOK_ON_SEVENTH]) << ";"
-              << std::endl
+              << "\t\tconstexpr Score tall_pawn_penalty = " << Score(params[TALL_PAWN]) << ";" << std::endl
+              << "\t\tconstexpr Score fianchetto_bonus = " << Score(params[FIANCHETTO]) << ";" << std::endl
+              << "\t\tconstexpr Score rook_on_seventh = " << Score(params[ROOK_ON_SEVENTH]) << ";" << std::endl
               << std::endl;
 
     print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(pawn_shield) / sizeof(short), 4);
     print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
     print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 
-    std::cout << "\t\tconstexpr short attack_factor = " << round(params[SAFETY_N_ATT][MG]) << ";"
-              << std::endl
-              << "\t\tconstexpr short virtual_mobility = "
-              << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << std::endl;
+    std::cout << "\t\tconstexpr short attack_factor = " << round(params[SAFETY_N_ATT][MG]) << ";" << std::endl
+              << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";"
+              << std::endl;
 }
 
 double find_k() {
@@ -262,14 +231,13 @@ double find_k() {
     for (int epoch = 0; epoch < 10; ++epoch) {
         for (double curr = start; curr < end; curr += step) {
             if (const double error = mse<true>(curr); error <= best) {
-                best  = error;
+                best = error;
                 start = curr;
             }
         }
 
         std::cout.precision(17);
-        std::cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]"
-                  << std::endl;
+        std::cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]" << std::endl;
 
         end = start + step;
         start -= step;
@@ -291,7 +259,7 @@ void tune_eval() {
 
         TEntry entry;
         memset(eval::T.data(), 0, sizeof(eval::T));
-        const size_t idx     = line.find('\"');
+        const size_t idx = line.find('\"');
         const size_t idx_end = line.find('\"', idx + 1);
 
         if (const std::string res = line.substr(idx + 1, idx_end - idx - 1); res == "1-0")
@@ -326,7 +294,7 @@ void tune_eval() {
     ifs.close();
 
     const double k = find_k();
-    double rate    = 1.0;
+    double rate = 1.0;
 
     std::cout << mse<true>(k) << std::endl;
     std::cout << mse<false>(k) << std::endl;
@@ -338,10 +306,8 @@ void tune_eval() {
             adaptive_gradient[i][MG] += pow((k / 200.0) * gradient[i][MG] / 16384, 2.0);
             adaptive_gradient[i][EG] += pow((k / 200.0) * gradient[i][EG] / 16384, 2.0);
 
-            params[i][MG] += (k / 200.0) * (gradient[i][MG] / 16384) *
-                             (rate / sqrt(1e-8 + adaptive_gradient[i][MG]));
-            params[i][EG] += (k / 200.0) * (gradient[i][EG] / 16384) *
-                             (rate / sqrt(1e-8 + adaptive_gradient[i][EG]));
+            params[i][MG] += (k / 200.0) * (gradient[i][MG] / 16384) * (rate / sqrt(1e-8 + adaptive_gradient[i][MG]));
+            params[i][EG] += (k / 200.0) * (gradient[i][EG] / 16384) * (rate / sqrt(1e-8 + adaptive_gradient[i][EG]));
 
             params[i][MG] = std::max(0.0, params[i][MG]);
             params[i][EG] = std::max(0.0, params[i][EG]);
@@ -350,8 +316,7 @@ void tune_eval() {
         if (epoch && epoch % 250 == 0) rate = rate / 1.01;
         if (epoch % 100 == 0) print_params();
 
-        std::cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate
-                  << "]" << std::endl;
+        std::cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate << "]" << std::endl;
     }
 }
 

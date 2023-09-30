@@ -157,9 +157,9 @@ constexpr auto source10 = [] {
     for (Square sq = SQ_ZERO; sq < 16; ++sq) {
         if (const int r = sq / 4, f = sq & 0x3; r >= f) {
             arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] =
-                arr[make_square(f ^ 7, r ^ 7)]                  = index;
+                arr[make_square(f ^ 7, r ^ 7)] = index;
             arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] =
-                arr[make_square(r ^ 7, f ^ 7)]                  = index;
+                arr[make_square(r ^ 7, f ^ 7)] = index;
             ++index;
         }
     }
@@ -167,8 +167,8 @@ constexpr auto source10 = [] {
     return arr;
 }();
 
-constexpr std::array<const Score *, 7> piece_type_source = {
-    nullptr, pawn_source, knight_source, bishop_source, rook_source, queen_source, king_source};
+constexpr std::array<const Score *, 7> piece_type_source = {nullptr,     pawn_source,  knight_source, bishop_source,
+                                                            rook_source, queen_source, king_source};
 
 constexpr auto piece_table = [] {
     std::array<std::array<Score, SQ_N>, 15> arr{};
@@ -176,8 +176,7 @@ constexpr auto piece_table = [] {
     for (const auto col : {WHITE, BLACK}) {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
             for (const auto pt : {PAWN, QUEEN})
-                arr[make_piece(pt, col)][sq] =
-                    piece_type_source[pt][source32[relative_square(col, sq)]];
+                arr[make_piece(pt, col)][sq] = piece_type_source[pt][source32[relative_square(col, sq)]];
             for (const auto pt : {KNIGHT, BISHOP, ROOK, KING})
                 arr[make_piece(pt, col)][sq] = piece_type_source[pt][source16[sq]];
             // for (const auto pt : {})
@@ -193,8 +192,7 @@ constexpr auto passed_table = [] {
     std::array<std::array<Score, SQ_N>, COLOUR_N> arr{};
 
     for (const auto col : {WHITE, BLACK})
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-            arr[col][sq] = passed_pawn[source32[relative_square(col, sq)]];
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[col][sq] = passed_pawn[source32[relative_square(col, sq)]];
 
     return arr;
 }();
@@ -203,8 +201,7 @@ constexpr auto shield_table = [] {
     std::array<std::array<short, SQ_N>, COLOUR_N> arr{};
 
     for (const auto col : {WHITE, BLACK})
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-            arr[col][sq] = pawn_shield[source32[relative_square(col, sq)]];
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[col][sq] = pawn_shield[source32[relative_square(col, sq)]];
 
     return arr;
 }();
@@ -224,8 +221,7 @@ constexpr auto passed_masks = [] {
 
     for (const auto c : {WHITE, BLACK})
         for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-            for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c))
-                arr[c][s1] |= bitboards::pawn_attacks[c][s2] | s2;
+            for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c)) arr[c][s1] |= bitboards::pawn_attacks[c][s2] | s2;
 
     return arr;
 }();
