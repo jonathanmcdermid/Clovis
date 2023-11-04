@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <mutex>
 
 #include "types.h"
 
@@ -42,17 +43,27 @@ struct PTEntry {
 static size_t tt_size = 4194304;
 constexpr size_t pt_size = 131072;
 
+static std::mutex ht_mutex;
+static std::mutex pt_mutex;
+
 static std::unique_ptr<TTBucket[]> ht = std::make_unique<TTBucket[]>(tt_size);
 static std::unique_ptr<PTEntry[]> pt = std::make_unique<PTEntry[]>(pt_size);
 
 static inline void resize(const int mb) {
+	std::lock_guard<std::mutex> lock(ht_mutex);
     tt_size = std::bit_floor(static_cast<size_t>(mb) * 1024 * 1024 / sizeof(TTBucket));
     ht = std::make_unique<TTBucket[]>(tt_size);
 }
 
 static inline void clear() {
-    ht = std::make_unique<TTBucket[]>(tt_size);
-    pt = std::make_unique<PTEntry[]>(pt_size);
+    {
+		std::lock_guard<std::mutex> lock(ht_mutex);
+		ht = std::make_unique<TTBucket[]>(tt_size);
+	}
+	{
+		std::lock_guard<std::mutex> lock(pt_mutex);
+		pt = std::make_unique<PTEntry[]>(pt_size);
+	}
 }
 
 static inline size_t hash_index(const Key key) { return key & (tt_size - 1ULL); }
@@ -60,6 +71,7 @@ static inline size_t hash_index(const Key key) { return key & (tt_size - 1ULL); 
 static inline size_t pawn_hash_index(const Key key) { return key & (pt_size - 1ULL); }
 
 static inline TTEntry probe(const Key key) {
+	std::lock_guard<std::mutex> lock(ht_mutex);
     auto &[e1, e2] = ht[hash_index(key)];
 
     if (e1.key == key) return e1;
@@ -68,13 +80,20 @@ static inline TTEntry probe(const Key key) {
     return e2;
 }
 
-static inline PTEntry probe_pawn(const Key key) { return pt[pawn_hash_index(key)]; }
+static inline PTEntry probe_pawn(const Key key) { 
+	std::lock_guard<std::mutex> lock(pt_mutex);
+	return pt[pawn_hash_index(key)]; 
+}
 
 static inline void new_entry(const Key key, const int depth, const int eval, const HashFlag flags, const Move move) {
+	std::lock_guard<std::mutex> lock(ht_mutex);
     TTBucket &bucket = ht[hash_index(key)];
     bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
 }
 
-static inline void new_pawn_entry(const PTEntry &pte) { pt[pawn_hash_index(pte.key)] = pte; }
+static inline void new_pawn_entry(const PTEntry &pte) { 
+	std::lock_guard<std::mutex> lock(pt_mutex);
+	pt[pawn_hash_index(pte.key)] = pte; 
+}
 
 } // namespace clovis::transposition
