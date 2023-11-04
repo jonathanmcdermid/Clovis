@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# If CMAKE_BUILD_TYPE is not specified, set it to Release
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)   
+endif()
+
 message("Using CMake version: ${CMAKE_VERSION}")
 
 # Add source files
