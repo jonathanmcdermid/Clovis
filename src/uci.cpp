@@ -21,7 +21,7 @@ void set_option(std::istringstream &is) {
 
     while (is >> token) value = token;
 
-    if (name == "Hash") transposition::resize(std::clamp(stoi(value), 1, 10000));
+    if (name == "Hash") tt.resize(std::clamp(stoi(value), 1, 10000));
 }
 
 // begin search

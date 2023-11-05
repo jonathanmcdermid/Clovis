@@ -63,7 +63,7 @@ Duration allocated_time;
 // reset transposition table, set search to standard conditions
 void clear() {
     move_pick::clear();
-    transposition::clear();
+    tt.clear();
 }
 
 template <NodeType N>
@@ -77,7 +77,7 @@ int quiescence(Position &pos, int alpha, int beta, uint64_t &nodes, const int pl
     if (pos.is_draw()) return DRAW_SCORE;
     if (ply >= MAX_PLY) return eval::evaluate<false>(pos);
 
-    const auto tte = transposition::probe(pos.bs->key);
+    const auto tte = tt.probe(pos.bs->key);
 
     if (!PV_NODE && tte.key == pos.bs->key &&
         (tte.flags == HASH_EXACT || (tte.flags == HASH_BETA && tte.eval >= beta) ||
@@ -113,7 +113,7 @@ int quiescence(Position &pos, int alpha, int beta, uint64_t &nodes, const int pl
 
         // fail high
         if (eval >= beta) {
-            transposition::new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
+            tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
             return beta;
         }
         if (eval > best_eval) {
@@ -133,7 +133,7 @@ int quiescence(Position &pos, int alpha, int beta, uint64_t &nodes, const int pl
 
     if (in_check && best_eval == INT_MIN) return ply - CHECKMATE_SCORE;
 
-    transposition::new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+    tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
     return alpha;
 }
@@ -168,7 +168,7 @@ int negamax(
 
     if (alpha >= beta) return alpha;
 
-    auto tte = transposition::probe(pos.bs->key);
+    auto tte = tt.probe(pos.bs->key);
 
     if (tte.key == pos.bs->key) {
         if (PV_NODE && tte.move != MOVE_NONE) {
@@ -206,7 +206,7 @@ int negamax(
             Line line;
             negamax<N == NODE_NULL ? NODE_NON_PV : N>(
                 pos, alpha, beta, iid_table[PV_NODE][depth], ply, prev_move, nodes, line);
-            tte = transposition::probe(pos.bs->key);
+            tte = tt.probe(pos.bs->key);
 
             if (tte.key == pos.bs->key) {
                 if constexpr (PV_NODE) {
@@ -272,7 +272,7 @@ int negamax(
                 move_pick::update_killers(curr_move, ply);
                 move_pick::update_counter_entry(pos.side, prev_move, curr_move);
             }
-            transposition::new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
+            tt.new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
             return beta;
         }
 
@@ -299,7 +299,7 @@ int negamax(
     // no legal moves
     if (moves_searched == 0) return in_check ? ply - CHECKMATE_SCORE : -DRAW_SCORE;
 
-    transposition::new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
+    tt.new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 
     if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE) mp.update_history<HASH_EXACT>(best_move, depth);
 

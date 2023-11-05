@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-namespace clovis::transposition {
+namespace clovis {
 
 struct TTEntry {
     constexpr TTEntry() = default;
@@ -39,42 +39,42 @@ struct PTEntry {
     Bitboard pawn_attacks[COLOUR_N]{0ULL}, passers[COLOUR_N]{0ULL}, potential_pawn_attacks[COLOUR_N]{0ULL};
 };
 
-static size_t tt_size = 4194304;
-constexpr size_t pt_size = 131072;
+class TTable {
+	public:
+		TTable() : ht(std::make_unique<TTBucket[]>(tt_size)), pt(std::make_unique<PTEntry[]>(pt_size)) {}
+		void resize(int mb);
+		void clear();
 
-static std::unique_ptr<TTBucket[]> ht = std::make_unique<TTBucket[]>(tt_size);
-static std::unique_ptr<PTEntry[]> pt = std::make_unique<PTEntry[]>(pt_size);
+		void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
+		void new_pawn_entry(const PTEntry& pte);
+		[[nodiscard]] PTEntry probe_pawn(Key key) const;
+		[[nodiscard]] TTEntry probe(Key key);
 
-static inline void resize(const int mb) {
-    tt_size = std::bit_floor(static_cast<size_t>(mb) * 1024 * 1024 / sizeof(TTBucket));
-    ht = std::make_unique<TTBucket[]>(tt_size);
-}
+	private:
+		[[nodiscard]] static size_t hash_index(Key key);
+		[[nodiscard]] static size_t pawn_hash_index(Key key);
+		static constexpr size_t pt_size = 131072;
+		static inline size_t tt_size = 4194304;
+		std::unique_ptr<TTBucket[]> ht;
+		std::unique_ptr<PTEntry[]> pt;
+	};
 
-static inline void clear() {
-    ht = std::make_unique<TTBucket[]>(tt_size);
-    pt = std::make_unique<PTEntry[]>(pt_size);
-}
+	inline size_t TTable::hash_index(const Key key) {
+		return key & (tt_size - 1ULL);
+	}
 
-static inline size_t hash_index(const Key key) { return key & (tt_size - 1ULL); }
+	inline size_t TTable::pawn_hash_index(const Key key) {
+		return key & (pt_size - 1ULL);
+	}
 
-static inline size_t pawn_hash_index(const Key key) { return key & (pt_size - 1ULL); }
+	inline PTEntry TTable::probe_pawn(const Key key) const {
+		return pt[pawn_hash_index(key)];
+	}
 
-static inline TTEntry probe(const Key key) {
-    auto &[e1, e2] = ht[hash_index(key)];
+	inline void TTable::new_pawn_entry(const PTEntry& pte) { 
+		pt[pawn_hash_index(pte.key)] = pte; 
+	}
 
-    if (e1.key == key) return e1;
-    if (e1.depth > 0) --e1.depth;
+	extern TTable tt;
 
-    return e2;
-}
-
-static inline PTEntry probe_pawn(const Key key) { return pt[pawn_hash_index(key)]; }
-
-static inline void new_entry(const Key key, const int depth, const int eval, const HashFlag flags, const Move move) {
-    TTBucket &bucket = ht[hash_index(key)];
-    bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
-}
-
-static inline void new_pawn_entry(const PTEntry &pte) { pt[pawn_hash_index(pte.key)] = pte; }
-
-} // namespace clovis::transposition
+} // namespace clovis

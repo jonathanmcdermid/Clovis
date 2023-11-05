@@ -291,7 +291,7 @@ int evaluate(const Position &pos) {
     if constexpr (TRACE) memset(T.data(), 0, sizeof(T));
     if constexpr (TRACE) ++T[TEMPO][pos.side];
 
-    EvalInfo ei(transposition::probe_pawn(pos.bs->pawn_key));
+    EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
 
     if (TRACE || ei.key != pos.bs->pawn_key) {
         ei = EvalInfo();
@@ -299,7 +299,7 @@ int evaluate(const Position &pos) {
         ei.ksq[WHITE] = bitboards::lsb(pos.pc_bb[W_KING]);
         ei.ksq[BLACK] = bitboards::lsb(pos.pc_bb[B_KING]);
         ei.score = evaluate_pawns<WHITE, TRACE>(pos, ei) - evaluate_pawns<BLACK, TRACE>(pos, ei);
-        transposition::new_pawn_entry(ei);
+        tt.new_pawn_entry(ei);
     }
 
     score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);

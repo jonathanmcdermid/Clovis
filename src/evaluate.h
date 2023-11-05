@@ -5,9 +5,9 @@
 
 namespace clovis::eval {
 
-struct EvalInfo : transposition::PTEntry {
+struct EvalInfo : PTEntry {
     constexpr EvalInfo() = default;
-    explicit EvalInfo(const transposition::PTEntry &pte) : transposition::PTEntry(pte) {}
+    explicit EvalInfo(const PTEntry &pte) : PTEntry(pte) {}
 
     std::array<int, COLOUR_N> n_att{0, 0};
 };
