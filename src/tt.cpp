@@ -1,6 +1,6 @@
-#include <bit>
-
 #include "tt.h"
+
+#include <bit>
 
 namespace clovis {
 
