@@ -47,12 +47,12 @@ class TTable {
 
     void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
     void new_pawn_entry(const PTEntry& pte);
-    [[nodiscard]] PTEntry probe_pawn(Key key) const;
-    [[nodiscard]] TTEntry probe(Key key);
+    PTEntry probe_pawn(Key key) const;
+    TTEntry probe(Key key);
 
    private:
-    [[nodiscard]] static size_t hash_index(Key key);
-    [[nodiscard]] static size_t pawn_hash_index(Key key);
+    static size_t hash_index(Key key);
+    static size_t pawn_hash_index(Key key);
     static constexpr size_t pt_size = 131072;
     static inline size_t tt_size = 4194304;
     std::unique_ptr<TTBucket[]> ht;
