@@ -24,7 +24,7 @@ struct TTEntry {
 };
 
 struct TTBucket {
-    TTEntry &operator[](const bool index) { return index ? e2 : e1; }
+    TTEntry& operator[](const bool index) { return index ? e2 : e1; }
 
     TTEntry e1, e2;
 };
@@ -40,41 +40,33 @@ struct PTEntry {
 };
 
 class TTable {
-	public:
-		TTable() : ht(std::make_unique<TTBucket[]>(tt_size)), pt(std::make_unique<PTEntry[]>(pt_size)) {}
-		void resize(int mb);
-		void clear();
+   public:
+    TTable() : ht(std::make_unique<TTBucket[]>(tt_size)), pt(std::make_unique<PTEntry[]>(pt_size)) {}
+    void resize(int mb);
+    void clear();
 
-		void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
-		void new_pawn_entry(const PTEntry& pte);
-		[[nodiscard]] PTEntry probe_pawn(Key key) const;
-		[[nodiscard]] TTEntry probe(Key key);
+    void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
+    void new_pawn_entry(const PTEntry& pte);
+    [[nodiscard]] PTEntry probe_pawn(Key key) const;
+    [[nodiscard]] TTEntry probe(Key key);
 
-	private:
-		[[nodiscard]] static size_t hash_index(Key key);
-		[[nodiscard]] static size_t pawn_hash_index(Key key);
-		static constexpr size_t pt_size = 131072;
-		static inline size_t tt_size = 4194304;
-		std::unique_ptr<TTBucket[]> ht;
-		std::unique_ptr<PTEntry[]> pt;
-	};
+   private:
+    [[nodiscard]] static size_t hash_index(Key key);
+    [[nodiscard]] static size_t pawn_hash_index(Key key);
+    static constexpr size_t pt_size = 131072;
+    static inline size_t tt_size = 4194304;
+    std::unique_ptr<TTBucket[]> ht;
+    std::unique_ptr<PTEntry[]> pt;
+};
 
-	inline size_t TTable::hash_index(const Key key) {
-		return key & (tt_size - 1ULL);
-	}
+inline size_t TTable::hash_index(const Key key) { return key & (tt_size - 1ULL); }
 
-	inline size_t TTable::pawn_hash_index(const Key key) {
-		return key & (pt_size - 1ULL);
-	}
+inline size_t TTable::pawn_hash_index(const Key key) { return key & (pt_size - 1ULL); }
 
-	inline PTEntry TTable::probe_pawn(const Key key) const {
-		return pt[pawn_hash_index(key)];
-	}
+inline PTEntry TTable::probe_pawn(const Key key) const { return pt[pawn_hash_index(key)]; }
 
-	inline void TTable::new_pawn_entry(const PTEntry& pte) { 
-		pt[pawn_hash_index(pte.key)] = pte; 
-	}
+inline void TTable::new_pawn_entry(const PTEntry& pte) { pt[pawn_hash_index(pte.key)] = pte; }
 
-	extern TTable tt;
+extern TTable tt;
 
 } // namespace clovis
