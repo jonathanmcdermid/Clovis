@@ -67,6 +67,13 @@ jobs:
           exit 1
         fi
 
+    - name: Perft
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ./build
+      run: | 
+        set -e # Exit immediately if a command exits with a non-zero status
+        ./Clovis perft
+
     - name: Archive Output
       if: always()
       uses: actions/upload-artifact@v2
