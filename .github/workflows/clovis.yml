@@ -58,32 +58,12 @@ jobs:
     - name: Bench
       if: matrix.os == 'ubuntu-latest'
       working-directory: ./build
-      run: |
-        commit_description=""
-        commit_sha=$(git log -1 --pretty=format:%H)
-      
-        while true; do
-          commit_description=$(git show --summary "$commit_sha" | grep -Po 'bench:\s*\K[0-9]+')
-      
-          if [[ -n "$commit_description" ]]; then
-            break
-          fi
-      
-          # Move to the parent commit
-          commit_sha=$(git log -1 --pretty=format:%P "$commit_sha")
-          
-          # Break if there are no more parent commits
-          if [ -z "$commit_sha" ]; then
-            echo "No commit with 'bench:' found in the description."
-            exit 1
-          fi
-        done
-      
+      run: | 
+        expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
         ./Clovis bench > output
         actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
-      
-        if [[ "$commit_description" != "$actual" ]]; then
-          echo "Values did not match. actual: '$actual' expected: '$commit_description'"
+        if [[ "$expected" != "$actual" ]]; then
+          echo "Values did not match. actual: '$actual' expected: '$expected'"
           exit 1
         fi
 
