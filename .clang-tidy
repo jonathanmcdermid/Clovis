@@ -1,0 +1,10 @@
+Checks: '-*,
+portability-*,
+readability-*,
+performance-*,
+clang-analyzer-*,
+cppcoreguidelines-*, 
+bugprone-*,
+modernize-*,
+HeaderFilterRegex: 'src/.*'
+WarningsAsErrors: '*'
