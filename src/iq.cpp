@@ -5,12 +5,14 @@
 
 namespace clovis::iq {
 
-void iq_test() {
+void iq_test()
+{
     std::vector<IQPosition> iq;
     std::ifstream ifs("src/iq_test.epd");
     std::string line, token;
 
-    while (std::getline(ifs, line)) {
+    while (std::getline(ifs, line))
+    {
         if (line.empty()) continue;
 
         size_t idx = line.find(','), idx_end = line.find(',', idx + 1);
@@ -30,18 +32,22 @@ void iq_test() {
     limits.time = {100000, 100000};
     int passes = 0, fails = 0;
 
-    for (const auto &it : iq) {
+    for (const auto& it : iq)
+    {
         Position pos(it.fen.c_str());
         pos.print_position();
         search::SearchInfo info;
         search::start_search(pos, limits, info);
 
-        if (std::ranges::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) != it.moves.end()) {
+        if (std::ranges::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) != it.moves.end())
+        {
             std::cout << "PASS!" << std::endl;
             ++passes;
-        } else {
+        }
+        else
+        {
             std::cout << "FAIL! best move: ";
-            for (const auto &move : it.moves) std::cout << move << " ";
+            for (const auto& move : it.moves) std::cout << move << " ";
             std::cout << std::endl;
             ++fails;
         }

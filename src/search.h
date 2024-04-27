@@ -5,7 +5,8 @@
 
 namespace clovis::search {
 
-struct SearchLimits {
+struct SearchLimits
+{
     constexpr SearchLimits() = default;
 
     int move_time{0}, start_time{0}, moves_left{20}, depth{0}, mate{0}, perft{0};
@@ -14,17 +15,19 @@ struct SearchLimits {
     uint64_t nodes{0};
 };
 
-struct Line {
+struct Line
+{
     constexpr Line() = default;
     int move_count() const { return static_cast<int>(last - moves.data()); }
-    const Move *begin() const { return moves.data(); }
-    const Move *end() const { return last; }
+    const Move* begin() const { return moves.data(); }
+    const Move* end() const { return last; }
 
     std::array<Move, MAX_PLY> moves{};
-    Move *last{moves.data()};
+    Move* last{moves.data()};
 };
 
-struct SearchInfo {
+struct SearchInfo
+{
     constexpr SearchInfo() = default;
 
     int score{0};
@@ -32,7 +35,7 @@ struct SearchInfo {
     Line pv_line;
 };
 
-void start_search(Position &pos, const SearchLimits &limits, SearchInfo &info);
+void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info);
 void clear();
 
 } // namespace clovis::search

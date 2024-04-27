@@ -5,9 +5,10 @@
 
 namespace clovis::eval {
 
-struct EvalInfo : PTEntry {
+struct EvalInfo : PTEntry
+{
     constexpr EvalInfo() = default;
-    explicit EvalInfo(const PTEntry &pte) : PTEntry(pte) {}
+    explicit EvalInfo(const PTEntry& pte) : PTEntry(pte) {}
 
     std::array<int, COLOUR_N> n_att{0, 0};
 };
@@ -130,7 +131,8 @@ constexpr short virtual_mobility = 14;
 constexpr auto source32 = [] {
     std::array<Square, SQ_N> arr{};
 
-    for (Square sq = SQ_ZERO; sq < 32; ++sq) {
+    for (Square sq = SQ_ZERO; sq < 32; ++sq)
+    {
         const int r = sq / 4, f = sq & 0x3;
         arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r ^ 7)] = sq;
     }
@@ -141,7 +143,8 @@ constexpr auto source32 = [] {
 constexpr auto source16 = [] {
     std::array<Square, SQ_N> arr = source32;
 
-    for (Square sq = SQ_ZERO; sq < 16; ++sq) {
+    for (Square sq = SQ_ZERO; sq < 16; ++sq)
+    {
         const int r = sq / 4, f = sq & 0x3;
         arr[make_square(f, r ^ 7) ^ 56] = arr[make_square(f ^ 7, r ^ 7) ^ 56] = sq;
     }
@@ -154,12 +157,12 @@ constexpr auto source10 = [] {
 
     Square index = SQ_ZERO;
 
-    for (Square sq = SQ_ZERO; sq < 16; ++sq) {
-        if (const int r = sq / 4, f = sq & 0x3; r >= f) {
-            arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] =
-                arr[make_square(f ^ 7, r ^ 7)] = index;
-            arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] =
-                arr[make_square(r ^ 7, f ^ 7)] = index;
+    for (Square sq = SQ_ZERO; sq < 16; ++sq)
+    {
+        if (const int r = sq / 4, f = sq & 0x3; r >= f)
+        {
+            arr[make_square(f, r)] = arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r)] = arr[make_square(f ^ 7, r ^ 7)] = index;
+            arr[make_square(r, f)] = arr[make_square(r, f ^ 7)] = arr[make_square(r ^ 7, f)] = arr[make_square(r ^ 7, f ^ 7)] = index;
             ++index;
         }
     }
@@ -167,18 +170,18 @@ constexpr auto source10 = [] {
     return arr;
 }();
 
-constexpr std::array<const Score *, 7> piece_type_source = {nullptr,     pawn_source,  knight_source, bishop_source,
-                                                            rook_source, queen_source, king_source};
+constexpr std::array<const Score*, 7> piece_type_source = {nullptr,     pawn_source,  knight_source, bishop_source,
+                                                           rook_source, queen_source, king_source};
 
 constexpr auto piece_table = [] {
     std::array<std::array<Score, SQ_N>, 15> arr{};
 
-    for (const auto col : {WHITE, BLACK}) {
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) {
-            for (const auto pt : {PAWN, QUEEN})
-                arr[make_piece(pt, col)][sq] = piece_type_source[pt][source32[relative_square(col, sq)]];
-            for (const auto pt : {KNIGHT, BISHOP, ROOK, KING})
-                arr[make_piece(pt, col)][sq] = piece_type_source[pt][source16[sq]];
+    for (const auto col : {WHITE, BLACK})
+    {
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+        {
+            for (const auto pt : {PAWN, QUEEN}) arr[make_piece(pt, col)][sq] = piece_type_source[pt][source32[relative_square(col, sq)]];
+            for (const auto pt : {KNIGHT, BISHOP, ROOK, KING}) arr[make_piece(pt, col)][sq] = piece_type_source[pt][source16[sq]];
             // for (const auto pt : {})
             //     arr[make_piece(pt, col)][sq] =
             //     piece_type_source[pt][source10[sq]];
@@ -210,8 +213,8 @@ constexpr auto isolated_masks = [] {
     std::array<Bitboard, SQ_N> arr{};
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-        arr[sq] = (file_of(sq) != FILE_A ? bitboards::file_masks[sq + WEST] : 0ULL) |
-                  (file_of(sq) != FILE_H ? bitboards::file_masks[sq + EAST] : 0ULL);
+        arr[sq] =
+            (file_of(sq) != FILE_A ? bitboards::file_masks[sq + WEST] : 0ULL) | (file_of(sq) != FILE_H ? bitboards::file_masks[sq + EAST] : 0ULL);
 
     return arr;
 }();
@@ -255,7 +258,8 @@ constexpr auto inner_ring = [] {
 constexpr auto outer_ring = [] {
     std::array<Bitboard, SQ_N> arr{};
 
-    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1) {
+    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
+    {
         Bitboard bb = bitboards::get_attacks<KING>(s1);
         while (bb) arr[s1] |= bitboards::get_attacks<KING>(bitboards::pop_lsb(bb));
         arr[s1] &= ~(bitboards::get_attacks<KING>(s1) | s1);
@@ -264,9 +268,8 @@ constexpr auto outer_ring = [] {
     return arr;
 }();
 
-constexpr Bitboard outpost_masks[COLOUR_N] = {
-    bitboards::rank_masks[A4] | bitboards::rank_masks[A5] | bitboards::rank_masks[A6],
-    bitboards::rank_masks[A3] | bitboards::rank_masks[A4] | bitboards::rank_masks[A5]};
+constexpr Bitboard outpost_masks[COLOUR_N] = {bitboards::rank_masks[A4] | bitboards::rank_masks[A5] | bitboards::rank_masks[A6],
+                                              bitboards::rank_masks[A3] | bitboards::rank_masks[A4] | bitboards::rank_masks[A5]};
 
 constexpr Bitboard light_mask = 0x55aa55aa55aa55aaULL;
 
@@ -278,7 +281,6 @@ constexpr Bitboard center_mask[COLOUR_N] = {D5 | E5, D4 | E4};
 
 extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
-template <bool TRACE>
-int evaluate(const Position &pos);
+template <bool TRACE> int evaluate(const Position& pos);
 
 } // namespace clovis::eval

@@ -6,21 +6,24 @@
 
 namespace clovis::tuner {
 
-struct TTuple {
+struct TTuple
+{
     constexpr TTuple(const int i, const int wc, const int bc) : index(i), coefficient{wc, bc} {}
 
     int index;
     std::array<int, COLOUR_N> coefficient;
 };
 
-struct TGradient {
+struct TGradient
+{
     constexpr TGradient() = default;
 
     double eval{0.0};
     std::array<double, COLOUR_N> safety{0.0};
 };
 
-struct TEntry {
+struct TEntry
+{
     TEntry() = default;
 
     Colour stm{WHITE};

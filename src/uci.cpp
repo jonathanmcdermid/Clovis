@@ -10,7 +10,8 @@ constexpr std::string_view version_no = "Clovis III";
 constexpr std::string_view authors = "Jonathan McDermid";
 constexpr std::string_view start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-void set_option(std::istringstream &is) {
+void set_option(std::istringstream& is)
+{
     // format for option setting is setoption name X value Y
     std::string token, name, value;
 
@@ -25,11 +26,13 @@ void set_option(std::istringstream &is) {
 }
 
 // begin search
-void go(Position &pos, std::istringstream &is) {
+void go(Position& pos, std::istringstream& is)
+{
     search::SearchLimits limits;
     std::string token;
 
-    while (is >> token) {
+    while (is >> token)
+    {
         if (token == "wtime")
             is >> limits.time[WHITE];
         else if (token == "btime")
@@ -59,31 +62,36 @@ void go(Position &pos, std::istringstream &is) {
 }
 
 // convert std::string to move if it is legal
-Move to_move(const Position &pos, std::string &str) {
+Move to_move(const Position& pos, std::string& str)
+{
     if (str.length() == 5) str[4] = static_cast<char>(tolower(str[4]));
 
-    for (const auto &move : move_gen::MoveList(pos))
+    for (const auto& move : move_gen::MoveList(pos))
         if (str == move2str(move)) return move;
 
     return MOVE_NONE;
 }
 
 // set position to input description
-void position(Position &pos, std::istringstream &is) {
+void position(Position& pos, std::istringstream& is)
+{
     std::string token, fen;
 
     is >> token;
-    if (token == "startpos") {
+    if (token == "startpos")
+    {
         fen = start_position;
         is >> token;
-    } else if (token == "fen")
+    }
+    else if (token == "fen")
         while (is >> token && token != "moves") fen += token + " ";
     else
         return;
 
     pos.set(fen.c_str());
 
-    while (is >> token) {
+    while (is >> token)
+    {
         const Move move = to_move(pos, token);
         if (move == MOVE_NONE) break;
         if (!pos.do_move(move)) exit(EXIT_FAILURE);
@@ -91,7 +99,8 @@ void position(Position &pos, std::istringstream &is) {
 }
 
 // main loop for uci communication
-void loop(const int argc, char *argv[]) {
+void loop(const int argc, char* argv[])
+{
     Position pos(start_position.data());
     std::string token, cmd;
 
