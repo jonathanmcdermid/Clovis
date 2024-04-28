@@ -72,9 +72,8 @@ jobs:
         else
           ./Clovis bench > output
         fi
-
-        #expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
-        #actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
+        
+        expected=$(git show --summary | grep -o 'bench:[[:space:]]*[0-9][0-9]*' | grep -o '[0-9][0-9]*')
         actual=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
         echo "Actual ${actual} Expected ${expected}"
 
