@@ -11,12 +11,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)   
 endif()
 
-message("Using CMake version: ${CMAKE_VERSION}")
-
-# Add source files
-file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_executable(${PROJECT_NAME} ${SRC_FILES})
-
+message("CMAKE_VERSION: " ${CMAKE_VERSION})
 message("CMAKE_CXX_COMPILER_ID: " ${CMAKE_CXX_COMPILER_ID})
 
 # Set compiler flags
@@ -41,6 +36,11 @@ message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
 
 # Set output directory
 set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
+
+# Add source files
+file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
+add_executable(${PROJECT_NAME} ${SRC_FILES})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIR}"
 	ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIR}"
