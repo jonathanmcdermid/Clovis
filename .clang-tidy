@@ -5,6 +5,6 @@ performance-*,
 clang-analyzer-*,
 cppcoreguidelines-*, 
 bugprone-*,
-modernize-*,
+modernize-*'
 HeaderFilterRegex: 'src/.*'
 WarningsAsErrors: '*'
