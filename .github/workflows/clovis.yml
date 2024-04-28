@@ -73,9 +73,9 @@ jobs:
           ./Clovis bench > output
         fi
 
-        #expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
-        #actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
-        #
+        expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
+        actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
+        
         #if [[ "$expected" != "$actual" ]]; then
         #  echo "Values did not match. Actual ${actual} Expected ${expected}"
         #  exit 1
