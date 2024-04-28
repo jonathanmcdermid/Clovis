@@ -52,7 +52,7 @@ add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUIL
 
 # Link libraries
 if(CMAKE_HOST_WIN32)
-	target_link_libraries(${PROJECT_NAME} PRIVATE libcmt)
+	target_link_libraries(${PROJECT_NAME} PRIVATE /NODEFAULTLIB:MSVCRT)
 endif()
 
 # Specify include directories
