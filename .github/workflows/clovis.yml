@@ -64,7 +64,6 @@ jobs:
       run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
     - name: Bench
-      if: env.OPERATING_SYSTEM == 'ubuntu-latest'
       working-directory: ./build
       run: | 
         expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
@@ -76,7 +75,6 @@ jobs:
         fi
 
     - name: Perft
-      if: env.OPERATING_SYSTEM == 'ubuntu-latest'
       working-directory: ./build
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
