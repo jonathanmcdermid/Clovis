@@ -63,22 +63,30 @@ jobs:
     - name: Test
       run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
-    #- name: Bench
-    #  working-directory: ./build
-    #  run: | 
-    #    expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
-    #    ./Clovis bench > output
-    #    actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
-    #    if [[ "$expected" != "$actual" ]]; then
-    #      echo "Values did not match. actual: '$actual' expected: '$expected'"
-    #      exit 1
-    #    fi
+    - name: Bench
+      shell: bash
+      working-directory: ./build
+      run: |
+        if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
+          ./$BUILD_TYPE/Clovis bench > output
+        else
+          ./Clovis bench > output
+        fi
+
+        expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
+        actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
+
+        if [[ "$expected" != "$actual" ]]; then
+          echo "Values did not match. actual: '$actual' expected: '$expected'"
+          exit 1
+        fi
 
     - name: Perft
       shell: bash
       working-directory: ./build
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
+
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
           ./$BUILD_TYPE/Clovis perft
         else
@@ -86,7 +94,6 @@ jobs:
         fi
 
     - name: Archive Output
-      if: always()
       uses: actions/upload-artifact@v2
       with:
         name: bench-output
