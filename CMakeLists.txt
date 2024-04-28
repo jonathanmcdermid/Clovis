@@ -17,23 +17,23 @@ message("Using CMake version: ${CMAKE_VERSION}")
 file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
+message("CMAKE_CXX_COMPILER_ID: " ${CMAKE_CXX_COMPILER_ID})
+
 # Set compiler flags
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wshadow -pedantic -Wuseless-cast -Wold-style-cast -Wno-deprecated-enum-enum-conversion -std=c++20")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -fPIC -D_LINUX_")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto -DNDEBUG")
-	message("CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-	message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
-	message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-	message("CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-	message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
-	message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
 else()
 	message(FATAL_ERROR "Unsupported compiler")
 endif()
+
+message("CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
+message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
+message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
 
 # Set output directory
 set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
