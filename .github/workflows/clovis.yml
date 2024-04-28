@@ -79,7 +79,11 @@ jobs:
       working-directory: ./build
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./Clovis perft
+        if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
+          ./Clovis.exe perft
+        else
+          ./Clovis perft
+        fi
 
     - name: Archive Output
       if: always()
