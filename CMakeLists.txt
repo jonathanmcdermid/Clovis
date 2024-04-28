@@ -50,10 +50,5 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # Add custom clean target
 add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
 
-# Link libraries
-if(CMAKE_HOST_WIN32)
-	target_link_libraries(${PROJECT_NAME} PRIVATE /NODEFAULTLIB:MSVCRT)
-endif()
-
 # Specify include directories
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
