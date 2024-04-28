@@ -75,6 +75,7 @@ jobs:
     #    fi
 
     - name: Perft
+      shell: bash
       working-directory: ./build
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
