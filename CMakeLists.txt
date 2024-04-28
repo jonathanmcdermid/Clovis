@@ -22,7 +22,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 	endif()
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	set(CMAKE_CXX_FLAGS "/WX /W4 /DWIN32 /D_WINDOWS /GR /EHsc /utf-8 /wd5054 /wd4244 /wd4127")
     set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1")
     set(CMAKE_CXX_FLAGS_RELEASE "/Ox /Ob2 /DNDEBUG")
@@ -51,7 +51,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE libcmt)
+if(CMAKE_HOST_WIN32)
+	target_link_libraries(${PROJECT_NAME} PRIVATE libcmt)
+endif()
 
 # Specify include directories
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
