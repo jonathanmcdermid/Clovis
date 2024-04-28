@@ -32,7 +32,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
 	message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
 else()
-	message(WARNING "Unsupported compiler")
+	message(FATAL_ERROR "Unsupported compiler")
 endif()
 
 # Set output directory
