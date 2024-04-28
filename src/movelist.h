@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include "position.h"
 
 namespace clovis::move_gen {

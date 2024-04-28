@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <vector>
 
 #include "search.h"
 
