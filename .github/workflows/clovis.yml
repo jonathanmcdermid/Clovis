@@ -78,10 +78,9 @@ jobs:
       shell: bash
       working-directory: ./build
       run: | 
-        ls
         set -e # Exit immediately if a command exits with a non-zero status
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
-          ./Clovis.exe perft
+          ./$BUILD_TYPE/Clovis perft
         else
           ./Clovis perft
         fi
