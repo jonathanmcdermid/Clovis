@@ -21,9 +21,12 @@ message("CMAKE_CXX_COMPILER_ID: " ${CMAKE_CXX_COMPILER_ID})
 
 # Set compiler flags
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS "-Wall -Werror -Wfatal-errors -Wno-deprecated-enum-enum-conversion -Wno-error=deprecated-enum-enum-conversion")
+	set(CMAKE_CXX_FLAGS "-Wall -Wfatal-errors -Wno-deprecated-enum-enum-conversion -Wno-error=deprecated-enum-enum-conversion")
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+	endif()
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	set(CMAKE_CXX_FLAGS "/WX /W4 /DWIN32 /D_WINDOWS /GR /EHsc /utf-8 /wd5054 /wd2220 /wd4127")
     set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1")
