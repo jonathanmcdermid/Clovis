@@ -65,12 +65,11 @@ jobs:
 
     - name: Bench
       shell: bash
-      working-directory: ./build
       run: |
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
-          ./$BUILD_TYPE/Clovis bench > output
+          ./build/$BUILD_TYPE/Clovis bench > output
         else
-          ./Clovis bench > output
+          ./build/Clovis bench > output
         fi
         
         expected=14914348
@@ -84,14 +83,13 @@ jobs:
 
     - name: Perft
       shell: bash
-      working-directory: ./build
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
 
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
-          ./$BUILD_TYPE/Clovis perft
+          ./build/$BUILD_TYPE/Clovis perft
         else
-          ./Clovis perft
+          ./build/Clovis perft
         fi
 
     - name: Archive Output
