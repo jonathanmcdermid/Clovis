@@ -52,3 +52,5 @@ add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUIL
 
 # Specify include directories
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
+
+add_subdirectory(test)
