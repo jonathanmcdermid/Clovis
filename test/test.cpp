@@ -7,4 +7,4 @@ class ExampleTest : public testing::Test
     void TearDown() override {}
 };
 
-TEST_F(ExampleTest, isFF) { ASSERT_TRUE(1); }
+TEST_F(ExampleTest, EX1) { ASSERT_TRUE(1); }

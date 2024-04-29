@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(Clovis)
+project(clovis)
 enable_testing()
 
 # Set C++ standard
