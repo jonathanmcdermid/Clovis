@@ -2,7 +2,7 @@ include(FetchContent)
 FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
 FetchContent_MakeAvailable(googletest)
 
-set(TARGET_NAME "test")
+set(TARGET_NAME "clovis_test")
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 add_executable(${TARGET_NAME} ${SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
