@@ -65,11 +65,12 @@ jobs:
 
     - name: Bench
       shell: bash
+      working-directory: ./build
       run: |
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
-          ./build/$BUILD_TYPE/Clovis bench > output
+          ./$BUILD_TYPE/Clovis bench > output
         else
-          ./build/Clovis bench > output
+          ./Clovis bench > output
         fi
         
         expected=14914348
