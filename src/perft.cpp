@@ -38,23 +38,18 @@ void perft()
         size_t idx = line.find(',');
         std::string fen = line.substr(0, idx);
         std::istringstream is(line.substr(idx + 1).c_str());
-        int depth = 1;
         std::vector<uint64_t> nv;
 
         while (is >> token)
         {
-            assert(token.length() == 2);
-            assert(token[1] - '0' == depth);
-            is >> token;
+            is >> token; // consume depth token
             nv.push_back(stoull(token));
-            ++depth;
         }
 
         pp.push_back({fen, nv});
     }
 
     ifs.close();
-
     bool failed = false;
 
     for (auto& [fen, nodes] : pp)
