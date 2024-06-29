@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
 project(clovis)
-enable_testing()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,21 +24,24 @@ else()
 	message(FATAL_ERROR "Unsupported compiler")
 endif()
 
-set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
+# Output all binaries in the same directory for easier testing
+foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${config} BUILD_TYPE)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
+endforeach()
+
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+endif()
 
 # Add source files
 file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 add_library("engine" STATIC ${SOURCES})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIR}"
-	ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIR}"
-	LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIR}"
-)
-
 add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-
-add_subdirectory(test)
