@@ -66,6 +66,7 @@ jobs:
       run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
     - name: Bench
+      if: env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows'
       shell: bash
       working-directory: ./build
       run: |
