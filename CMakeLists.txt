@@ -2,20 +2,14 @@ cmake_minimum_required(VERSION 3.12)
 project(clovis)
 enable_testing()
 
-# Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# If CMAKE_BUILD_TYPE is not specified, set it to Release
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)   
 endif()
 
-message("CMAKE_VERSION: " ${CMAKE_VERSION})
-message("CMAKE_CXX_COMPILER_ID: " ${CMAKE_CXX_COMPILER_ID})
-
-# Set compiler flags
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	set(CMAKE_CXX_FLAGS "-Wall -Wfatal-errors -Wno-deprecated-enum-enum-conversion -Wno-error=deprecated-enum-enum-conversion")
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -31,16 +25,12 @@ else()
 	message(FATAL_ERROR "Unsupported compiler")
 endif()
 
-message("CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
-message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
-
-# Set output directory
 set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
 
 # Add source files
-file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
+add_executable(${PROJECT_NAME} ${SOURCES})
+add_library("engine" STATIC ${SOURCES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIR}"
@@ -48,10 +38,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIR}"
 )
 
-# Add custom clean target
 add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
-
-# Specify include directories
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 add_subdirectory(test)

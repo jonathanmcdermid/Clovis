@@ -3,9 +3,8 @@ FetchContent_Declare(googletest URL https://github.com/google/googletest/archive
 FetchContent_MakeAvailable(googletest)
 
 set(TARGET_NAME "evaluate_test")
-file(GLOB SOURCES )
 add_executable(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/evaluate_test.cpp)
 set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "tests")
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(${TARGET_NAME} PUBLIC gtest)
+target_link_libraries(${TARGET_NAME} PUBLIC gtest engine)
 add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} ${CMAKE_SOURCE_DIR})
