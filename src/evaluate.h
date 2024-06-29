@@ -283,4 +283,6 @@ extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
 template <bool TRACE> int evaluate(const Position& pos);
 
+bool is_doubled_pawn(const Bitboard bb, const Square sq);
+
 } // namespace clovis::eval

@@ -6,9 +6,9 @@ namespace clovis::eval {
 
 std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
-inline bool is_doubled_pawn(const Bitboard bb, const Square sq) { return bitboards::multiple_bits(bb & bitboards::file_masks[sq]); }
+bool is_doubled_pawn(const Bitboard bb, const Square sq) { return bitboards::multiple_bits(bb & bitboards::file_masks[sq]); }
 
-inline bool is_isolated_pawn(const Bitboard bb, const Square sq) { return !(bb & isolated_masks[sq]); }
+bool is_isolated_pawn(const Bitboard bb, const Square sq) { return !(bb & isolated_masks[sq]); }
 
 template <Colour US> bool is_passed_pawn(const Bitboard bb, const Square sq) { return !(bb & passed_masks[US][sq]); }
 
