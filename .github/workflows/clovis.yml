@@ -65,15 +65,13 @@ jobs:
 
     - name: Bench
       shell: bash
+      working-directory: ./build
       run: |
-        ls
-        cd build
-        ls
-        cd $BUILD_TYPE
-        ls 
-        cd ..
-        cd ..
-        ./build/$BUILD_TYPE/Clovis bench > output
+        if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
+          ./$BUILD_TYPE/clovis bench > output
+        else
+          ./clovis bench > output
+        fi
         
         expected=14914348
         actual=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
@@ -91,9 +89,9 @@ jobs:
         set -e # Exit immediately if a command exits with a non-zero status
 
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
-          ./build/$BUILD_TYPE/Clovis perft
+          ./build/$BUILD_TYPE/clovis perft
         else
-          ./build/Clovis perft
+          ./build/clovis perft
         fi
 
     - name: Archive Output
