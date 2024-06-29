@@ -18,10 +18,10 @@ jobs:
         platform:
           - [windows, windows-latest, msvc, Debug]
           - [windows, windows-latest, msvc, Release]
-          #- [windows, windows-latest, gcc, Debug]
-          #- [windows, windows-latest, gcc, Release]
-          #- [windows, windows-latest, clang, Debug]
-          #- [windows, windows-latest, clang, Release]
+          - [windows, windows-latest, gcc, Debug]
+          - [windows, windows-latest, gcc, Release]
+          - [windows, windows-latest, clang-cl, Debug]
+          - [windows, windows-latest, clang-cl, Release]
           - [linux, ubuntu-latest, gcc, Debug]
           - [linux, ubuntu-latest, gcc, Release]
           - [linux, ubuntu-latest, clang, Debug]
@@ -51,10 +51,12 @@ jobs:
       run: |
         if [ "${{ env.COMPILER }}" == "msvc" ]; then
           cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Visual Studio 17 2022"
+        elif [ "${{ env.COMPILER }}" == "clang-cl" ]; then
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Visual Studio 17 2022" -T ClangCL
         elif [ "${{ env.COMPILER }}" == "clang" ]; then
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=clang++
         elif [ "${{ env.COMPILER }}" == "gcc" ]; then
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++
         fi
 
     - name: Build
