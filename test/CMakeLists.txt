@@ -3,5 +3,5 @@ add_executable(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRE
 set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "tests")
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 find_package(GTest REQUIRED CONFIG)
-target_link_libraries(${TARGET_NAME} PUBLIC gtest engine)
+target_link_libraries(${TARGET_NAME} PUBLIC engine GTest::gtest GTest::gtest_main)
 add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} ${CMAKE_SOURCE_DIR})
