@@ -1,7 +1,7 @@
 Checks: '-*,
 portability-*,
 # readability-*,
-# performance-*,
+performance-*,
 # clang-analyzer-*,
 # cppcoreguidelines-*, 
 # bugprone-*, 
