@@ -1,0 +1,13 @@
+[requires]
+
+[test_requires]
+gtest/[>=1.14 <1.15]
+
+[options]
+
+[layout]
+cmake_layout
+
+[generators]
+CMakeDeps
+CMakeToolchain
