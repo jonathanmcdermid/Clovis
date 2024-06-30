@@ -7,6 +7,7 @@ performance-*,
 bugprone-*, 
     -bugprone-macro-parentheses,
     -bugprone-implicit-widening-of-multiplication-result
+    -bugprone-easily-swappable-parameters,
 modernize-*,
     -modernize-use-trailing-return-type,
     -modernize-avoid-c-arrays,
