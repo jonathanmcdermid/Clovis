@@ -21,7 +21,7 @@ unset(CMAKE_CXX_FLAGS_RELEASE)
 if(MSVC)
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     add_definitions(-DWIN32 -D_WINDOWS)
-    add_compile_options(/W4 /GR /EHsc /utf-8)
+    add_compile_options(/W4 /GR /EHsc /utf-8 /wd5054 /wd4244 /wd4127)
     add_compile_options("$<$<CONFIG:Release>:/Ox;/Ob2>")
 
     if(WARNINGS_AS_ERRORS)
