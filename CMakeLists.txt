@@ -6,6 +6,10 @@ option(BUILD_TESTS "Build tests" ON)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(COVERAGE "Coverage" OFF)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)   
 endif()
