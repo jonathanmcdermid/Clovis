@@ -1,0 +1,5 @@
+Checks: '-*,
+portability-*,
+'
+HeaderFilterRegex: 'src/.*'
+WarningsAsErrors: '*'

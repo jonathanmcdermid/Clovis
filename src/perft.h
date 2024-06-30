@@ -7,7 +7,8 @@
 
 namespace clovis::perft {
 
-struct PerftPosition {
+struct PerftPosition
+{
     std::string fen;
     std::vector<uint64_t> nodes;
 };

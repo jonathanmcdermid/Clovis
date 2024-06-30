@@ -19,7 +19,8 @@ constexpr auto castling_rights = [] {
 
     arr.fill(ALL_CASTLING);
 
-    for (const Colour c : {WHITE, BLACK}) {
+    for (const Colour c : {WHITE, BLACK})
+    {
         arr[relative_square(c, E1)] &= ~(ks_castle_rights(c) | qs_castle_rights(c));
         arr[relative_square(c, A1)] &= ~qs_castle_rights(c);
         arr[relative_square(c, H1)] &= ~ks_castle_rights(c);
@@ -30,7 +31,8 @@ constexpr auto castling_rights = [] {
 
 namespace zobrist {
 
-constexpr uint64_t xor_shift(uint64_t state) {
+constexpr uint64_t xor_shift(uint64_t state)
+{
     state ^= state >> 12;
     state ^= state << 25;
     state ^= state >> 27;
@@ -69,19 +71,16 @@ constexpr Key side = xor_shift(state + 16ULL * SQ_N + 16);
 } // namespace zobrist
 
 // returns the square that pins a piece if it exists
-template <Colour US>
-Square Position::get_pinner(const Square sq) const {
-    if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq) {
+template <Colour US> Square Position::get_pinner(const Square sq) const
+{
+    if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq)
+    {
         Bitboard candidates =
-            ((bitboards::get_attacks<ROOK>(occ_bb[BOTH] ^ sq, ksq) &
-              (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
-             (bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) &
-              (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
+            ((bitboards::get_attacks<ROOK>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
+             (bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
 
         while (candidates)
-            if (const Square candidate = bitboards::pop_lsb(candidates);
-                bitboards::between_squares(ksq, candidate) & sq)
-                return candidate;
+            if (const Square candidate = bitboards::pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq) return candidate;
     }
 
     return SQ_NONE;
@@ -93,21 +92,19 @@ template Square Position::get_pinner<BLACK>(Square sq) const;
 
 // returns if a square is in danger of a discovery attack by a rook or
 // bishop
-template <Colour US>
-bool Position::discovery_threat(const Square sq) const {
+template <Colour US> bool Position::discovery_threat(const Square sq) const
+{
     // pawn is immobile if it attacks no enemies and is blocked by a piece
     // we don't have to worry about shift because discovery pawns will never
     // be on outer files
-    Bitboard their_immobile_pawns =
-        (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
-        ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
+    Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
+                                    ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
     if (side == ~US && bs->en_passant != SQ_NONE) their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant];
 
     Bitboard candidates =
         ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
-         (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) &
-          (pc_bb[make_piece(BISHOP, ~US)])));
+         (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
 
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
@@ -121,16 +118,21 @@ bool Position::discovery_threat(const Square sq) const {
 template bool Position::discovery_threat<WHITE>(Square sq) const;
 template bool Position::discovery_threat<BLACK>(Square sq) const;
 
-std::string Position::get_fen() const {
+std::string Position::get_fen() const
+{
     std::stringstream fen;
 
-    for (Rank r = RANK_8; r >= RANK_1; --r) {
+    for (Rank r = RANK_8; r >= RANK_1; --r)
+    {
         int empty_count = 0;
-        for (File f = FILE_A; f <= FILE_H; ++f) {
+        for (File f = FILE_A; f <= FILE_H; ++f)
+        {
             if (const Square sq = make_square(f, r); pc_table[sq] == NO_PIECE)
                 ++empty_count;
-            else {
-                if (empty_count) {
+            else
+            {
+                if (empty_count)
+                {
                     fen << empty_count;
                     empty_count = 0;
                 }
@@ -145,21 +147,22 @@ std::string Position::get_fen() const {
 
     if (bs->castle == NO_CASTLING)
         fen.put('-');
-    else {
+    else
+    {
         if (bs->castle & WHITE_KS) fen.put('K');
         if (bs->castle & WHITE_QS) fen.put('Q');
         if (bs->castle & BLACK_KS) fen.put('k');
         if (bs->castle & BLACK_QS) fen.put('q');
     }
 
-    fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " " << std::to_string(bs->hmc) << " "
-        << std::to_string(bs->fmc);
+    fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " " << std::to_string(bs->hmc) << " " << std::to_string(bs->fmc);
 
     return fen.str();
 }
 
 // sets position to the state specified by FEN std::string
-void Position::set(const char *fen) {
+void Position::set(const char* fen)
+{
     memset(this, 0, sizeof(Position));
     bs = new BoardState;
 
@@ -169,12 +172,14 @@ void Position::set(const char *fen) {
 
     ss >> std::noskipws;
 
-    while ((ss >> token) && !isspace(token)) {
+    while ((ss >> token) && !isspace(token))
+    {
         if (isdigit(token))
             sq = sq + (token - '0') * EAST;
         else if (token == '/')
             sq = sq + 2 * SOUTH;
-        else if (size_t index = piece_str.find(token); index != std::string::npos) {
+        else if (size_t index = piece_str.find(token); index != std::string::npos)
+        {
             put_piece(static_cast<Piece>(index), sq);
             put_piece(static_cast<Piece>(index), sq);
             bs->game_phase += game_phase_inc[static_cast<Piece>(index)];
@@ -186,7 +191,8 @@ void Position::set(const char *fen) {
     side = (token == 'w' ? WHITE : BLACK);
     ss >> token;
 
-    while ((ss >> token) && !isspace(token)) {
+    while ((ss >> token) && !isspace(token))
+    {
         if (token == 'K')
             bs->castle |= WHITE_KS;
         else if (token == 'Q')
@@ -199,12 +205,14 @@ void Position::set(const char *fen) {
 
     ss >> token;
 
-    if (token != '-') {
+    if (token != '-')
+    {
         const auto f = static_cast<File>(token - 'a');
         ss >> token;
         const auto r = static_cast<Rank>(token - '1');
         bs->en_passant = make_square(f, r);
-    } else
+    }
+    else
         bs->en_passant = SQ_NONE;
 
     ss >> std::skipws >> bs->hmc >> bs->fmc;
@@ -213,7 +221,8 @@ void Position::set(const char *fen) {
     bs->ply_null = 0;
 }
 
-Key Position::make_key() const {
+Key Position::make_key() const
+{
     Key k = 0ULL;
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -228,17 +237,18 @@ Key Position::make_key() const {
     return k;
 }
 
-Key Position::make_pawn_key() const {
+Key Position::make_pawn_key() const
+{
     Key k = 0ULL;
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING)
-            k ^= zobrist::piece_square[pc_table[sq]][sq];
+        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING) k ^= zobrist::piece_square[pc_table[sq]][sq];
 
     return k;
 }
 
-bool Position::see_ge(const Move move, const int threshold) const {
+bool Position::see_ge(const Move move, const int threshold) const
+{
     // don't even bother
     if (move_promotion_type(move) || move_en_passant(move)) return true;
 
@@ -250,7 +260,8 @@ bool Position::see_ge(const Move move, const int threshold) const {
 
     gain[d] = piece_value[pc_table[to]];
 
-    while (true) {
+    while (true)
+    {
         stm = ~stm;
         d++;
         assert(d < 32);
@@ -272,7 +283,8 @@ bool Position::see_ge(const Move move, const int threshold) const {
 
 // updates bitboards to represent a new piece on a square
 // does not remove info if a piece was already on that square
-void Position::put_piece(const Piece pc, const Square sq) {
+void Position::put_piece(const Piece pc, const Square sq)
+{
     assert(!(sq & pc_bb[pc]));
     assert(!(sq & occ_bb[get_side(pc)]));
     assert(!(sq & occ_bb[BOTH]));
@@ -284,7 +296,8 @@ void Position::put_piece(const Piece pc, const Square sq) {
 }
 
 // updates bitboards to replace an old piece with a new piece on a square
-void Position::replace_piece(const Piece pc, const Square sq) {
+void Position::replace_piece(const Piece pc, const Square sq)
+{
     assert(!(sq & occ_bb[get_side(pc)]));
     assert((sq & occ_bb[~get_side(pc)]));
     assert((sq & occ_bb[BOTH]));
@@ -297,7 +310,8 @@ void Position::replace_piece(const Piece pc, const Square sq) {
 }
 
 // updates bitboards to represent a piece being removed from a square
-void Position::remove_piece(const Square sq) {
+void Position::remove_piece(const Square sq)
+{
     const Piece pc = pc_table[sq];
 
     assert(sq & pc_bb[pc]);
@@ -310,8 +324,8 @@ void Position::remove_piece(const Square sq) {
     pc_table[sq] = NO_PIECE;
 }
 
-template <bool NM>
-void Position::new_board_state() {
+template <bool NM> void Position::new_board_state()
+{
     const auto bs_new = new BoardState;
     bs_new->en_passant = bs->en_passant;
     bs_new->castle = bs->castle;
@@ -325,29 +339,33 @@ void Position::new_board_state() {
     // position now refers to new board state
     bs = bs_new;
 
-    if (bs->en_passant != SQ_NONE) {
+    if (bs->en_passant != SQ_NONE)
+    {
         bs->key ^= zobrist::en_passant[bs->en_passant];
         bs->en_passant = SQ_NONE;
     }
 }
 
 // executes a null move and updates the position
-void Position::do_null_move() {
+void Position::do_null_move()
+{
     new_board_state<true>();
     side = ~side;
 }
 
 // reverts a null move and rolls back the position
-void Position::undo_null_move() {
+void Position::undo_null_move()
+{
     side = ~side;
     assert(bs->prev);
-    const BoardState *temp = bs;
+    const BoardState* temp = bs;
     bs = bs->prev;
     delete temp;
 }
 
 // executes a move and updates the position
-bool Position::do_move(const Move move) {
+bool Position::do_move(const Move move)
+{
     new_board_state<false>();
 
     const Square src = move_from_sq(move), tar = move_to_sq(move);
@@ -367,15 +385,19 @@ bool Position::do_move(const Move move) {
     bs->castle &= castling_rights[tar];
     bs->key ^= zobrist::castling[bs->castle];
 
-    if (move_capture(move)) {
-        if (move_en_passant(move)) {
+    if (move_capture(move))
+    {
+        if (move_en_passant(move))
+        {
             const Square victim_sq = tar - pawn_push(side);
             bs->captured_piece = make_piece(PAWN, ~side);
             bs->key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
             bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
             remove_piece(victim_sq);
             put_piece(piece, tar);
-        } else {
+        }
+        else
+        {
             if (piece_type(bs->captured_piece) == PAWN) bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][tar];
 
             bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
@@ -383,18 +405,23 @@ bool Position::do_move(const Move move) {
         }
         bs->game_phase -= game_phase_inc[bs->captured_piece];
         bs->hmc = 0;
-    } else
+    }
+    else
         put_piece(piece, tar);
 
     bs->key ^= zobrist::piece_square[pc_table[src]][src];
     bs->key ^= zobrist::piece_square[pc_table[src]][tar];
     remove_piece(src);
 
-    if (piece_type(piece) == PAWN) {
-        if (move_double(move)) {
+    if (piece_type(piece) == PAWN)
+    {
+        if (move_double(move))
+        {
             bs->en_passant = tar - pawn_push(side);
             bs->key ^= zobrist::en_passant[bs->en_passant];
-        } else if (move_promotion_type(move)) {
+        }
+        else if (move_promotion_type(move))
+        {
             bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
             bs->pawn_key ^= zobrist::piece_square[piece][tar];
             remove_piece(tar);
@@ -406,11 +433,14 @@ bool Position::do_move(const Move move) {
         bs->pawn_key ^= zobrist::piece_square[piece][src];
         bs->pawn_key ^= zobrist::piece_square[piece][tar];
         bs->hmc = 0;
-    } else if (piece_type(piece) == KING) {
+    }
+    else if (piece_type(piece) == KING)
+    {
         bs->pawn_key ^= zobrist::piece_square[piece][src];
         bs->pawn_key ^= zobrist::piece_square[piece][tar];
 
-        if (move_castling(move)) {
+        if (move_castling(move))
+        {
             Square rt, rf;
             get_castle_rook_squares(tar, rf, rt);
             bs->key ^= zobrist::piece_square[pc_table[rf]][rf];
@@ -428,21 +458,28 @@ bool Position::do_move(const Move move) {
 }
 
 // reverts a move and rolls back the position
-void Position::undo_move(const Move move) {
+void Position::undo_move(const Move move)
+{
     side = ~side;
 
     const Square tar = move_to_sq(move);
 
     put_piece(move_piece_type(move), move_from_sq(move));
 
-    if (move_capture(move)) {
-        if (move_en_passant(move)) {
+    if (move_capture(move))
+    {
+        if (move_en_passant(move))
+        {
             remove_piece(tar);
             put_piece(bs->captured_piece, tar - pawn_push(side));
-        } else
+        }
+        else
             replace_piece(bs->captured_piece, tar);
-    } else {
-        if (move_castling(move)) {
+    }
+    else
+    {
+        if (move_castling(move))
+        {
             Square rt, rf;
             get_castle_rook_squares(tar, rf, rt);
             remove_piece(rt);
@@ -452,14 +489,15 @@ void Position::undo_move(const Move move) {
     }
 
     assert(bs->prev);
-    const BoardState *temp = bs;
+    const BoardState* temp = bs;
     bs = bs->prev;
     delete temp;
 }
 
 // returns the piece type of the least valuable piece on a bitboard of
 // attackers
-Square Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const {
+Square Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const
+{
     if (attackers & occ_bb[stm])
         for (PieceType pt = PAWN; pt <= KING; ++pt)
             if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers) return bitboards::lsb(bb);
@@ -467,10 +505,12 @@ Square Position::get_smallest_attacker(const Bitboard attackers, const Colour st
     return SQ_NONE;
 }
 
-bool Position::is_repeat() const {
-    const BoardState *temp = bs;
+bool Position::is_repeat() const
+{
+    const BoardState* temp = bs;
 
-    for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4) {
+    for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4)
+    {
         assert(temp->prev && temp->prev->prev && temp->prev->prev->prev && temp->prev->prev->prev->prev);
         temp = temp->prev->prev->prev->prev;
 
@@ -481,8 +521,10 @@ bool Position::is_repeat() const {
 }
 
 // prints the current position
-void Position::print_position() const {
-    for (Rank r = RANK_8; r >= RANK_1; --r) {
+void Position::print_position() const
+{
+    for (Rank r = RANK_8; r >= RANK_1; --r)
+    {
         std::cout << r + 1 << ' ';
         for (File f = FILE_A; f < FILE_N; ++f) std::cout << symbols[pc_table[make_square(f, r)]] << " ";
         std::cout << std::endl;
@@ -491,8 +533,10 @@ void Position::print_position() const {
 }
 
 // prints the bitboards for this position
-void Position::print_bitboards() const {
-    for (PieceType pt = PAWN; pt <= KING; ++pt) {
+void Position::print_bitboards() const
+{
+    for (PieceType pt = PAWN; pt <= KING; ++pt)
+    {
         bitboards::print_bitboard(pc_bb[make_piece(pt, WHITE)]);
         bitboards::print_bitboard(pc_bb[make_piece(pt, BLACK)]);
     }

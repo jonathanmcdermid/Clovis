@@ -5,7 +5,8 @@
 #include "tuner.h"
 #include "uci.h"
 
-int main(const int argc, char *argv[]) {
+int main(const int argc, char* argv[])
+{
     clovis::bitboards::init_bitboards();
 
     const std::string_view arg = argc > 1 ? argv[1] : "";

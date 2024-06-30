@@ -7,72 +7,90 @@ on:
     branches: [ "main" ]
 
 jobs:
+  # =========================================================
+  # Build Job
+  # =========================================================
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.platform[1] }}
 
     strategy:
-      fail-fast: false
-
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
-        c_compiler: [gcc, cl]
-        include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: ubuntu-latest
-            c_compiler: cl
+        platform:
+          - [windows, windows-latest, msvc, Debug]
+          - [windows, windows-latest, msvc, Release]
+          - [windows, windows-latest, gcc, Debug]
+          - [windows, windows-latest, gcc, Release]
+          - [windows, windows-latest, clang-cl, Debug]
+          - [windows, windows-latest, clang-cl, Release]
+          - [linux, ubuntu-latest, gcc, Debug]
+          - [linux, ubuntu-latest, gcc, Release]
+          - [linux, ubuntu-latest, clang, Debug]
+          - [linux, ubuntu-latest, clang, Release]
+
+    env:
+      OPERATING_SYSTEM: ${{ matrix.platform[0] }}
+      DISTRIBUTION: ${{ matrix.platform[1] }}
+      COMPILER: ${{ matrix.platform[2] }}
+      BUILD_TYPE: ${{ matrix.platform[3] }}
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install Clang
+      if: env.COMPILER == 'clang'
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "17.0"
 
-    - name: Set reusable strings
-      id: strings
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+
+    - name: Install CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Configure
       shell: bash
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
-    - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
-
-    - name: Check Code Formatting
-      run: |
-        clang-format --version
-        find src -name '*.cpp' -o -name '*.h' | xargs clang-format -n -Werror --style=file
+        if [ "${{ env.COMPILER }}" == "msvc" ]; then
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Visual Studio 17 2022" -DWARNINGS_AS_ERRORS=ON
+        elif [ "${{ env.COMPILER }}" == "clang-cl" ]; then
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Visual Studio 17 2022" -T ClangCL
+        elif [ "${{ env.COMPILER }}" == "clang" ]; then
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=clang++
+        elif [ "${{ env.COMPILER }}" == "gcc" ]; then
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++
+        fi
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      run: cmake --build build --parallel --config ${{ env.BUILD_TYPE }}
+
+    - name: Test
+      run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
     - name: Bench
-      if: matrix.os == 'ubuntu-latest'
+      if: env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows'
+      shell: bash
       working-directory: ./build
-      run: | 
-        expected=$(git show --summary | grep -Po 'bench:\s*\K[0-9]+')
-        ./Clovis bench > output
-        actual=$(grep -Po 'bench:\s*\K[0-9]+' output)
+      run: |
+        ./bin/$BUILD_TYPE/clovis bench > output
+        
+        expected=14914348
+        actual=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
+        echo "Actual ${actual} Expected ${expected}"
+
         if [[ "$expected" != "$actual" ]]; then
-          echo "Values did not match. actual: '$actual' expected: '$expected'"
+          echo "Values did not match."
           exit 1
         fi
 
     - name: Perft
-      if: matrix.os == 'ubuntu-latest'
-      working-directory: ./build
+      if: env.BUILD_TYPE == 'Release' && (env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows')
+      shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./Clovis perft
+        ./build/bin/$BUILD_TYPE/clovis perft
 
     - name: Archive Output
       if: always()
@@ -81,6 +99,113 @@ jobs:
         name: bench-output
         path: output
 
-    - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      run: ctest --build-config ${{ matrix.build_type }}
+  # =========================================================
+  # Clang Format Job
+  # =========================================================
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+
+    - name: Check code formatting
+      run: find src \( -name '*.cpp' -o -name '*.h' \) -exec clang-format -Werror --style=file -n {} +
+
+  # =========================================================
+  # Editor Config Job
+  # =========================================================
+  editorconfig:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install editorconfig-checker
+      uses: editorconfig-checker/action-editorconfig-checker@main
+
+    - name: Check CMakeLists.txt formatting
+      run: find . \( -name 'CMakeLists.txt' \) -exec editorconfig-checker {} \+ || { echo "EditorConfig check failed!"; exit 1; }
+
+    - name: Check C++ formatting
+      run: find src \( -name '*.cpp' -o -name '*.hpp' \) -exec editorconfig-checker {} \+ || { echo "EditorConfig check failed!"; exit 1; }
+
+  # =========================================================
+  # Clang Tidy Job
+  # =========================================================
+  clang-tidy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "17.0"
+
+      - name: Install Conan
+        id: conan
+        uses: turtlebrowser/get-conan@main
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Static code analysis
+        run: |
+          cmake -S . -B build -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CC=clang -DCMAKE_CXX=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_COMPILER_TARGET=x86_64-pc-linux-gnu -DCMAKE_C_COMPILER_TARGET=x86_64-pc-linux-gnu
+          cmake --build build --parallel --config Debug
+  
+  # =========================================================
+  # Code Coverage Job
+  # =========================================================
+  code-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+
+    - name: Install CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Install GCC Coverage
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcovr
+
+    - name: Configure
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON
+
+    - name: Build
+      run: cmake --build build --parallel --config debug
+
+    - name: Run Tests
+      run: cd build && ctest && cd ..
+
+    - name: Generate HTML code coverage reports
+      run: | 
+        mkdir build/code-coverage
+        gcovr -r ./src/ ./build/ --exclude='.*/test/.*' --exclude='.*/dynamic_library/.*' --exclude='.*/version.h' --html --html-details -o ./build/code-coverage/index.html
+    
+    - name: Coverage visualization in pipeline summary
+      run: gcovr -r ./src/ ./build/ --exclude='.*/test/.*' --exclude='.*/dynamic_library/.*' --exclude='.*/version.h' --exclude-unreachable-branches --print-summary -o ./build/coverage.xml
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4.3.0
+      with:
+        name: code-coverage
+        path: |
+          build/code-coverage
+          build/coverage.xml

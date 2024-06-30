@@ -1,50 +1,87 @@
-cmake_minimum_required(VERSION 3.12)
-project(Clovis)
+cmake_minimum_required(VERSION 3.15)
+include(cmake/third_party.cmake)
+project(clovis LANGUAGES CXX)
 
-# Set C++ standard
+option(BUILD_TESTS "Build tests" ON)
+option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+option(COVERAGE "Coverage" OFF)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# If CMAKE_BUILD_TYPE is not specified, set it to Release
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)   
 endif()
 
-message("Using CMake version: ${CMAKE_VERSION}")
+unset(CMAKE_CXX_FLAGS)
+unset(CMAKE_CXX_FLAGS_DEBUG)
+unset(CMAKE_CXX_FLAGS_RELEASE)
 
-# Add source files
-file(GLOB_RECURSE SRC_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+if(MSVC)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    add_definitions(-DWIN32 -D_WINDOWS)
+    add_compile_options(/W4 /GR /EHsc /utf-8 /wd5054 /wd4244 /wd4127)
+    add_compile_options("$<$<CONFIG:Release>:/Ox;/Ob2>")
 
-# Set compiler flags
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wshadow -pedantic -Wuseless-cast -Wold-style-cast -Wno-deprecated-enum-enum-conversion -std=c++20")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -fPIC -D_LINUX_")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -flto -DNDEBUG")
-	message("CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-	message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
-	message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-	message("CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-	message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
-	message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
+    if(WARNINGS_AS_ERRORS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
+    add_compile_options(-Wall -Wextra -pedantic -Wold-style-cast)
+    add_compile_options("$<$<CONFIG:Release>:-O3>")
+
+    if(COVERAGE)
+        message("Coverage is On")
+        add_compile_options(--coverage)
+        add_link_options(--coverage)
+    endif()
+
+    if(WARNINGS_AS_ERRORS)
+        add_compile_options(-Werror)
+    endif()
 else()
-	message(WARNING "Unsupported compiler")
+    message(WARNING "Unable to identify compiler.")
 endif()
 
-# Set output directory
-set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
-set_target_properties(${PROJECT_NAME} PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIR}"
-	ARCHIVE_OUTPUT_DIRECTORY "${BUILD_DIR}"
-	LIBRARY_OUTPUT_DIRECTORY "${BUILD_DIR}"
-)
+# Output all binaries in the same directory for easier testing
+foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${config} BUILD_TYPE)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
+endforeach()
 
-# Add custom clean target
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+endif()
+
+file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
+add_executable(${PROJECT_NAME} ${SOURCES})
+add_library("engine" STATIC ${SOURCES})
+
 add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
-
-# Specify include directories
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+
+if(WIN32)
+    # Copy third-party DLLs to the build directory for tests
+    copy_third_party_dlls()
+    # Copy C++ runtime DLL for non-MSVC compilers
+    if(NOT MSVC)
+        if(NOT EXISTS CMAKE_CXX_COMPILER)
+            find_program(CXX_COMPILER_PATH NAMES "${CMAKE_CXX_COMPILER}")
+        else()
+            set(CXX_COMPILER_PATH "${CMAKE_CXX_COMPILER}")
+        endif()
+        get_filename_component(COMPILER_BIN_DIR "${CXX_COMPILER_PATH}" DIRECTORY)
+        foreach(stdcpp_library libstdc++-6.dll libc++.dll)
+            if(EXISTS "${COMPILER_BIN_DIR}/${stdcpp_library}")
+                foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
+                    file(COPY "${COMPILER_BIN_DIR}/${stdcpp_library}" DESTINATION "${CMAKE_BINARY_DIR}/bin/${config}")
+                endforeach()
+            endif()
+        endforeach()
+    endif()
+endif()

@@ -6,7 +6,8 @@
 
 namespace clovis::iq {
 
-struct IQPosition {
+struct IQPosition
+{
     std::string fen;
     std::vector<Move> moves;
 };
