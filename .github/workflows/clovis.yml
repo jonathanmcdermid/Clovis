@@ -20,8 +20,8 @@ jobs:
           - [windows, windows-latest, msvc, Release]
           - [windows, windows-latest, gcc, Debug]
           - [windows, windows-latest, gcc, Release]
-          #- [windows, windows-latest, clang-cl, Debug]
-          #- [windows, windows-latest, clang-cl, Release]
+          - [windows, windows-latest, clang-cl, Debug]
+          - [windows, windows-latest, clang-cl, Release]
           - [linux, ubuntu-latest, gcc, Debug]
           - [linux, ubuntu-latest, gcc, Release]
           - [linux, ubuntu-latest, clang, Debug]
@@ -42,6 +42,10 @@ jobs:
       uses: KyleMayes/install-llvm-action@v1
       with:
         version: "17.0"
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
 
     - name: Install CMake
       uses: lukka/get-cmake@latest
@@ -128,6 +132,10 @@ jobs:
         with:
           version: "17.0"
 
+      - name: Install Conan
+        id: conan
+        uses: turtlebrowser/get-conan@main
+
       - name: Install CMake
         uses: lukka/get-cmake@latest
 
@@ -145,6 +153,10 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
 
     - name: Install CMake
       uses: lukka/get-cmake@latest
