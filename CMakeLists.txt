@@ -15,9 +15,13 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(MSVC)
-	set(CMAKE_CXX_FLAGS "/WX /W4 /DWIN32 /D_WINDOWS /GR /EHsc /utf-8 /wd5054 /wd4244 /wd4127")
+	set(CMAKE_CXX_FLAGS "/W4 /DWIN32 /D_WINDOWS /GR /EHsc /utf-8 /wd5054 /wd4244 /wd4127")
     set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1")
     set(CMAKE_CXX_FLAGS_RELEASE "/Ox /Ob2 /DNDEBUG")
+
+    if(WARNINGS_AS_ERRORS)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 	add_compile_options(-Wall -Wextra -pedantic -Wold-style-cast)
     add_compile_options("$<$<CONFIG:Release>:-O3>")
@@ -48,7 +52,6 @@ if(BUILD_TESTS)
     add_subdirectory(test)
 endif()
 
-# Add source files
 file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 add_library("engine" STATIC ${SOURCES})
