@@ -1,9 +1,9 @@
 Checks: '-*,
-portability-*,
 readability-*,
     -readability-magic-numbers,
     -readability-identifier-length,
     -readability-implicit-bool-conversion,
+    -readability-braces-around-statements,
 performance-*,
 # clang-analyzer-*,
 # cppcoreguidelines-*, 
@@ -16,7 +16,7 @@ modernize-*,
     -modernize-avoid-c-arrays,
     -modernize-use-using,
     -modernize-use-default-member-init,
-'
+portability-*'
 HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'
 ExtraArgs: - -Wno-unknown-pragmas # TODO: remove this after switch to clang-tidy-18
