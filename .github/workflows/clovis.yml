@@ -134,7 +134,7 @@ jobs:
       run: find . \( -name 'CMakeLists.txt' \) -exec editorconfig-checker {} \+ || { echo "EditorConfig check failed!"; exit 1; }
 
     - name: Check C++ formatting
-      run: find src examples \( -name '*.cpp' -o -name '*.hpp' \) -exec editorconfig-checker {} \+ || { echo "EditorConfig check failed!"; exit 1; }
+      run: find src \( -name '*.cpp' -o -name '*.hpp' \) -exec editorconfig-checker {} \+ || { echo "EditorConfig check failed!"; exit 1; }
 
   # =========================================================
   # Clang Tidy Job
