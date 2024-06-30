@@ -2,10 +2,10 @@ Checks: '-*,
 portability-*,
 # readability-*,
 performance-*,
-clang-analyzer-*,
+# clang-analyzer-*,
 # cppcoreguidelines-*, 
 # bugprone-*, 
-# modernize-*
+modernize-*
 '
 HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'
