@@ -60,7 +60,7 @@ jobs:
         elif [ "${{ env.COMPILER }}" == "clang" ]; then
           cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=clang++
         elif [ "${{ env.COMPILER }}" == "gcc" ]; then
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++ -DWARNINGS_AS_ERRORS=ON
         fi
 
     - name: Build
