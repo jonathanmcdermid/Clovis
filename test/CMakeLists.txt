@@ -1,10 +1,7 @@
-include(FetchContent)
-FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
-FetchContent_MakeAvailable(googletest)
-
 set(TARGET_NAME "evaluate_test")
 add_executable(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/evaluate_test.cpp)
 set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "tests")
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
+find_package(GTest REQUIRED CONFIG)
 target_link_libraries(${TARGET_NAME} PUBLIC gtest engine)
 add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} ${CMAKE_SOURCE_DIR})

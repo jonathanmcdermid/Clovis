@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-
+include(cmake/third_party.cmake)
 project(clovis LANGUAGES CXX)
 
 option(BUILD_TESTS "Build tests" ON)
@@ -64,3 +64,24 @@ add_library("engine" STATIC ${SOURCES})
 add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+
+if(WIN32)
+    # Copy third-party DLLs to the build directory for tests
+    copy_third_party_dlls()
+    # Copy C++ runtime DLL for non-MSVC compilers
+    if(NOT MSVC)
+        if(NOT EXISTS CMAKE_CXX_COMPILER)
+            find_program(CXX_COMPILER_PATH NAMES "${CMAKE_CXX_COMPILER}")
+        else()
+            set(CXX_COMPILER_PATH "${CMAKE_CXX_COMPILER}")
+        endif()
+        get_filename_component(COMPILER_BIN_DIR "${CXX_COMPILER_PATH}" DIRECTORY)
+        foreach(stdcpp_library libstdc++-6.dll libc++.dll)
+            if(EXISTS "${COMPILER_BIN_DIR}/${stdcpp_library}")
+                foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
+                    file(COPY "${COMPILER_BIN_DIR}/${stdcpp_library}" DESTINATION "${CMAKE_BINARY_DIR}/bin/${config}")
+                endforeach()
+            endif()
+        endforeach()
+    endif()
+endif()
