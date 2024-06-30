@@ -119,7 +119,7 @@ template <typename T> void print_moves(const T* m, const T* end)
 
     if constexpr (std::is_same<T, ScoredMove>()) std::cout << "\tscore";
 
-    std::cout << std::endl;
+    std::cout << '\n';
 
     int count = 0;
 
@@ -131,12 +131,12 @@ template <typename T> void print_moves(const T* m, const T* end)
 
         if constexpr (std::is_same<T, ScoredMove>()) std::cout << m->score;
 
-        std::cout << std::endl;
+        std::cout << '\n';
 
         ++m, ++count;
     }
 
-    std::cout << "Total move count:" << count << std::endl;
+    std::cout << "Total move count:" << count << '\n';
 }
 
 // explicit template instantiations

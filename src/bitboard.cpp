@@ -12,9 +12,9 @@ void print_bitboard(const Bitboard& bb)
     {
         std::cout << r + 1 << ' ';
         for (File f = FILE_A; f < FILE_N; ++f) std::cout << ((bb & make_square(f, r)) ? "x " : ". ");
-        std::cout << std::endl;
+        std::cout << '\n';
     }
-    std::cout << "  a b c d e f g h" << std::endl;
+    std::cout << "  a b c d e f g h" << '\n';
 }
 
 // generate bishop moves for a given square with bitboard of blocking pieces

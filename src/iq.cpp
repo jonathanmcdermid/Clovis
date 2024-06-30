@@ -41,18 +41,18 @@ void iq_test()
 
         if (std::ranges::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) != it.moves.end())
         {
-            std::cout << "PASS!" << std::endl;
+            std::cout << "PASS!" << '\n';
             ++passes;
         }
         else
         {
             std::cout << "FAIL! best move: ";
             for (const auto& move : it.moves) std::cout << move << " ";
-            std::cout << std::endl;
+            std::cout << '\n';
             ++fails;
         }
 
-        std::cout << passes << " tests passed!" << std::endl << fails << " tests failed!" << std::endl;
+        std::cout << passes << " tests passed!" << '\n' << fails << " tests failed!" << '\n';
 
         search::clear();
     }

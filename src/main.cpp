@@ -25,8 +25,8 @@ int main(const int argc, char* argv[])
         clovis::parse::generate_data();
     else if (arg == "--help")
         std::cout << "bench [depth=" << clovis::DEFAULT_BENCH_DEPTH << "] [threads=" << clovis::DEFAULT_BENCH_THREADS
-                  << "] [hash=" << clovis::DEFAULT_BENCH_MB << "]" << std::endl
-                  << "search positions as specified by OpenBench" << std::endl;
+                  << "] [hash=" << clovis::DEFAULT_BENCH_MB << "]" << '\n'
+                  << "search positions as specified by OpenBench" << '\n';
     else
         return EXIT_FAILURE;
 

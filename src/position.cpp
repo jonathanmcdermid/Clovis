@@ -527,9 +527,9 @@ void Position::print_position() const
     {
         std::cout << r + 1 << ' ';
         for (File f = FILE_A; f < FILE_N; ++f) std::cout << symbols[pc_table[make_square(f, r)]] << " ";
-        std::cout << std::endl;
+        std::cout << '\n';
     }
-    std::cout << "  a b c d e f g h" << std::endl << std::endl << get_fen() << std::endl << std::endl;
+    std::cout << "  a b c d e f g h" << '\n' << '\n' << get_fen() << '\n' << '\n';
 }
 
 // prints the bitboards for this position

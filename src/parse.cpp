@@ -131,7 +131,7 @@ void generate_data()
                                     (result == "1/2-1/2" && (eval > -500 && eval < 500)))
                                 {
                                     keys.push_back(pos.bs->key);
-                                    ofs << pos.get_fen() + " \"" + result + "\";" << std::endl;
+                                    ofs << pos.get_fen() + " \"" + result + "\";" << '\n';
                                 }
                             }
 

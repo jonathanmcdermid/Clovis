@@ -113,11 +113,11 @@ void loop(const int argc, char* argv[])
         is >> std::skipws >> token;
         if (token == "quit" || token == "stop") break;
         if (token == "uci")
-            std::cout << "id name " << version_no << std::endl
-                      << "option name Hash type spin default 16 min 1 max 10000" << std::endl
-                      << "option name Threads type spin default 1 min 1 max 1" << std::endl
-                      << "id author " << authors << std::endl
-                      << "uciok" << std::endl;
+            std::cout << "id name " << version_no << '\n'
+                      << "option name Hash type spin default 16 min 1 max 10000" << '\n'
+                      << "option name Threads type spin default 1 min 1 max 1" << '\n'
+                      << "id author " << authors << '\n'
+                      << "uciok" << '\n';
         else if (token == "go")
             go(pos, is);
         else if (token == "position")
@@ -125,7 +125,7 @@ void loop(const int argc, char* argv[])
         else if (token == "ucinewgame")
             search::clear();
         else if (token == "isready")
-            std::cout << "readyok" << std::endl;
+            std::cout << "readyok" << '\n';
         else if (token == "setoption")
             set_option(is);
     } while (token != "quit" && argc == 1);

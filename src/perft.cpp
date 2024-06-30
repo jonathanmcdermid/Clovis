@@ -56,7 +56,7 @@ void perft()
     {
         auto start_time = std::chrono::steady_clock::now();
         Position pos(fen.c_str());
-        std::cout << "testing position " << fen << std::endl;
+        std::cout << "testing position " << fen << '\n';
 
         for (size_t depth = 1; depth - 1 < nodes.size(); ++depth)
         {
@@ -66,11 +66,11 @@ void perft()
             failed = (result_nodes != nodes[depth - 1]);
             std::cout << (failed ? " FAIL! " : " PASS! ") << "depth: " << depth << "expected: " << std::setw(10) << nodes[depth - 1]
                       << " result: " << std::setw(10) << result_nodes << " time:" << std::setw(7)
-                      << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() << std::endl;
+                      << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() << '\n';
         }
     }
 
-    std::cout << "Done!" << std::endl << (failed ? "Some tests failed." : "All tests passed!") << std::endl;
+    std::cout << "Done!" << '\n' << (failed ? "Some tests failed." : "All tests passed!") << '\n';
 }
 
 } // namespace clovis::perft

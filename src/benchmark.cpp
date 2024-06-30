@@ -46,7 +46,7 @@ void benchmark(const int argc, char* argv[])
         search::clear();
     }
 
-    std::cout << "bench: " << total_nodes << " nps: " << 1000ULL * total_nodes / (total_time + 1) << " time: " << total_time << " ms" << std::endl;
+    std::cout << "bench: " << total_nodes << " nps: " << 1000ULL * total_nodes / (total_time + 1) << " time: " << total_time << " ms" << '\n';
 }
 
 } // namespace clovis::bench

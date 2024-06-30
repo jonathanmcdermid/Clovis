@@ -371,7 +371,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
 
             for (auto& it : info.pv_line) std::cout << it << " ";
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
             if (elapsed_time > allocated_time / 3) break;
 
@@ -385,7 +385,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
     else
         *info.pv_line.last++ = *ml.begin();
 
-    std::cout << "bestmove " << info.pv_line.moves[0] << std::endl;
+    std::cout << "bestmove " << info.pv_line.moves[0] << '\n';
 }
 
 } // namespace clovis::search
