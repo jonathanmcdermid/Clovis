@@ -14,10 +14,15 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)   
 endif()
 
+unset(CMAKE_CXX_FLAGS)
+unset(CMAKE_CXX_FLAGS_DEBUG)
+unset(CMAKE_CXX_FLAGS_RELEASE)
+
 if(MSVC)
-	set(CMAKE_CXX_FLAGS "/W4 /DWIN32 /D_WINDOWS /GR /EHsc /utf-8 /wd5054 /wd4244 /wd4127")
-    set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1")
-    set(CMAKE_CXX_FLAGS_RELEASE "/Ox /Ob2 /DNDEBUG")
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    add_definitions(-DWIN32 -D_WINDOWS)
+    add_compile_options(/W4 /GR /EHsc /utf-8)
+    add_compile_options("$<$<CONFIG:Release>:/Ox;/Ob2>")
 
     if(WARNINGS_AS_ERRORS)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
