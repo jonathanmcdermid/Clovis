@@ -112,7 +112,7 @@ double linear_eval(const TEntry& entry, TGradient* tg)
 
 template <bool STATIC> double mse(const double k)
 {
-    const int n_threads = std::thread::hardware_concurrency();
+    const unsigned int n_threads = std::thread::hardware_concurrency();
     std::atomic<double> total(0.0);
     std::vector<std::thread> threads(n_threads);
 
@@ -126,9 +126,9 @@ template <bool STATIC> double mse(const double k)
         }
     };
 
-    for (int i = 0; i < n_threads; ++i) threads[i] = std::thread(compute_chunk, i * chunk_size, i * chunk_size + chunk_size);
+    for (unsigned int i = 0; i < n_threads; ++i) threads[i] = std::thread(compute_chunk, i * chunk_size, i * chunk_size + chunk_size);
 
-    for (int i = 0; i < n_threads; ++i) threads[i].join();
+    for (unsigned int i = 0; i < n_threads; ++i) threads[i].join();
 
     return total / static_cast<double>(entries.size());
 }
