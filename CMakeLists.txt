@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.12)
-project(clovis)
+cmake_minimum_required(VERSION 3.15)
+
+project(novatel-edie VERSION 3.3.7 LANGUAGES CXX)
+
+option(BUILD_TESTS "Build tests" ON)
+option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+option(COVERAGE "Coverage" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
