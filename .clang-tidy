@@ -1,5 +1,12 @@
 Checks: '-*,
 portability-*,
+# readability-*,
+performance-*,
+# clang-analyzer-*,
+# cppcoreguidelines-*, 
+# bugprone-*, 
+# modernize-*
 '
-HeaderFilterRegex: 'src/.*'
+HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'
+ExtraArgs: - -Wno-unknown-pragmas # TODO: remove this after switch to clang-tidy-18
