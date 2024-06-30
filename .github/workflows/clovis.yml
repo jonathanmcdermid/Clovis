@@ -135,3 +135,46 @@ jobs:
         run: |
           cmake -S . -B build -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CC=clang -DCMAKE_CXX=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_COMPILER_TARGET=x86_64-pc-linux-gnu -DCMAKE_C_COMPILER_TARGET=x86_64-pc-linux-gnu
           cmake --build build --parallel --config Debug
+  
+  # =========================================================
+  # Code Coverage Job
+  # =========================================================
+  code-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Install GCC Coverage
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcovr
+
+    - name: Configure
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON
+
+    - name: Build
+      run: cmake --build build --parallel --config debug
+
+    - name: Run Tests
+      run: cd build && ctest && cd ..
+
+    - name: Generate HTML code coverage reports
+      run: | 
+        mkdir build/code-coverage
+        gcovr -r ./src/ ./build/ --exclude='.*/test/.*' --exclude='.*/dynamic_library/.*' --exclude='.*/version.h' --html --html-details -o ./build/code-coverage/index.html
+    
+    - name: Coverage visualization in pipeline summary
+      run: gcovr -r ./src/ ./build/ --exclude='.*/test/.*' --exclude='.*/dynamic_library/.*' --exclude='.*/version.h' --exclude-unreachable-branches --print-summary -o ./build/coverage.xml
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4.3.0
+      with:
+        name: code-coverage
+        path: |
+          build/code-coverage
+          build/coverage.xml

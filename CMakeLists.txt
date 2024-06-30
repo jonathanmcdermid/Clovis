@@ -26,17 +26,17 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 	add_compile_options(-Wall -Wextra -pedantic -Wold-style-cast)
     add_compile_options("$<$<CONFIG:Release>:-O3>")
 
-    if(WARNINGS_AS_ERRORS)
-        add_compile_options(-Werror)
-    endif()
-
     if(COVERAGE)
         message("Coverage is On")
         add_compile_options(--coverage)
         add_link_options(--coverage)
     endif()
+
+    if(WARNINGS_AS_ERRORS)
+        add_compile_options(-Werror)
+    endif()
 else()
-	message(FATAL_ERROR "Unsupported compiler")
+    message(WARNING "Unable to identify compiler.")
 endif()
 
 # Output all binaries in the same directory for easier testing
