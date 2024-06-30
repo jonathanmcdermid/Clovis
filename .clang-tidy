@@ -7,6 +7,9 @@ performance-*,
 # bugprone-*, 
 modernize-*,
     -modernize-use-trailing-return-type,
+    -modernize-avoid-c-arrays,
+    -modernize-use-using,
+    -modernize-use-default-member-init,
 '
 HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'

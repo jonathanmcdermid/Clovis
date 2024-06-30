@@ -49,7 +49,7 @@ class TTable
 
     void new_entry(Key key, int depth, int eval, HashFlag flags, Move move);
     void new_pawn_entry(const PTEntry& pte);
-    PTEntry probe_pawn(Key key) const;
+    [[nodiscard]] PTEntry probe_pawn(Key key) const;
     TTEntry probe(Key key);
 
   private:
