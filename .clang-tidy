@@ -6,6 +6,7 @@ performance-*,
 # cppcoreguidelines-*, 
 bugprone-*, 
     -bugprone-macro-parentheses,
+    -bugprone-implicit-widening-of-multiplication-result
 modernize-*,
     -modernize-use-trailing-return-type,
     -modernize-avoid-c-arrays,
