@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(novatel-edie VERSION 3.3.7 LANGUAGES CXX)
+project(clovis LANGUAGES CXX)
 
 option(BUILD_TESTS "Build tests" ON)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
