@@ -5,7 +5,8 @@ performance-*,
 # clang-analyzer-*,
 # cppcoreguidelines-*, 
 # bugprone-*, 
-modernize-*
+modernize-*,
+    -modernize-use-trailing-return-type,
 '
 HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'
