@@ -114,7 +114,8 @@ void generate_data()
         bool live = true;
         std::vector<Key> keys;
 
-        do {
+        while (true)
+        {
             std::istringstream ss(line);
             while (true)
             {
@@ -161,7 +162,8 @@ void generate_data()
                     }
                 }
             }
-        } while (live && getline(ifs, line));
+            if (!live || !getline(ifs, line)) { break; }
+        }
     }
 
     ifs.close();
