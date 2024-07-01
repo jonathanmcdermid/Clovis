@@ -3,7 +3,6 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
-#include <memory>
 #include <sstream>
 
 namespace clovis {
