@@ -16,14 +16,16 @@ template <Colour US> bool is_candidate_passer(const Position& pos, Square sq)
 {
     if (pos.pc_bb[make_piece(PAWN, ~US)] & rook_on_passer_masks[US][sq]) { return false; }
 
-    do {
+    while (true) {
         if (std::popcount(bitboards::pawn_attacks[US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]) >
             std::popcount(bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, US)]))
         {
             return false;
         }
+        // we don't have to worry about starting on the 7th or 8th rank
+        if (rank_of(sq) == relative_rank(US, RANK_6)) { break; }
         sq += pawn_push(US);
-    } while (rank_of(sq) != relative_rank(US, RANK_7));
+    }
 
     return true;
 }
