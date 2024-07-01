@@ -16,7 +16,8 @@ template <Colour US> bool is_candidate_passer(const Position& pos, Square sq)
 {
     if (pos.pc_bb[make_piece(PAWN, ~US)] & rook_on_passer_masks[US][sq]) { return false; }
 
-    while (true) {
+    while (true)
+    {
         if (std::popcount(bitboards::pawn_attacks[US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]) >
             std::popcount(bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, US)]))
         {
