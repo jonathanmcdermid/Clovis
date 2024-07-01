@@ -171,7 +171,7 @@ std::string Position::get_fen() const
 void Position::set(const char* fen)
 {
     memset(this, 0, sizeof(Position));
-    bs = new BoardState;
+    bs = std::make_unique<BoardState>();
 
     std::istringstream ss(fen);
     char token;
@@ -365,9 +365,8 @@ void Position::undo_null_move()
 {
     side = ~side;
     assert(bs->prev);
-    const BoardState* temp = bs;
-    bs = bs->prev;
-    delete temp;
+    std::unique_ptr<BoardState> temp = std::move(bs);
+    bs = std::move(temp->prev);
 }
 
 // executes a move and updates the position
@@ -495,9 +494,8 @@ void Position::undo_move(const Move move)
     }
 
     assert(bs->prev);
-    const BoardState* temp = bs;
-    bs = bs->prev;
-    delete temp;
+    std::unique_ptr<BoardState> temp = std::move(bs);
+    bs = std::move(temp->prev);
 }
 
 // returns the piece type of the least valuable piece on a bitboard of attackers
@@ -516,12 +514,12 @@ Square Position::get_smallest_attacker(const Bitboard attackers, const Colour st
 
 bool Position::is_repeat() const
 {
-    const BoardState* temp = bs;
+    const BoardState* temp = bs.get();
 
     for (int end = std::min(bs->hmc, bs->ply_null); end >= 4; end -= 4)
     {
         assert(temp->prev && temp->prev->prev && temp->prev->prev->prev && temp->prev->prev->prev->prev);
-        temp = temp->prev->prev->prev->prev;
+        temp = temp->prev->prev->prev->prev.get();
 
         if (temp->key == bs->key) { return true; }
     }
