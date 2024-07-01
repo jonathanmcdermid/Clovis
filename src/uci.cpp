@@ -66,7 +66,8 @@ Move to_move(const Position& pos, std::string& str)
 // set position to input description
 void position(Position& pos, std::istringstream& is)
 {
-    std::string token, fen;
+    std::string token;
+    std::string fen;
 
     is >> token;
     if (token == "startpos")
@@ -94,17 +95,18 @@ void position(Position& pos, std::istringstream& is)
 void loop(const int argc, char* argv[])
 {
     Position pos(start_position.data());
-    std::string token, cmd;
+    std::string token;
+    std::string cmd;
 
     for (int i = 0; i < argc; ++i) { cmd += std::string(argv[i]) + " "; }
 
     do {
-        if (argc == 1 && !getline(std::cin, cmd)) cmd = "quit";
+        if (argc == 1 && !getline(std::cin, cmd)) { cmd = "quit"; }
         std::istringstream is(cmd);
         token.clear();
         is >> std::skipws >> token;
         if (token == "quit" || token == "stop") { break; }
-        else if (token == "go") { go(pos, is); }
+        if (token == "go") { go(pos, is); }
         else if (token == "position") { position(pos, is); }
         else if (token == "ucinewgame") { search::clear(); }
         else if (token == "isready") { std::cout << "readyok" << '\n'; }

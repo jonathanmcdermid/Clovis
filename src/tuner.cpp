@@ -232,7 +232,10 @@ void print_params()
 
 double find_k()
 {
-    double start = -10, end = 10, step = 1, best = mse<true>(start);
+    double start = -10;
+    double end = 10;
+    double step = 1;
+    double best = mse<true>(start);
 
     for (int epoch = 0; epoch < 10; ++epoch)
     {
