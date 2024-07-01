@@ -102,7 +102,8 @@ void loop(const int argc, char* argv[])
 
     for (int i = 0; i < argc; ++i) { cmd += std::string(argv[i]) + " "; }
 
-    do {
+    while (true)
+    {
         if (argc == 1 && !getline(std::cin, cmd)) { cmd = "quit"; }
         std::istringstream is(cmd);
         token.clear();
@@ -121,7 +122,8 @@ void loop(const int argc, char* argv[])
                       << "id author " << authors << '\n'
                       << "uciok" << '\n';
         }
-    } while (token != "quit" && argc == 1);
+        else if (token == "quit" || argc != 1) { break; }
+    }
 }
 
 } // namespace clovis::uci
