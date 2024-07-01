@@ -333,7 +333,7 @@ void Position::remove_piece(const Square sq)
 
 template <bool NM> void Position::new_board_state()
 {
-    auto* const bs_new = new BoardState;
+    auto bs_new = std::make_unique<BoardState>();
     bs_new->en_passant = bs->en_passant;
     bs_new->castle = bs->castle;
     bs_new->hmc = bs->hmc + 1;
@@ -342,9 +342,9 @@ template <bool NM> void Position::new_board_state()
     bs_new->key = bs->key ^ zobrist::side;
     bs_new->pawn_key = bs->pawn_key;
     bs_new->game_phase = bs->game_phase;
-    bs_new->prev = bs;
+    bs_new->prev = std::move(bs);
     // position now refers to new board state
-    bs = bs_new;
+    bs = std::move(bs_new);
 
     if (bs->en_passant != SQ_NONE)
     {
