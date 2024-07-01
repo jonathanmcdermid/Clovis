@@ -169,7 +169,7 @@ std::string Position::get_fen() const
 // sets position to the state specified by FEN std::string
 void Position::set(const char* fen)
 {
-    memset(this, 0, sizeof(Position));
+    reset();
     bs = std::make_unique<BoardState>();
 
     std::istringstream ss(fen);
@@ -218,6 +218,15 @@ void Position::set(const char* fen)
     bs->key = make_key();
     bs->pawn_key = make_pawn_key();
     bs->ply_null = 0;
+}
+
+void Position::reset()
+{
+    side = WHITE;
+    bs.reset();
+    pc_table.fill(NO_PIECE);
+    pc_bb.fill(0ULL);
+    occ_bb.fill(0ULL);
 }
 
 Key Position::make_key() const

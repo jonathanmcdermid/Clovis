@@ -24,6 +24,7 @@ struct BoardState
 struct Position
 {
     explicit Position(const char* fen) : side{WHITE}, bs{nullptr}, pc_table{}, pc_bb{}, occ_bb{} { set(fen); }
+    void reset();
     [[nodiscard]] std::string get_fen() const;
     void set(const char* fen);
     [[nodiscard]] bool see_ge(Move move, int threshold) const;
