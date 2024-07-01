@@ -103,7 +103,7 @@ template <Colour US> bool Position::discovery_threat(const Square sq) const
     Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
                                     ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
-    if (side == ~US && bs->en_passant != SQ_NONE) their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant];
+    if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant]; }
 
     Bitboard candidates =
         ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
@@ -268,16 +268,17 @@ bool Position::see_ge(const Move move, const int threshold) const
         assert(d < 32);
         gain[d] = piece_value[pc_table[from]] - gain[d - 1];
 
-        if (std::max(-gain[d - 1], gain[d]) < threshold) break;
+        if (std::max(-gain[d - 1], gain[d]) < threshold) { break; }
 
         attackers ^= from;
         occ ^= from;
         attackers |= consider_xray(occ, to, piece_type(pc_table[from]));
         from = get_smallest_attacker(attackers, stm);
-        if (from == SQ_NONE) break;
+
+        if (from == SQ_NONE) { break; }
     }
 
-    while (--d) gain[d - 1] = -std::max(-gain[d - 1], gain[d]);
+    while (--d) { gain[d - 1] = -std::max(-gain[d - 1], gain[d]); }
 
     return gain[0] >= threshold;
 }
@@ -400,7 +401,7 @@ bool Position::do_move(const Move move)
         }
         else
         {
-            if (piece_type(bs->captured_piece) == PAWN) bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][tar];
+            if (piece_type(bs->captured_piece) == PAWN) { bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][tar]; }
 
             bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
             replace_piece(piece, tar);
@@ -408,8 +409,7 @@ bool Position::do_move(const Move move)
         bs->game_phase -= game_phase_inc[bs->captured_piece];
         bs->hmc = 0;
     }
-    else
-        put_piece(piece, tar);
+    else { put_piece(piece, tar); }
 
     bs->key ^= zobrist::piece_square[pc_table[src]][src];
     bs->key ^= zobrist::piece_square[pc_table[src]][tar];
@@ -463,9 +463,7 @@ bool Position::do_move(const Move move)
 void Position::undo_move(const Move move)
 {
     side = ~side;
-
     const Square tar = move_to_sq(move);
-
     put_piece(move_piece_type(move), move_from_sq(move));
 
     if (move_capture(move))
@@ -475,8 +473,7 @@ void Position::undo_move(const Move move)
             remove_piece(tar);
             put_piece(bs->captured_piece, tar - pawn_push(side));
         }
-        else
-            replace_piece(bs->captured_piece, tar);
+        else { replace_piece(bs->captured_piece, tar); }
     }
     else
     {
@@ -500,8 +497,12 @@ void Position::undo_move(const Move move)
 Square Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const
 {
     if (attackers & occ_bb[stm])
+    {
         for (PieceType pt = PAWN; pt <= KING; ++pt)
-            if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers) return bitboards::lsb(bb);
+        {
+            if (const Bitboard bb = pc_bb[make_piece(pt, stm)] & attackers) { return bitboards::lsb(bb); }
+        }
+    }
 
     return SQ_NONE;
 }
@@ -515,7 +516,7 @@ bool Position::is_repeat() const
         assert(temp->prev && temp->prev->prev && temp->prev->prev->prev && temp->prev->prev->prev->prev);
         temp = temp->prev->prev->prev->prev;
 
-        if (temp->key == bs->key) return true;
+        if (temp->key == bs->key) { return true; }
     }
 
     return false;
@@ -527,7 +528,7 @@ void Position::print_position() const
     for (Rank r = RANK_8; r >= RANK_1; --r)
     {
         std::cout << r + 1 << ' ';
-        for (File f = FILE_A; f < FILE_N; ++f) std::cout << symbols[pc_table[make_square(f, r)]] << " ";
+        for (File f = FILE_A; f < FILE_N; ++f) { std::cout << symbols[pc_table[make_square(f, r)]] << " "; }
         std::cout << '\n';
     }
     std::cout << "  a b c d e f g h" << '\n' << '\n' << get_fen() << '\n' << '\n';
@@ -541,7 +542,7 @@ void Position::print_bitboards() const
         bitboards::print_bitboard(pc_bb[make_piece(pt, WHITE)]);
         bitboards::print_bitboard(pc_bb[make_piece(pt, BLACK)]);
     }
-    for (auto it : occ_bb) bitboards::print_bitboard(it);
+    for (auto it : occ_bb) { bitboards::print_bitboard(it); }
 }
 
 } // namespace clovis
