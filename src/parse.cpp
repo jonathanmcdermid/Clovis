@@ -71,7 +71,6 @@ void generate_data()
 {
     std::ifstream ifs("../src/games.pgn");
     std::ofstream ofs("../src/tuner.epd");
-
     std::string line;
     std::string result;
     std::string fen;
