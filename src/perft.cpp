@@ -63,7 +63,6 @@ void perft()
         {
             uint64_t result_nodes = 0;
             perft_helper(pos, depth, result_nodes);
-
             failed = (result_nodes != nodes[depth - 1]);
             std::cout << (failed ? " FAIL! " : " PASS! ") << "depth: " << depth << "expected: " << std::setw(10) << nodes[depth - 1]
                       << " result: " << std::setw(10) << result_nodes << " time:" << std::setw(7)

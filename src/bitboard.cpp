@@ -18,7 +18,7 @@ void print_bitboard(const Bitboard& bb)
 }
 
 // generate bishop moves for a given square with bitboard of blocking pieces
-Bitboard bishop_otf(const Square sq, const Bitboard occ)
+constexpr Bitboard bishop_otf(const Square sq, const Bitboard occ)
 {
     Bitboard attacks = 0ULL;
 
@@ -40,7 +40,7 @@ Bitboard bishop_otf(const Square sq, const Bitboard occ)
 }
 
 // generate rook moves for a given square with bitboard of blocking pieces
-Bitboard rook_otf(const Square sq, const Bitboard occ)
+constexpr Bitboard rook_otf(const Square sq, const Bitboard occ)
 {
     Bitboard attacks = 0ULL;
 
@@ -60,7 +60,7 @@ Bitboard rook_otf(const Square sq, const Bitboard occ)
 
 // set occupancies for bits within an attack mask
 // returns the occupancy bitboard
-Bitboard set_occupancy(Bitboard attack_mask, const int index, const int bits)
+constexpr Bitboard set_occupancy(Bitboard attack_mask, const int index, const int bits)
 {
     Bitboard occ = 0ULL;
 
