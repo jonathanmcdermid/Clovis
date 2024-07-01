@@ -326,7 +326,7 @@ void Position::remove_piece(const Square sq)
 
 template <bool NM> void Position::new_board_state()
 {
-    const auto* bs_new = new BoardState;
+    const auto bs_new = new BoardState;
     bs_new->en_passant = bs->en_passant;
     bs_new->castle = bs->castle;
     bs_new->hmc = bs->hmc + 1;
