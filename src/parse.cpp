@@ -56,11 +56,11 @@ Move parse(const Position& pos, std::string move)
         // there are multiple matching pieces that attack this square
         if (isdigit(move[1]))
         {
-            while (rank_of(from) != static_cast<Rank>(move[1] - '1')) from = bitboards::pop_lsb(bb);
+            while (rank_of(from) != static_cast<Rank>(move[1] - '1')) { from = bitboards::pop_lsb(bb); }
         }
         else
         {
-            while (file_of(from) != static_cast<File>(move[1] - 'a')) from = bitboards::pop_lsb(bb);
+            while (file_of(from) != static_cast<File>(move[1] - 'a')) { from = bitboards::pop_lsb(bb); }
         }
     }
 
@@ -72,7 +72,9 @@ void generate_data()
     std::ifstream ifs("../src/games.pgn");
     std::ofstream ofs("../src/tuner.epd");
 
-    std::string line, result, fen;
+    std::string line;
+    std::string result;
+    std::string fen;
 
     while (!ifs.eof())
     {
@@ -80,7 +82,8 @@ void generate_data()
         {
             if (line.find("Result") != std::string::npos)
             {
-                size_t start = line.find('\"') + 1, end = line.rfind('\"');
+                size_t start = line.find('\"') + 1;
+                size_t end = line.rfind('\"');
                 result = line.substr(start, end - start);
                 break;
             }
@@ -90,7 +93,8 @@ void generate_data()
         {
             if (line.find("FEN") != std::string::npos)
             {
-                size_t start = line.find('\"') + 1, end = line.rfind('\"');
+                size_t start = line.find('\"') + 1;
+                size_t end = line.rfind('\"');
                 fen = line.substr(start, end - start);
                 break;
             }

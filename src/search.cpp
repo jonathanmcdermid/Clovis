@@ -202,7 +202,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
 
         // reverse futility pruning
         // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
-        if (!PV_NODE && depth <= futility_depth && score - depth * futility_factor > beta) return score;
+        if (!PV_NODE && depth <= futility_depth && score - depth * futility_factor > beta) { return score; }
 
         // null move pruning
         if (!PV_NODE && !NULL_NODE && depth >= null_depth && pos.stm_has_promoted())
@@ -236,7 +236,8 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
 
     move_pick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
     Move best_move = MOVE_NONE;
-    int best_score = INT_MIN, moves_searched = 0;
+    int best_score = INT_MIN;
+    int moves_searched = 0;
     HashFlag hash_flag = HASH_ALPHA;
     bool play_quiets = true;
 
@@ -318,7 +319,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             }
         }
 
-        if (!ROOT_NODE && score > -MIN_CHECKMATE_SCORE && moves_searched >= (4 + depth * depth)) play_quiets = false;
+        if (!ROOT_NODE && score > -MIN_CHECKMATE_SCORE && moves_searched >= (4 + depth * depth)) { play_quiets = false; }
     }
 
     // no legal moves
@@ -342,7 +343,8 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
         start_time = std::chrono::steady_clock::now();
         allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
 
-        int beta = CHECKMATE_SCORE, alpha = -beta;
+        int beta = CHECKMATE_SCORE;
+        int alpha = -beta;
 
         move_pick::reset_killers();
         move_pick::age_history();

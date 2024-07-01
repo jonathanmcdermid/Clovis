@@ -256,10 +256,12 @@ bool Position::see_ge(const Move move, const int threshold) const
     // don't even bother
     if (move_promotion_type(move) || move_en_passant(move)) { return true; }
 
-    int gain[32], d = 0;
+    int gain[32];
+    int d = 0;
     Square from = move_from_sq(move);
     const Square to = move_to_sq(move);
-    Bitboard occ = occ_bb[BOTH], attackers = attackers_to(to);
+    Bitboard occ = occ_bb[BOTH];
+    Bitboard attackers = attackers_to(to);
     Colour stm = side;
 
     gain[d] = piece_value[pc_table[to]];
@@ -446,7 +448,8 @@ bool Position::do_move(const Move move)
 
         if (move_castling(move))
         {
-            Square rt, rf;
+            Square rt;
+            Square rf;
             get_castle_rook_squares(tar, rf, rt);
             bs->key ^= zobrist::piece_square[pc_table[rf]][rf];
             bs->key ^= zobrist::piece_square[pc_table[rf]][rt];
@@ -482,7 +485,8 @@ void Position::undo_move(const Move move)
     {
         if (move_castling(move))
         {
-            Square rt, rf;
+            Square rt;
+            Square rf;
             get_castle_rook_squares(tar, rf, rt);
             remove_piece(rt);
             put_piece(make_piece(ROOK, side), rf);

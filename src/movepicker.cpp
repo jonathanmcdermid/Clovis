@@ -87,10 +87,12 @@ void MovePicker::score_quiets()
     const auto counter = get_counter_entry(pos.side, prev_move);
 
     for (auto& sm : std::ranges::subrange(last_bad_cap, last))
+    {
         sm.score = sm == killer_table[ply].primary     ? 22000
                    : sm == killer_table[ply].secondary ? 21000
                    : sm == counter                     ? 20000
                                                        : get_history_entry(pos.side, sm);
+    }
 }
 
 } // namespace clovis::move_pick
