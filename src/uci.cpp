@@ -13,7 +13,9 @@ constexpr std::string_view start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/
 void set_option(std::istringstream& is)
 {
     // format for option setting is setoption name X value Y
-    std::string token, name, value;
+    std::string token;
+    std::string name;
+    std::string value;
 
     // ignore "name" token
     is >> token;
