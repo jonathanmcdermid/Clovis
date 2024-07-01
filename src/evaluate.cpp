@@ -49,9 +49,9 @@ template <Colour US, PieceType PT, bool TRACE> void king_danger(const Bitboard a
     {
         ei.weight[US] += inner_ring_attack[PT] * std::popcount(ir_att_bb) + outer_ring_attack[PT] * std::popcount(or_att_bb);
 
-        if constexpr (PT != PAWN) ++ei.n_att[US];
-        if constexpr (TRACE) T[SAFETY_INNER_RING + PT][US] += std::popcount(ir_att_bb);
-        if constexpr (TRACE) T[SAFETY_OUTER_RING + PT][US] += std::popcount(or_att_bb);
+        if constexpr (PT != PAWN) { ++ei.n_att[US]; }
+        if constexpr (TRACE) { T[SAFETY_INNER_RING + PT][US] += std::popcount(ir_att_bb); }
+        if constexpr (TRACE) { T[SAFETY_OUTER_RING + PT][US] += std::popcount(or_att_bb); }
     }
 }
 

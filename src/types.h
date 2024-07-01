@@ -483,7 +483,7 @@ inline std::ostream& operator<<(std::ostream& os, const Score& s)
 inline std::ostream& operator<<(std::ostream& os, const Move& m)
 {
     os << move_from_sq(m) << move_to_sq(m);
-    if (move_promotion_type(m)) os << " pnbrqk  pnbrqk"[move_promotion_type(m)];
+    if (move_promotion_type(m)) { os << " pnbrqk  pnbrqk"[move_promotion_type(m)]; }
     return os;
 }
 
