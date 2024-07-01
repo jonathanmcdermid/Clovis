@@ -369,7 +369,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
                       << info.nodes << " time " << std::setw(6) << elapsed_time << " nps " << std::setw(8)
                       << 1000ULL * info.nodes / (elapsed_time + 1) << " pv ";
 
-            for (auto& it : info.pv_line) std::cout << it << " ";
+            for (const auto& it : info.pv_line) std::cout << it << " ";
 
             std::cout << '\n';
 

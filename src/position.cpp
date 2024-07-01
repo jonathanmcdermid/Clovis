@@ -36,7 +36,7 @@ constexpr uint64_t xor_shift(uint64_t state)
     state ^= state >> 12;
     state ^= state << 25;
     state ^= state >> 27;
-    return state * 0x2545F4914F6CDD1DUll;
+    return state * 0x2545F4914F6CDD1DULL;
 }
 
 constexpr uint64_t state = 0xB1FACE5ULL;
@@ -326,7 +326,7 @@ void Position::remove_piece(const Square sq)
 
 template <bool NM> void Position::new_board_state()
 {
-    const auto bs_new = new BoardState;
+    const auto* bs_new = new BoardState;
     bs_new->en_passant = bs->en_passant;
     bs_new->castle = bs->castle;
     bs_new->hmc = bs->hmc + 1;
