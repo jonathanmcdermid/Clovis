@@ -368,7 +368,8 @@ bool Position::do_move(const Move move)
 {
     new_board_state<false>();
 
-    const Square src = move_from_sq(move), tar = move_to_sq(move);
+    const Square src = move_from_sq(move);
+    const Square tar = move_to_sq(move);
     const Piece piece = move_piece_type(move);
 
     assert(get_side(move_piece_type(move)) == side);
@@ -494,8 +495,7 @@ void Position::undo_move(const Move move)
     delete temp;
 }
 
-// returns the piece type of the least valuable piece on a bitboard of
-// attackers
+// returns the piece type of the least valuable piece on a bitboard of attackers
 Square Position::get_smallest_attacker(const Bitboard attackers, const Colour stm) const
 {
     if (attackers & occ_bb[stm])
