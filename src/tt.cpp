@@ -22,8 +22,8 @@ TTEntry TTable::probe(const Key key)
 {
     auto& [e1, e2] = ht[hash_index(key)];
 
-    if (e1.key == key) return e1;
-    if (e1.depth > 0) --e1.depth;
+    if (e1.key == key) { return e1; }
+    if (e1.depth > 0) { --e1.depth; }
 
     return e2;
 }

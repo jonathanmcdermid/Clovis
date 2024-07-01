@@ -79,8 +79,7 @@ template <Colour US> bool Position::is_insufficient() const
             (std::popcount(pc_bb[make_piece(BISHOP, US)]) + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2));
 }
 
-// updates a bitboard of attackers after a piece has moved to include
-// possible x ray attackers
+// updates a bitboard of attackers after a piece has moved to include possible x ray attackers
 inline Bitboard Position::consider_xray(const Bitboard occ, const Square to, const PieceType pt) const
 {
     return (pt == PAWN || pt == BISHOP)

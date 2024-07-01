@@ -38,16 +38,16 @@ void init_params()
 {
     using namespace eval;
 
-    for (const auto& it : pawn_source) add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source));
-    for (const auto& it : knight_source) add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source));
-    for (const auto& it : bishop_source) add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source));
-    for (const auto& it : rook_source) add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source));
-    for (const auto& it : queen_source) add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source));
-    for (const auto& it : king_source) add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source));
-    for (const auto& it : passed_pawn) add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn));
-    for (const auto& it : candidate_passer) add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer));
-    for (const auto& it : quiet_mobility) add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility));
-    for (const auto& it : capture_mobility) add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility));
+    for (const auto& it : pawn_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source)); }
+    for (const auto& it : knight_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source)); }
+    for (const auto& it : bishop_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source)); }
+    for (const auto& it : rook_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source)); }
+    for (const auto& it : queen_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source)); }
+    for (const auto& it : king_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source)); }
+    for (const auto& it : passed_pawn) { add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn)); }
+    for (const auto& it : candidate_passer) { add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer)); }
+    for (const auto& it : quiet_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility)); }
+    for (const auto& it : capture_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility)); }
 
     add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
     add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
@@ -67,9 +67,9 @@ void init_params()
     add_param<Score>(fianchetto_bonus, FIANCHETTO);
     add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
 
-    for (const auto& it : pawn_shield) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield));
-    for (const auto& it : inner_ring_attack) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack));
-    for (const auto& it : outer_ring_attack) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack));
+    for (const auto& it : pawn_shield) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield)); }
+    for (const auto& it : inner_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack)); }
+    for (const auto& it : outer_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack)); }
 
     add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
     add_param<short>(attack_factor, SAFETY_N_ATT);
@@ -126,9 +126,9 @@ template <bool STATIC> double mse(const double k)
         }
     };
 
-    for (unsigned int i = 0; i < n_threads; ++i) threads[i] = std::thread(compute_chunk, i * chunk_size, i * chunk_size + chunk_size);
+    for (unsigned int i = 0; i < n_threads; ++i) { threads[i] = std::thread(compute_chunk, i * chunk_size, i * chunk_size + chunk_size); }
 
-    for (unsigned int i = 0; i < n_threads; ++i) threads[i].join();
+    for (unsigned int i = 0; i < n_threads; ++i) { threads[i].join(); }
 
     return total / static_cast<double>(entries.size());
 }
@@ -169,7 +169,7 @@ TVector compute_gradient(const double k)
 {
     TVector gradient{};
 
-    for (auto& entry : entries) update_single_gradient(entry, gradient, k);
+    for (auto& entry : entries) { update_single_gradient(entry, gradient, k); }
 
     return gradient;
 }
@@ -180,11 +180,9 @@ void print_table(const std::string& name, const int index, const int size, const
 
     for (int i = 0; i < size; ++i)
     {
-        if (!(i % cols)) std::cout << '\t';
-        if (index < TI_SAFETY)
-            std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
-        else
-            std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+        if (!(i % cols)) { std::cout << '\t'; }
+        if (index < TI_SAFETY) { std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " "); }
+        else { std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " "); }
     }
 
     std::cout << "};" << '\n' << '\n';
@@ -268,28 +266,24 @@ void tune_eval()
 
     while (getline(ifs, line))
     {
-        if (line.empty()) continue;
+        if (line.empty()) { continue; }
 
         TEntry entry;
         memset(eval::T.data(), 0, sizeof(eval::T));
         const size_t idx = line.find('\"');
         const size_t idx_end = line.find('\"', idx + 1);
 
-        if (const std::string res = line.substr(idx + 1, idx_end - idx - 1); res == "1-0")
-            entry.result = 1.0;
-        else if (res == "0-1")
-            entry.result = 0.0;
-        else if (res == "1/2-1/2")
-            entry.result = 0.5;
-        else
-            exit(EXIT_FAILURE);
+        if (const std::string res = line.substr(idx + 1, idx_end - idx - 1); res == "1-0") { entry.result = 1.0; }
+        else if (res == "0-1") { entry.result = 0.0; }
+        else if (res == "1/2-1/2") { entry.result = 0.5; }
+        else { exit(EXIT_FAILURE); }
 
         Position pos(line.substr(0, idx).c_str());
 
         entry.phase = pos.get_game_phase();
 
         entry.static_eval = eval::evaluate<true>(pos);
-        if (pos.side == BLACK) entry.static_eval = -entry.static_eval;
+        if (pos.side == BLACK) { entry.static_eval = -entry.static_eval; }
 
         entry.stm = pos.side;
 
@@ -297,9 +291,13 @@ void tune_eval()
         entry.n_att[BLACK] = eval::T[SAFETY_N_ATT][BLACK];
 
         for (int j = 0; j < TI_N; ++j)
+        {
             if ((j < TI_SAFETY && eval::T[j][WHITE] - eval::T[j][BLACK] != 0) ||
                 (j >= TI_SAFETY && (eval::T[j][WHITE] != 0 || eval::T[j][BLACK] != 0)))
+            {
                 entry.tuples.emplace_back(j, eval::T[j][WHITE], eval::T[j][BLACK]);
+            }
+        }
 
         entries.push_back(entry);
     }
@@ -328,8 +326,8 @@ void tune_eval()
             params[i][EG] = std::max(0.0, params[i][EG]);
         }
 
-        if (epoch && epoch % 250 == 0) rate = rate / 1.01;
-        if (epoch % 100 == 0) print_params();
+        if (epoch && epoch % 250 == 0) { rate = rate / 1.01; }
+        if (epoch % 100 == 0) { print_params(); }
 
         std::cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate << "]" << '\n';
     }

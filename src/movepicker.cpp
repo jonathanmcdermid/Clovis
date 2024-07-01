@@ -13,7 +13,7 @@ Move MovePicker::get_next(const bool play_quiets)
     {
     case TT_MOVE:
         ++stage;
-        if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move))) return tt_move;
+        if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move))) { return tt_move; }
         [[fallthrough]];
     case INIT_CAPTURES:
         curr = last_bad_cap = moves.data();
@@ -28,8 +28,8 @@ Move MovePicker::get_next(const bool play_quiets)
             assert(move_capture(*curr) || piece_type(move_promotion_type(*curr)) == QUEEN);
             if (curr->move != tt_move)
             {
-                if (pos.see_ge(*curr, play_quiets ? -100 : 0)) return *curr++;
-                if (play_quiets) *last_bad_cap++ = *curr;
+                if (pos.see_ge(*curr, play_quiets ? -100 : 0)) { return *curr++; }
+                if (play_quiets) { *last_bad_cap++ = *curr; }
             }
             ++curr;
         }
@@ -49,7 +49,7 @@ Move MovePicker::get_next(const bool play_quiets)
         while (play_quiets && curr < last)
         {
             assert(!move_capture(*curr) || piece_type(move_promotion_type(*curr)) != QUEEN);
-            if (*curr != tt_move) return *curr++;
+            if (*curr != tt_move) { return *curr++; }
             ++curr;
         }
         curr = moves.data();
@@ -61,7 +61,7 @@ Move MovePicker::get_next(const bool play_quiets)
             while (curr < last_bad_cap)
             {
                 assert(move_capture(*curr));
-                if (*curr != tt_move) return *curr++;
+                if (*curr != tt_move) { return *curr++; }
                 ++curr;
             }
         }
@@ -76,8 +76,10 @@ Move MovePicker::get_next(const bool play_quiets)
 void MovePicker::score_captures()
 {
     for (auto& sm : std::ranges::subrange(moves.data(), last))
+    {
         // promotions supersede mvv-lva
         sm.score = mvv_lva[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] + ((move_promotion_type(sm) << 6));
+    }
 }
 
 void MovePicker::score_quiets()

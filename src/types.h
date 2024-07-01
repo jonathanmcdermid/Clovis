@@ -324,7 +324,8 @@ struct Score
         return *this;
     }
     bool operator==(const Score& rhs) const { return mg == rhs.mg && eg == rhs.eg; }
-    short mg{0}, eg{0};
+    short mg{0};
+    short eg{0};
 };
 
 struct ScoredMove

@@ -126,6 +126,7 @@ constexpr short outer_ring_attack[] = {
 
 constexpr short attack_factor = 59;
 constexpr short virtual_mobility = 14;
+
 // clang-format on
 
 constexpr auto source32 = [] {
@@ -133,7 +134,8 @@ constexpr auto source32 = [] {
 
     for (Square sq = SQ_ZERO; sq < 32; ++sq)
     {
-        const int r = sq / 4, f = sq & 0x3;
+        const int r = sq / 4;
+        const int f = sq & 0x3;
         arr[make_square(f, r ^ 7)] = arr[make_square(f ^ 7, r ^ 7)] = sq;
     }
 
@@ -145,7 +147,8 @@ constexpr auto source16 = [] {
 
     for (Square sq = SQ_ZERO; sq < 16; ++sq)
     {
-        const int r = sq / 4, f = sq & 0x3;
+        const int r = sq / 4;
+        const int f = sq & 0x3;
         arr[make_square(f, r ^ 7) ^ 56] = arr[make_square(f ^ 7, r ^ 7) ^ 56] = sq;
     }
 
@@ -180,8 +183,8 @@ constexpr auto piece_table = [] {
     {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
         {
-            for (const auto pt : {PAWN, QUEEN}) arr[make_piece(pt, col)][sq] = piece_type_source[pt][source32[relative_square(col, sq)]];
-            for (const auto pt : {KNIGHT, BISHOP, ROOK, KING}) arr[make_piece(pt, col)][sq] = piece_type_source[pt][source16[sq]];
+            for (const auto pt : {PAWN, QUEEN}) { arr[make_piece(pt, col)][sq] = piece_type_source[pt][source32[relative_square(col, sq)]]; }
+            for (const auto pt : {KNIGHT, BISHOP, ROOK, KING}) { arr[make_piece(pt, col)][sq] = piece_type_source[pt][source16[sq]]; }
             // for (const auto pt : {})
             //     arr[make_piece(pt, col)][sq] =
             //     piece_type_source[pt][source10[sq]];
@@ -195,7 +198,9 @@ constexpr auto passed_table = [] {
     std::array<std::array<Score, SQ_N>, COLOUR_N> arr{};
 
     for (const auto col : {WHITE, BLACK})
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[col][sq] = passed_pawn[source32[relative_square(col, sq)]];
+    {
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[col][sq] = passed_pawn[source32[relative_square(col, sq)]]; }
+    }
 
     return arr;
 }();
@@ -204,7 +209,9 @@ constexpr auto shield_table = [] {
     std::array<std::array<short, SQ_N>, COLOUR_N> arr{};
 
     for (const auto col : {WHITE, BLACK})
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[col][sq] = pawn_shield[source32[relative_square(col, sq)]];
+    {
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[col][sq] = pawn_shield[source32[relative_square(col, sq)]]; }
+    }
 
     return arr;
 }();
@@ -213,8 +220,10 @@ constexpr auto isolated_masks = [] {
     std::array<Bitboard, SQ_N> arr{};
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+    {
         arr[sq] =
             (file_of(sq) != FILE_A ? bitboards::file_masks[sq + WEST] : 0ULL) | (file_of(sq) != FILE_H ? bitboards::file_masks[sq + EAST] : 0ULL);
+    }
 
     return arr;
 }();
@@ -223,8 +232,12 @@ constexpr auto passed_masks = [] {
     std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
 
     for (const auto c : {WHITE, BLACK})
+    {
         for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-            for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c)) arr[c][s1] |= bitboards::pawn_attacks[c][s2] | s2;
+        {
+            for (Square s2 = s1; is_valid(s2); s2 += pawn_push(c)) { arr[c][s1] |= bitboards::pawn_attacks[c][s2] | s2; }
+        }
+    }
 
     return arr;
 }();
@@ -233,7 +246,9 @@ constexpr auto outpost_pawn_masks = [] {
     std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr = passed_masks;
 
     for (const auto c : {WHITE, BLACK})
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[c][sq] &= ~bitboards::file_masks[sq];
+    {
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[c][sq] &= ~bitboards::file_masks[sq]; }
+    }
 
     return arr;
 }();
@@ -242,7 +257,9 @@ constexpr auto rook_on_passer_masks = [] {
     std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr = passed_masks;
 
     for (const auto c : {WHITE, BLACK})
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[c][sq] ^= outpost_pawn_masks[c][sq];
+    {
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[c][sq] ^= outpost_pawn_masks[c][sq]; }
+    }
 
     return arr;
 }();
@@ -250,7 +267,7 @@ constexpr auto rook_on_passer_masks = [] {
 constexpr auto inner_ring = [] {
     std::array<Bitboard, SQ_N> arr{};
 
-    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[sq] = bitboards::get_attacks<KING>(sq) | sq;
+    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = bitboards::get_attacks<KING>(sq) | sq; }
 
     return arr;
 }();
@@ -261,7 +278,7 @@ constexpr auto outer_ring = [] {
     for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
     {
         Bitboard bb = bitboards::get_attacks<KING>(s1);
-        while (bb) arr[s1] |= bitboards::get_attacks<KING>(bitboards::pop_lsb(bb));
+        while (bb) { arr[s1] |= bitboards::get_attacks<KING>(bitboards::pop_lsb(bb)); }
         arr[s1] &= ~(bitboards::get_attacks<KING>(s1) | s1);
     }
 

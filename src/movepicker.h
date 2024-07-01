@@ -21,7 +21,7 @@ extern std::array<KEntry, MAX_PLY> killer_table;
 constexpr auto history_bonus = [] {
     std::array<int, MAX_PLY + 1> arr{};
 
-    for (int i = 0; i <= MAX_PLY; ++i) arr[i] = 32 * std::min(i * i, 400);
+    for (int i = 0; i <= MAX_PLY; ++i) { arr[i] = 32 * std::min(i * i, 400); }
 
     return arr;
 }();
@@ -30,27 +30,27 @@ constexpr auto mvv_lva = [] {
     std::array<std::array<int, 15>, 15> arr{};
 
     for (const auto c : {WHITE, BLACK})
+    {
         for (PieceType p1 = PAWN; p1 <= KING; ++p1)
-            for (PieceType p2 = PAWN; p2 <= KING; ++p2) arr[make_piece(p1, c)][make_piece(p2, ~c)] = KING - p1 + KING * p2;
+        {
+            for (PieceType p2 = PAWN; p2 <= KING; ++p2) { arr[make_piece(p1, c)][make_piece(p2, ~c)] = KING - p1 + KING * p2; }
+        }
+    }
 
     return arr;
 }();
 
 inline size_t cft_index(const Colour c, const Move m) { return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m); }
-
 inline int& get_history_entry(const Colour c, const Move m) { return history_table[cft_index(c, m)]; }
-
 inline Move& get_counter_entry(const Colour c, const Move m) { return counter_table[cft_index(c, m)]; }
 
 inline void age_history()
 {
-    for (auto& it : history_table) it >>= 4;
+    for (auto& it : history_table) { it >>= 4; }
 }
 
 inline void reset_counter() { counter_table.fill(MOVE_NONE); }
-
 inline void reset_killers() { killer_table.fill({MOVE_NONE, MOVE_NONE}); }
-
 inline void reset_history() { history_table.fill(0); }
 
 inline void clear()
@@ -95,21 +95,24 @@ class MovePicker
 
     const Position& pos;
     std::array<ScoredMove, MAX_MOVES> moves;
-    int ply, stage;
-    ScoredMove *curr, *last, *last_bad_cap;
-    Move prev_move, tt_move;
+    int ply;
+    int stage;
+    ScoredMove* curr;
+    ScoredMove* last;
+    ScoredMove* last_bad_cap;
+    Move prev_move;
+    Move tt_move;
 };
 
 template <HashFlag HF> void MovePicker::update_history(const Move best_move, const int depth) const
 {
     assert(!move_capture(best_move) || move_promotion_type(best_move));
-
     update_history_entry(best_move, pos.side, history_bonus[depth]);
 
     for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HASH_EXACT ? last : curr))
     {
         assert(!move_capture(sm) || move_promotion_type(sm));
-        if (sm != best_move) update_history_entry(sm, pos.side, -history_bonus[depth]);
+        if (sm != best_move) { update_history_entry(sm, pos.side, -history_bonus[depth]); }
     }
 }
 

@@ -5,7 +5,6 @@ namespace clovis::move_gen {
 template <typename T, MoveType M, PieceType PT, Colour US> T* generate_majors(const Position& pos, T* moves)
 {
     Bitboard bb = pos.pc_bb[make_piece(PT, US)];
-
     Bitboard tar_bb = M == ALL_MOVES ? ~pos.occ_bb[US] : M == QUIET_MOVES ? ~pos.occ_bb[BOTH] : pos.occ_bb[~US];
 
     while (bb)
@@ -25,7 +24,7 @@ template <typename T, MoveType M, PieceType PT, Colour US> T* generate_majors(co
 
 template <typename T, MoveType M, Colour US, bool TC> T* generate_promotions(T* moves, const Square src, const Square tar)
 {
-    if constexpr (M != QUIET_MOVES) *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN, US), TC, false, false, false);
+    if constexpr (M != QUIET_MOVES) { *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN, US), TC, false, false, false); }
     if constexpr (M != CAPTURE_MOVES)
     {
         *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, false, false, false);
@@ -53,7 +52,7 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
         {
             Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
 
-            if (!(pos.occ_bb[BOTH] & tar)) moves = generate_promotions<T, M, US, false>(moves, src, tar);
+            if (!(pos.occ_bb[BOTH] & tar)) { moves = generate_promotions<T, M, US, false>(moves, src, tar); }
 
             while (att)
             {
@@ -69,7 +68,9 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
                 *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, false, false, false, false);
                 // double push
                 if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
+                {
                     *moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, false, true, false, false);
+                }
             }
             if constexpr (CAPTURES)
             {
@@ -82,7 +83,9 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
                 }
 
                 if (bitboards::pawn_attacks[US][src] & pos.bs->en_passant)
+                {
                     *moves++ = encode_move(src, pos.bs->en_passant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
+                }
             }
         }
     }
@@ -91,12 +94,16 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
     {
         if (pos.bs->castle & ks_castle_rights(US) && !(pos.occ_bb[BOTH] & (relative_square(US, F1) | relative_square(US, G1))) &&
             !pos.is_attacked<US>(relative_square(US, F1)))
+        {
             *moves++ = encode_move(relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, false, false, false, true);
+        }
 
         if (pos.bs->castle & qs_castle_rights(US) &&
             !(pos.occ_bb[BOTH] & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
             !pos.is_attacked<US>(relative_square(US, D1)))
+        {
             *moves++ = encode_move(relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE, false, false, false, true);
+        }
     }
 
     moves = generate_majors<T, M, KNIGHT, US>(pos, moves);
@@ -117,10 +124,9 @@ template <typename T> void print_moves(const T* m, const T* end)
 {
     std::cout << "move\tpiece\tcapture\tdouble\ten pass\tcastle";
 
-    if constexpr (std::is_same<T, ScoredMove>()) std::cout << "\tscore";
+    if constexpr (std::is_same<T, ScoredMove>()) { std::cout << "\tscore"; }
 
     std::cout << '\n';
-
     int count = 0;
 
     while (m != end)
@@ -129,10 +135,9 @@ template <typename T> void print_moves(const T* m, const T* end)
                   << static_cast<int>(move_capture(*m)) << '\t' << static_cast<int>(move_double(*m)) << '\t' << static_cast<int>(move_en_passant(*m))
                   << '\t' << static_cast<int>(move_castling(*m)) << '\t';
 
-        if constexpr (std::is_same<T, ScoredMove>()) std::cout << m->score;
+        if constexpr (std::is_same<T, ScoredMove>()) { std::cout << m->score; }
 
         std::cout << '\n';
-
         ++m, ++count;
     }
 

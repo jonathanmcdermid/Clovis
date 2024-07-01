@@ -26,7 +26,8 @@ struct TTBucket
 {
     TTEntry& operator[](const bool index) { return index ? e2 : e1; }
 
-    TTEntry e1, e2;
+    TTEntry e1;
+    TTEntry e2;
 };
 
 struct PTEntry

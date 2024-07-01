@@ -11,7 +11,7 @@ void print_bitboard(const Bitboard& bb)
     for (Rank r = RANK_8; r >= RANK_1; --r)
     {
         std::cout << r + 1 << ' ';
-        for (File f = FILE_A; f < FILE_N; ++f) std::cout << ((bb & make_square(f, r)) ? "x " : ". ");
+        for (File f = FILE_A; f < FILE_N; ++f) { std::cout << ((bb & make_square(f, r)) ? "x " : ". "); }
         std::cout << '\n';
     }
     std::cout << "  a b c d e f g h" << '\n';
@@ -31,7 +31,7 @@ Bitboard bishop_otf(const Square sq, const Bitboard occ)
             {
                 s += dir1 + dir2;
                 attacks |= s;
-                if (occ & s) break;
+                if (occ & s) { break; }
             }
         }
     }
@@ -51,7 +51,7 @@ Bitboard rook_otf(const Square sq, const Bitboard occ)
         {
             s += dir;
             attacks |= s;
-            if (occ & s) break;
+            if (occ & s) { break; }
         }
     }
 
@@ -67,7 +67,7 @@ Bitboard set_occupancy(Bitboard attack_mask, const int index, const int bits)
     for (int i = 0; i < bits; ++i)
     {
         const Square sq = pop_lsb(attack_mask);
-        if (index & (1 << i)) occ |= sq;
+        if (index & (1 << i)) { occ |= sq; }
     }
 
     return occ;

@@ -25,7 +25,12 @@ constexpr auto lmr_table = [] {
     std::array<std::array<int, 64>, MAX_PLY + 1> arr{};
 
     for (int depth = 1; depth <= MAX_PLY; ++depth)
-        for (int ordered = 1; ordered < 64; ++ordered) arr[depth][ordered] = static_cast<int>(0.75 + log_table[depth] * log_table[ordered] / 2.25);
+    {
+        for (int ordered = 1; ordered < 64; ++ordered)
+        {
+            arr[depth][ordered] = static_cast<int>(0.75 + log_table[depth] * log_table[ordered] / 2.25);
+        }
+    }
 
     return arr;
 }();
@@ -39,7 +44,9 @@ constexpr auto iid_table = [] {
     std::array<std::array<int, MAX_PLY + 1>, 2> arr{};
 
     for (int depth = 1; depth <= MAX_PLY; ++depth)
-        for (int i = 0; i < 2; ++i) arr[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1);
+    {
+        for (int i = 0; i < 2; ++i) { arr[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1); }
+    }
 
     return arr;
 }();
@@ -73,14 +80,16 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
 
     ++nodes;
 
-    if (pos.is_draw()) return DRAW_SCORE;
-    if (ply >= MAX_PLY) return eval::evaluate<false>(pos);
+    if (pos.is_draw()) { return DRAW_SCORE; }
+    if (ply >= MAX_PLY) { return eval::evaluate<false>(pos); }
 
     const auto tte = tt.probe(pos.bs->key);
 
     if (!PV_NODE && tte.key == pos.bs->key &&
         (tte.flags == HASH_EXACT || (tte.flags == HASH_BETA && tte.eval >= beta) || (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+    {
         return tte.eval;
+    }
 
     const bool in_check = pos.is_king_in_check();
     const int old_alpha = alpha;
@@ -92,9 +101,9 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
         // use TT score instead of static eval if valid TTE and either
         // 1. alpha flag + lower tt score than static eval
         // 2. beta flag + higher tt score than static eval
-        if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval))) eval = tte.eval;
-        if (eval >= beta) return beta;
-        if (eval > alpha) alpha = eval;
+        if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval))) { eval = tte.eval; }
+        if (eval >= beta) { return beta; }
+        if (eval > alpha) { alpha = eval; }
     }
 
     move_pick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
@@ -104,7 +113,7 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
     while (const Move curr_move = mp.get_next(in_check))
     {
         // illegal move or non capture
-        if (!pos.do_move(curr_move)) continue;
+        if (!pos.do_move(curr_move)) { continue; }
 
         Line line;
         int eval = -quiescence<N>(pos, -beta, -alpha, nodes, ply + 1, line);
@@ -128,14 +137,14 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
                 {
                     pv_line.last = pv_line.moves.data();
                     *pv_line.last++ = curr_move;
-                    for (const auto& m : line) *pv_line.last++ = m;
+                    for (const auto& m : line) { *pv_line.last++ = m; }
                 }
                 alpha = eval;
             }
         }
     }
 
-    if (in_check && best_eval == INT_MIN) return ply - CHECKMATE_SCORE;
+    if (in_check && best_eval == INT_MIN) { return ply - CHECKMATE_SCORE; }
 
     tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
@@ -156,18 +165,18 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         return 0;
     }
 
-    if (depth <= 0) return quiescence<N>(pos, alpha, beta, nodes, ply, pv_line);
+    if (depth <= 0) { return quiescence<N>(pos, alpha, beta, nodes, ply, pv_line); }
 
     ++nodes;
 
-    if (ply >= MAX_PLY) return eval::evaluate<false>(pos);
+    if (ply >= MAX_PLY) { return eval::evaluate<false>(pos); }
 
     // mate distance pruning
     // if me have found a mate, no point in finding a longer mate
     alpha = std::max(alpha, -CHECKMATE_SCORE + ply);
     beta = std::min(beta, CHECKMATE_SCORE - ply + 1);
 
-    if (alpha >= beta) return alpha;
+    if (alpha >= beta) { return alpha; }
 
     auto tte = tt.probe(pos.bs->key);
 
@@ -180,7 +189,9 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         }
         if (!PV_NODE && tte.depth >= depth &&
             (tte.flags == HASH_EXACT || (tte.flags == HASH_BETA && tte.eval >= beta) || (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+        {
             return tte.eval;
+        }
     }
 
     const bool in_check = pos.is_king_in_check();
@@ -190,8 +201,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         int score = tte.key == pos.bs->key ? tte.eval : eval::evaluate<false>(pos);
 
         // reverse futility pruning
-        // if evaluation is above a certain threshold, we can trust that it
-        // will maintain it in the future
+        // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
         if (!PV_NODE && depth <= futility_depth && score - depth * futility_factor > beta) return score;
 
         // null move pruning
@@ -202,7 +212,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             score = -negamax<NODE_NULL>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, MOVE_NULL, nodes, line);
             pos.undo_null_move();
 
-            if (score >= beta) return beta;
+            if (score >= beta) { return beta; }
         }
 
         // internal iterative deepening
@@ -222,8 +232,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             }
         }
     }
-    else
-        ++depth;
+    else { ++depth; }
 
     move_pick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
     Move best_move = MOVE_NONE;
@@ -234,14 +243,13 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
     while (const Move curr_move = mp.get_next(play_quiets))
     {
         // illegal move
-        if (!pos.do_move(curr_move)) continue;
+        if (!pos.do_move(curr_move)) { continue; }
 
         int score = INT_MIN;
         Line line;
         ++moves_searched;
 
-        if (pos.is_draw())
-            score = DRAW_SCORE;
+        if (pos.is_draw()) { score = DRAW_SCORE; }
         else
         {
             if (moves_searched > 1 && depth > lmr_depth && move_capture(curr_move) == NO_PIECE && move_promotion_type(curr_move) == NO_PIECE)
@@ -260,18 +268,22 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
                 score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, curr_move, nodes, line);
                 // if search does not fail low, we search again without
                 // reduction
-                if (R && score > alpha) score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+                if (R && score > alpha) { score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line); }
             }
             else if (!PV_NODE || moves_searched > 1)
+            {
                 score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+            }
             // full PV search if all options are exhausted
             if (PV_NODE && (moves_searched == 1 || ((ROOT_NODE || score < beta) && score > alpha)))
+            {
                 score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+            }
         }
 
         pos.undo_move(curr_move);
 
-        if (stop) return 0;
+        if (stop) { return 0; }
 
         // fail high
         if (score >= beta)
@@ -298,7 +310,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
                 {
                     pv_line.last = pv_line.moves.data();
                     *pv_line.last++ = curr_move;
-                    for (const auto& m : line) *pv_line.last++ = m;
+                    for (const auto& m : line) { *pv_line.last++ = m; }
                 }
                 hash_flag = HASH_EXACT;
                 // new best move found
@@ -310,11 +322,11 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
     }
 
     // no legal moves
-    if (moves_searched == 0) return in_check ? ply - CHECKMATE_SCORE : -DRAW_SCORE;
+    if (moves_searched == 0) { return in_check ? ply - CHECKMATE_SCORE : -DRAW_SCORE; }
 
     tt.new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 
-    if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE) mp.update_history<HASH_EXACT>(best_move, depth);
+    if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE) { mp.update_history<HASH_EXACT>(best_move, depth); }
 
     return alpha;
 }
@@ -369,11 +381,11 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
                       << info.nodes << " time " << std::setw(6) << elapsed_time << " nps " << std::setw(8)
                       << 1000ULL * info.nodes / (elapsed_time + 1) << " pv ";
 
-            for (const auto& it : info.pv_line) std::cout << it << " ";
+            for (const auto& it : info.pv_line) { std::cout << it << " "; }
 
             std::cout << '\n';
 
-            if (elapsed_time > allocated_time / 3) break;
+            if (elapsed_time > allocated_time / 3) { break; }
 
             if (depth > asp_depth)
             {
@@ -382,8 +394,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
             }
         }
     }
-    else
-        *info.pv_line.last++ = *ml.begin();
+    else { *info.pv_line.last++ = *ml.begin(); }
 
     std::cout << "bestmove " << info.pv_line.moves[0] << '\n';
 }

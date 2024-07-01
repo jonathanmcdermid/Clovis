@@ -11,11 +11,13 @@ namespace clovis::parse {
 
 Move parse(const Position& pos, std::string move)
 {
-    if (move[move.length() - 1] == '+' || move[move.length() - 1] == '#') move = move.substr(0, move.length() - 1);
+    if (move[move.length() - 1] == '+' || move[move.length() - 1] == '#') { move = move.substr(0, move.length() - 1); }
 
     if (move.find("O-O") != std::string::npos)
+    {
         return encode_move(relative_square(pos.side, E1), relative_square(pos.side, move == "O-O" ? G1 : C1), make_piece(KING, pos.side), NO_PIECE,
                            false, false, false, true);
+    }
     if (islower(move[0]))
     { // pawn moves
         const Piece promo =
@@ -40,18 +42,26 @@ Move parse(const Position& pos, std::string move)
         if (bb)
         {
             if (pos.side == WHITE)
-                while (pos.get_pinner<WHITE>(from) != SQ_NONE) from = bitboards::pop_lsb(bb);
+            {
+                while (pos.get_pinner<WHITE>(from) != SQ_NONE) { from = bitboards::pop_lsb(bb); }
+            }
             else
-                while (pos.get_pinner<BLACK>(from) != SQ_NONE) from = bitboards::pop_lsb(bb);
+            {
+                while (pos.get_pinner<BLACK>(from) != SQ_NONE) { from = bitboards::pop_lsb(bb); }
+            }
         }
     }
     else if (move[2] == 'x' || move.length() == 4)
     {
         // there are multiple matching pieces that attack this square
         if (isdigit(move[1]))
+        {
             while (rank_of(from) != static_cast<Rank>(move[1] - '1')) from = bitboards::pop_lsb(bb);
+        }
         else
+        {
             while (file_of(from) != static_cast<File>(move[1] - 'a')) from = bitboards::pop_lsb(bb);
+        }
     }
 
     return encode_move(from, to, piece, NO_PIECE, move.find('x') != std::string::npos, false, false, false);
@@ -89,9 +99,13 @@ void generate_data()
         Position pos(fen.c_str());
 
         while (getline(ifs, line))
+        {
             if (line.find(std::to_string(pos.bs->fmc) + "... ") != std::string::npos ||
                 line.find(std::to_string(pos.bs->fmc) + ". ") != std::string::npos)
+            {
                 break;
+            }
+        }
 
         bool live = true;
         std::vector<Key> keys;
@@ -102,7 +116,7 @@ void generate_data()
             {
                 std::string token;
                 ss >> std::skipws >> token;
-                if (token.empty()) break;
+                if (token.empty()) { break; }
                 if (token == result)
                 {
                     live = false;
@@ -110,7 +124,7 @@ void generate_data()
                 }
                 if (token.find('.') == std::string::npos)
                 {
-                    if (!pos.do_move(parse(pos, token))) exit(EXIT_FAILURE);
+                    if (!pos.do_move(parse(pos, token))) { exit(EXIT_FAILURE); }
 
                     if (pos.bs->fmc > 8 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
                     {
@@ -122,7 +136,9 @@ void generate_data()
                         if (info.score < MIN_CHECKMATE_SCORE && info.score > -MIN_CHECKMATE_SCORE)
                         {
                             for (const auto& it : info.pv_line)
-                                if (!pos.do_move(it)) exit(EXIT_FAILURE);
+                            {
+                                if (!pos.do_move(it)) { exit(EXIT_FAILURE); }
+                            }
 
                             if (std::ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
                             {

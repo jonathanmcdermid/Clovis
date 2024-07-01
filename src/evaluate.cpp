@@ -14,12 +14,14 @@ template <Colour US> bool is_passed_pawn(const Bitboard bb, const Square sq) { r
 
 template <Colour US> bool is_candidate_passer(const Position& pos, Square sq)
 {
-    if (pos.pc_bb[make_piece(PAWN, ~US)] & rook_on_passer_masks[US][sq]) return false;
+    if (pos.pc_bb[make_piece(PAWN, ~US)] & rook_on_passer_masks[US][sq]) { return false; }
 
     do {
         if (std::popcount(bitboards::pawn_attacks[US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]) >
             std::popcount(bitboards::pawn_attacks[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, US)]))
+        {
             return false;
+        }
         sq += pawn_push(US);
     } while (rank_of(sq) != relative_rank(US, RANK_7));
 
@@ -55,12 +57,12 @@ template <Colour US, PieceType PT, bool TRACE> void king_danger(const Bitboard a
 
 template <Colour US, PieceType PT> void psqt_trace(const Square sq)
 {
-    if constexpr (PT == PAWN) ++T[PAWN_PSQT + source32[relative_square(US, sq)]][US];
-    if constexpr (PT == KNIGHT) ++T[KNIGHT_PSQT + source16[sq]][US];
-    if constexpr (PT == BISHOP) ++T[BISHOP_PSQT + source16[sq]][US];
-    if constexpr (PT == ROOK) ++T[ROOK_PSQT + source16[sq]][US];
-    if constexpr (PT == QUEEN) ++T[QUEEN_PSQT + source32[relative_square(US, sq)]][US];
-    if constexpr (PT == KING) ++T[KING_PSQT + source16[sq]][US];
+    if constexpr (PT == PAWN) { ++T[PAWN_PSQT + source32[relative_square(US, sq)]][US]; }
+    if constexpr (PT == KNIGHT) { ++T[KNIGHT_PSQT + source16[sq]][US]; }
+    if constexpr (PT == BISHOP) { ++T[BISHOP_PSQT + source16[sq]][US]; }
+    if constexpr (PT == ROOK) { ++T[ROOK_PSQT + source16[sq]][US]; }
+    if constexpr (PT == QUEEN) { ++T[QUEEN_PSQT + source32[relative_square(US, sq)]][US]; }
+    if constexpr (PT == KING) { ++T[KING_PSQT + source16[sq]][US]; }
 }
 
 template <Colour US, PieceType PT> Bitboard worthy_trades(const Position& pos)
@@ -88,10 +90,9 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         Square sq = bitboards::pop_lsb(bb);
         score += piece_table[make_piece(PT, US)][sq];
         Bitboard attacks = bitboards::get_attacks<PT>(transparent_occ, sq);
-
         Square pinner = pos.get_pinner<US>(sq);
 
-        if (pinner != SQ_NONE) attacks &= bitboards::between_squares(ei.ksq[US], pinner) | pinner;
+        if (pinner != SQ_NONE) { attacks &= bitboards::between_squares(ei.ksq[US], pinner) | pinner; }
 
         const Bitboard trades = worthy_trades<US, PT>(pos);
         const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
@@ -99,16 +100,16 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         score += quiet_mobility[PT] * std::popcount(safe_attacks & ~pos.occ_bb[BOTH]);
         score += capture_mobility[PT] * std::popcount(safe_attacks & pos.occ_bb[~US]);
 
-        if constexpr (SAFETY) king_danger<US, PT, TRACE>(safe_attacks, ei);
-        if constexpr (TRACE) psqt_trace<US, PT>(sq);
-        if constexpr (TRACE) T[QUIET_MOBILITY + PT][US] += std::popcount(safe_attacks & ~pos.occ_bb[BOTH]);
-        if constexpr (TRACE) T[CAPTURE_MOBILITY + PT][US] += std::popcount(safe_attacks & pos.occ_bb[~US]);
+        if constexpr (SAFETY) { king_danger<US, PT, TRACE>(safe_attacks, ei); }
+        if constexpr (TRACE) { psqt_trace<US, PT>(sq); }
+        if constexpr (TRACE) { T[QUIET_MOBILITY + PT][US] += std::popcount(safe_attacks & ~pos.occ_bb[BOTH]); }
+        if constexpr (TRACE) { T[CAPTURE_MOBILITY + PT][US] += std::popcount(safe_attacks & pos.occ_bb[~US]); }
         if constexpr (PT == KNIGHT)
         {
             if (is_outpost<US>(sq, ei))
             {
                 score += knight_outpost_bonus;
-                if constexpr (TRACE) ++T[KNIGHT_OUTPOST][US];
+                if constexpr (TRACE) { ++T[KNIGHT_OUTPOST][US]; }
             }
         }
         if constexpr (PT == BISHOP)
@@ -116,24 +117,24 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
             if (bb)
             {
                 score += bishop_pair_bonus;
-                if constexpr (TRACE) ++T[BISHOP_PAIR][US];
+                if constexpr (TRACE) { ++T[BISHOP_PAIR][US]; }
             }
             if (is_fianchetto<US>(pos, sq))
             {
                 score += fianchetto_bonus;
-                if constexpr (TRACE) ++T[FIANCHETTO][US];
+                if constexpr (TRACE) { ++T[FIANCHETTO][US]; }
             }
             else
             {
                 if (is_outpost<US>(sq, ei))
                 {
                     score += bishop_outpost_bonus;
-                    if constexpr (TRACE) ++T[BISHOP_OUTPOST][US];
+                    if constexpr (TRACE) { ++T[BISHOP_OUTPOST][US]; }
                 }
                 if (bitboards::multiple_bits(bitboards::pawn_attacks[US][sq] & pos.pc_bb[make_piece(PAWN, US)]))
                 {
                     score -= tall_pawn_penalty;
-                    if constexpr (TRACE) --T[TALL_PAWN][US];
+                    if constexpr (TRACE) { --T[TALL_PAWN][US]; }
                 }
             }
         }
@@ -142,35 +143,35 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
             if (!(bitboards::file_masks[sq] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN])))
             {
                 score += rook_open_file_bonus;
-                if constexpr (TRACE) ++T[ROOK_FULL][US];
+                if constexpr (TRACE) { ++T[ROOK_FULL][US]; }
             }
             else
             {
                 if (!(bitboards::file_masks[sq] & pos.pc_bb[make_piece(PAWN, US)]))
                 {
                     score += rook_semi_open_file_bonus;
-                    if constexpr (TRACE) ++T[ROOK_SEMI][US];
+                    if constexpr (TRACE) { ++T[ROOK_SEMI][US]; }
                 }
                 else if (bitboards::file_masks[sq] & pos.pc_bb[make_piece(PAWN, ~US)])
                 {
                     score -= rook_closed_file_penalty;
-                    if constexpr (TRACE) --T[ROOK_CLOSED][US];
+                    if constexpr (TRACE) { --T[ROOK_CLOSED][US]; }
                 }
                 if (attacks & rook_on_passer_masks[US][sq] & ei.passers[US])
                 {
                     score += rook_on_our_passer_file;
-                    if constexpr (TRACE) ++T[ROOK_OUR_PASSER][US];
+                    if constexpr (TRACE) { ++T[ROOK_OUR_PASSER][US]; }
                 }
                 if (safe_attacks & rook_on_passer_masks[~US][sq] & ei.passers[~US])
                 {
                     score += rook_on_their_passer_file;
-                    if constexpr (TRACE) ++T[ROOK_THEIR_PASSER][US];
+                    if constexpr (TRACE) { ++T[ROOK_THEIR_PASSER][US]; }
                 }
             }
             if (rank_of(sq) == relative_rank(US, RANK_7) && rank_of(ei.ksq[~US]) == relative_rank(US, RANK_8))
             {
                 score += rook_on_seventh;
-                if constexpr (TRACE) ++T[ROOK_ON_SEVENTH][US];
+                if constexpr (TRACE) { ++T[ROOK_ON_SEVENTH][US]; }
             }
         }
         if constexpr (PT == QUEEN)
@@ -178,7 +179,7 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
             if (pos.discovery_threat<US>(sq))
             {
                 score -= weak_queen_penalty;
-                if constexpr (TRACE) --T[WEAK_QUEEN][US];
+                if constexpr (TRACE) { --T[WEAK_QUEEN][US]; }
             }
         }
     }
@@ -195,8 +196,7 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
         evaluate_majors<US, ROOK, true, TRACE>(pos, ei, score);
         evaluate_majors<US, QUEEN, true, TRACE>(pos, ei, score);
 
-        // we don't count kings or pawns in n_att so the max should be 7,
-        // barring promotion trolling
+        // we don't count kings or pawns in n_att so the max should be 7, barring promotion trolling
         assert(ei.n_att[US] < 10);
 
         if (const int mob =
@@ -204,16 +204,18 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
             mob > 4)
         {
             ei.weight[US] += virtual_mobility * std::min(13, mob);
-            if constexpr (TRACE) T[SAFETY_VIRTUAL_MOBILITY][US] = std::min(13, mob);
+            if constexpr (TRACE) { T[SAFETY_VIRTUAL_MOBILITY][US] = std::min(13, mob); }
         }
 
         if (ei.weight[US] > 0)
         {
             score.mg += ei.weight[US] * ei.weight[US] / (720 - attack_factor * ei.n_att[US]);
-            if constexpr (TRACE) T[SAFETY_N_ATT][US] = ei.n_att[US];
+            if constexpr (TRACE) { T[SAFETY_N_ATT][US] = ei.n_att[US]; }
         }
         else if constexpr (TRACE)
-            for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
+        {
+            for (int i = TI_SAFETY; i < TI_N; ++i) { T[i][US] = 0; }
+        }
     }
     else
     {
@@ -223,7 +225,9 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
         evaluate_majors<US, QUEEN, false, TRACE>(pos, ei, score);
 
         if constexpr (TRACE)
-            for (int i = TI_SAFETY; i < TI_N; ++i) T[i][US] = 0;
+        {
+            for (int i = TI_SAFETY; i < TI_N; ++i) { T[i][US] = 0; }
+        }
     }
 
     return score;
@@ -232,26 +236,25 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
 template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalInfo& ei)
 {
     Score score;
-
     Bitboard bb = pos.pc_bb[make_piece(PAWN, US)];
 
     while (bb)
     {
         const Square sq = bitboards::pop_lsb(bb);
 
-        if constexpr (TRACE) psqt_trace<US, PAWN>(sq);
+        if constexpr (TRACE) { psqt_trace<US, PAWN>(sq); }
 
         score += piece_table[make_piece(PAWN, US)][sq];
 
         if (is_doubled_pawn(pos.pc_bb[make_piece(PAWN, US)], sq))
         {
             score -= double_pawn_penalty;
-            if constexpr (TRACE) --T[DOUBLE_PAWN][US];
+            if constexpr (TRACE) { --T[DOUBLE_PAWN][US]; }
         }
         if (is_isolated_pawn(pos.pc_bb[make_piece(PAWN, US)], sq))
         {
             score -= isolated_pawn_penalty;
-            if constexpr (TRACE) --T[ISOLATED_PAWN][US];
+            if constexpr (TRACE) { --T[ISOLATED_PAWN][US]; }
         }
         if (is_passed_pawn<US>(pos.pc_bb[make_piece(PAWN, ~US)], sq))
         {
@@ -259,13 +262,13 @@ template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalI
             if (rank_of(sq) != relative_rank(US, RANK_7))
             {
                 score += passed_table[US][sq];
-                if constexpr (TRACE) ++T[PASSED_PAWN + source32[relative_square(US, sq)]][US];
+                if constexpr (TRACE) { ++T[PASSED_PAWN + source32[relative_square(US, sq)]][US]; }
             }
         }
         else if (is_candidate_passer<US>(pos, sq))
         {
             score += candidate_passer[relative_rank(US, rank_of(sq))];
-            if constexpr (TRACE) ++T[CANDIDATE_PASSER + relative_rank(US, rank_of(sq))][US];
+            if constexpr (TRACE) { ++T[CANDIDATE_PASSER + relative_rank(US, rank_of(sq))][US]; }
         }
 
         ei.pawn_attacks[US] |= bitboards::pawn_attacks[US][sq];
@@ -290,7 +293,7 @@ template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalI
         else
         {
             ei.weight[~US] += shield_table[0][f];
-            if constexpr (TRACE) ++T[SAFETY_PAWN_SHIELD + source32[f]][~US];
+            if constexpr (TRACE) { ++T[SAFETY_PAWN_SHIELD + source32[f]][~US]; }
         }
 
         if (is_open_file(pos, f))
@@ -298,18 +301,18 @@ template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalI
             if (f == kf)
             {
                 score -= king_open_penalty;
-                if constexpr (TRACE) --T[KING_OPEN][US];
+                if constexpr (TRACE) { --T[KING_OPEN][US]; }
             }
             else
             {
                 score -= king_adjacent_open_penalty;
-                if constexpr (TRACE) --T[KING_ADJ_OPEN][US];
+                if constexpr (TRACE) { --T[KING_ADJ_OPEN][US]; }
             }
         }
     }
 
     score += piece_table[make_piece(KING, US)][ei.ksq[US]];
-    if constexpr (TRACE) psqt_trace<US, KING>(ei.ksq[US]);
+    if constexpr (TRACE) { psqt_trace<US, KING>(ei.ksq[US]); }
 
     return score;
 }
@@ -318,8 +321,8 @@ template <bool TRACE> int evaluate(const Position& pos)
 {
     Score score = (pos.side == WHITE) ? tempo_bonus : -tempo_bonus;
 
-    if constexpr (TRACE) memset(T.data(), 0, sizeof(T));
-    if constexpr (TRACE) ++T[TEMPO][pos.side];
+    if constexpr (TRACE) { memset(T.data(), 0, sizeof(T)); }
+    if constexpr (TRACE) { ++T[TEMPO][pos.side]; }
 
     EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
 
@@ -337,7 +340,7 @@ template <bool TRACE> int evaluate(const Position& pos)
 
     const int game_phase = pos.get_game_phase();
     int eval = (score.mg * game_phase + score.eg * (MAX_GAME_PHASE - game_phase)) / MAX_GAME_PHASE;
-    if (pos.side == BLACK) eval = -eval;
+    if (pos.side == BLACK) { eval = -eval; }
 
     /*
     int scaling;

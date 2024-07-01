@@ -9,19 +9,21 @@ void iq_test()
 {
     std::vector<IQPosition> iq;
     std::ifstream ifs("src/iq_test.epd");
-    std::string line, token;
+    std::string line;
+    std::string token;
 
     while (std::getline(ifs, line))
     {
-        if (line.empty()) continue;
+        if (line.empty()) { continue; }
 
-        size_t idx = line.find(','), idx_end = line.find(',', idx + 1);
+        size_t idx = line.find(',');
+        size_t idx_end = line.find(',', idx + 1);
         std::string fen = line.substr(0, idx);
         std::istringstream is(line.substr(idx + 1, idx_end - idx - 1).c_str());
         std::vector<Move> moves;
         Position pos(fen.c_str());
 
-        while (is >> token) moves.push_back(parse::parse(pos, token));
+        while (is >> token) { moves.push_back(parse::parse(pos, token)); }
 
         iq.emplace_back(fen, moves);
     }
@@ -30,7 +32,8 @@ void iq_test()
 
     search::SearchLimits limits;
     limits.time = {100000, 100000};
-    int passes = 0, fails = 0;
+    int passes = 0;
+    int fails = 0;
 
     for (const auto& it : iq)
     {
@@ -47,13 +50,12 @@ void iq_test()
         else
         {
             std::cout << "FAIL! best move: ";
-            for (const auto& move : it.moves) std::cout << move << " ";
+            for (const auto& move : it.moves) { std::cout << move << " "; }
             std::cout << '\n';
             ++fails;
         }
 
         std::cout << passes << " tests passed!" << '\n' << fails << " tests failed!" << '\n';
-
         search::clear();
     }
 }

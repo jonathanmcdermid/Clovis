@@ -28,8 +28,10 @@ struct TEntry
 
     Colour stm{WHITE};
     int static_eval{0};
-    double result{0.0}, phase{0.0};
-    std::array<int, COLOUR_N> safety{0}, n_att{0};
+    double result{0.0};
+    double phase{0.0};
+    std::array<int, COLOUR_N> safety{0};
+    std::array<int, COLOUR_N> n_att{0};
     std::vector<TTuple> tuples;
 };
 

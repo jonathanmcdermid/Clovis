@@ -19,7 +19,7 @@ void perft_helper(Position& pos, const size_t depth, uint64_t& nodes)
 
     for (const auto& m : move_gen::MoveList(pos))
     {
-        if (!pos.do_move(m)) continue;
+        if (!pos.do_move(m)) { continue; }
         perft_helper(pos, depth - 1, nodes);
         pos.undo_move(m);
     }
@@ -29,11 +29,12 @@ void perft()
 {
     std::vector<PerftPosition> pp;
     std::ifstream ifs("src/perft.epd");
-    std::string line, token;
+    std::string line;
+    std::string token;
 
     while (getline(ifs, line))
     {
-        if (line.empty()) continue;
+        if (line.empty()) { continue; }
 
         size_t idx = line.find(',');
         std::string fen = line.substr(0, idx);

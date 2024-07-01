@@ -44,6 +44,7 @@ constexpr uint64_t state = 0xB1FACE5ULL;
 constexpr auto piece_square = [] {
     std::array<std::array<Key, SQ_N>, 15> arr{};
     uint64_t s = state;
+
     for (int i = NO_PIECE; i <= B_KING; ++i)
     {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[i][sq] = xor_shift(s++); }
@@ -55,6 +56,7 @@ constexpr auto piece_square = [] {
 constexpr auto en_passant = [] {
     std::array<Key, SQ_N> arr{};
     uint64_t s = state + 15ULL * SQ_N;
+
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = xor_shift(s++); }
 
     return arr;
@@ -63,6 +65,7 @@ constexpr auto en_passant = [] {
 constexpr auto castling = [] {
     std::array<Key, 16> arr{};
     uint64_t s = state + 16ULL * SQ_N;
+
     for (int i = 0; i < 16; ++i) { arr[i] = xor_shift(s++); }
 
     return arr;
@@ -251,7 +254,7 @@ Key Position::make_pawn_key() const
 bool Position::see_ge(const Move move, const int threshold) const
 {
     // don't even bother
-    if (move_promotion_type(move) || move_en_passant(move)) return true;
+    if (move_promotion_type(move) || move_en_passant(move)) { return true; }
 
     int gain[32], d = 0;
     Square from = move_from_sq(move);
@@ -455,7 +458,7 @@ bool Position::do_move(const Move move)
     // move gen doesn't check for suicidal king, so we check here
     const bool valid = !is_king_in_check();
     side = ~side;
-    if (!valid) undo_move(move);
+    if (!valid) { undo_move(move); }
     return valid;
 }
 
