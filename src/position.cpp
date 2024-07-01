@@ -45,7 +45,9 @@ constexpr auto piece_square = [] {
     std::array<std::array<Key, SQ_N>, 15> arr{};
     uint64_t s = state;
     for (int i = NO_PIECE; i <= B_KING; ++i)
-        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[i][sq] = xor_shift(s++);
+    {
+        for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[i][sq] = xor_shift(s++); }
+    }
 
     return arr;
 }();
@@ -53,7 +55,7 @@ constexpr auto piece_square = [] {
 constexpr auto en_passant = [] {
     std::array<Key, SQ_N> arr{};
     uint64_t s = state + 15ULL * SQ_N;
-    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[sq] = xor_shift(s++);
+    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = xor_shift(s++); }
 
     return arr;
 }();
@@ -61,7 +63,7 @@ constexpr auto en_passant = [] {
 constexpr auto castling = [] {
     std::array<Key, 16> arr{};
     uint64_t s = state + 16ULL * SQ_N;
-    for (int i = 0; i < 16; ++i) arr[i] = xor_shift(s++);
+    for (int i = 0; i < 16; ++i) { arr[i] = xor_shift(s++); }
 
     return arr;
 }();
@@ -80,7 +82,9 @@ template <Colour US> Square Position::get_pinner(const Square sq) const
              (bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
 
         while (candidates)
-            if (const Square candidate = bitboards::pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq) return candidate;
+        {
+            if (const Square candidate = bitboards::pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq) { return candidate; }
+        }
     }
 
     return SQ_NONE;
@@ -90,8 +94,7 @@ template <Colour US> Square Position::get_pinner(const Square sq) const
 template Square Position::get_pinner<WHITE>(Square sq) const;
 template Square Position::get_pinner<BLACK>(Square sq) const;
 
-// returns if a square is in danger of a discovery attack by a rook or
-// bishop
+// returns if a square is in danger of a discovery attack by a rook or bishop
 template <Colour US> bool Position::discovery_threat(const Square sq) const
 {
     // pawn is immobile if it attacks no enemies and is blocked by a piece
@@ -109,7 +112,9 @@ template <Colour US> bool Position::discovery_threat(const Square sq) const
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
     while (candidates)
-        if (std::popcount(bitboards::between_squares(sq, bitboards::pop_lsb(candidates)) & occupancy) == 1) return true;
+    {
+        if (std::popcount(bitboards::between_squares(sq, bitboards::pop_lsb(candidates)) & occupancy) == 1) { return true; }
+    }
 
     return false;
 }
@@ -125,10 +130,10 @@ std::string Position::get_fen() const
     for (Rank r = RANK_8; r >= RANK_1; --r)
     {
         int empty_count = 0;
+
         for (File f = FILE_A; f <= FILE_H; ++f)
         {
-            if (const Square sq = make_square(f, r); pc_table[sq] == NO_PIECE)
-                ++empty_count;
+            if (const Square sq = make_square(f, r); pc_table[sq] == NO_PIECE) { ++empty_count; }
             else
             {
                 if (empty_count)
@@ -139,20 +144,19 @@ std::string Position::get_fen() const
                 fen.put(piece_str[pc_table[sq]]);
             }
         }
-        if (empty_count) fen << empty_count;
-        if (r != RANK_1) fen.put('/');
+        if (empty_count) { fen << empty_count; }
+        if (r != RANK_1) { fen.put('/'); }
     }
 
     fen << ((side == WHITE) ? " w " : " b ");
 
-    if (bs->castle == NO_CASTLING)
-        fen.put('-');
+    if (bs->castle == NO_CASTLING) { fen.put('-'); }
     else
     {
-        if (bs->castle & WHITE_KS) fen.put('K');
-        if (bs->castle & WHITE_QS) fen.put('Q');
-        if (bs->castle & BLACK_KS) fen.put('k');
-        if (bs->castle & BLACK_QS) fen.put('q');
+        if (bs->castle & WHITE_KS) { fen.put('K'); }
+        if (bs->castle & WHITE_QS) { fen.put('Q'); }
+        if (bs->castle & BLACK_KS) { fen.put('k'); }
+        if (bs->castle & BLACK_QS) { fen.put('q'); }
     }
 
     fen << " " + (bs->en_passant == SQ_NONE ? "-" : sq2str(bs->en_passant)) << " " << std::to_string(bs->hmc) << " " << std::to_string(bs->fmc);
@@ -174,10 +178,8 @@ void Position::set(const char* fen)
 
     while ((ss >> token) && !isspace(token))
     {
-        if (isdigit(token))
-            sq = sq + (token - '0') * EAST;
-        else if (token == '/')
-            sq = sq + 2 * SOUTH;
+        if (isdigit(token)) { sq += (token - '0') * EAST; }
+        else if (token == '/') { sq += 2 * SOUTH; }
         else if (size_t index = piece_str.find(token); index != std::string::npos)
         {
             put_piece(static_cast<Piece>(index), sq);
@@ -193,14 +195,10 @@ void Position::set(const char* fen)
 
     while ((ss >> token) && !isspace(token))
     {
-        if (token == 'K')
-            bs->castle |= WHITE_KS;
-        else if (token == 'Q')
-            bs->castle |= WHITE_QS;
-        else if (token == 'k')
-            bs->castle |= BLACK_KS;
-        else if (token == 'q')
-            bs->castle |= BLACK_QS;
+        if (token == 'K') { bs->castle |= WHITE_KS; }
+        else if (token == 'Q') { bs->castle |= WHITE_QS; }
+        else if (token == 'k') { bs->castle |= BLACK_KS; }
+        else if (token == 'q') { bs->castle |= BLACK_QS; }
     }
 
     ss >> token;
@@ -212,8 +210,7 @@ void Position::set(const char* fen)
         const auto r = static_cast<Rank>(token - '1');
         bs->en_passant = make_square(f, r);
     }
-    else
-        bs->en_passant = SQ_NONE;
+    else { bs->en_passant = SQ_NONE; }
 
     ss >> std::skipws >> bs->hmc >> bs->fmc;
     bs->key = make_key();
@@ -226,11 +223,13 @@ Key Position::make_key() const
     Key k = 0ULL;
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-        if (pc_table[sq] != NO_PIECE) k ^= zobrist::piece_square[pc_table[sq]][sq];
+    {
+        if (pc_table[sq] != NO_PIECE) { k ^= zobrist::piece_square[pc_table[sq]][sq]; }
+    }
 
-    if (bs->en_passant != SQ_NONE) k ^= zobrist::en_passant[bs->en_passant];
+    if (bs->en_passant != SQ_NONE) { k ^= zobrist::en_passant[bs->en_passant]; }
 
-    if (side == BLACK) k ^= zobrist::side;
+    if (side == BLACK) { k ^= zobrist::side; }
 
     k ^= zobrist::castling[bs->castle];
 
@@ -242,7 +241,9 @@ Key Position::make_pawn_key() const
     Key k = 0ULL;
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING) k ^= zobrist::piece_square[pc_table[sq]][sq];
+    {
+        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING) { k ^= zobrist::piece_square[pc_table[sq]][sq]; }
+    }
 
     return k;
 }
@@ -326,7 +327,7 @@ void Position::remove_piece(const Square sq)
 
 template <bool NM> void Position::new_board_state()
 {
-    auto *const bs_new = new BoardState;
+    auto* const bs_new = new BoardState;
     bs_new->en_passant = bs->en_passant;
     bs_new->castle = bs->castle;
     bs_new->hmc = bs->hmc + 1;
