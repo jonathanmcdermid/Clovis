@@ -11,7 +11,8 @@ constexpr size_t COLOUR_FROM_TO_SIZE = COLOUR_N * SQ_N * SQ_N;
 
 struct KEntry
 {
-    Move primary{MOVE_NONE}, secondary{MOVE_NONE};
+    Move primary{MOVE_NONE};
+    Move secondary{MOVE_NONE};
 };
 
 extern std::array<int, COLOUR_FROM_TO_SIZE> history_table;

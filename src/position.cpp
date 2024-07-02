@@ -38,11 +38,11 @@ constexpr uint64_t xor_shift(uint64_t state)
     return state * 0x2545F4914F6CDD1DULL;
 }
 
-constexpr uint64_t state = 0xB1FACE5ULL;
+constexpr uint64_t ZOBRIST_SEED = 0xB1FACE5ULL;
 
 constexpr auto PIECE_SQUARE = [] {
     std::array<std::array<Key, SQ_N>, 15> arr{};
-    uint64_t s = state;
+    uint64_t s = ZOBRIST_SEED;
 
     for (int i = NO_PIECE; i <= B_KING; ++i)
     {
@@ -54,7 +54,7 @@ constexpr auto PIECE_SQUARE = [] {
 
 constexpr auto EN_PASSANT = [] {
     std::array<Key, SQ_N> arr{};
-    uint64_t s = state + 15ULL * SQ_N;
+    uint64_t s = ZOBRIST_SEED + 15ULL * SQ_N;
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = xor_shift(s++); }
 
@@ -63,14 +63,14 @@ constexpr auto EN_PASSANT = [] {
 
 constexpr auto CASTLING = [] {
     std::array<Key, 16> arr{};
-    uint64_t s = state + 16ULL * SQ_N;
+    uint64_t s = ZOBRIST_SEED + 16ULL * SQ_N;
 
     for (int i = 0; i < 16; ++i) { arr[i] = xor_shift(s++); }
 
     return arr;
 }();
 
-constexpr Key side = xor_shift(state + 16ULL * SQ_N + 16);
+constexpr Key side = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 
 } // namespace zobrist
 
