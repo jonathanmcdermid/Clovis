@@ -436,40 +436,12 @@ inline std::ostream& operator<<(std::ostream& os, const Move& m)
     return os;
 }
 
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> 
-constexpr T& operator++(T& d)
-{
-    return d = static_cast<T>(static_cast<int>(d) + 1);
-}
-
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> 
-constexpr T& operator--(T& d)
-{
-    return d = static_cast<T>(static_cast<int>(d) - 1);
-}
-
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> 
-constexpr T operator+(T d1, int d2)
-{
-    return static_cast<T>(static_cast<int>(d1) + d2);
-}
-
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> 
-constexpr T operator-(T d1, int d2)
-{
-    return static_cast<T>(static_cast<int>(d1) - d2);
-}
-
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }
-
-// Ensure the operators are instantiated
-template struct std::is_enum<Piece>;
-template struct std::is_enum<PieceType>;
-template struct std::is_enum<File>;
-template struct std::is_enum<Rank>;
-template struct std::is_enum<Direction>;
-template struct std::is_enum<Square>;
+template <typename T> constexpr T& operator++(T& d) { return d = static_cast<T>(static_cast<int>(d) + 1); }
+template <typename T> constexpr T& operator--(T& d) { return d = static_cast<T>(static_cast<int>(d) - 1); }
+template <typename T> constexpr T operator+(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) + d2); }
+template <typename T> constexpr T operator-(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) - d2); }
+template <typename T> constexpr T operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }
+template <typename T> constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }
+template <typename T> constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }
 
 } // namespace clovis
