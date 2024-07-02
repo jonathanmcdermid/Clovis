@@ -5,6 +5,6 @@
 
 namespace clovis::bench {
 
-void benchmark(std::vector<std::string>& args);
+void benchmark(std::vector<std::string>& args_);
 
 } // namespace clovis::bench
