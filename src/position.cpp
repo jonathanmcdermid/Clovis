@@ -40,7 +40,7 @@ constexpr uint64_t xor_shift(uint64_t state)
 
 constexpr uint64_t ZOBRIST_SEED = 0xB1FACE5ULL;
 
-constexpr auto PIECE_SQUARE = [] {
+constexpr auto ZOBRIST_PSQT = [] {
     std::array<std::array<Key, SQ_N>, 15> arr{};
     uint64_t s = ZOBRIST_SEED;
 
@@ -52,7 +52,7 @@ constexpr auto PIECE_SQUARE = [] {
     return arr;
 }();
 
-constexpr auto EN_PASSANT = [] {
+constexpr auto ZOBRIST_EN_PASSANT = [] {
     std::array<Key, SQ_N> arr{};
     uint64_t s = ZOBRIST_SEED + 15ULL * SQ_N;
 
@@ -61,7 +61,7 @@ constexpr auto EN_PASSANT = [] {
     return arr;
 }();
 
-constexpr auto CASTLING = [] {
+constexpr auto ZOBRIST_CASTLING = [] {
     std::array<Key, 16> arr{};
     uint64_t s = ZOBRIST_SEED + 16ULL * SQ_N;
 
@@ -70,7 +70,7 @@ constexpr auto CASTLING = [] {
     return arr;
 }();
 
-constexpr Key side = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
+constexpr Key ZOBRIST_COLOUR = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 
 } // namespace zobrist
 
@@ -234,14 +234,14 @@ Key Position::make_key() const
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
     {
-        if (pc_table[sq] != NO_PIECE) { k ^= zobrist::PIECE_SQUARE[pc_table[sq]][sq]; }
+        if (pc_table[sq] != NO_PIECE) { k ^= zobrist::ZOBRIST_PSQT[pc_table[sq]][sq]; }
     }
 
-    if (bs->en_passant != SQ_NONE) { k ^= zobrist::EN_PASSANT[bs->en_passant]; }
+    if (bs->en_passant != SQ_NONE) { k ^= zobrist::ZOBRIST_EN_PASSANT[bs->en_passant]; }
 
-    if (side == BLACK) { k ^= zobrist::side; }
+    if (side == BLACK) { k ^= zobrist::ZOBRIST_COLOUR; }
 
-    k ^= zobrist::CASTLING[bs->castle];
+    k ^= zobrist::ZOBRIST_CASTLING[bs->castle];
 
     return k;
 }
@@ -252,7 +252,7 @@ Key Position::make_pawn_key() const
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
     {
-        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING) { k ^= zobrist::PIECE_SQUARE[pc_table[sq]][sq]; }
+        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING) { k ^= zobrist::ZOBRIST_PSQT[pc_table[sq]][sq]; }
     }
 
     return k;
@@ -346,7 +346,7 @@ template <bool NM> void Position::new_board_state()
     bs_new->hmc = bs->hmc + 1;
     bs_new->fmc = bs->fmc + (side == BLACK);
     bs_new->ply_null = NM ? 0 : bs->ply_null + 1;
-    bs_new->key = bs->key ^ zobrist::side;
+    bs_new->key = bs->key ^ zobrist::ZOBRIST_COLOUR;
     bs_new->pawn_key = bs->pawn_key;
     bs_new->game_phase = bs->game_phase;
     bs_new->prev = std::move(bs);
@@ -355,7 +355,7 @@ template <bool NM> void Position::new_board_state()
 
     if (bs->en_passant != SQ_NONE)
     {
-        bs->key ^= zobrist::EN_PASSANT[bs->en_passant];
+        bs->key ^= zobrist::ZOBRIST_EN_PASSANT[bs->en_passant];
         bs->en_passant = SQ_NONE;
     }
 }
@@ -394,10 +394,10 @@ bool Position::do_move(const Move move)
     bs->captured_piece = pc_table[tar];
 
     // update castling rights
-    bs->key ^= zobrist::CASTLING[bs->castle];
+    bs->key ^= zobrist::ZOBRIST_CASTLING[bs->castle];
     bs->castle &= CASTLING_RIGHTS[src];
     bs->castle &= CASTLING_RIGHTS[tar];
-    bs->key ^= zobrist::CASTLING[bs->castle];
+    bs->key ^= zobrist::ZOBRIST_CASTLING[bs->castle];
 
     if (move_capture(move))
     {
@@ -405,16 +405,16 @@ bool Position::do_move(const Move move)
         {
             const Square victim_sq = tar - pawn_push(side);
             bs->captured_piece = make_piece(PAWN, ~side);
-            bs->key ^= zobrist::PIECE_SQUARE[bs->captured_piece][victim_sq];
-            bs->pawn_key ^= zobrist::PIECE_SQUARE[bs->captured_piece][victim_sq];
+            bs->key ^= zobrist::ZOBRIST_PSQT[bs->captured_piece][victim_sq];
+            bs->pawn_key ^= zobrist::ZOBRIST_PSQT[bs->captured_piece][victim_sq];
             remove_piece(victim_sq);
             put_piece(piece, tar);
         }
         else
         {
-            if (piece_type(bs->captured_piece) == PAWN) { bs->pawn_key ^= zobrist::PIECE_SQUARE[bs->captured_piece][tar]; }
+            if (piece_type(bs->captured_piece) == PAWN) { bs->pawn_key ^= zobrist::ZOBRIST_PSQT[bs->captured_piece][tar]; }
 
-            bs->key ^= zobrist::PIECE_SQUARE[pc_table[tar]][tar];
+            bs->key ^= zobrist::ZOBRIST_PSQT[pc_table[tar]][tar];
             replace_piece(piece, tar);
         }
         bs->game_phase -= GAME_PHASE_INCREMENT[bs->captured_piece];
@@ -422,8 +422,8 @@ bool Position::do_move(const Move move)
     }
     else { put_piece(piece, tar); }
 
-    bs->key ^= zobrist::PIECE_SQUARE[pc_table[src]][src];
-    bs->key ^= zobrist::PIECE_SQUARE[pc_table[src]][tar];
+    bs->key ^= zobrist::ZOBRIST_PSQT[pc_table[src]][src];
+    bs->key ^= zobrist::ZOBRIST_PSQT[pc_table[src]][tar];
     remove_piece(src);
 
     if (piece_type(piece) == PAWN)
@@ -431,34 +431,34 @@ bool Position::do_move(const Move move)
         if (move_double(move))
         {
             bs->en_passant = tar - pawn_push(side);
-            bs->key ^= zobrist::EN_PASSANT[bs->en_passant];
+            bs->key ^= zobrist::ZOBRIST_EN_PASSANT[bs->en_passant];
         }
         else if (move_promotion_type(move))
         {
-            bs->key ^= zobrist::PIECE_SQUARE[pc_table[tar]][tar];
-            bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][tar];
+            bs->key ^= zobrist::ZOBRIST_PSQT[pc_table[tar]][tar];
+            bs->pawn_key ^= zobrist::ZOBRIST_PSQT[piece][tar];
             remove_piece(tar);
             put_piece(move_promotion_type(move), tar);
-            bs->key ^= zobrist::PIECE_SQUARE[pc_table[tar]][tar];
+            bs->key ^= zobrist::ZOBRIST_PSQT[pc_table[tar]][tar];
             bs->game_phase -= GAME_PHASE_INCREMENT[PAWN];
             bs->game_phase += GAME_PHASE_INCREMENT[move_promotion_type(move)];
         }
-        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][src];
-        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][tar];
+        bs->pawn_key ^= zobrist::ZOBRIST_PSQT[piece][src];
+        bs->pawn_key ^= zobrist::ZOBRIST_PSQT[piece][tar];
         bs->hmc = 0;
     }
     else if (piece_type(piece) == KING)
     {
-        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][src];
-        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][tar];
+        bs->pawn_key ^= zobrist::ZOBRIST_PSQT[piece][src];
+        bs->pawn_key ^= zobrist::ZOBRIST_PSQT[piece][tar];
 
         if (move_castling(move))
         {
             Square rt = SQ_ZERO;
             Square rf = SQ_ZERO;
             get_castle_rook_squares(tar, rf, rt);
-            bs->key ^= zobrist::PIECE_SQUARE[pc_table[rf]][rf];
-            bs->key ^= zobrist::PIECE_SQUARE[pc_table[rf]][rt];
+            bs->key ^= zobrist::ZOBRIST_PSQT[pc_table[rf]][rf];
+            bs->key ^= zobrist::ZOBRIST_PSQT[pc_table[rf]][rt];
             remove_piece(rf);
             put_piece(make_piece(ROOK, side), rt);
         }
