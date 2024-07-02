@@ -100,7 +100,8 @@ template Square Position::get_pinner<BLACK>(Square sq) const;
 template <Colour US> bool Position::discovery_threat(const Square sq) const
 {
     // pawn is immobile if it attacks no enemies and is blocked by a piece
-    // we don't have to worry about shift because discovery pawns will never be on outer files
+    // we don't have to worry about shift because discovery pawns will never
+    // be on outer files
     Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
                                     ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
