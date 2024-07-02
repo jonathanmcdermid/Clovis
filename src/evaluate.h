@@ -285,8 +285,8 @@ constexpr auto outer_ring = [] {
     return arr;
 }();
 
-constexpr Bitboard outpost_masks[COLOUR_N] = {bitboards::rank_masks[A4] | bitboards::rank_masks[A5] | bitboards::rank_masks[A6],
-                                              bitboards::rank_masks[A3] | bitboards::rank_masks[A4] | bitboards::rank_masks[A5]};
+constexpr std::array<Bitboard, COLOUR_N> outpost_masks = {bitboards::rank_masks[A4] | bitboards::rank_masks[A5] | bitboards::rank_masks[A6],
+                                                          bitboards::rank_masks[A3] | bitboards::rank_masks[A4] | bitboards::rank_masks[A5]};
 
 constexpr Bitboard light_mask = 0x55aa55aa55aa55aaULL;
 

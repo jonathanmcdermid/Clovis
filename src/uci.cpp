@@ -94,17 +94,17 @@ void position(Position& pos, std::istringstream& is)
 }
 
 // main loop for uci communication
-void loop(const int argc, char* argv[])
+void loop(std::vector<std::string>& args)
 {
     Position pos(start_position.data());
     std::string token;
     std::string cmd;
 
-    for (int i = 0; i < argc; ++i) { cmd += std::string(argv[i]) + " "; }
+    for (const auto& it : args) { cmd += it + " "; }
 
     while (true)
     {
-        if (argc == 1 && !getline(std::cin, cmd)) { cmd = "quit"; }
+        if (args.size() == 1 && !getline(std::cin, cmd)) { cmd = "quit"; }
         std::istringstream is(cmd);
         token.clear();
         is >> std::skipws >> token;
@@ -122,7 +122,7 @@ void loop(const int argc, char* argv[])
                       << "id author " << authors << '\n'
                       << "uciok" << '\n';
         }
-        else if (token == "quit" || argc != 1) { break; }
+        else if (token == "quit" || args.size() != 1) { break; }
     }
 }
 

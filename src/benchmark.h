@@ -1,7 +1,10 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace clovis::bench {
 
-void benchmark(int argc, char* argv[]);
+void benchmark(std::vector<std::string>& args);
 
 } // namespace clovis::bench
