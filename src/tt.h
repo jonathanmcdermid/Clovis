@@ -34,11 +34,13 @@ struct PTEntry
 {
     constexpr PTEntry() = default;
 
-    short weight[COLOUR_N]{0};
+    std::array<short, COLOUR_N> weight{0};
     Score score;
-    Square ksq[COLOUR_N]{SQ_NONE};
+    std::array<Square, COLOUR_N> ksq{SQ_NONE};
     Key key{0ULL};
-    Bitboard pawn_attacks[COLOUR_N]{0ULL}, passers[COLOUR_N]{0ULL}, potential_pawn_attacks[COLOUR_N]{0ULL};
+    std::array<Bitboard, COLOUR_N> pawn_attacks{0ULL};
+    std::array<Bitboard, COLOUR_N> passers{0ULL};
+    std::array<Bitboard, COLOUR_N> potential_pawn_attacks{0ULL};
 };
 
 class TTable

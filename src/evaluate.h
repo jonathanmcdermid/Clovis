@@ -292,9 +292,9 @@ constexpr Bitboard light_mask = 0x55aa55aa55aa55aaULL;
 
 constexpr Bitboard dark_mask = 0xaa55aa55aa55aa55ULL;
 
-constexpr Bitboard fianchetto_bishop_mask[COLOUR_N] = {B2 | G2, B7 | G7};
+constexpr std::array<Bitboard, COLOUR_N> fianchetto_bishop_mask = {B2 | G2, B7 | G7};
 
-constexpr Bitboard center_mask[COLOUR_N] = {D5 | E5, D4 | E4};
+constexpr std::array<Bitboard, COLOUR_N> center_mask = {D5 | E5, D4 | E4};
 
 extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
