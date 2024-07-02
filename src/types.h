@@ -461,8 +461,8 @@ constexpr T operator-(T d1, int d2)
 }
 
 template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T& operator+=(T& d1, int d2) { return d1 += d2; }
-template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T& operator-=(T& d1, int d2) { return d1 -= d2; }
+template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }
+template <typename T, typename = std::enable_if_t<std::is_enum<T>::value>> constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }
 
 // Ensure the operators are instantiated
 template struct std::is_enum<Piece>;
