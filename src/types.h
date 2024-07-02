@@ -357,7 +357,11 @@ constexpr Square operator-(const Square sq, const Direction dir) { return static
 constexpr Square& operator+=(Square& sq, const Direction dir) { return sq = sq + dir; }
 constexpr Square& operator-=(Square& sq, const Direction dir) { return sq = sq - dir; }
 
-constexpr Bitboard sq_bb(const Square sq) { return 1ULL << sq; }
+constexpr Bitboard sq_bb(const Square sq)
+{
+    assert(sq < 64);
+    return 1ULL << sq;
+}
 
 constexpr Bitboard operator|(const Square sq1, const Square sq2) { return sq_bb(sq1) | sq_bb(sq2); }
 constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sq_bb(sq); }
