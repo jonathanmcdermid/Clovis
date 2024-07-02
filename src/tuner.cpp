@@ -194,43 +194,43 @@ void print_table(const std::string& name, const int index, const int size, const
 void print_params()
 {
     using namespace eval;
+    // TODO: print_table is broken as it doesn't print as std::arrays
+    print_table("PAWN_SOURCE", PAWN_PSQT, sizeof(PAWN_SOURCE) / sizeof(Score), 4);
+    print_table("KNIGHT_SOURCE", KNIGHT_PSQT, sizeof(KNIGHT_SOURCE) / sizeof(Score), 4);
+    print_table("BISHOP_SOURCE", BISHOP_PSQT, sizeof(BISHOP_SOURCE) / sizeof(Score), 4);
+    print_table("ROOK_SOURCE", ROOK_PSQT, sizeof(ROOK_SOURCE) / sizeof(Score), 4);
+    print_table("QUEEN_SOURCE", QUEEN_PSQT, sizeof(QUEEN_SOURCE) / sizeof(Score), 4);
+    print_table("KING_SOURCE", KING_PSQT, sizeof(KING_SOURCE) / sizeof(Score), 4);
+    print_table("PASSED_PAWN", PASSED_PAWN_PSQT, sizeof(PASSED_PAWN) / sizeof(Score), 4);
+    print_table("CANDIDATE_PASSER", CANDIDATE_PASSER_PSQT, sizeof(CANDIDATE_PASSER) / sizeof(Score), 8);
+    print_table("QUIET_MOBILITY_BONUS", QUIET_MOBILITY, 7, 7);
+    print_table("CAPTURE_MOBILITY_BONUS", CAPTURE_MOBILITY, 7, 7);
 
-    print_table("pawn_source", PAWN_PSQT, sizeof(PAWN_SOURCE) / sizeof(Score), 4);
-    print_table("knight_source", KNIGHT_PSQT, sizeof(KNIGHT_SOURCE) / sizeof(Score), 4);
-    print_table("bishop_source", BISHOP_PSQT, sizeof(BISHOP_SOURCE) / sizeof(Score), 4);
-    print_table("rook_source", ROOK_PSQT, sizeof(ROOK_SOURCE) / sizeof(Score), 4);
-    print_table("queen_source", QUEEN_PSQT, sizeof(QUEEN_SOURCE) / sizeof(Score), 4);
-    print_table("king_source", KING_PSQT, sizeof(KING_SOURCE) / sizeof(Score), 4);
-    print_table("passed_pawn", PASSED_PAWN_PSQT, sizeof(PASSED_PAWN_PSQT) / sizeof(Score), 4);
-    print_table("candidate_passer", CANDIDATE_PASSER_PSQT, sizeof(CANDIDATE_PASSER_PSQT) / sizeof(Score), 8);
-    print_table("quiet_mobility", QUIET_MOBILITY, 7, 7);
-    print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
-
-    std::cout << "\t\tconstexpr Score double_pawn_penalty = " << Score(params[DOUBLE_PAWN]) << ";" << '\n'
-              << "\t\tconstexpr Score isolated_pawn_penalty = " << Score(params[ISOLATED_PAWN]) << ";" << '\n'
-              << "\t\tconstexpr Score bishop_pair_bonus = " << Score(params[BISHOP_PAIR]) << ";" << '\n'
-              << "\t\tconstexpr Score rook_open_file_bonus = " << Score(params[ROOK_FULL]) << ";" << '\n'
-              << "\t\tconstexpr Score rook_semi_open_file_bonus = " << Score(params[ROOK_SEMI]) << ";" << '\n'
-              << "\t\tconstexpr Score rook_closed_file_penalty = " << Score(params[ROOK_CLOSED]) << ";" << '\n'
-              << "\t\tconstexpr Score tempo_bonus = " << Score(params[TEMPO]) << ";" << '\n'
-              << "\t\tconstexpr Score king_open_penalty = " << Score(params[KING_OPEN]) << ";" << '\n'
-              << "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN]) << ";" << '\n'
-              << "\t\tconstexpr Score knight_outpost_bonus = " << Score(params[KNIGHT_OUTPOST]) << ";" << '\n'
-              << "\t\tconstexpr Score bishop_outpost_bonus = " << Score(params[BISHOP_OUTPOST]) << ";" << '\n'
-              << "\t\tconstexpr Score weak_queen_penalty = " << Score(params[WEAK_QUEEN]) << ";" << '\n'
-              << "\t\tconstexpr Score rook_on_our_passer_file = " << Score(params[ROOK_OUR_PASSER]) << ";" << '\n'
-              << "\t\tconstexpr Score rook_on_their_passer_file = " << Score(params[ROOK_THEIR_PASSER]) << ";" << '\n'
-              << "\t\tconstexpr Score tall_pawn_penalty = " << Score(params[TALL_PAWN]) << ";" << '\n'
-              << "\t\tconstexpr Score fianchetto_bonus = " << Score(params[FIANCHETTO]) << ";" << '\n'
-              << "\t\tconstexpr Score rook_on_seventh = " << Score(params[ROOK_ON_SEVENTH]) << ";" << '\n'
+    std::cout << "\t\tconstexpr Score double_pawn_penalty = " << DOUBLE_PAWN_PENALTY << ";" << '\n'
+              << "\t\tconstexpr Score isolated_pawn_penalty = " << ISOLATED_PAWN_PENALTY << ";" << '\n'
+              << "\t\tconstexpr Score bishop_pair_bonus = " << BISHOP_PAIR_BONUS << ";" << '\n'
+              << "\t\tconstexpr Score rook_open_file_bonus = " << ROOK_OPEN_FILE_BONUS << ";" << '\n'
+              << "\t\tconstexpr Score rook_semi_open_file_bonus = " << ROOK_SEMI_OPEN_FILE_BONUS << ";" << '\n'
+              << "\t\tconstexpr Score rook_closed_file_penalty = " << ROOK_CLOSED_FILE_PENALTY << ";" << '\n'
+              << "\t\tconstexpr Score tempo_bonus = " << TEMPO_BONUS << ";" << '\n'
+              << "\t\tconstexpr Score king_open_penalty = " << KING_OPEN_PENALTY << ";" << '\n'
+              << "\t\tconstexpr Score king_adjacent_open_penalty = " << KING_ADJACENT_OPEN_PENALTY << ";" << '\n'
+              << "\t\tconstexpr Score knight_outpost_bonus = " << KNIGHT_OUTPOST_BONUS << ";" << '\n'
+              << "\t\tconstexpr Score bishop_outpost_bonus = " << BISHOP_OUTPOST_BONUS << ";" << '\n'
+              << "\t\tconstexpr Score weak_queen_penalty = " << WEAK_QUEEN_PENALTY << ";" << '\n'
+              << "\t\tconstexpr Score rook_on_our_passer_file = " << ROOK_ON_OUR_PASSER_FILE << ";" << '\n'
+              << "\t\tconstexpr Score rook_on_their_passer_file = " << ROOK_ON_THEIR_PASSER_FILE << ";" << '\n'
+              << "\t\tconstexpr Score tall_pawn_penalty = " << TALL_PAWN_PENALTY << ";" << '\n'
+              << "\t\tconstexpr Score fianchetto_bonus = " << FIANCHETTO_BONUS << ";" << '\n'
+              << "\t\tconstexpr Score rook_on_seventh = " << ROOK_ON_SEVENTH_RANK << ";" << '\n'
               << '\n';
 
-    print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(PAWN_SHIELD) / sizeof(short), 4);
-    print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
-    print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
+    print_table("PAWN_SHIELD", SAFETY_PAWN_SHIELD, sizeof(PAWN_SHIELD) / sizeof(short), 4);
+    print_table("INNER_RING_ATTACK", SAFETY_INNER_RING, 7, 7);
+    print_table("OUTER_RING_ATTACK", SAFETY_OUTER_RING, 7, 7);
 
-    std::cout << "\t\tconstexpr short attack_factor = " << round(params[SAFETY_N_ATT][MG]) << ";" << '\n'
-              << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << '\n';
+    std::cout << "\t\tconstexpr short attack_factor = " << ATTACK_FACTOR << ";" << '\n'
+              << "\t\tconstexpr short virtual_mobility = " << VIRTUAL_MOBILITY << ";" << '\n';
 }
 
 double find_k()
