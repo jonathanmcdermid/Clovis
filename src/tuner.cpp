@@ -47,7 +47,10 @@ void init_params()
     for (const auto& it : PASSED_PAWN) { add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN_PSQT - PASSED_PAWN.data())); }
     for (const auto& it : CANDIDATE_PASSER) { add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER_PSQT - CANDIDATE_PASSER.data())); }
     for (const auto& it : QUIET_MOBILITY_BONUS) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - QUIET_MOBILITY_BONUS.data())); }
-    for (const auto& it : CAPTURE_MOBILITY_BONUS) { add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - CAPTURE_MOBILITY_BONUS.data())); }
+    for (const auto& it : CAPTURE_MOBILITY_BONUS)
+    {
+        add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - CAPTURE_MOBILITY_BONUS.data()));
+    }
 
     add_param<Score>(DOUBLE_PAWN_PENALTY, DOUBLE_PAWN);
     add_param<Score>(ISOLATED_PAWN_PENALTY, ISOLATED_PAWN);

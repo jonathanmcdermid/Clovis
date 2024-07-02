@@ -403,7 +403,7 @@ inline Square str2sq(const std::string& s)
     return make_square(static_cast<File>(s[0] - 'a'), static_cast<Rank>(s[1] - '1'));
 }
 
-constexpr std::array<std::array<char, 3>, SQ_N + 1> sq_names = {
+constexpr std::array<std::array<char, 3>, SQ_N + 1> SQ_NAMES = {
     {{'a', '1', '\0'}, {'b', '1', '\0'}, {'c', '1', '\0'}, {'d', '1', '\0'}, {'e', '1', '\0'}, {'f', '1', '\0'}, {'g', '1', '\0'}, {'h', '1', '\0'},
      {'a', '2', '\0'}, {'b', '2', '\0'}, {'c', '2', '\0'}, {'d', '2', '\0'}, {'e', '2', '\0'}, {'f', '2', '\0'}, {'g', '2', '\0'}, {'h', '2', '\0'},
      {'a', '3', '\0'}, {'b', '3', '\0'}, {'c', '3', '\0'}, {'d', '3', '\0'}, {'e', '3', '\0'}, {'f', '3', '\0'}, {'g', '3', '\0'}, {'h', '3', '\0'},
@@ -414,7 +414,7 @@ constexpr std::array<std::array<char, 3>, SQ_N + 1> sq_names = {
      {'a', '8', '\0'}, {'b', '8', '\0'}, {'c', '8', '\0'}, {'d', '8', '\0'}, {'e', '8', '\0'}, {'f', '8', '\0'}, {'g', '8', '\0'}, {'h', '8', '\0'},
      {'-', '\0', '\0'}}};
 
-inline std::string sq2str(const Square sq) { return sq_names[sq].data(); }
+inline std::string sq2str(const Square sq) { return SQ_NAMES[sq].data(); }
 
 // convert move to std::string
 inline std::string move2str(const Move m)

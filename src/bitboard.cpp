@@ -86,7 +86,7 @@ void init_bitboards()
         for (int index = 0; index < (1 << std::popcount(ROOK_MASKS[sq])); ++index)
         {
             const Bitboard occ = set_occupancy(ROOK_MASKS[sq], index, std::popcount(ROOK_MASKS[sq]));
-            rook_attacks[sq][(occ * ROOK_MAGIC[sq]) >> rook_bit_count[sq]] = rook_otf(sq, occ);
+            rook_attacks[sq][(occ * ROOK_MAGIC[sq]) >> ROOK_BIT_COUNT[sq]] = rook_otf(sq, occ);
         }
     }
 }

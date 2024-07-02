@@ -230,7 +230,7 @@ constexpr auto BISHOP_BIT_COUNT = [] {
     return arr;
 }();
 
-constexpr auto rook_bit_count = [] {
+constexpr auto ROOK_BIT_COUNT = [] {
     std::array<int, SQ_N> arr{};
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = SQ_N - std::popcount(ROOK_MASKS[sq]); }
@@ -273,7 +273,7 @@ template <PieceType PT> constexpr Bitboard get_attacks(const Bitboard occ, const
 
     return PT == KNIGHT   ? KNIGHT_ATTACKS[sq]
            : PT == BISHOP ? bishop_attacks[sq][(occ & BISHOP_MASKS[sq]) * BISHOP_MAGIC[sq] >> BISHOP_BIT_COUNT[sq]]
-           : PT == ROOK   ? rook_attacks[sq][(occ & ROOK_MASKS[sq]) * ROOK_MAGIC[sq] >> rook_bit_count[sq]]
+           : PT == ROOK   ? rook_attacks[sq][(occ & ROOK_MASKS[sq]) * ROOK_MAGIC[sq] >> ROOK_BIT_COUNT[sq]]
            : PT == QUEEN  ? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
                           : KING_ATTACKS[sq];
 }
