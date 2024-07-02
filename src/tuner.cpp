@@ -141,7 +141,7 @@ void update_single_gradient(const TEntry& entry, TVector& gradient, const double
     const double s = sigmoid(k, e);
     const double a = (entry.result - s) * s * (1 - s);
 
-    const double base[PHASE_N] = {a * entry.phase, a * (MAX_GAME_PHASE - entry.phase)};
+    const std::array<double, PHASE_N> base = {a * entry.phase, a * (MAX_GAME_PHASE - entry.phase)};
 
     for (const auto& it : entry.tuples)
     {

@@ -8,9 +8,9 @@
 namespace clovis {
 
 #if defined(__GNUC__)
-constexpr std::string_view symbols[] = {"·", "♙", "♘", "♗", "♖", "♕", "♔", "", "", "♟︎", "♞", "♝", "♜", "♛", "♚"};
+constexpr std::array<std::string_view, 15> symbols = {"·", "♙", "♘", "♗", "♖", "♕", "♔", "", "", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 #else
-constexpr std::string_view symbols[] = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "k", "b", "r", "q", "k"};
+constexpr std::array<std::string_view, 15> symbols = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "k", "b", "r", "q", "k"};
 #endif
 
 constexpr auto castling_rights = [] {
@@ -264,7 +264,7 @@ bool Position::see_ge(const Move move, const int threshold) const
     // don't even bother
     if (move_promotion_type(move) || move_en_passant(move)) { return true; }
 
-    int gain[32];
+    std::array<int, 32> gain;
     int d = 0;
     Square from = move_from_sq(move);
     const Square to = move_to_sq(move);
