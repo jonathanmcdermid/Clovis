@@ -15,9 +15,9 @@
 
 namespace clovis {
 
-typedef uint64_t Key;
-typedef uint64_t Bitboard;
-typedef int64_t Duration;
+using Key = uint64_t;
+using Bitboard = uint64_t;
+using Duration = int64_t;
 
 constexpr int MAX_SCALING = 32;
 constexpr int MAX_GAME_PHASE = 24;
