@@ -38,16 +38,16 @@ void init_params()
 {
     using namespace eval;
 
-    for (const auto& it : pawn_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source)); }
-    for (const auto& it : knight_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source)); }
-    for (const auto& it : bishop_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source)); }
-    for (const auto& it : rook_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source)); }
-    for (const auto& it : queen_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source)); }
-    for (const auto& it : king_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source)); }
-    for (const auto& it : passed_pawn) { add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn)); }
-    for (const auto& it : candidate_passer) { add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer)); }
-    for (const auto& it : quiet_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility)); }
-    for (const auto& it : capture_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility)); }
+    for (const auto& it : pawn_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source.data())); }
+    for (const auto& it : knight_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source.data())); }
+    for (const auto& it : bishop_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source.data())); }
+    for (const auto& it : rook_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source.data())); }
+    for (const auto& it : queen_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source.data())); }
+    for (const auto& it : king_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source.data())); }
+    for (const auto& it : passed_pawn) { add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn.data())); }
+    for (const auto& it : candidate_passer) { add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer.data())); }
+    for (const auto& it : quiet_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility.data())); }
+    for (const auto& it : capture_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility.data())); }
 
     add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
     add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
@@ -67,9 +67,9 @@ void init_params()
     add_param<Score>(fianchetto_bonus, FIANCHETTO);
     add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
 
-    for (const auto& it : pawn_shield) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield)); }
-    for (const auto& it : inner_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack)); }
-    for (const auto& it : outer_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack)); }
+    for (const auto& it : pawn_shield) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield.data())); }
+    for (const auto& it : inner_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack.data())); }
+    for (const auto& it : outer_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack.data())); }
 
     add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
     add_param<short>(attack_factor, SAFETY_N_ATT);
