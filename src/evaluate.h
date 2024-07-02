@@ -14,7 +14,7 @@ struct EvalInfo : PTEntry
 };
 
 // clang-format off
-constexpr Score pawn_source[] = {
+constexpr std::array<Score, SQ_N / 2> pawn_source[] = {
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
     {184, 244}, {182, 248}, {158, 235}, {195, 203},
     {71, 97}, {89, 96}, {108, 88}, {111, 44},
@@ -25,28 +25,28 @@ constexpr Score pawn_source[] = {
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
 };
 
-constexpr Score knight_source[] = {
+constexpr std::array<Score, SQ_N / 4> knight_source[] = {
     {248, 199}, {294, 209}, {285, 234}, {301, 232},
     {306, 212}, {298, 235}, {314, 238}, {320, 240},
     {300, 222}, {316, 236}, {318, 243}, {327, 252},
     {305, 235}, {309, 244}, {324, 251}, {321, 258},
 };
 
-constexpr Score bishop_source[] = {
+constexpr std::array<Score, SQ_N / 4> bishop_source[] = {
     {303, 230}, {335, 223}, {315, 235}, {322, 235},
     {303, 236}, {332, 220}, {332, 234}, {328, 238},
     {313, 238}, {331, 238}, {334, 239}, {331, 243},
     {307, 241}, {311, 241}, {317, 242}, {328, 238},
 };
 
-constexpr Score rook_source[] = {
+constexpr std::array<Score, SQ_N / 4> rook_source[] = {
     {441, 434}, {439, 436}, {442, 437}, {443, 435},
     {418, 439}, {440, 433}, {451, 429}, {450, 429},
     {434, 437}, {442, 437}, {446, 434}, {451, 434},
     {428, 445}, {446, 438}, {447, 438}, {454, 434},
 };
 
-constexpr Score queen_source[] = {
+constexpr std::array<Score, SQ_N / 2> queen_source[] = {
     {870, 814}, {837, 845}, {833, 856}, {866, 840},
     {876, 806}, {848, 839}, {869, 843}, {837, 865},
     {895, 805}, {892, 820}, {885, 830}, {874, 848},
@@ -57,14 +57,14 @@ constexpr Score queen_source[] = {
     {893, 786}, {888, 787}, {889, 790}, {902, 785},
 };
 
-constexpr Score king_source[] = {
+constexpr std::array<Score, SQ_N / 4> king_source[] = {
     {76, 14}, {105, 36}, {72, 58}, {69, 59},
     {88, 44}, {107, 56}, {82, 72}, {53, 85},
     {45, 63}, {89, 68}, {68, 85}, {62, 94},
     {37, 64}, {70, 79}, {71, 92}, {41, 101},
 };
 
-constexpr Score passed_pawn[] = {
+constexpr std::array<Score, SQ_N / 2> passed_pawn[] = {
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
     {40, 111}, {29, 110}, {41, 85}, {29, 108},
@@ -75,15 +75,15 @@ constexpr Score passed_pawn[] = {
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
 };
 
-constexpr Score candidate_passer[] = {
+constexpr std::array<Score, RANK_N> candidate_passer[] = {
     {0, 0}, {0, 5}, {0, 9}, {7, 24}, {20, 49}, {25, 69}, {0, 0}, {0, 0},
 };
 
-constexpr Score quiet_mobility[] = {
+constexpr std::array<Score, 7> quiet_mobility[] = {
     {0, 0}, {0, 0}, {6, 1}, {4, 4}, {3, 3}, {1, 3}, {0, 0},
 };
 
-constexpr Score capture_mobility[] = {
+constexpr std::array<Score, 7> capture_mobility[] = {
     {0, 0}, {0, 0}, {8, 21}, {13, 20}, {10, 23}, {1, 16}, {0, 0},
 };
 
@@ -105,7 +105,7 @@ constexpr Score tall_pawn_penalty = {10, 24};
 constexpr Score fianchetto_bonus = {17, 11};
 constexpr Score rook_on_seventh = {0, 23};
 
-constexpr short pawn_shield[] = {
+constexpr std::array<short, SQ_N / 2> pawn_shield = {
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -116,11 +116,11 @@ constexpr short pawn_shield[] = {
     32, 34, 30, 0,
 };
 
-constexpr short inner_ring_attack[] = {
+constexpr std::array<short, 7> inner_ring_attack = {
     0, 19, 18, 26, 23, 21, 0,
 };
 
-constexpr short outer_ring_attack[] = {
+constexpr std::array<short, 7> outer_ring_attack = {
     0, 0, 28, 14, 10, 19, 0,
 };
 
