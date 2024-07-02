@@ -436,12 +436,12 @@ inline std::ostream& operator<<(std::ostream& os, const Move& m)
     return os;
 }
 
-template <typename T> constexpr T& operator++(T& d) { return d = static_cast<T>(static_cast<int>(d) + 1); }
-template <typename T> constexpr T& operator--(T& d) { return d = static_cast<T>(static_cast<int>(d) - 1); }
-template <typename T> constexpr T operator+(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) + d2); }
-template <typename T> constexpr T operator-(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) - d2); }
-template <typename T> constexpr T operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }
-template <typename T> constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }
-template <typename T> constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator+(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) + d2); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator-(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) - d2); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator+=(T& d1, int d2) { return d1 = d1 + d2; }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator-=(T& d1, int d2) { return d1 = d1 - d2; }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator++(T& d) { return d = static_cast<T>(static_cast<int>(d) + 1); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator--(T& d) { return d = static_cast<T>(static_cast<int>(d) - 1); }
 
 } // namespace clovis
