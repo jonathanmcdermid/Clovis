@@ -83,7 +83,7 @@ class MovePicker
 {
   public:
     MovePicker(const Position& p, const int pl, const Move pm, const Move ttm)
-        : pos(p), ply(pl), stage(TT_MOVE), curr(moves.data()), last(moves.data()), last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm)
+        : pos(p), ply(pl), curr(moves.data()), last(moves.data()), last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm)
     {
     }
     Move get_next(bool play_quiets);
@@ -96,7 +96,7 @@ class MovePicker
     const Position& pos;
     std::array<ScoredMove, MAX_MOVES> moves;
     int ply;
-    int stage;
+    int stage{TT_MOVE};
     ScoredMove* curr;
     ScoredMove* last;
     ScoredMove* last_bad_cap;
