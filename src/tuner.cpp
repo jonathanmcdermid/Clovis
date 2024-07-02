@@ -239,13 +239,17 @@ double find_k()
 
     for (int epoch = 0; epoch < 10; ++epoch)
     {
-        for (double curr = start; curr < end; curr += step)
+        double curr = start;
+
+        while (true)
         {
             if (const double error = mse<true>(curr); error <= best)
             {
                 best = error;
                 start = curr;
             }
+            curr += step;
+            if (curr > end) { break; }
         }
 
         std::cout.precision(17);
