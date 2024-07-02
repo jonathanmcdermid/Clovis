@@ -173,7 +173,7 @@ void Position::set(const char* fen)
     bs = std::make_unique<BoardState>();
 
     std::istringstream ss(fen);
-    char token;
+    char token = '\0';
     Square sq = A8;
 
     ss >> std::noskipws;
@@ -455,8 +455,8 @@ bool Position::do_move(const Move move)
 
         if (move_castling(move))
         {
-            Square rt;
-            Square rf;
+            Square rt = SQ_ZERO;
+            Square rf = SQ_ZERO;
             get_castle_rook_squares(tar, rf, rt);
             bs->key ^= zobrist::piece_square[pc_table[rf]][rf];
             bs->key ^= zobrist::piece_square[pc_table[rf]][rt];
@@ -492,8 +492,8 @@ void Position::undo_move(const Move move)
     {
         if (move_castling(move))
         {
-            Square rt;
-            Square rf;
+            Square rt = SQ_ZERO;
+            Square rf = SQ_ZERO;
             get_castle_rook_squares(tar, rf, rt);
             remove_piece(rt);
             put_piece(make_piece(ROOK, side), rf);
