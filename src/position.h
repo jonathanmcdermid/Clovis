@@ -7,7 +7,7 @@
 
 namespace clovis {
 
-constexpr std::string_view piece_str = " PNBRQK  pnbrqk";
+constexpr std::string_view PIECE_STR = " PNBRQK  pnbrqk";
 
 // linked list implementation for board state info
 struct BoardState
@@ -64,14 +64,14 @@ struct Position
     std::array<Bitboard, COLOUR_N + 1> occ_bb{};
 };
 
-// returns whether or not a square is attacked by opposing side
+// returns whether a square is attacked by opposing side
 template <Colour US> bool Position::is_attacked(const Square sq) const
 {
-    return ((pc_bb[make_piece(PAWN, ~US)] & bitboards::pawn_attacks[US][sq]) || (pc_bb[make_piece(KNIGHT, ~US)] & bitboards::knight_attacks[sq]) ||
+    return ((pc_bb[make_piece(PAWN, ~US)] & bitboards::PAWN_ATTACKS[US][sq]) || (pc_bb[make_piece(KNIGHT, ~US)] & bitboards::KNIGHT_ATTACKS[sq]) ||
             (pc_bb[make_piece(BISHOP, ~US)] & bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) ||
             (pc_bb[make_piece(ROOK, ~US)] & bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) ||
             (pc_bb[make_piece(QUEEN, ~US)] & bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) ||
-            (pc_bb[make_piece(KING, ~US)] & bitboards::king_attacks[sq]));
+            (pc_bb[make_piece(KING, ~US)] & bitboards::KING_ATTACKS[sq]));
 }
 
 template <Colour US> bool Position::is_insufficient() const
@@ -93,8 +93,8 @@ inline Bitboard Position::consider_xray(const Bitboard occ, const Square to, con
 
 inline Bitboard Position::attackers_to(const Square sq) const
 {
-    return (bitboards::pawn_attacks[BLACK][sq] & pc_bb[W_PAWN]) | (bitboards::pawn_attacks[WHITE][sq] & pc_bb[B_PAWN]) |
-           (bitboards::knight_attacks[sq] & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT])) | (bitboards::king_attacks[sq] & (pc_bb[W_KING] | pc_bb[B_KING])) |
+    return (bitboards::PAWN_ATTACKS[BLACK][sq] & pc_bb[W_PAWN]) | (bitboards::PAWN_ATTACKS[WHITE][sq] & pc_bb[B_PAWN]) |
+           (bitboards::KNIGHT_ATTACKS[sq] & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT])) | (bitboards::KING_ATTACKS[sq] & (pc_bb[W_KING] | pc_bb[B_KING])) |
            (bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK])) |
            (bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
 }

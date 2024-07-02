@@ -2,8 +2,8 @@
 
 namespace clovis::bitboards {
 
-std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks;
-std::array<std::array<Bitboard, rook_attack_indices>, SQ_N> rook_attacks;
+std::array<std::array<Bitboard, BISHOP_ATTACK_INDICES>, SQ_N> bishop_attacks;
+std::array<std::array<Bitboard, ROOK_ATTACK_INDICES>, SQ_N> rook_attacks;
 
 // prints a bitboard, useful for debugging
 void print_bitboard(const Bitboard& bb)
@@ -77,16 +77,16 @@ void init_bitboards()
 {
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
     {
-        for (int index = 0; index < (1 << std::popcount(bishop_masks[sq])); ++index)
+        for (int index = 0; index < (1 << std::popcount(BISHOP_MASKS[sq])); ++index)
         {
-            const Bitboard occ = set_occupancy(bishop_masks[sq], index, std::popcount(bishop_masks[sq]));
-            bishop_attacks[sq][(occ * bishop_magic[sq]) >> bishop_bit_count[sq]] = bishop_otf(sq, occ);
+            const Bitboard occ = set_occupancy(BISHOP_MASKS[sq], index, std::popcount(BISHOP_MASKS[sq]));
+            bishop_attacks[sq][(occ * BISHOP_MAGIC[sq]) >> BISHOP_BIT_COUNT[sq]] = bishop_otf(sq, occ);
         }
 
-        for (int index = 0; index < (1 << std::popcount(rook_masks[sq])); ++index)
+        for (int index = 0; index < (1 << std::popcount(ROOK_MASKS[sq])); ++index)
         {
-            const Bitboard occ = set_occupancy(rook_masks[sq], index, std::popcount(rook_masks[sq]));
-            rook_attacks[sq][(occ * rook_magic[sq]) >> rook_bit_count[sq]] = rook_otf(sq, occ);
+            const Bitboard occ = set_occupancy(ROOK_MASKS[sq], index, std::popcount(ROOK_MASKS[sq]));
+            rook_attacks[sq][(occ * ROOK_MAGIC[sq]) >> rook_bit_count[sq]] = rook_otf(sq, occ);
         }
     }
 }

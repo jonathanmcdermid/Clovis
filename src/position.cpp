@@ -8,12 +8,12 @@
 namespace clovis {
 
 #if defined(__GNUC__)
-constexpr std::array<std::string_view, 15> symbols = {"·", "♙", "♘", "♗", "♖", "♕", "♔", "", "", "♟︎", "♞", "♝", "♜", "♛", "♚"};
+constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {"·", "♙", "♘", "♗", "♖", "♕", "♔", "", "", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 #else
-constexpr std::array<std::string_view, 15> symbols = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "k", "b", "r", "q", "k"};
+constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "k", "b", "r", "q", "k"};
 #endif
 
-constexpr auto castling_rights = [] {
+constexpr auto CASTLING_RIGHTS = [] {
     std::array<int, SQ_N> arr{};
 
     arr.fill(ALL_CASTLING);
@@ -40,7 +40,7 @@ constexpr uint64_t xor_shift(uint64_t state)
 
 constexpr uint64_t state = 0xB1FACE5ULL;
 
-constexpr auto piece_square = [] {
+constexpr auto PIECE_SQUARE = [] {
     std::array<std::array<Key, SQ_N>, 15> arr{};
     uint64_t s = state;
 
@@ -52,7 +52,7 @@ constexpr auto piece_square = [] {
     return arr;
 }();
 
-constexpr auto en_passant = [] {
+constexpr auto EN_PASSANT = [] {
     std::array<Key, SQ_N> arr{};
     uint64_t s = state + 15ULL * SQ_N;
 
@@ -61,7 +61,7 @@ constexpr auto en_passant = [] {
     return arr;
 }();
 
-constexpr auto castling = [] {
+constexpr auto CASTLING = [] {
     std::array<Key, 16> arr{};
     uint64_t s = state + 16ULL * SQ_N;
 
@@ -100,12 +100,11 @@ template Square Position::get_pinner<BLACK>(Square sq) const;
 template <Colour US> bool Position::discovery_threat(const Square sq) const
 {
     // pawn is immobile if it attacks no enemies and is blocked by a piece
-    // we don't have to worry about shift because discovery pawns will never
-    // be on outer files
+    // we don't have to worry about shift because discovery pawns will never be on outer files
     Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
                                     ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
-    if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::pawn_attacks[US][bs->en_passant]; }
+    if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
 
     Bitboard candidates =
         ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
@@ -143,7 +142,7 @@ std::string Position::get_fen() const
                     fen << empty_count;
                     empty_count = 0;
                 }
-                fen.put(piece_str[pc_table[sq]]);
+                fen.put(PIECE_STR[pc_table[sq]]);
             }
         }
         if (empty_count) { fen << empty_count; }
@@ -182,11 +181,11 @@ void Position::set(const char* fen)
     {
         if (isdigit(token)) { sq += (token - '0') * EAST; }
         else if (token == '/') { sq += 2 * SOUTH; }
-        else if (size_t index = piece_str.find(token); index != std::string::npos)
+        else if (size_t index = PIECE_STR.find(token); index != std::string::npos)
         {
             put_piece(static_cast<Piece>(index), sq);
             put_piece(static_cast<Piece>(index), sq);
-            bs->game_phase += game_phase_inc[static_cast<Piece>(index)];
+            bs->game_phase += GAME_PHASE_INCREMENT[static_cast<Piece>(index)];
             sq += EAST;
         }
     }
@@ -235,14 +234,14 @@ Key Position::make_key() const
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
     {
-        if (pc_table[sq] != NO_PIECE) { k ^= zobrist::piece_square[pc_table[sq]][sq]; }
+        if (pc_table[sq] != NO_PIECE) { k ^= zobrist::PIECE_SQUARE[pc_table[sq]][sq]; }
     }
 
-    if (bs->en_passant != SQ_NONE) { k ^= zobrist::en_passant[bs->en_passant]; }
+    if (bs->en_passant != SQ_NONE) { k ^= zobrist::EN_PASSANT[bs->en_passant]; }
 
     if (side == BLACK) { k ^= zobrist::side; }
 
-    k ^= zobrist::castling[bs->castle];
+    k ^= zobrist::CASTLING[bs->castle];
 
     return k;
 }
@@ -253,7 +252,7 @@ Key Position::make_pawn_key() const
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
     {
-        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING) { k ^= zobrist::piece_square[pc_table[sq]][sq]; }
+        if (piece_type(pc_table[sq]) == PAWN || piece_type(pc_table[sq]) == KING) { k ^= zobrist::PIECE_SQUARE[pc_table[sq]][sq]; }
     }
 
     return k;
@@ -272,14 +271,14 @@ bool Position::see_ge(const Move move, const int threshold) const
     Bitboard attackers = attackers_to(to);
     Colour stm = side;
 
-    gain[d] = piece_value[pc_table[to]];
+    gain[d] = PIECE_VALUE[pc_table[to]];
 
     while (true)
     {
         stm = ~stm;
         d++;
         assert(d < 32);
-        gain[d] = piece_value[pc_table[from]] - gain[d - 1];
+        gain[d] = PIECE_VALUE[pc_table[from]] - gain[d - 1];
 
         if (std::max(-gain[d - 1], gain[d]) < threshold) { break; }
 
@@ -356,7 +355,7 @@ template <bool NM> void Position::new_board_state()
 
     if (bs->en_passant != SQ_NONE)
     {
-        bs->key ^= zobrist::en_passant[bs->en_passant];
+        bs->key ^= zobrist::EN_PASSANT[bs->en_passant];
         bs->en_passant = SQ_NONE;
     }
 }
@@ -395,10 +394,10 @@ bool Position::do_move(const Move move)
     bs->captured_piece = pc_table[tar];
 
     // update castling rights
-    bs->key ^= zobrist::castling[bs->castle];
-    bs->castle &= castling_rights[src];
-    bs->castle &= castling_rights[tar];
-    bs->key ^= zobrist::castling[bs->castle];
+    bs->key ^= zobrist::CASTLING[bs->castle];
+    bs->castle &= CASTLING_RIGHTS[src];
+    bs->castle &= CASTLING_RIGHTS[tar];
+    bs->key ^= zobrist::CASTLING[bs->castle];
 
     if (move_capture(move))
     {
@@ -406,25 +405,25 @@ bool Position::do_move(const Move move)
         {
             const Square victim_sq = tar - pawn_push(side);
             bs->captured_piece = make_piece(PAWN, ~side);
-            bs->key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
-            bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][victim_sq];
+            bs->key ^= zobrist::PIECE_SQUARE[bs->captured_piece][victim_sq];
+            bs->pawn_key ^= zobrist::PIECE_SQUARE[bs->captured_piece][victim_sq];
             remove_piece(victim_sq);
             put_piece(piece, tar);
         }
         else
         {
-            if (piece_type(bs->captured_piece) == PAWN) { bs->pawn_key ^= zobrist::piece_square[bs->captured_piece][tar]; }
+            if (piece_type(bs->captured_piece) == PAWN) { bs->pawn_key ^= zobrist::PIECE_SQUARE[bs->captured_piece][tar]; }
 
-            bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
+            bs->key ^= zobrist::PIECE_SQUARE[pc_table[tar]][tar];
             replace_piece(piece, tar);
         }
-        bs->game_phase -= game_phase_inc[bs->captured_piece];
+        bs->game_phase -= GAME_PHASE_INCREMENT[bs->captured_piece];
         bs->hmc = 0;
     }
     else { put_piece(piece, tar); }
 
-    bs->key ^= zobrist::piece_square[pc_table[src]][src];
-    bs->key ^= zobrist::piece_square[pc_table[src]][tar];
+    bs->key ^= zobrist::PIECE_SQUARE[pc_table[src]][src];
+    bs->key ^= zobrist::PIECE_SQUARE[pc_table[src]][tar];
     remove_piece(src);
 
     if (piece_type(piece) == PAWN)
@@ -432,34 +431,34 @@ bool Position::do_move(const Move move)
         if (move_double(move))
         {
             bs->en_passant = tar - pawn_push(side);
-            bs->key ^= zobrist::en_passant[bs->en_passant];
+            bs->key ^= zobrist::EN_PASSANT[bs->en_passant];
         }
         else if (move_promotion_type(move))
         {
-            bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
-            bs->pawn_key ^= zobrist::piece_square[piece][tar];
+            bs->key ^= zobrist::PIECE_SQUARE[pc_table[tar]][tar];
+            bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][tar];
             remove_piece(tar);
             put_piece(move_promotion_type(move), tar);
-            bs->key ^= zobrist::piece_square[pc_table[tar]][tar];
-            bs->game_phase -= game_phase_inc[PAWN];
-            bs->game_phase += game_phase_inc[move_promotion_type(move)];
+            bs->key ^= zobrist::PIECE_SQUARE[pc_table[tar]][tar];
+            bs->game_phase -= GAME_PHASE_INCREMENT[PAWN];
+            bs->game_phase += GAME_PHASE_INCREMENT[move_promotion_type(move)];
         }
-        bs->pawn_key ^= zobrist::piece_square[piece][src];
-        bs->pawn_key ^= zobrist::piece_square[piece][tar];
+        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][src];
+        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][tar];
         bs->hmc = 0;
     }
     else if (piece_type(piece) == KING)
     {
-        bs->pawn_key ^= zobrist::piece_square[piece][src];
-        bs->pawn_key ^= zobrist::piece_square[piece][tar];
+        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][src];
+        bs->pawn_key ^= zobrist::PIECE_SQUARE[piece][tar];
 
         if (move_castling(move))
         {
             Square rt = SQ_ZERO;
             Square rf = SQ_ZERO;
             get_castle_rook_squares(tar, rf, rt);
-            bs->key ^= zobrist::piece_square[pc_table[rf]][rf];
-            bs->key ^= zobrist::piece_square[pc_table[rf]][rt];
+            bs->key ^= zobrist::PIECE_SQUARE[pc_table[rf]][rf];
+            bs->key ^= zobrist::PIECE_SQUARE[pc_table[rf]][rt];
             remove_piece(rf);
             put_piece(make_piece(ROOK, side), rt);
         }
@@ -541,7 +540,7 @@ void Position::print_position() const
     for (Rank r = RANK_8; r >= RANK_1; --r)
     {
         std::cout << r + 1 << ' ';
-        for (File f = FILE_A; f < FILE_N; ++f) { std::cout << symbols[pc_table[make_square(f, r)]] << " "; }
+        for (File f = FILE_A; f < FILE_N; ++f) { std::cout << PIECE_SYMBOLS[pc_table[make_square(f, r)]] << " "; }
         std::cout << '\n';
     }
     std::cout << "  a b c d e f g h" << '\n' << '\n' << get_fen() << '\n' << '\n';

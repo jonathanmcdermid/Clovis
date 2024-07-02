@@ -30,8 +30,8 @@ constexpr int DEFAULT_BENCH_DEPTH = 13;
 constexpr int DEFAULT_BENCH_THREADS = 1;
 constexpr int DEFAULT_BENCH_MB = 16;
 
-constexpr auto game_phase_inc = std::array{0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0};
-constexpr auto piece_value = std::array{0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000};
+constexpr auto GAME_PHASE_INCREMENT = std::array{0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0};
+constexpr auto PIECE_VALUE = std::array{0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000};
 
 /*
 MOVE BIT FORMATTING
@@ -198,9 +198,9 @@ enum TraceIndex : int
     ROOK_PSQT = BISHOP_PSQT + 16,
     QUEEN_PSQT = ROOK_PSQT + 16,
     KING_PSQT = QUEEN_PSQT + 32,
-    PASSED_PAWN = KING_PSQT + 16,
-    CANDIDATE_PASSER = PASSED_PAWN + 32,
-    QUIET_MOBILITY = CANDIDATE_PASSER + 8,
+    PASSED_PAWN_PSQT = KING_PSQT + 16,
+    CANDIDATE_PASSER_PSQT = PASSED_PAWN_PSQT + 32,
+    QUIET_MOBILITY = CANDIDATE_PASSER_PSQT + 8,
     CAPTURE_MOBILITY = QUIET_MOBILITY + 7,
     DOUBLE_PAWN = CAPTURE_MOBILITY + 7,
     ISOLATED_PAWN,

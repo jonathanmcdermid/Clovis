@@ -50,7 +50,7 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
 
         if (rank_of(src) == relative_rank(US, RANK_7))
         {
-            Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
+            Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.occ_bb[~US];
 
             if (!(pos.occ_bb[BOTH] & tar)) { moves = generate_promotions<T, M, US, false>(moves, src, tar); }
 
@@ -74,7 +74,7 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
             }
             if constexpr (CAPTURES)
             {
-                Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
+                Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.occ_bb[~US];
 
                 while (att)
                 {
@@ -82,7 +82,7 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
                     *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
                 }
 
-                if (bitboards::pawn_attacks[US][src] & pos.bs->en_passant)
+                if (bitboards::PAWN_ATTACKS[US][src] & pos.bs->en_passant)
                 {
                     *moves++ = encode_move(src, pos.bs->en_passant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
                 }
@@ -131,7 +131,7 @@ template <typename T> void print_moves(const T* m, const T* end)
 
     while (m != end)
     {
-        std::cout << move_from_sq(*m) << move_to_sq(*m) << piece_str[move_promotion_type(*m)] << '\t' << piece_str[move_piece_type(*m)] << '\t'
+        std::cout << move_from_sq(*m) << move_to_sq(*m) << PIECE_STR[move_promotion_type(*m)] << '\t' << PIECE_STR[move_piece_type(*m)] << '\t'
                   << static_cast<int>(move_capture(*m)) << '\t' << static_cast<int>(move_double(*m)) << '\t' << static_cast<int>(move_en_passant(*m))
                   << '\t' << static_cast<int>(move_castling(*m)) << '\t';
 

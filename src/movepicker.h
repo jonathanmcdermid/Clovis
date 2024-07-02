@@ -7,15 +7,15 @@
 
 namespace clovis::move_pick {
 
-constexpr size_t cft_size = COLOUR_N * SQ_N * SQ_N;
+constexpr size_t COLOUR_FROM_TO_SIZE = COLOUR_N * SQ_N * SQ_N;
 
 struct KEntry
 {
     Move primary{MOVE_NONE}, secondary{MOVE_NONE};
 };
 
-extern std::array<int, cft_size> history_table;
-extern std::array<Move, cft_size> counter_table;
+extern std::array<int, COLOUR_FROM_TO_SIZE> history_table;
+extern std::array<Move, COLOUR_FROM_TO_SIZE> counter_table;
 extern std::array<KEntry, MAX_PLY> killer_table;
 
 constexpr auto history_bonus = [] {
@@ -40,7 +40,7 @@ constexpr auto mvv_lva = [] {
     return arr;
 }();
 
-inline size_t cft_index(const Colour c, const Move m) { return c * SQ_N * SQ_N + move_from_sq(m) * SQ_N + move_to_sq(m); }
+inline size_t cft_index(const Colour c, const Move m) { return SQ_N * SQ_N * c + move_from_sq(m) * SQ_N + move_to_sq(m); }
 inline int& get_history_entry(const Colour c, const Move m) { return history_table[cft_index(c, m)]; }
 inline Move& get_counter_entry(const Colour c, const Move m) { return counter_table[cft_index(c, m)]; }
 

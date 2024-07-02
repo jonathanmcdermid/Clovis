@@ -21,7 +21,7 @@ Move parse(const Position& pos, std::string move)
     if (islower(move[0]))
     { // pawn moves
         const Piece promo =
-            move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(piece_str.find(move[move.length() - 1])), pos.side) : NO_PIECE;
+            move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(PIECE_STR.find(move[move.length() - 1])), pos.side) : NO_PIECE;
         const Square to = (promo == NO_PIECE) ? str2sq(move.substr(move.length() - 2)) : str2sq(move.substr(move.length() - 4, 2));
         const Square from = (move[1] == 'x') ? make_square(static_cast<File>(move[0] - 'a'), rank_of(to - pawn_push(pos.side)))
                             : pos.pc_table[to - pawn_push(pos.side)] == NO_PIECE ? to - 2 * pawn_push(pos.side)
@@ -31,7 +31,7 @@ Move parse(const Position& pos, std::string move)
                            pos.bs->en_passant == to, false);
     }
     // major moves
-    const Piece piece = make_piece(static_cast<PieceType>(piece_str.find(move[0])), pos.side);
+    const Piece piece = make_piece(static_cast<PieceType>(PIECE_STR.find(move[0])), pos.side);
     const Square to = str2sq(move.substr(move.length() - 2));
     Bitboard bb = bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece];
     Square from = bitboards::pop_lsb(bb);

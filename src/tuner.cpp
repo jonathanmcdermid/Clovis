@@ -38,41 +38,41 @@ void init_params()
 {
     using namespace eval;
 
-    for (const auto& it : pawn_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source.data())); }
-    for (const auto& it : knight_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source.data())); }
-    for (const auto& it : bishop_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source.data())); }
-    for (const auto& it : rook_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source.data())); }
-    for (const auto& it : queen_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source.data())); }
-    for (const auto& it : king_source) { add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source.data())); }
-    for (const auto& it : passed_pawn) { add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn.data())); }
-    for (const auto& it : candidate_passer) { add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer.data())); }
-    for (const auto& it : quiet_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility.data())); }
-    for (const auto& it : capture_mobility) { add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility.data())); }
+    for (const auto& it : PAWN_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - PAWN_SOURCE.data())); }
+    for (const auto& it : KNIGHT_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - KNIGHT_SOURCE.data())); }
+    for (const auto& it : BISHOP_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - BISHOP_SOURCE.data())); }
+    for (const auto& it : ROOK_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - ROOK_SOURCE.data())); }
+    for (const auto& it : QUEEN_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - QUEEN_SOURCE.data())); }
+    for (const auto& it : KING_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - KING_SOURCE.data())); }
+    for (const auto& it : PASSED_PAWN) { add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN_PSQT - PASSED_PAWN.data())); }
+    for (const auto& it : CANDIDATE_PASSER) { add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER_PSQT - CANDIDATE_PASSER.data())); }
+    for (const auto& it : QUIET_MOBILITY_BONUS) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - QUIET_MOBILITY_BONUS.data())); }
+    for (const auto& it : CAPTURE_MOBILITY_BONUS) { add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - CAPTURE_MOBILITY_BONUS.data())); }
 
-    add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
-    add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
-    add_param<Score>(bishop_pair_bonus, BISHOP_PAIR);
-    add_param<Score>(rook_open_file_bonus, ROOK_FULL);
-    add_param<Score>(rook_semi_open_file_bonus, ROOK_SEMI);
-    add_param<Score>(rook_closed_file_penalty, ROOK_CLOSED);
-    add_param<Score>(tempo_bonus, TEMPO);
-    add_param<Score>(king_open_penalty, KING_OPEN);
-    add_param<Score>(king_adjacent_open_penalty, KING_ADJ_OPEN);
-    add_param<Score>(knight_outpost_bonus, KNIGHT_OUTPOST);
-    add_param<Score>(bishop_outpost_bonus, BISHOP_OUTPOST);
-    add_param<Score>(weak_queen_penalty, WEAK_QUEEN);
-    add_param<Score>(rook_on_our_passer_file, ROOK_OUR_PASSER);
-    add_param<Score>(rook_on_their_passer_file, ROOK_THEIR_PASSER);
-    add_param<Score>(tall_pawn_penalty, TALL_PAWN);
-    add_param<Score>(fianchetto_bonus, FIANCHETTO);
-    add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
+    add_param<Score>(DOUBLE_PAWN_PENALTY, DOUBLE_PAWN);
+    add_param<Score>(ISOLATED_PAWN_PENALTY, ISOLATED_PAWN);
+    add_param<Score>(BISHOP_PAIR_BONUS, BISHOP_PAIR);
+    add_param<Score>(ROOK_OPEN_FILE_BONUS, ROOK_FULL);
+    add_param<Score>(ROOK_SEMI_OPEN_FILE_BONUS, ROOK_SEMI);
+    add_param<Score>(ROOK_CLOSED_FILE_PENALTY, ROOK_CLOSED);
+    add_param<Score>(TEMPO_BONUS, TEMPO);
+    add_param<Score>(KING_OPEN_PENALTY, KING_OPEN);
+    add_param<Score>(KING_ADJACENT_OPEN_PENALTY, KING_ADJ_OPEN);
+    add_param<Score>(KNIGHT_OUTPOST_BONUS, KNIGHT_OUTPOST);
+    add_param<Score>(BISHOP_OUTPOST_BONUS, BISHOP_OUTPOST);
+    add_param<Score>(WEAK_QUEEN_PENALTY, WEAK_QUEEN);
+    add_param<Score>(ROOK_ON_OUR_PASSER_FILE, ROOK_OUR_PASSER);
+    add_param<Score>(ROOK_ON_THEIR_PASSER_FILE, ROOK_THEIR_PASSER);
+    add_param<Score>(TALL_PAWN_PENALTY, TALL_PAWN);
+    add_param<Score>(FIANCHETTO_BONUS, FIANCHETTO);
+    add_param<Score>(ROOK_ON_SEVENTH_RANK, ROOK_ON_SEVENTH);
 
-    for (const auto& it : pawn_shield) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield.data())); }
-    for (const auto& it : inner_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack.data())); }
-    for (const auto& it : outer_ring_attack) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack.data())); }
+    for (const auto& it : PAWN_SHIELD) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - PAWN_SHIELD.data())); }
+    for (const auto& it : INNER_RING_ATTACK) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - INNER_RING_ATTACK.data())); }
+    for (const auto& it : OUTER_RING_ATTACK) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - OUTER_RING_ATTACK.data())); }
 
-    add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
-    add_param<short>(attack_factor, SAFETY_N_ATT);
+    add_param<short>(VIRTUAL_MOBILITY, SAFETY_VIRTUAL_MOBILITY);
+    add_param<short>(ATTACK_FACTOR, SAFETY_N_ATT);
 }
 
 double linear_eval(const TEntry& entry, TGradient* tg)
@@ -192,14 +192,14 @@ void print_params()
 {
     using namespace eval;
 
-    print_table("pawn_source", PAWN_PSQT, sizeof(pawn_source) / sizeof(Score), 4);
-    print_table("knight_source", KNIGHT_PSQT, sizeof(knight_source) / sizeof(Score), 4);
-    print_table("bishop_source", BISHOP_PSQT, sizeof(bishop_source) / sizeof(Score), 4);
-    print_table("rook_source", ROOK_PSQT, sizeof(rook_source) / sizeof(Score), 4);
-    print_table("queen_source", QUEEN_PSQT, sizeof(queen_source) / sizeof(Score), 4);
-    print_table("king_source", KING_PSQT, sizeof(king_source) / sizeof(Score), 4);
-    print_table("passed_pawn", PASSED_PAWN, sizeof(passed_pawn) / sizeof(Score), 4);
-    print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
+    print_table("pawn_source", PAWN_PSQT, sizeof(PAWN_SOURCE) / sizeof(Score), 4);
+    print_table("knight_source", KNIGHT_PSQT, sizeof(KNIGHT_SOURCE) / sizeof(Score), 4);
+    print_table("bishop_source", BISHOP_PSQT, sizeof(BISHOP_SOURCE) / sizeof(Score), 4);
+    print_table("rook_source", ROOK_PSQT, sizeof(ROOK_SOURCE) / sizeof(Score), 4);
+    print_table("queen_source", QUEEN_PSQT, sizeof(QUEEN_SOURCE) / sizeof(Score), 4);
+    print_table("king_source", KING_PSQT, sizeof(KING_SOURCE) / sizeof(Score), 4);
+    print_table("passed_pawn", PASSED_PAWN_PSQT, sizeof(PASSED_PAWN_PSQT) / sizeof(Score), 4);
+    print_table("candidate_passer", CANDIDATE_PASSER_PSQT, sizeof(CANDIDATE_PASSER_PSQT) / sizeof(Score), 8);
     print_table("quiet_mobility", QUIET_MOBILITY, 7, 7);
     print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
 
@@ -222,7 +222,7 @@ void print_params()
               << "\t\tconstexpr Score rook_on_seventh = " << Score(params[ROOK_ON_SEVENTH]) << ";" << '\n'
               << '\n';
 
-    print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(pawn_shield) / sizeof(short), 4);
+    print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(PAWN_SHIELD) / sizeof(short), 4);
     print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
     print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
 

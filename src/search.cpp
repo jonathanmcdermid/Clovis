@@ -8,57 +8,57 @@
 
 namespace clovis::search {
 
-constexpr std::array<double, MAX_PLY + 1> log_table = {
+constexpr std::array<double, MAX_PLY + 1> LOG_TABLE = {
     0.000000, 0.000000, 0.693147, 1.098612, 1.386294, 1.609438, 1.791759, 1.945910, 2.079442, 2.197225, 2.302585, 2.397895, 2.484907,
     2.564949, 2.639057, 2.708050, 2.772589, 2.833213, 2.890372, 2.944439, 2.995732, 3.044522, 3.091042, 3.135494, 3.178054, 3.218876,
     3.258097, 3.295837, 3.332205, 3.367296, 3.401197, 3.433987, 3.465736, 3.496508, 3.526361, 3.555348, 3.583519, 3.610918, 3.637586,
     3.663562, 3.688879, 3.713572, 3.737670, 3.761200, 3.784190, 3.806662, 3.828641, 3.850148, 3.871201, 3.891820, 3.912023, 3.931826,
     3.951244, 3.970292, 3.988984, 4.007333, 4.025352, 4.043051, 4.060443, 4.077537, 4.094345, 4.110874, 4.127134, 4.143135, 4.158883};
 
-constexpr int lmr_depth = 2;
-constexpr int lmr_history_min = 2;
-constexpr int lmr_history_max = 2;
-constexpr int lmr_history_divisor = 4000;
-constexpr int lmr_reduction = 2;
+constexpr int LMR_DEPTH = 2;
+constexpr int LMR_HISTORY_MIN = 2;
+constexpr int LMR_HISTORY_MAX = 2;
+constexpr int LMR_HISTORY_DIVISOR = 4000;
+constexpr int LMR_REDUCTION = 2;
 
-constexpr auto lmr_table = [] {
+constexpr auto LMR_TABLE = [] {
     std::array<std::array<int, 64>, MAX_PLY + 1> arr{};
 
     for (int depth = 1; depth <= MAX_PLY; ++depth)
     {
         for (int ordered = 1; ordered < 64; ++ordered)
         {
-            arr[depth][ordered] = static_cast<int>(0.75 + log_table[depth] * log_table[ordered] / 2.25);
+            arr[depth][ordered] = static_cast<int>(0.75 + LOG_TABLE[depth] * LOG_TABLE[ordered] / 2.25);
         }
     }
 
     return arr;
 }();
 
-constexpr std::array<int, 2> iid_depth = {5, 7};
-constexpr std::array<int, 2> iid_reduction = {5, 4};
-constexpr std::array<int, 2> iid_factor = {1, 4};
-constexpr std::array<int, 2> iid_divisor = {2, 4};
+constexpr std::array<int, 2> IID_DEPTH = {5, 7};
+constexpr std::array<int, 2> IID_REDUCTION = {5, 4};
+constexpr std::array<int, 2> IID_FACTOR = {1, 4};
+constexpr std::array<int, 2> IID_DIVISOR = {2, 4};
 
-constexpr auto iid_table = [] {
+constexpr auto IID_TABLE = [] {
     std::array<std::array<int, MAX_PLY + 1>, 2> arr{};
 
     for (int depth = 1; depth <= MAX_PLY; ++depth)
     {
-        for (int i = 0; i < 2; ++i) { arr[i][depth] = (iid_factor[i] * depth - iid_reduction[i]) / (iid_divisor[i] + 1); }
+        for (int i = 0; i < 2; ++i) { arr[i][depth] = (IID_FACTOR[i] * depth - IID_REDUCTION[i]) / (IID_DIVISOR[i] + 1); }
     }
 
     return arr;
 }();
 
-constexpr int futility_factor = 75;
-constexpr int futility_depth = 8;
+constexpr int FUTILITY_PRUNING_FACTOR = 75;
+constexpr int FUTILITY_PRUNING_DEPTH = 8;
 
-constexpr int null_depth = 3;
-constexpr int null_reduction = 3;
+constexpr int NULL_MOVE_DEPTH = 3;
+constexpr int NULL_MOVE_REDUCTION = 3;
 
-constexpr int asp_depth = 3;
-constexpr int delta = 45;
+constexpr int ASPIRATION_DEPTH = 3;
+constexpr int DELTA = 45;
 
 bool stop = false;
 
@@ -202,24 +202,24 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
 
         // reverse futility pruning
         // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
-        if (!PV_NODE && depth <= futility_depth && score - depth * futility_factor > beta) { return score; }
+        if (!PV_NODE && depth <= FUTILITY_PRUNING_DEPTH && score - depth * FUTILITY_PRUNING_FACTOR > beta) { return score; }
 
         // null move pruning
-        if (!PV_NODE && !NULL_NODE && depth >= null_depth && pos.stm_has_promoted())
+        if (!PV_NODE && !NULL_NODE && depth >= NULL_MOVE_DEPTH && pos.stm_has_promoted())
         {
             pos.do_null_move();
             Line line;
-            score = -negamax<NODE_NULL>(pos, -beta, -beta + 1, depth - null_reduction, ply + 1, MOVE_NULL, nodes, line);
+            score = -negamax<NODE_NULL>(pos, -beta, -beta + 1, depth - NULL_MOVE_REDUCTION, ply + 1, MOVE_NULL, nodes, line);
             pos.undo_null_move();
 
             if (score >= beta) { return beta; }
         }
 
         // internal iterative deepening
-        if (tte.key != pos.bs->key && depth >= iid_depth[PV_NODE])
+        if (tte.key != pos.bs->key && depth >= IID_DEPTH[PV_NODE])
         {
             Line line;
-            negamax<N == NODE_NULL ? NODE_NON_PV : N>(pos, alpha, beta, iid_table[PV_NODE][depth], ply, prev_move, nodes, line);
+            negamax<N == NODE_NULL ? NODE_NON_PV : N>(pos, alpha, beta, IID_TABLE[PV_NODE][depth], ply, prev_move, nodes, line);
             tte = tt.probe(pos.bs->key);
 
             if (tte.key == pos.bs->key)
@@ -253,18 +253,18 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         if (pos.is_draw()) { score = DRAW_SCORE; }
         else
         {
-            if (moves_searched > 1 && depth > lmr_depth && move_capture(curr_move) == NO_PIECE && move_promotion_type(curr_move) == NO_PIECE)
+            if (moves_searched > 1 && depth > LMR_DEPTH && move_capture(curr_move) == NO_PIECE && move_promotion_type(curr_move) == NO_PIECE)
             {
                 const int lmr_history_value =
-                    std::clamp(move_pick::get_history_entry(~pos.side, curr_move) / lmr_history_divisor, -lmr_history_min, lmr_history_max);
+                    std::clamp(move_pick::get_history_entry(~pos.side, curr_move) / LMR_HISTORY_DIVISOR, -LMR_HISTORY_MIN, LMR_HISTORY_MAX);
                 // reduction factor
-                int R = lmr_table[depth][std::min(moves_searched, 63)];
+                int R = LMR_TABLE[depth][std::min(moves_searched, 63)];
                 // reduce for pv nodes
                 R -= PV_NODE;
                 // reduce for killers
                 R -= move_pick::is_killer(curr_move, ply);
                 // reduce based on history heuristic and lmr reduction
-                R = std::clamp(R - lmr_history_value, 0, depth - lmr_reduction);
+                R = std::clamp(R - lmr_history_value, 0, depth - LMR_REDUCTION);
                 // search current move with reduced depth:
                 score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, curr_move, nodes, line);
                 // if search does not fail low, we search again without
@@ -363,7 +363,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
 
             if (info.score <= alpha)
             {
-                assert(depth > asp_depth);
+                assert(depth > ASPIRATION_DEPTH);
                 alpha = -CHECKMATE_SCORE;
                 --depth;
                 continue;
@@ -371,7 +371,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
 
             if (info.score >= beta)
             {
-                assert(depth > asp_depth);
+                assert(depth > ASPIRATION_DEPTH);
                 beta = CHECKMATE_SCORE;
                 --depth;
                 continue;
@@ -389,10 +389,10 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
 
             if (elapsed_time > allocated_time / 3) { break; }
 
-            if (depth > asp_depth)
+            if (depth > ASPIRATION_DEPTH)
             {
-                alpha = info.score - delta;
-                beta = info.score + delta;
+                alpha = info.score - DELTA;
+                beta = info.score + DELTA;
             }
         }
     }

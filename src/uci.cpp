@@ -6,9 +6,9 @@
 
 namespace clovis::uci {
 
-constexpr std::string_view version_no = "Clovis III";
-constexpr std::string_view authors = "Jonathan McDermid";
-constexpr std::string_view start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+constexpr std::string_view VERSION_NO = "Clovis III";
+constexpr std::string_view AUTHORS = "Jonathan McDermid";
+constexpr std::string_view START_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 void set_option(std::istringstream& is)
 {
@@ -74,7 +74,7 @@ void position(Position& pos, std::istringstream& is)
     is >> token;
     if (token == "startpos")
     {
-        fen = start_position;
+        fen = START_POSITION;
         is >> token;
     }
     else if (token == "fen")
@@ -96,7 +96,7 @@ void position(Position& pos, std::istringstream& is)
 // main loop for uci communication
 void loop(std::vector<std::string>& args)
 {
-    Position pos(start_position.data());
+    Position pos(START_POSITION.data());
     std::string token;
     std::string cmd;
 
@@ -116,10 +116,10 @@ void loop(std::vector<std::string>& args)
         else if (token == "setoption") { set_option(is); }
         else if (token == "uci")
         {
-            std::cout << "id name " << version_no << '\n'
+            std::cout << "id name " << VERSION_NO << '\n'
                       << "option name Hash type spin default 16 min 1 max 10000" << '\n'
                       << "option name Threads type spin default 1 min 1 max 1" << '\n'
-                      << "id author " << authors << '\n'
+                      << "id author " << AUTHORS << '\n'
                       << "uciok" << '\n';
         }
         else if (token == "quit" || args.size() != 1) { break; }

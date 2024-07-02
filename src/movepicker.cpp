@@ -2,8 +2,8 @@
 
 namespace clovis::move_pick {
 
-std::array<int, cft_size> history_table;
-std::array<Move, cft_size> counter_table;
+std::array<int, COLOUR_FROM_TO_SIZE> history_table;
+std::array<Move, COLOUR_FROM_TO_SIZE> counter_table;
 std::array<KEntry, MAX_PLY> killer_table;
 
 // return the next ordered move
