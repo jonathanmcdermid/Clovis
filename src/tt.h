@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 #include "types.h"
 
@@ -46,7 +47,7 @@ struct PTEntry
 class TTable
 {
   public:
-    TTable() : ht(std::make_unique<TTBucket[]>(tt_size)), pt(std::make_unique<PTEntry[]>(pt_size)) {}
+    TTable() : ht(std::make_unique<std::vector<TTBucket>>(tt_size)), pt(std::make_unique<std::vector<PTEntry>>(pt_size)) {}
     void resize(int mb);
     void clear();
 
@@ -60,17 +61,17 @@ class TTable
     static size_t pawn_hash_index(Key key);
     static constexpr size_t pt_size = 131072;
     static inline size_t tt_size = 4194304;
-    std::unique_ptr<TTBucket[]> ht;
-    std::unique_ptr<PTEntry[]> pt;
+    std::unique_ptr<std::vector<TTBucket>> ht;
+    std::unique_ptr<std::vector<PTEntry>> pt;
 };
 
 inline size_t TTable::hash_index(const Key key) { return key & (tt_size - 1ULL); }
 
 inline size_t TTable::pawn_hash_index(const Key key) { return key & (pt_size - 1ULL); }
 
-inline PTEntry TTable::probe_pawn(const Key key) const { return pt[pawn_hash_index(key)]; }
+inline PTEntry TTable::probe_pawn(const Key key) const { return pt->at(pawn_hash_index(key)); }
 
-inline void TTable::new_pawn_entry(const PTEntry& pte) { pt[pawn_hash_index(pte.key)] = pte; }
+inline void TTable::new_pawn_entry(const PTEntry& pte) { (*pt)[pawn_hash_index(pte.key)] = pte; }
 
 extern TTable tt;
 
