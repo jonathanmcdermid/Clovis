@@ -24,7 +24,5 @@ portability-*'
 HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'
 ExtraArgs: - -Wno-unknown-pragmas # TODO: remove this after switch to clang-tidy-18
-Naming:
-  EnumCase: UpperCamelCase
-  ClassCase: UpperCamelCase
-  StructCase: UpperCamelCase
+CheckOptions:
+  - key: readability-identifier-naming.EnumConstantCase value: UPPER_SNAKE_CASE
