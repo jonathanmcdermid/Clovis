@@ -264,7 +264,7 @@ bool Position::see_ge(const Move move, const int threshold) const
     // don't even bother
     if (move_promotion_type(move) || move_en_passant(move)) { return true; }
 
-    std::array<int, 32> gain;
+    std::array<int, 32> gain{};
     int d = 0;
     Square from = move_from_sq(move);
     const Square to = move_to_sq(move);
