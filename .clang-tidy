@@ -22,7 +22,6 @@ bugprone-*,
 modernize-*,
     -modernize-use-trailing-return-type,
     -modernize-avoid-c-arrays,
-    -modernize-use-using,
 portability-*'
 HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'
