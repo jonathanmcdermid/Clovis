@@ -18,7 +18,7 @@ extern std::array<int, COLOUR_FROM_TO_SIZE> history_table;
 extern std::array<Move, COLOUR_FROM_TO_SIZE> counter_table;
 extern std::array<KEntry, MAX_PLY> killer_table;
 
-constexpr auto history_bonus = [] {
+constexpr auto HISTORY_BONUS = [] {
     std::array<int, MAX_PLY + 1> arr{};
 
     for (int i = 0; i <= MAX_PLY; ++i) { arr[i] = 32 * std::min(i * i, 400); }
@@ -26,7 +26,7 @@ constexpr auto history_bonus = [] {
     return arr;
 }();
 
-constexpr auto mvv_lva = [] {
+constexpr auto MVV_LVA = [] {
     std::array<std::array<int, 15>, 15> arr{};
 
     for (const auto c : {WHITE, BLACK})
@@ -107,12 +107,12 @@ class MovePicker
 template <HashFlag HF> void MovePicker::update_history(const Move best_move, const int depth) const
 {
     assert(!move_capture(best_move) || move_promotion_type(best_move));
-    update_history_entry(best_move, pos.side, history_bonus[depth]);
+    update_history_entry(best_move, pos.side, HISTORY_BONUS[depth]);
 
     for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HASH_EXACT ? last : curr))
     {
         assert(!move_capture(sm) || move_promotion_type(sm));
-        if (sm != best_move) { update_history_entry(sm, pos.side, -history_bonus[depth]); }
+        if (sm != best_move) { update_history_entry(sm, pos.side, -HISTORY_BONUS[depth]); }
     }
 }
 

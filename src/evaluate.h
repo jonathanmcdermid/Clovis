@@ -173,7 +173,7 @@ constexpr auto SOURCE_10 = [] {
     return arr;
 }();
 
-constexpr std::array<const Score*, 7> piece_type_source = {
+constexpr std::array<const Score*, 7> PIECE_TYPE_SOURCE = {
     nullptr, PAWN_SOURCE.data(), KNIGHT_SOURCE.data(), BISHOP_SOURCE.data(), ROOK_SOURCE.data(), QUEEN_SOURCE.data(), KING_SOURCE.data()};
 
 constexpr auto PIECE_TABLE = [] {
@@ -183,8 +183,8 @@ constexpr auto PIECE_TABLE = [] {
     {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
         {
-            for (const auto pt : {PAWN, QUEEN}) { arr[make_piece(pt, col)][sq] = piece_type_source[pt][SOURCE_32[relative_square(col, sq)]]; }
-            for (const auto pt : {KNIGHT, BISHOP, ROOK, KING}) { arr[make_piece(pt, col)][sq] = piece_type_source[pt][SOURCE_16[sq]]; }
+            for (const auto pt : {PAWN, QUEEN}) { arr[make_piece(pt, col)][sq] = PIECE_TYPE_SOURCE[pt][SOURCE_32[relative_square(col, sq)]]; }
+            for (const auto pt : {KNIGHT, BISHOP, ROOK, KING}) { arr[make_piece(pt, col)][sq] = PIECE_TYPE_SOURCE[pt][SOURCE_16[sq]]; }
             // for (const auto pt : {})
             //     arr[make_piece(pt, col)][sq] =
             //     piece_type_source[pt][source10[sq]];

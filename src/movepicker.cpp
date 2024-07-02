@@ -78,7 +78,7 @@ void MovePicker::score_captures()
     for (auto& sm : std::ranges::subrange(moves.data(), last))
     {
         // promotions supersede mvv-lva
-        sm.score = mvv_lva[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] + ((move_promotion_type(sm) << 6));
+        sm.score = MVV_LVA[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] + ((move_promotion_type(sm) << 6));
     }
 }
 

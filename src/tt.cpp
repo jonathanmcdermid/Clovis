@@ -4,21 +4,21 @@
 
 namespace clovis {
 
-TTable tt; // global transposition table
+TranspositionTable tt; // global transposition table
 
-void TTable::resize(const int mb)
+void TranspositionTable::resize(const int mb)
 {
-    tt_size = std::bit_floor(static_cast<size_t>(mb) * 1024 * 1024 / sizeof(TTBucket));
-    ht = std::make_unique<std::vector<TTBucket>>(tt_size);
+    table_size = std::bit_floor(static_cast<size_t>(mb) * 1024 * 1024 / sizeof(TTBucket));
+    ht = std::make_unique<std::vector<TTBucket>>(table_size);
 }
 
-void TTable::clear()
+void TranspositionTable::clear()
 {
-    ht = std::make_unique<std::vector<TTBucket>>(tt_size);
-    pt = std::make_unique<std::vector<PTEntry>>(pt_size);
+    ht = std::make_unique<std::vector<TTBucket>>(table_size);
+    pt = std::make_unique<std::vector<PTEntry>>(PAWN_TABLE_SIZE);
 }
 
-TTEntry TTable::probe(const Key key)
+TTEntry TranspositionTable::probe(const Key key)
 {
     auto& [e1, e2] = (*ht)[hash_index(key)];
 
@@ -28,7 +28,7 @@ TTEntry TTable::probe(const Key key)
     return e2;
 }
 
-void TTable::new_entry(const Key key, const int depth, const int eval, const HashFlag flags, const Move move)
+void TranspositionTable::new_entry(const Key key, const int depth, const int eval, const HashFlag flags, const Move move)
 {
     TTBucket& bucket = (*ht)[hash_index(key)];
     bucket[bucket.e1.depth > depth] = TTEntry(key, depth, flags, eval, move);
