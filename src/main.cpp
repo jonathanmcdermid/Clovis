@@ -20,7 +20,7 @@ int main(const int argc, char* argv[])
     else if (arg == "bench") { clovis::bench::benchmark(args); }
     else if (arg == "perft") { clovis::perft::perft(); }
     else if (arg == "iq") { clovis::iq::iq_test(); }
-    else if (arg == "tune") { clovis::tuner::tune_eval(); }
+    else if (arg == "tune") { clovis::tuner::tune_eval(args); }
     else if (arg == "gen") { clovis::parse::generate_data(); }
     else if (arg == "--help")
     {

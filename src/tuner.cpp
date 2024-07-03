@@ -266,12 +266,18 @@ double find_k()
     return start;
 }
 
-void tune_eval()
+void tune_eval(std::vector<std::string>& args)
 {
+    if (args.size() != 3)
+    {
+        std::cerr << "Error: Please provide the path to a .epd file as the second argument.\n";
+        exit(EXIT_FAILURE);
+    }
+
     init_params();
 
     TVector adaptive_gradient{};
-    std::ifstream ifs("../src/tuner.epd");
+    std::ifstream ifs(args.at(2));
     std::string line;
 
     while (getline(ifs, line))

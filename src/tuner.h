@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "evaluate.h"
@@ -35,6 +36,6 @@ struct TEntry
     std::vector<TTuple> tuples;
 };
 
-void tune_eval();
+void tune_eval(std::vector<std::string>& args);
 
 } // namespace clovis::tuner
