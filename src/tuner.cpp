@@ -179,16 +179,16 @@ TVector compute_gradient(const double k)
 
 void print_table(const std::string& name, const int index, const int size, const int cols)
 {
-    std::cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name << "[] = {" << '\n' << "\t\t";
+    std::cout << "constexpr std::array<" << (index < TI_SAFETY ? "Score" : "short") << ", " << size << "> " << name << " = {{" << '\n';
 
     for (int i = 0; i < size; ++i)
     {
         if (!(i % cols)) { std::cout << '\t'; }
-        if (index < TI_SAFETY) { std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " "); }
-        else { std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " "); }
+        if (index < TI_SAFETY) { std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n" : " "); }
+        else { std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n" : " "); }
     }
 
-    std::cout << "};" << '\n' << '\n';
+    std::cout << "}};" << '\n' << '\n';
 }
 
 void print_params()
@@ -206,31 +206,31 @@ void print_params()
     print_table("QUIET_MOBILITY_BONUS", QUIET_MOBILITY, 7, 7);
     print_table("CAPTURE_MOBILITY_BONUS", CAPTURE_MOBILITY, 7, 7);
 
-    std::cout << "\t\tconstexpr Score DOUBLE_PAWN_PENALTY = " << DOUBLE_PAWN_PENALTY << ";" << '\n'
-              << "\t\tconstexpr Score ISOLATED_PAWN_PENALTY = " << ISOLATED_PAWN_PENALTY << ";" << '\n'
-              << "\t\tconstexpr Score BISHOP_PAIR_BONUS = " << BISHOP_PAIR_BONUS << ";" << '\n'
-              << "\t\tconstexpr Score ROOK_OPEN_FILE_BONUS = " << ROOK_OPEN_FILE_BONUS << ";" << '\n'
-              << "\t\tconstexpr Score ROOK_SEMI_OPEN_FILE_BONUS = " << ROOK_SEMI_OPEN_FILE_BONUS << ";" << '\n'
-              << "\t\tconstexpr Score ROOK_CLOSED_FILE_PENALTY = " << ROOK_CLOSED_FILE_PENALTY << ";" << '\n'
-              << "\t\tconstexpr Score TEMPO_BONUS = " << TEMPO_BONUS << ";" << '\n'
-              << "\t\tconstexpr Score KING_OPEN_PENALTY = " << KING_OPEN_PENALTY << ";" << '\n'
-              << "\t\tconstexpr Score KING_ADJACENT_OPEN_PENALTY = " << KING_ADJACENT_OPEN_PENALTY << ";" << '\n'
-              << "\t\tconstexpr Score KNIGHT_OUTPOST_BONUS = " << KNIGHT_OUTPOST_BONUS << ";" << '\n'
-              << "\t\tconstexpr Score BISHOP_OUTPOST_BONUS = " << BISHOP_OUTPOST_BONUS << ";" << '\n'
-              << "\t\tconstexpr Score WEAK_QUEEN_PENALTY = " << WEAK_QUEEN_PENALTY << ";" << '\n'
-              << "\t\tconstexpr Score ROOK_ON_OUR_PASSER_FILE = " << ROOK_ON_OUR_PASSER_FILE << ";" << '\n'
-              << "\t\tconstexpr Score ROOK_ON_THEIR_PASSER_FILE = " << ROOK_ON_THEIR_PASSER_FILE << ";" << '\n'
-              << "\t\tconstexpr Score TALL_PAWN_PENALTY = " << TALL_PAWN_PENALTY << ";" << '\n'
-              << "\t\tconstexpr Score FIANCHETTO_BONUS = " << FIANCHETTO_BONUS << ";" << '\n'
-              << "\t\tconstexpr Score ROOK_ON_SEVENTH_RANK = " << ROOK_ON_SEVENTH_RANK << ";" << '\n'
+    std::cout << "constexpr Score DOUBLE_PAWN_PENALTY = " << DOUBLE_PAWN_PENALTY << ";" << '\n'
+              << "constexpr Score ISOLATED_PAWN_PENALTY = " << ISOLATED_PAWN_PENALTY << ";" << '\n'
+              << "constexpr Score BISHOP_PAIR_BONUS = " << BISHOP_PAIR_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_OPEN_FILE_BONUS = " << ROOK_OPEN_FILE_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_SEMI_OPEN_FILE_BONUS = " << ROOK_SEMI_OPEN_FILE_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_CLOSED_FILE_PENALTY = " << ROOK_CLOSED_FILE_PENALTY << ";" << '\n'
+              << "constexpr Score TEMPO_BONUS = " << TEMPO_BONUS << ";" << '\n'
+              << "constexpr Score KING_OPEN_PENALTY = " << KING_OPEN_PENALTY << ";" << '\n'
+              << "constexpr Score KING_ADJACENT_OPEN_PENALTY = " << KING_ADJACENT_OPEN_PENALTY << ";" << '\n'
+              << "constexpr Score KNIGHT_OUTPOST_BONUS = " << KNIGHT_OUTPOST_BONUS << ";" << '\n'
+              << "constexpr Score BISHOP_OUTPOST_BONUS = " << BISHOP_OUTPOST_BONUS << ";" << '\n'
+              << "constexpr Score WEAK_QUEEN_PENALTY = " << WEAK_QUEEN_PENALTY << ";" << '\n'
+              << "constexpr Score ROOK_ON_OUR_PASSER_FILE = " << ROOK_ON_OUR_PASSER_FILE << ";" << '\n'
+              << "constexpr Score ROOK_ON_THEIR_PASSER_FILE = " << ROOK_ON_THEIR_PASSER_FILE << ";" << '\n'
+              << "constexpr Score TALL_PAWN_PENALTY = " << TALL_PAWN_PENALTY << ";" << '\n'
+              << "constexpr Score FIANCHETTO_BONUS = " << FIANCHETTO_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_ON_SEVENTH_RANK = " << ROOK_ON_SEVENTH_RANK << ";" << '\n'
               << '\n';
 
     print_table("PAWN_SHIELD", SAFETY_PAWN_SHIELD, sizeof(PAWN_SHIELD) / sizeof(short), 4);
     print_table("INNER_RING_ATTACK", SAFETY_INNER_RING, 7, 7);
     print_table("OUTER_RING_ATTACK", SAFETY_OUTER_RING, 7, 7);
 
-    std::cout << "\t\tconstexpr short attack_factor = " << ATTACK_FACTOR << ";" << '\n'
-              << "\t\tconstexpr short virtual_mobility = " << VIRTUAL_MOBILITY << ";" << '\n';
+    std::cout << "constexpr short ATTACK_FACTOR = " << ATTACK_FACTOR << ";" << '\n'
+              << "constexpr short VIRTUAL_MOBILITY = " << VIRTUAL_MOBILITY << ";" << '\n';
 }
 
 double find_k()
