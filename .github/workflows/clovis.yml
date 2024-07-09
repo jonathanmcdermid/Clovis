@@ -99,6 +99,32 @@ jobs:
         name: bench-output
         path: output
 
+    - name: Checkout fast-chess
+      uses: actions/checkout@v4
+      with:
+        repository: Disservin/fast-chess
+        path: fast-chess
+        ref: d54af1910d5479c669dc731f1f54f9108a251951
+        persist-credentials: false
+
+    - name: Build fast-chess
+      working-directory: fast-chess
+      run: make -j
+
+    - name: Self-play
+      shell: bash
+      working-directory: fast-chess
+      run: |
+        set -e
+        CLOVIS_PATH="../build/bin/${{ env.BUILD_TYPE }}/clovis"
+        ./fast-chess -rounds 4 -games 2 -repeat -concurrency 4 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
+             -engine name=clovis1 cmd=$CLOVIS_PATH \
+             -engine name=clovis2 cmd=$CLOVIS_PATH \
+             -ratinginterval 1 -report penta=true -each proto=uci tc=4+0.04 -log file=fast.log | tee fast.out
+        cat fast.log
+        ! grep "Assertion" fast.log > /dev/null
+        ! grep "disconnect" fast.out > /dev/null
+
   # =========================================================
   # Clang Format Job
   # =========================================================
