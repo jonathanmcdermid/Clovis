@@ -116,6 +116,17 @@ jobs:
       working-directory: fast-chess
       run: |
         set -e
+        cd ..
+        cd build
+        ls
+        cd bin
+        ls
+        cd $BUILD_TYPE
+        ls
+        cd ..
+        cd ..
+        cd ..
+        cd fast-chess
         ./fast-chess -rounds 4 -games 2 -repeat -concurrency 4 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
              -engine name=clovis1 cmd="../build/bin/$BUILD_TYPE/clovis" \
              -engine name=clovis2 cmd="../build/bin/$BUILD_TYPE/clovis" \
