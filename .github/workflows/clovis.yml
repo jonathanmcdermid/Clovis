@@ -116,7 +116,7 @@ jobs:
       working-directory: fast-chess
       run: |
         set -e
-        if [[ "${{ env.OPERATING_SYSTEM }}" == "Windows" ]]; then
+        if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
           CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis.exe"
         else
           CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis"
