@@ -116,20 +116,14 @@ jobs:
       working-directory: fast-chess
       run: |
         set -e
-        cd ..
-        cd build
-        ls
-        cd bin
-        ls
-        cd $BUILD_TYPE
-        ls
-        cd ..
-        cd ..
-        cd ..
-        cd fast-chess
+        if [[ "${{ env.OPERATING_SYSTEM }}" == "Windows" ]]; then
+          CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis.exe"
+        else
+          CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis"
+        fi
         ./fast-chess -rounds 4 -games 2 -repeat -concurrency 4 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
-             -engine name=clovis1 cmd="../build/bin/$BUILD_TYPE/clovis" \
-             -engine name=clovis2 cmd="../build/bin/$BUILD_TYPE/clovis" \
+             -engine name=clovis1 cmd="$CLOVIS_EXECUTABLE" \
+             -engine name=clovis2 cmd="$CLOVIS_EXECUTABLE" \
              -ratinginterval 1 -report penta=true -each proto=uci tc=4+0.04 -log file=fast.log | tee fast.out
         cat fast.log
         ! grep "Assertion" fast.log > /dev/null
