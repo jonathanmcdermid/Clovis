@@ -116,15 +116,9 @@ jobs:
       working-directory: fast-chess
       run: |
         set -e
-        if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
-          ls
-          cd ..
-          cd fast-chess
-          ls
-          ./fast-chess --version
-        else
-          ./fast-chess --version
-        fi
+        pwd
+        ls
+        ./fast-chess --version
 
   # =========================================================
   # Clang Format Job
