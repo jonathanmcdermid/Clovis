@@ -162,8 +162,8 @@ jobs:
         cat results.log
       
         score_line=$(grep "Score of clovis-new vs clovis-old" results.log)
-        clovis_old_wins=$(echo "$score_line" | awk '{print $5}')
-      
+        clovis_old_wins=$(echo "$score_line" | awk '{print $5}' | tr -d '[[:space:]]')
+        
         if [ "$clovis_old_wins" -ge 10 ]; then
           echo "Error: clovis-new lost too many games!"
           exit 1
