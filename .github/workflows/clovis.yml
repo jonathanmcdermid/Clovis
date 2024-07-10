@@ -155,7 +155,10 @@ jobs:
         set -e
         ./build/cutechess-cli --version
         ./build/cutechess-cli -help
-        ./build/cutechess-cli -engine cmd="../build/bin/Release/clovis" -engine cmd="../build/clovis-release-gcc-linux" -each proto=uci tc=40/50 -rounds 10
+        ./build/cutechess-cli \
+          -engine name=clovis-new cmd="../build/bin/Release/clovis" \
+          -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
+          -each proto=uci tc=4+0.1 -concurrency 4 -rounds 12
         #cat fast.log
         #! grep "Assertion" fast.log > /dev/null
         #! grep "disconnect" fast.out > /dev/null
