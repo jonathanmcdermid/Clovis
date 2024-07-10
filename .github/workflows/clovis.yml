@@ -118,7 +118,7 @@ jobs:
         set -e
         pwd
         ls
-        ./fast-chess --version
+        ./fast-chess.exe --version
 
   # =========================================================
   # Clang Format Job
