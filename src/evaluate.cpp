@@ -329,7 +329,7 @@ template <bool TRACE> int evaluate(const Position& pos)
 
     EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
 
-    if (TRACE || ei.key != pos.bs->psawn_key)
+    if (TRACE || ei.key != pos.bs->pawn_key)
     {
         ei = EvalInfo();
         ei.key = pos.bs->pawn_key;
