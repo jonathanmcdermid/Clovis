@@ -164,10 +164,10 @@ jobs:
         los_line=$(grep "LOS:" results.log)
         echo "LOS line: $los_line"
         
-        los_percentage=$(echo "$los_line" | awk '{print $2}' | tr -d '%')
+        los_percentage=$(echo "$los_line" | awk '{print $5}' | tr -d '%')
         echo "LOS percentage: $los_percentage"
         
-        if [ "$los_percentage" -lt 10 ]; then
+        if [ $(echo "$los_percentage < 10.0" | bc) -eq 1 ]; then
           echo "Error: Likelihood of superiority (LOS) is less than 10%."
           exit 1
         fi
