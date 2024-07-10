@@ -329,15 +329,15 @@ template <bool TRACE> int evaluate(const Position& pos)
 
     EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
 
-    if (TRACE || ei.key != pos.bs->pawn_key)
-    {
-        ei = EvalInfo();
-        ei.key = pos.bs->pawn_key;
-        ei.ksq[WHITE] = bitboards::lsb(pos.pc_bb[W_KING]);
-        ei.ksq[BLACK] = bitboards::lsb(pos.pc_bb[B_KING]);
-        ei.score = evaluate_pawns<WHITE, TRACE>(pos, ei) - evaluate_pawns<BLACK, TRACE>(pos, ei);
-        tt.new_pawn_entry(ei);
-    }
+    //if (TRACE || ei.key != pos.bs->pawn_key)
+    //{
+    //    ei = EvalInfo();
+    //    ei.key = pos.bs->pawn_key;
+    //    ei.ksq[WHITE] = bitboards::lsb(pos.pc_bb[W_KING]);
+    //    ei.ksq[BLACK] = bitboards::lsb(pos.pc_bb[B_KING]);
+    //    ei.score = evaluate_pawns<WHITE, TRACE>(pos, ei) - evaluate_pawns<BLACK, TRACE>(pos, ei);
+    //    tt.new_pawn_entry(ei);
+    //}
 
     score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
 
