@@ -147,7 +147,7 @@ jobs:
         ./fast-chess -rounds 4 -games 2 -repeat -concurrency 4 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
              -engine name=clovis-new cmd="../build/bin/Release/clovis" \
              -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
-             -ratinginterval 1 -report penta=true -each proto=uci tc=4+0.04 -log file=fast.log | tee fast.out
+             -ratinginterval 1 -report penta=true -each proto=uci tc=15+0.1 -log file=fast.log -debug | tee fast.out
         cat fast.log
         ! grep "Assertion" fast.log > /dev/null
         ! grep "disconnect" fast.out > /dev/null
