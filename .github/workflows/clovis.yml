@@ -118,12 +118,11 @@ jobs:
         set -e
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
           CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis.exe"
+          ./fast-chess.exe --version
         else
           CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis"
+          ./fast-chess --version
         fi
-        echo "Clovis executable: $CLOVIS_EXECUTABLE"
-        ls
-        ./fast-chess --version
 
   # =========================================================
   # Clang Format Job
