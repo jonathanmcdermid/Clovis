@@ -156,7 +156,13 @@ jobs:
         ./build/cutechess-cli \
           -engine name=clovis-new cmd="../build/bin/Release/clovis" \
           -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
-          -each proto=uci tc=4+0.1 -concurrency 4 -rounds 12
+          -each proto=uci tc=4+0.1 -concurrency 4 -rounds 12 \
+          -resultformat "results - %s wins, %s draws, %s losses" > results.log
+        
+        if grep -q "disconnect" results.log; then
+          echo "Error: A disconnect occurred during the games."
+          exit 1
+        fi
         #cat fast.log
         #! grep "Assertion" fast.log > /dev/null
         #! grep "disconnect" fast.out > /dev/null
