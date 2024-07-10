@@ -118,7 +118,11 @@ jobs:
         set -e
         pwd
         ls
-        ./fast-chess.exe --version
+        if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
+          ./fast-chess.exe --version
+        else
+          ./fast-chess --version
+        fi
 
   # =========================================================
   # Clang Format Job
