@@ -121,6 +121,7 @@ jobs:
         else
           CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis"
         fi
+        echo "Clovis executable: $CLOVIS_EXECUTABLE"
         ./fast-chess -rounds 4 -games 2 -repeat -concurrency 4 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
              -engine name=clovis1 cmd=$CLOVIS_EXECUTABLE \
              -engine name=clovis2 cmd=$CLOVIS_EXECUTABLE \
