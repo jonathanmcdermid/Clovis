@@ -1,6 +1,9 @@
 name: Archive GCC Linux Executable
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types:
       - closed
@@ -14,6 +17,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install Conan
+        id: conan
+        uses: turtlebrowser/get-conan@main
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
