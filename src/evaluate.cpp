@@ -329,7 +329,7 @@ template <bool TRACE> int evaluate(const Position& pos)
 
     EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
 
-    //if (TRACE || ei.key != pos.bs->pawn_key)
+    //if (TRACE || ei.key != pos.bs->psawn_key)
     //{
     //    ei = EvalInfo();
     //    ei.key = pos.bs->pawn_key;
@@ -339,7 +339,7 @@ template <bool TRACE> int evaluate(const Position& pos)
     //    tt.new_pawn_entry(ei);
     //}
 
-    score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
+    //score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
 
     const int game_phase = pos.get_game_phase();
     int eval = (score.mg * game_phase + score.eg * (MAX_GAME_PHASE - game_phase)) / MAX_GAME_PHASE;
