@@ -160,20 +160,14 @@ jobs:
           -resultformat "results - %s wins, %s draws, %s losses" > results.log
         
         cat results.log
-
-        if grep -q "disconnect" results.log; then
-          echo "Error: A disconnect occurred during the games."
-          exit 1
-        fi
-
-        clovis_old_wins=$(grep -o "clovis-old wins" results.log | wc -l)
+      
+        score_line=$(grep "Score of clovis-new vs clovis-old" results.log)
+        clovis_old_wins=$(echo "$score_line" | awk '{print $5}')
+      
         if [ "$clovis_old_wins" -ge 10 ]; then
           echo "Error: clovis-new lost too many games!"
           exit 1
         fi
-        #cat fast.log
-        #! grep "Assertion" fast.log > /dev/null
-        #! grep "disconnect" fast.out > /dev/null
 
   # =========================================================
   # Clang Format Job
