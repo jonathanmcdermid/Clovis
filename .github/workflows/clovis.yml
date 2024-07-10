@@ -159,8 +159,16 @@ jobs:
           -each proto=uci tc=4+0.1 -concurrency 4 -rounds 12 \
           -resultformat "results - %s wins, %s draws, %s losses" > results.log
         
+        cat results.log
+
         if grep -q "disconnect" results.log; then
           echo "Error: A disconnect occurred during the games."
+          exit 1
+        fi
+
+        clovis_old_wins=$(grep -o "clovis-old wins" results.log | wc -l)
+        if [ "$clovis_old_wins" -ge 10 ]; then
+          echo "Error: clovis-new lost too many games!"
           exit 1
         fi
         #cat fast.log
