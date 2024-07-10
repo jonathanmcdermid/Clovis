@@ -120,7 +120,7 @@ jobs:
           ls
           fast-chess.exe --version
         else
-          fast-chess --version
+          ./fast-chess --version
         fi
 
   # =========================================================
