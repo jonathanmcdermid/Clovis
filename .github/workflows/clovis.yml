@@ -122,6 +122,7 @@ jobs:
           CLOVIS_EXECUTABLE="../build/bin/${{ env.BUILD_TYPE }}/clovis"
         fi
         echo "Clovis executable: $CLOVIS_EXECUTABLE"
+        ls
         ./fast-chess --version
 
   # =========================================================
