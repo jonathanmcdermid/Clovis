@@ -99,6 +99,29 @@ jobs:
         name: bench-output
         path: output
 
+  # =========================================================
+  # Self Play Job
+  # =========================================================
+  self-play:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+
+    - name: Install CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Configure
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+    - name: Build
+      run: cmake --build build --parallel --config debug
+
     - name: Checkout fast-chess
       uses: actions/checkout@v4
       with:
@@ -116,13 +139,13 @@ jobs:
       working-directory: fast-chess
       run: |
         set -e
-        pwd
-        ls
-        if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
-          ./fast-chess.exe --version
-        else
-          ./fast-chess --version
-        fi
+        ./fast-chess -rounds 4 -games 2 -repeat -concurrency 4 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
+             -engine name=clovis1 cmd="../build/bin/Release/clovis" \
+             -engine name=clovis2 cmd="../build/bin/Release/clovis" \
+             -ratinginterval 1 -report penta=true -each proto=uci tc=4+0.04 -log file=fast.log | tee fast.out
+        cat fast.log
+        ! grep "Assertion" fast.log > /dev/null
+        ! grep "disconnect" fast.out > /dev/null
 
   # =========================================================
   # Clang Format Job
