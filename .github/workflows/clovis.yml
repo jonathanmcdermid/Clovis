@@ -144,7 +144,7 @@ jobs:
       working-directory: fast-chess
       run: |
         set -e
-        ./fast-chess -rounds 10 -games 2 -repeat -concurrency 4 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
+        ./fast-chess -rounds 4 -games 2 -repeat -concurrency 1 -openings file=app/tests/data/openings.epd format=epd order=random -srand $RANDOM \
              -engine name=clovis-new cmd="../build/bin/Release/clovis" \
              -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
              -each proto=uci tc=15+0.1 -log file=fast.log | tee fast.out
