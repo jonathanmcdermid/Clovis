@@ -118,7 +118,10 @@ jobs:
         set -e
         if [[ "${{ env.OPERATING_SYSTEM }}" == "windows" ]]; then
           ls
-          fast-chess.exe --version
+          cd ..
+          cd fast-chess
+          ls
+          ./fast-chess --version
         else
           ./fast-chess --version
         fi
