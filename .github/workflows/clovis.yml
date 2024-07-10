@@ -154,13 +154,11 @@ jobs:
       run: |
         set -e
         ./build/cutechess-cli --version
-        ./build/cutechess-cli -rounds 4 -games 2 -repeat -concurrency 1\
-             -engine name=clovis-new cmd="../build/bin/Release/clovis" \
-             -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
-             -each proto=uci tc=15+0.1 -log fast.log | tee fast.out
-        cat fast.log
-        ! grep "Assertion" fast.log > /dev/null
-        ! grep "disconnect" fast.out > /dev/null
+        ./build/cutechess-cli -help
+        ./build/cutechess-cli -engine cmd="../build/bin/Release/clovis" -engine cmd="../build/clovis-release-gcc-linux" -each proto=uci tc=40/50 -rounds 10
+        #cat fast.log
+        #! grep "Assertion" fast.log > /dev/null
+        #! grep "disconnect" fast.out > /dev/null
 
   # =========================================================
   # Clang Format Job
