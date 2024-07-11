@@ -15,7 +15,8 @@ template <typename T, MoveType M, PieceType PT, Colour US> T* generate_majors(co
         while (att)
         {
             const Square tar = bitboards::pop_lsb(att);
-            *moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.get_occ_bb(BOTH) & tar, false, false, false);
+            *moves++ =
+                encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.get_occ_bb(BOTH) & tar, false, false, false);
         }
     }
 

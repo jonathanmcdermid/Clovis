@@ -192,26 +192,36 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
 {
     Score score;
 
+    // Conditions for whether or not we consider king safety
     if (pos.get_pc_bb(make_piece(QUEEN, US)) && pos.get_game_phase() > 8)
     {
+        // we use the number of attacking major pieces in king safety, which are not calculated yet
         evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei, score);
         evaluate_majors<US, BISHOP, true, TRACE>(pos, ei, score);
         evaluate_majors<US, ROOK, true, TRACE>(pos, ei, score);
         evaluate_majors<US, QUEEN, true, TRACE>(pos, ei, score);
 
         // we don't count kings or pawns in n_att so the max should be 7, barring promotion trolling
-        assert(ei.n_att[US] < 10);
+        assert(ei.n_att[US] < 8);
 
-        if (const int mob =
-                std::popcount(bitboards::get_attacks<QUEEN>(pos.get_occ_bb(~US) ^ pos.get_pc_bb(make_piece(PAWN, US)), ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
-            mob > 4)
+        // virtual mobility is a metric that considers the number of squares near the king that are in danger
+        const int virtual_mobility = std::popcount(
+            // relevant squares are the same as the queen moves from the kings position (king moves + sliders)
+            bitboards::get_attacks<QUEEN>
+            // for occupancy, we consider the pieces defending the king and attacking pawns TODO: why attacking pawns?
+            (pos.get_occ_bb(~US) | pos.get_pc_bb(make_piece(PAWN, US)), ei.ksq[~US]) 
+            // ignore squares that are defended by the kings pawns
+            & ~ei.pawn_attacks[~US]);
+
+        if (virtual_mobility > 4)
         {
-            ei.weight[US] += VIRTUAL_MOBILITY * std::min(13, mob);
-            if constexpr (TRACE) { T[SAFETY_VIRTUAL_MOBILITY][US] = std::min(13, mob); }
+            ei.weight[US] += VIRTUAL_MOBILITY * std::min(13, virtual_mobility);
+            if constexpr (TRACE) { T[SAFETY_VIRTUAL_MOBILITY][US] = std::min(13, virtual_mobility); }
         }
 
         if (ei.weight[US] > 0)
         {
+            // we are calculating the king safety of the enemy, so we add instead of subtract
             score.mg += ei.weight[US] * ei.weight[US] / (720 - ATTACK_FACTOR * ei.n_att[US]);
             if constexpr (TRACE) { T[SAFETY_N_ATT][US] = ei.n_att[US]; }
         }
