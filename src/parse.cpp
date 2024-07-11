@@ -24,7 +24,7 @@ Move parse(const Position& pos, std::string move)
             move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(PIECE_STR.find(move[move.length() - 1])), pos.get_side()) : NO_PIECE;
         const Square to = (promo == NO_PIECE) ? str2sq(move.substr(move.length() - 2)) : str2sq(move.substr(move.length() - 4, 2));
         const Square from = (move[1] == 'x') ? make_square(static_cast<File>(move[0] - 'a'), rank_of(to - pawn_push(pos.get_side())))
-                            : pos.pc_table[to - pawn_push(pos.get_side())] == NO_PIECE ? to - 2 * pawn_push(pos.get_side())
+                            : pos.get_pc(to - pawn_push(pos.get_side())) == NO_PIECE ? to - 2 * pawn_push(pos.get_side())
                                                                                        : to - pawn_push(pos.get_side());
 
         return encode_move(from, to, make_piece(PAWN, pos.get_side()), promo, move.find('x') != std::string::npos,
