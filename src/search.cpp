@@ -83,9 +83,9 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
     if (pos.is_draw()) { return DRAW_SCORE; }
     if (ply >= MAX_PLY) { return eval::evaluate<false>(pos); }
 
-    const auto tte = tt.probe(pos.GetKey());
+    const auto tte = tt.probe(pos.bs->key);
 
-    if (!PV_NODE && tte.key == pos.GetKey() &&
+    if (!PV_NODE && tte.key == pos.bs->key &&
         (tte.flags == HASH_EXACT || (tte.flags == HASH_BETA && tte.eval >= beta) || (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
     {
         return tte.eval;
@@ -101,12 +101,12 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
         // use TT score instead of static eval if valid TTE and either
         // 1. alpha flag + lower tt score than static eval
         // 2. beta flag + higher tt score than static eval
-        if (tte.key == pos.GetKey() && ((tte.flags == HASH_ALPHA) == (tte.eval < eval))) { eval = tte.eval; }
+        if (tte.key == pos.bs->key && ((tte.flags == HASH_ALPHA) == (tte.eval < eval))) { eval = tte.eval; }
         if (eval >= beta) { return beta; }
         if (eval > alpha) { alpha = eval; }
     }
 
-    move_pick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.GetKey()) ? tte.move : MOVE_NONE);
+    move_pick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.bs->key) ? tte.move : MOVE_NONE);
     Move best_move = MOVE_NONE;
     int best_eval = INT_MIN;
 
@@ -123,7 +123,7 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
         // fail high
         if (eval >= beta)
         {
-            tt.new_entry(pos.GetKey(), 0, beta, HASH_BETA, curr_move);
+            tt.new_entry(pos.bs->key, 0, beta, HASH_BETA, curr_move);
             return beta;
         }
         if (eval > best_eval)
@@ -146,7 +146,7 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
 
     if (in_check && best_eval == INT_MIN) { return ply - CHECKMATE_SCORE; }
 
-    tt.new_entry(pos.GetKey(), 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+    tt.new_entry(pos.bs->key, 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
 
     return alpha;
 }
@@ -178,9 +178,9 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
 
     if (alpha >= beta) { return alpha; }
 
-    auto tte = tt.probe(pos.GetKey());
+    auto tte = tt.probe(pos.bs->key);
 
-    if (tte.key == pos.GetKey())
+    if (tte.key == pos.bs->key)
     {
         if (PV_NODE && tte.move != MOVE_NONE)
         {
@@ -198,7 +198,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
 
     if (!in_check)
     {
-        int score = tte.key == pos.GetKey() ? tte.eval : eval::evaluate<false>(pos);
+        int score = tte.key == pos.bs->key ? tte.eval : eval::evaluate<false>(pos);
 
         // reverse futility pruning
         // if evaluation is above a certain threshold, we can trust that it will maintain it in the future
@@ -216,13 +216,13 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         }
 
         // internal iterative deepening
-        if (tte.key != pos.GetKey() && depth >= IID_DEPTH[PV_NODE])
+        if (tte.key != pos.bs->key && depth >= IID_DEPTH[PV_NODE])
         {
             Line line;
             negamax<N == NODE_NULL ? NODE_NON_PV : N>(pos, alpha, beta, IID_TABLE[PV_NODE][depth], ply, prev_move, nodes, line);
-            tte = tt.probe(pos.GetKey());
+            tte = tt.probe(pos.bs->key);
 
-            if (tte.key == pos.GetKey())
+            if (tte.key == pos.bs->key)
             {
                 if constexpr (PV_NODE)
                 {
@@ -234,7 +234,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
     }
     else { ++depth; }
 
-    move_pick::MovePicker mp(pos, ply, prev_move, tte.key == pos.GetKey() ? tte.move : MOVE_NONE);
+    move_pick::MovePicker mp(pos, ply, prev_move, tte.key == pos.bs->key ? tte.move : MOVE_NONE);
     Move best_move = MOVE_NONE;
     int best_score = INT_MIN;
     int moves_searched = 0;
@@ -256,7 +256,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             if (moves_searched > 1 && depth > LMR_DEPTH && move_capture(curr_move) == NO_PIECE && move_promotion_type(curr_move) == NO_PIECE)
             {
                 const int lmr_history_value =
-                    std::clamp(move_pick::get_history_entry(~pos.GetSide(), curr_move) / LMR_HISTORY_DIVISOR, -LMR_HISTORY_MIN, LMR_HISTORY_MAX);
+                    std::clamp(move_pick::get_history_entry(~pos.side, curr_move) / LMR_HISTORY_DIVISOR, -LMR_HISTORY_MIN, LMR_HISTORY_MAX);
                 // reduction factor
                 int R = LMR_TABLE[depth][std::min(moves_searched, 63)];
                 // reduce for pv nodes
@@ -293,9 +293,9 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             {
                 mp.update_history<HASH_BETA>(curr_move, depth);
                 move_pick::update_killers(curr_move, ply);
-                move_pick::update_counter_entry(pos.GetSide(), prev_move, curr_move);
+                move_pick::update_counter_entry(pos.side, prev_move, curr_move);
             }
-            tt.new_entry(pos.GetKey(), depth, beta, HASH_BETA, curr_move);
+            tt.new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
             return beta;
         }
 
@@ -325,7 +325,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
     // no legal moves
     if (moves_searched == 0) { return in_check ? ply - CHECKMATE_SCORE : -DRAW_SCORE; }
 
-    tt.new_entry(pos.GetKey(), depth, best_score, hash_flag, best_move);
+    tt.new_entry(pos.bs->key, depth, best_score, hash_flag, best_move);
 
     if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE) { mp.update_history<HASH_EXACT>(best_move, depth); }
 
@@ -341,7 +341,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
     if (ml.size() > 1)
     {
         start_time = std::chrono::steady_clock::now();
-        allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.GetSide()] / (limits.moves_left + 5);
+        allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
 
         int beta = CHECKMATE_SCORE;
         int alpha = -beta;
