@@ -117,7 +117,7 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
 
 template <typename T, MoveType M> T* generate(const Position& pos, T* moves)
 {
-    return (pos.side == WHITE) ? generate_all<T, M, WHITE>(pos, moves) : generate_all<T, M, BLACK>(pos, moves);
+    return (pos.get_side() == WHITE) ? generate_all<T, M, WHITE>(pos, moves) : generate_all<T, M, BLACK>(pos, moves);
 }
 
 template <typename T> void print_moves(const T* m, const T* end)

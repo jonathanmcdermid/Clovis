@@ -23,6 +23,7 @@ struct BoardState
 
 struct Position
 {
+  public:
     explicit Position(const char* fen) : bs{nullptr} { set(fen); }
     [[nodiscard]] std::string get_fen() const;
     void set(const char* fen);
@@ -42,7 +43,8 @@ struct Position
     [[nodiscard]] bool stm_has_promoted() const;
     [[nodiscard]] bool is_draw() const;
 
-    Colour side{WHITE};
+    [[nodiscard]] Colour get_side() const { return side; }
+
     std::unique_ptr<BoardState> bs;
     std::array<Piece, SQ_N> pc_table{};
     std::array<Bitboard, 15> pc_bb{};
@@ -63,6 +65,8 @@ struct Position
     [[nodiscard]] bool is_material_draw() const;
     template <bool NM> void new_board_state();
     template <Colour US> [[nodiscard]] bool is_insufficient() const;
+
+    Colour side{WHITE};
 };
 
 // returns whether a square is attacked by opposing side

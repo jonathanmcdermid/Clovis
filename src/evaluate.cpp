@@ -322,10 +322,10 @@ template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalI
 
 template <bool TRACE> int evaluate(const Position& pos)
 {
-    Score score = (pos.side == WHITE) ? TEMPO_BONUS : -TEMPO_BONUS;
+    Score score = (pos.get_side() == WHITE) ? TEMPO_BONUS : -TEMPO_BONUS;
 
     if constexpr (TRACE) { memset(T.data(), 0, sizeof(T)); }
-    if constexpr (TRACE) { ++T[TEMPO][pos.side]; }
+    if constexpr (TRACE) { ++T[TEMPO][pos.get_side()]; }
 
     EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
 
@@ -343,7 +343,7 @@ template <bool TRACE> int evaluate(const Position& pos)
 
     const int game_phase = pos.get_game_phase();
     int eval = (score.mg * game_phase + score.eg * (MAX_GAME_PHASE - game_phase)) / MAX_GAME_PHASE;
-    if (pos.side == BLACK) { eval = -eval; }
+    if (pos.get_side() == BLACK) { eval = -eval; }
 
     /*
     int scaling;

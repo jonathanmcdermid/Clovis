@@ -256,7 +256,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             if (moves_searched > 1 && depth > LMR_DEPTH && move_capture(curr_move) == NO_PIECE && move_promotion_type(curr_move) == NO_PIECE)
             {
                 const int lmr_history_value =
-                    std::clamp(move_pick::get_history_entry(~pos.side, curr_move) / LMR_HISTORY_DIVISOR, -LMR_HISTORY_MIN, LMR_HISTORY_MAX);
+                    std::clamp(move_pick::get_history_entry(~pos.get_side(), curr_move) / LMR_HISTORY_DIVISOR, -LMR_HISTORY_MIN, LMR_HISTORY_MAX);
                 // reduction factor
                 int R = LMR_TABLE[depth][std::min(moves_searched, 63)];
                 // reduce for pv nodes
@@ -293,7 +293,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             {
                 mp.update_history<HASH_BETA>(curr_move, depth);
                 move_pick::update_killers(curr_move, ply);
-                move_pick::update_counter_entry(pos.side, prev_move, curr_move);
+                move_pick::update_counter_entry(pos.get_side(), prev_move, curr_move);
             }
             tt.new_entry(pos.bs->key, depth, beta, HASH_BETA, curr_move);
             return beta;
@@ -341,7 +341,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
     if (ml.size() > 1)
     {
         start_time = std::chrono::steady_clock::now();
-        allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.side] / (limits.moves_left + 5);
+        allocated_time = limits.depth ? LLONG_MAX : 5 * limits.time[pos.get_side()] / (limits.moves_left + 5);
 
         int beta = CHECKMATE_SCORE;
         int alpha = -beta;

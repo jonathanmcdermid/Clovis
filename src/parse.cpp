@@ -15,23 +15,23 @@ Move parse(const Position& pos, std::string move)
 
     if (move.find("O-O") != std::string::npos)
     {
-        return encode_move(relative_square(pos.side, E1), relative_square(pos.side, move == "O-O" ? G1 : C1), make_piece(KING, pos.side), NO_PIECE,
+        return encode_move(relative_square(pos.get_side(), E1), relative_square(pos.get_side(), move == "O-O" ? G1 : C1), make_piece(KING, pos.get_side()), NO_PIECE,
                            false, false, false, true);
     }
     if (islower(move[0]))
     { // pawn moves
         const Piece promo =
-            move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(PIECE_STR.find(move[move.length() - 1])), pos.side) : NO_PIECE;
+            move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(PIECE_STR.find(move[move.length() - 1])), pos.get_side()) : NO_PIECE;
         const Square to = (promo == NO_PIECE) ? str2sq(move.substr(move.length() - 2)) : str2sq(move.substr(move.length() - 4, 2));
-        const Square from = (move[1] == 'x') ? make_square(static_cast<File>(move[0] - 'a'), rank_of(to - pawn_push(pos.side)))
-                            : pos.pc_table[to - pawn_push(pos.side)] == NO_PIECE ? to - 2 * pawn_push(pos.side)
-                                                                                 : to - pawn_push(pos.side);
+        const Square from = (move[1] == 'x') ? make_square(static_cast<File>(move[0] - 'a'), rank_of(to - pawn_push(pos.get_side())))
+                            : pos.pc_table[to - pawn_push(pos.get_side())] == NO_PIECE ? to - 2 * pawn_push(pos.get_side())
+                                                                                 : to - pawn_push(pos.get_side());
 
-        return encode_move(from, to, make_piece(PAWN, pos.side), promo, move.find('x') != std::string::npos, abs(rank_of(to) - rank_of(from)) == 2,
+        return encode_move(from, to, make_piece(PAWN, pos.get_side()), promo, move.find('x') != std::string::npos, abs(rank_of(to) - rank_of(from)) == 2,
                            pos.bs->en_passant == to, false);
     }
     // major moves
-    const Piece piece = make_piece(static_cast<PieceType>(PIECE_STR.find(move[0])), pos.side);
+    const Piece piece = make_piece(static_cast<PieceType>(PIECE_STR.find(move[0])), pos.get_side());
     const Square to = str2sq(move.substr(move.length() - 2));
     Bitboard bb = bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece];
     Square from = bitboards::pop_lsb(bb);
@@ -41,7 +41,7 @@ Move parse(const Position& pos, std::string move)
         // one of the pieces that attacks this square is pinned
         if (bb)
         {
-            if (pos.side == WHITE)
+            if (pos.get_side() == WHITE)
             {
                 while (pos.get_pinner<WHITE>(from) != SQ_NONE) { from = bitboards::pop_lsb(bb); }
             }
@@ -146,7 +146,7 @@ void generate_data()
 
                             if (std::ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
                             {
-                                if (const int eval = pos.side == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos);
+                                if (const int eval = pos.get_side() == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos);
                                     (result == "1-0" && eval > -500) || (result == "0-1" && eval < 500) ||
                                     (result == "1/2-1/2" && (eval > -500 && eval < 500)))
                                 {
