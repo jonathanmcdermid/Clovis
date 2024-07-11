@@ -296,7 +296,7 @@ void tune_eval(std::vector<std::string>& args)
 
         Position pos(line.substr(0, idx).c_str());
 
-        entry.phase = pos.get_game_phase();
+        entry.phase = std::min(pos.get_game_phase(), MAX_GAME_PHASE);
 
         entry.static_eval = eval::evaluate<true>(pos);
         if (pos.get_side() == BLACK) { entry.static_eval = -entry.static_eval; }

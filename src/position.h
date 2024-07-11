@@ -23,9 +23,8 @@ struct Position
 
     // State Queries
     [[nodiscard]] std::string get_fen() const;
-    [[nodiscard]] int get_game_phase() const;
     [[nodiscard]] bool is_king_in_check() const;
-    [[nodiscard]] bool stm_has_promoted() const;
+    [[nodiscard]] bool is_stm_major() const;
     [[nodiscard]] bool is_draw() const;
 
     // Member Accessors
@@ -38,6 +37,7 @@ struct Position
     [[nodiscard]] Square get_en_passant() const { return bs->en_passant; }
     [[nodiscard]] int get_full_move_clock() const { return bs->fmc; }
     [[nodiscard]] int get_castle_rights() const { return bs->castle; }
+    [[nodiscard]] int get_game_phase() const { return bs->game_phase; }
 
     // Utility Functions
     void print_position() const;
@@ -87,18 +87,18 @@ struct Position
 // returns whether a square is attacked by opposing side
 template <Colour US> bool Position::is_attacked(const Square sq) const
 {
-    return ((pc_bb[make_piece(PAWN, ~US)] & bitboards::PAWN_ATTACKS[US][sq]) || (pc_bb[make_piece(KNIGHT, ~US)] & bitboards::KNIGHT_ATTACKS[sq]) ||
-            (pc_bb[make_piece(BISHOP, ~US)] & bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) ||
-            (pc_bb[make_piece(ROOK, ~US)] & bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) ||
-            (pc_bb[make_piece(QUEEN, ~US)] & bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) ||
-            (pc_bb[make_piece(KING, ~US)] & bitboards::KING_ATTACKS[sq]));
+    return (pc_bb[make_piece(PAWN, ~US)] & bitboards::PAWN_ATTACKS[US][sq]) || (pc_bb[make_piece(KNIGHT, ~US)] & bitboards::KNIGHT_ATTACKS[sq]) ||
+           (pc_bb[make_piece(BISHOP, ~US)] & bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) ||
+           (pc_bb[make_piece(ROOK, ~US)] & bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) ||
+           (pc_bb[make_piece(QUEEN, ~US)] & bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) ||
+           (pc_bb[make_piece(KING, ~US)] & bitboards::KING_ATTACKS[sq]);
 }
 
 template <Colour US> bool Position::is_insufficient() const
 {
-    return (std::popcount(pc_bb[make_piece(PAWN, US)]) == 0 && (std::popcount(pc_bb[make_piece(ROOK, US)]) == 0) &&
-            (std::popcount(pc_bb[make_piece(QUEEN, US)]) == 0) && (std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3) &&
-            (std::popcount(pc_bb[make_piece(BISHOP, US)]) + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2));
+    return std::popcount(pc_bb[make_piece(PAWN, US)]) == 0 && std::popcount(pc_bb[make_piece(ROOK, US)]) == 0 &&
+           std::popcount(pc_bb[make_piece(QUEEN, US)]) == 0 && std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3 &&
+           std::popcount(pc_bb[make_piece(BISHOP, US)]) + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2;
 }
 
 // updates a bitboard of attackers after a piece has moved to include possible x ray attackers
@@ -119,19 +119,17 @@ inline Bitboard Position::attackers_to(const Square sq) const
            (bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
 }
 
-inline int Position::get_game_phase() const { return std::min(bs->game_phase, MAX_GAME_PHASE); }
-
 inline bool Position::is_king_in_check() const
 {
-    return (side == WHITE) ? is_attacked<WHITE>(bitboards::lsb(pc_bb[W_KING])) : is_attacked<BLACK>(bitboards::lsb(pc_bb[B_KING]));
+    return side == WHITE ? is_attacked<WHITE>(bitboards::lsb(pc_bb[W_KING])) : is_attacked<BLACK>(bitboards::lsb(pc_bb[B_KING]));
 }
 
-inline bool Position::stm_has_promoted() const
+inline bool Position::is_stm_major() const
 {
     return pc_bb[make_piece(KNIGHT, side)] | pc_bb[make_piece(BISHOP, side)] | pc_bb[make_piece(ROOK, side)] | pc_bb[make_piece(QUEEN, side)];
 }
 
-inline bool Position::is_draw_50() const { return (bs->hmc >= 100); }
+inline bool Position::is_draw_50() const { return bs->hmc >= 100; }
 
 inline bool Position::is_draw() const { return is_repeat() || is_material_draw() || is_draw_50(); }
 

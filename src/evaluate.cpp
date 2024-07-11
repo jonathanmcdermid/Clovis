@@ -351,7 +351,7 @@ template <bool TRACE> int evaluate(const Position& pos)
 
     score += ei.score + evaluate_all<WHITE, TRACE>(pos, ei) - evaluate_all<BLACK, TRACE>(pos, ei);
 
-    const int game_phase = pos.get_game_phase();
+    const int game_phase = std::min(pos.get_game_phase(), MAX_GAME_PHASE);
     int eval = (score.mg * game_phase + score.eg * (MAX_GAME_PHASE - game_phase)) / MAX_GAME_PHASE;
     if (pos.get_side() == BLACK) { eval = -eval; }
 
