@@ -14,12 +14,12 @@ template <Colour US> bool is_passed_pawn(const Bitboard bb, const Square sq) { r
 
 template <Colour US> bool is_candidate_passer(const Position& pos, Square sq)
 {
-    if (pos.pc_bb[make_piece(PAWN, ~US)] & ROOK_ON_PASSER_MASKS[US][sq]) { return false; }
+    if (pos.get_pc_bb(make_piece(PAWN, ~US)) & ROOK_ON_PASSER_MASKS[US][sq]) { return false; }
 
     while (true)
     {
-        if (std::popcount(bitboards::PAWN_ATTACKS[US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, ~US)]) >
-            std::popcount(bitboards::PAWN_ATTACKS[~US][sq + pawn_push(US)] & pos.pc_bb[make_piece(PAWN, US)]))
+        if (std::popcount(bitboards::PAWN_ATTACKS[US][sq + pawn_push(US)] & pos.get_pc_bb(make_piece(PAWN, ~US))) >
+            std::popcount(bitboards::PAWN_ATTACKS[~US][sq + pawn_push(US)] & pos.get_pc_bb(make_piece(PAWN, US))))
         {
             return false;
         }
@@ -38,10 +38,10 @@ template <Colour US> bool is_outpost(const Square sq, const EvalInfo& ei)
 
 template <Colour US> bool is_fianchetto(const Position& pos, const Square sq)
 {
-    return FIANCHETTO_BISHOP_MASK[US] & sq && CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN], sq);
+    return FIANCHETTO_BISHOP_MASK[US] & sq && CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN), sq);
 }
 
-inline bool is_open_file(const Position& pos, const File f) { return !(bitboards::FILE_MASKS[f] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN])); }
+inline bool is_open_file(const Position& pos, const File f) { return !(bitboards::FILE_MASKS[f] & (pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN))); }
 
 template <Colour US, PieceType PT, bool TRACE> void king_danger(const Bitboard attacks, EvalInfo& ei)
 {
@@ -72,20 +72,20 @@ template <Colour US, PieceType PT> Bitboard worthy_trades(const Position& pos)
 {
     static_assert(PT >= KNIGHT && PT <= QUEEN);
 
-    return (PT == QUEEN)  ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)]
-           : (PT == ROOK) ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)] | pos.pc_bb[make_piece(ROOK, ~US)]
-                          : pos.get_occ_bb(~US) ^ pos.pc_bb[make_piece(PAWN, ~US)];
+    return (PT == QUEEN)  ? pos.get_pc_bb(make_piece(KING, ~US)) | pos.get_pc_bb(make_piece(QUEEN, ~US))
+           : (PT == ROOK) ? pos.get_pc_bb(make_piece(KING, ~US)) | pos.get_pc_bb(make_piece(QUEEN, ~US)) | pos.get_pc_bb(make_piece(ROOK, ~US))
+                          : pos.get_occ_bb(~US) ^ pos.get_pc_bb(make_piece(PAWN, ~US));
 }
 
 template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors(const Position& pos, EvalInfo& ei, Score& score)
 {
     static_assert(PT >= KNIGHT && PT <= QUEEN);
 
-    Bitboard bb = pos.pc_bb[make_piece(PT, US)];
+    Bitboard bb = pos.get_pc_bb(make_piece(PT, US));
 
     const Bitboard transparent_occ =
-        PT == BISHOP ? pos.get_occ_bb(BOTH) ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)] ^ ei.ksq[~US]
-        : PT == ROOK ? pos.get_occ_bb(BOTH) ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, US)] ^ ei.ksq[~US]
+        PT == BISHOP ? pos.get_occ_bb(BOTH) ^ pos.get_pc_bb(W_QUEEN) ^ pos.get_pc_bb(B_QUEEN) ^ pos.get_pc_bb(make_piece(ROOK, ~US)) ^ ei.ksq[~US]
+        : PT == ROOK ? pos.get_occ_bb(BOTH) ^ pos.get_pc_bb(W_QUEEN) ^ pos.get_pc_bb(B_QUEEN) ^ pos.get_pc_bb(make_piece(ROOK, US)) ^ ei.ksq[~US]
                      : pos.get_occ_bb(BOTH);
 
     while (bb)
@@ -134,7 +134,7 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
                     score += BISHOP_OUTPOST_BONUS;
                     if constexpr (TRACE) { ++T[BISHOP_OUTPOST][US]; }
                 }
-                if (bitboards::multiple_bits(bitboards::PAWN_ATTACKS[US][sq] & pos.pc_bb[make_piece(PAWN, US)]))
+                if (bitboards::multiple_bits(bitboards::PAWN_ATTACKS[US][sq] & pos.get_pc_bb(make_piece(PAWN, US))))
                 {
                     score -= TALL_PAWN_PENALTY;
                     if constexpr (TRACE) { --T[TALL_PAWN][US]; }
@@ -143,19 +143,19 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         }
         if constexpr (PT == ROOK)
         {
-            if (!(bitboards::FILE_MASKS[sq] & (pos.pc_bb[W_PAWN] | pos.pc_bb[B_PAWN])))
+            if (!(bitboards::FILE_MASKS[sq] & (pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN))))
             {
                 score += ROOK_OPEN_FILE_BONUS;
                 if constexpr (TRACE) { ++T[ROOK_FULL][US]; }
             }
             else
             {
-                if (!(bitboards::FILE_MASKS[sq] & pos.pc_bb[make_piece(PAWN, US)]))
+                if (!(bitboards::FILE_MASKS[sq] & pos.get_pc_bb(make_piece(PAWN, US))))
                 {
                     score += ROOK_SEMI_OPEN_FILE_BONUS;
                     if constexpr (TRACE) { ++T[ROOK_SEMI][US]; }
                 }
-                else if (bitboards::FILE_MASKS[sq] & pos.pc_bb[make_piece(PAWN, ~US)])
+                else if (bitboards::FILE_MASKS[sq] & pos.get_pc_bb(make_piece(PAWN, ~US)))
                 {
                     score -= ROOK_CLOSED_FILE_PENALTY;
                     if constexpr (TRACE) { --T[ROOK_CLOSED][US]; }
@@ -192,7 +192,7 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
 {
     Score score;
 
-    if (pos.pc_bb[make_piece(QUEEN, US)] && pos.get_game_phase() > 8)
+    if (pos.get_pc_bb(make_piece(QUEEN, US)) && pos.get_game_phase() > 8)
     {
         evaluate_majors<US, KNIGHT, true, TRACE>(pos, ei, score);
         evaluate_majors<US, BISHOP, true, TRACE>(pos, ei, score);
@@ -203,7 +203,7 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
         assert(ei.n_att[US] < 10);
 
         if (const int mob =
-                std::popcount(bitboards::get_attacks<QUEEN>(pos.get_occ_bb(~US) ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
+                std::popcount(bitboards::get_attacks<QUEEN>(pos.get_occ_bb(~US) ^ pos.get_pc_bb(make_piece(PAWN, US)), ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
             mob > 4)
         {
             ei.weight[US] += VIRTUAL_MOBILITY * std::min(13, mob);
@@ -239,7 +239,7 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
 template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalInfo& ei)
 {
     Score score;
-    Bitboard bb = pos.pc_bb[make_piece(PAWN, US)];
+    Bitboard bb = pos.get_pc_bb(make_piece(PAWN, US));
 
     while (bb)
     {
@@ -249,17 +249,17 @@ template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalI
 
         score += PIECE_TABLE[make_piece(PAWN, US)][sq];
 
-        if (is_doubled_pawn(pos.pc_bb[make_piece(PAWN, US)], sq))
+        if (is_doubled_pawn(pos.get_pc_bb(make_piece(PAWN, US)), sq))
         {
             score -= DOUBLE_PAWN_PENALTY;
             if constexpr (TRACE) { --T[DOUBLE_PAWN][US]; }
         }
-        if (is_isolated_pawn(pos.pc_bb[make_piece(PAWN, US)], sq))
+        if (is_isolated_pawn(pos.get_pc_bb(make_piece(PAWN, US)), sq))
         {
             score -= ISOLATED_PAWN_PENALTY;
             if constexpr (TRACE) { --T[ISOLATED_PAWN][US]; }
         }
-        if (is_passed_pawn<US>(pos.pc_bb[make_piece(PAWN, ~US)], sq))
+        if (is_passed_pawn<US>(pos.get_pc_bb(make_piece(PAWN, ~US)), sq))
         {
             ei.passers[US] |= sq;
             if (rank_of(sq) != relative_rank(US, RANK_7))
@@ -278,14 +278,14 @@ template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalI
         ei.potential_pawn_attacks[US] |= OUTPOST_PAWN_MASKS[US][sq];
     }
 
-    king_danger<US, PAWN, TRACE>(bitboards::shift<pawn_push(US)>(pos.pc_bb[make_piece(PAWN, US)]), ei);
+    king_danger<US, PAWN, TRACE>(bitboards::shift<pawn_push(US)>(pos.get_pc_bb(make_piece(PAWN, US))), ei);
 
     const File kf = file_of(ei.ksq[US]);
     const File cf = kf == FILE_H ? FILE_G : kf == FILE_A ? FILE_B : kf;
 
     for (File f = cf - 1; f <= cf + 1; ++f)
     {
-        if (const Bitboard fp = pos.pc_bb[make_piece(PAWN, US)] & bitboards::FILE_MASKS[f]; fp)
+        if (const Bitboard fp = pos.get_pc_bb(make_piece(PAWN, US)) & bitboards::FILE_MASKS[f]; fp)
         {
             //	ei.weight[~US] -= *shield_table[US][US == WHITE ?
             // bitboards::lsb(fp) : msb(fp)]; 	if constexpr (TRACE)
@@ -333,8 +333,8 @@ template <bool TRACE> int evaluate(const Position& pos)
     {
         ei = EvalInfo();
         ei.key = pos.bs->pawn_key;
-        ei.ksq[WHITE] = bitboards::lsb(pos.pc_bb[W_KING]);
-        ei.ksq[BLACK] = bitboards::lsb(pos.pc_bb[B_KING]);
+        ei.ksq[WHITE] = bitboards::lsb(pos.get_pc_bb(W_KING));
+        ei.ksq[BLACK] = bitboards::lsb(pos.get_pc_bb(B_KING));
         ei.score = evaluate_pawns<WHITE, TRACE>(pos, ei) - evaluate_pawns<BLACK, TRACE>(pos, ei);
         tt.new_pawn_entry(ei);
     }
@@ -348,10 +348,10 @@ template <bool TRACE> int evaluate(const Position& pos)
     /*
     int scaling;
 
-    if (game_phase == 2 && popcount(pos.pc_bb[W_BISHOP]) == 1 &&
-    popcount(pos.pc_bb[B_BISHOP]) == 1
-            && bool(pos.pc_bb[W_BISHOP] & light_mask) ==
-    bool(pos.pc_bb[B_BISHOP] & dark_mask)) scaling =
+    if (game_phase == 2 && popcount(pos.get_pc_bb(W_BISHOP)) == 1 &&
+    popcount(pos.get_pc_bb(B_BISHOP)) == 1
+            && bool(pos.get_pc_bb(W_BISHOP) & light_mask) ==
+    bool(pos.get_pc_bb(B_BISHOP) & dark_mask)) scaling =
     opposite_bishops_scaling; else scaling = MAX_SCALING;
 
     if (scaling < MAX_SCALING)
