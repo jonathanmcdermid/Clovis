@@ -209,9 +209,9 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
             // relevant squares are the same as the queen moves from the kings position (king moves + sliders)
             bitboards::get_attacks<QUEEN>
             // for occupancy, we consider the pieces defending the king and attacking pawns TODO: why attacking pawns?
-            (pos.get_occ_bb(~US) | pos.get_pc_bb(make_piece(PAWN, US)), ei.ksq[~US]) 
+            (pos.get_occ_bb(~US) | pos.get_pc_bb(make_piece(PAWN, US)), ei.ksq[~US]) &
             // ignore squares that are defended by the kings pawns
-            & ~ei.pawn_attacks[~US]);
+            ~ei.pawn_attacks[~US]);
 
         if (virtual_mobility > 4)
         {
