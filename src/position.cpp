@@ -546,15 +546,4 @@ void Position::print_position() const
     std::cout << "  a b c d e f g h" << '\n' << '\n' << get_fen() << '\n' << '\n';
 }
 
-// prints the bitboards for this position
-void Position::print_bitboards() const
-{
-    for (PieceType pt = PAWN; pt <= KING; ++pt)
-    {
-        bitboards::print_bitboard(pc_bb[make_piece(pt, WHITE)]);
-        bitboards::print_bitboard(pc_bb[make_piece(pt, BLACK)]);
-    }
-    for (auto it : occ_bb) { bitboards::print_bitboard(it); }
-}
-
 } // namespace clovis
