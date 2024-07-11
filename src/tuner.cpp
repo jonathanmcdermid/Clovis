@@ -299,9 +299,9 @@ void tune_eval(std::vector<std::string>& args)
         entry.phase = pos.get_game_phase();
 
         entry.static_eval = eval::evaluate<true>(pos);
-        if (pos.side == BLACK) { entry.static_eval = -entry.static_eval; }
+        if (pos.GetSide() == BLACK) { entry.static_eval = -entry.static_eval; }
 
-        entry.stm = pos.side;
+        entry.stm = pos.GetSide();
 
         entry.n_att[WHITE] = eval::T[SAFETY_N_ATT][WHITE];
         entry.n_att[BLACK] = eval::T[SAFETY_N_ATT][BLACK];

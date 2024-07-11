@@ -75,23 +75,23 @@ Move MovePicker::get_next(const bool play_quiets)
 
 void MovePicker::score_captures()
 {
+    // promotions supersede mvv-lva
     for (auto& sm : std::ranges::subrange(moves.data(), last))
     {
-        // promotions supersede mvv-lva
-        sm.score = MVV_LVA[move_piece_type(sm)][pos.pc_table[move_to_sq(sm)]] + (move_promotion_type(sm) << 6);
+        sm.score = MVV_LVA[move_piece_type(sm)][pos.GetPiece(move_to_sq(sm))] + (move_promotion_type(sm) << 6);
     }
 }
 
 void MovePicker::score_quiets()
 {
-    const auto counter = get_counter_entry(pos.side, prev_move);
+    const auto counter = get_counter_entry(pos.GetSide(), prev_move);
 
     for (auto& sm : std::ranges::subrange(last_bad_cap, last))
     {
         sm.score = sm == killer_table[ply].primary     ? 22000
                    : sm == killer_table[ply].secondary ? 21000
                    : sm == counter                     ? 20000
-                                                       : get_history_entry(pos.side, sm);
+                                                       : get_history_entry(pos.GetSide(), sm);
     }
 }
 

@@ -21,31 +21,21 @@ struct BoardState
     Key key{0ULL}, pawn_key{0ULL};
 };
 
-struct Position
+class Position
 {
+  public:
     explicit Position(const char* fen) : bs{nullptr} { set(fen); }
-    void reset();
-    [[nodiscard]] std::string get_fen() const;
     void set(const char* fen);
+    [[nodiscard]] std::string get_fen() const;
     [[nodiscard]] bool see_ge(Move move, int threshold) const;
     void do_null_move();
     void undo_null_move();
     [[nodiscard]] bool do_move(Move move);
     void undo_move(Move move);
     void print_position() const;
-    void print_bitboards() const;
-    [[nodiscard]] Key make_key() const;
-    [[nodiscard]] Key make_pawn_key() const;
-    void put_piece(Piece pc, Square sq);
-    void replace_piece(Piece pc, Square sq);
-    void remove_piece(Square sq);
-    [[nodiscard]] Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
-    [[nodiscard]] bool is_repeat() const;
 
-    template <bool NM> void new_board_state();
     template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
     template <Colour US> [[nodiscard]] bool discovery_threat(Square sq) const;
-    template <Colour US> [[nodiscard]] bool is_insufficient() const;
     template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
 
     [[nodiscard]] Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
@@ -56,6 +46,30 @@ struct Position
     [[nodiscard]] bool is_draw_50() const;
     [[nodiscard]] bool is_draw() const;
     [[nodiscard]] bool is_material_draw() const;
+
+    [[nodiscard]] Colour GetSide() const { return side; }
+    [[nodiscard]] Key GetKey() const { return bs->key; }
+    [[nodiscard]] Key GetPawnKey() const { return bs->pawn_key; }
+    [[nodiscard]] Square GetEnPassantSquare() const { return bs->en_passant; }
+    [[nodiscard]] int GetFullMoveClock() const { return bs->fmc; }
+    [[nodiscard]] int GetCastleRights() const { return bs->castle; }
+    [[nodiscard]] Piece GetPiece(const Square sq) const { return pc_table[sq]; }
+    [[nodiscard]] Bitboard GetPieceBitboard(const Piece pc) const { return pc_bb[pc]; }
+    [[nodiscard]] Bitboard GetOccupancyBitboard(const Colour col) const { return occ_bb[col]; }
+
+  private:
+    void reset();
+    void put_piece(Piece pc, Square sq);
+    void replace_piece(Piece pc, Square sq);
+    void remove_piece(Square sq);
+
+    [[nodiscard]] Key make_key() const;
+    [[nodiscard]] Key make_pawn_key() const;
+    [[nodiscard]] Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
+    [[nodiscard]] bool is_repeat() const;
+
+    template <bool NM> void new_board_state();
+    template <Colour US> [[nodiscard]] bool is_insufficient() const;
 
     Colour side{WHITE};
     std::unique_ptr<BoardState> bs;

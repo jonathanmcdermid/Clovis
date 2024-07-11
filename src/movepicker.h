@@ -108,12 +108,12 @@ class MovePicker
 template <HashFlag HF> void MovePicker::update_history(const Move best_move, const int depth) const
 {
     assert(!move_capture(best_move) || move_promotion_type(best_move));
-    update_history_entry(best_move, pos.side, HISTORY_BONUS[depth]);
+    update_history_entry(best_move, pos.GetSide(), HISTORY_BONUS[depth]);
 
     for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HASH_EXACT ? last : curr))
     {
         assert(!move_capture(sm) || move_promotion_type(sm));
-        if (sm != best_move) { update_history_entry(sm, pos.side, -HISTORY_BONUS[depth]); }
+        if (sm != best_move) { update_history_entry(sm, pos.GetSide(), -HISTORY_BONUS[depth]); }
     }
 }
 
