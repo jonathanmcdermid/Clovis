@@ -300,11 +300,11 @@ bool Position::see_ge(const Move move, const int threshold) const
 void Position::put_piece(const Piece pc, const Square sq)
 {
     assert(!(sq & pc_bb[pc]));
-    assert(!(sq & occ_bb[get_side(pc)]));
+    assert(!(sq & occ_bb[piece_colour(pc)]));
     assert(!(sq & occ_bb[BOTH]));
 
     pc_bb[pc] |= sq;
-    occ_bb[get_side(pc)] |= sq;
+    occ_bb[piece_colour(pc)] |= sq;
     occ_bb[BOTH] |= sq;
     pc_table[sq] = pc;
 }
@@ -312,14 +312,14 @@ void Position::put_piece(const Piece pc, const Square sq)
 // updates bitboards to replace an old piece with a new piece on a square
 void Position::replace_piece(const Piece pc, const Square sq)
 {
-    assert(!(sq & occ_bb[get_side(pc)]));
-    assert((sq & occ_bb[~get_side(pc)]));
+    assert(!(sq & occ_bb[piece_colour(pc)]));
+    assert((sq & occ_bb[~piece_colour(pc)]));
     assert((sq & occ_bb[BOTH]));
 
     pc_bb[pc_table[sq]] ^= sq;
     pc_bb[pc] |= sq;
-    occ_bb[~get_side(pc)] ^= sq;
-    occ_bb[get_side(pc)] |= sq;
+    occ_bb[~piece_colour(pc)] ^= sq;
+    occ_bb[piece_colour(pc)] |= sq;
     pc_table[sq] = pc;
 }
 
@@ -329,11 +329,11 @@ void Position::remove_piece(const Square sq)
     const Piece pc = pc_table[sq];
 
     assert(sq & pc_bb[pc]);
-    assert(sq & occ_bb[get_side(pc)]);
+    assert(sq & occ_bb[piece_colour(pc)]);
     assert(sq & occ_bb[BOTH]);
 
     pc_bb[pc] ^= sq;
-    occ_bb[get_side(pc)] ^= sq;
+    occ_bb[piece_colour(pc)] ^= sq;
     occ_bb[BOTH] ^= sq;
     pc_table[sq] = NO_PIECE;
 }
@@ -385,9 +385,9 @@ bool Position::do_move(const Move move)
     const Square tar = move_to_sq(move);
     const Piece piece = move_piece_type(move);
 
-    assert(get_side(move_piece_type(move)) == side);
-    assert(get_side(pc_table[src]) == side);
-    assert(pc_table[tar] == NO_PIECE || get_side(pc_table[tar]) != side);
+    assert(piece_colour(move_piece_type(move)) == side);
+    assert(piece_colour(pc_table[src]) == side);
+    assert(pc_table[tar] == NO_PIECE || piece_colour(pc_table[tar]) != side);
     assert(piece_type(pc_table[tar]) != KING);
 
     // move piece

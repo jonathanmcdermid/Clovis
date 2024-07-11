@@ -361,7 +361,7 @@ constexpr Square flip_square(const Square sq) { return static_cast<Square>(sq ^ 
 
 constexpr bool is_valid(const Square sq) { return !(sq & 0xffffffc0); }
 
-constexpr Colour get_side(const Piece pc) { return static_cast<Colour>(pc >> 3); }
+constexpr Colour piece_colour(const Piece pc) { return static_cast<Colour>(pc >> 3); }
 
 constexpr Piece make_piece(const PieceType pt, const Colour c) { return static_cast<Piece>((c << 3) | pt); }
 
