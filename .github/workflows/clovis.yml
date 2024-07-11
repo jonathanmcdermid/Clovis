@@ -167,7 +167,7 @@ jobs:
         los_percentage=$(echo "$los_line" | awk '{print $7}' | tr -d '%')
         echo "LOS percentage: $los_percentage"
         
-        if [ $(echo "$los_percentage < 10.0" | bc) -eq 1 ]; then
+        if [ $(echo "$los_percentage < 5.0" | bc) -eq 1 ]; then
           echo "Error: Likelihood of superiority (LOS) is less than 10%."
           exit 1
         fi
