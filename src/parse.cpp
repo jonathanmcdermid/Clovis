@@ -144,13 +144,13 @@ void generate_data()
                                 if (!pos.do_move(it)) { exit(EXIT_FAILURE); }
                             }
 
-                            if (std::ranges::find(keys.begin(), keys.end(), pos.bs->key) == keys.end())
+                            if (std::ranges::find(keys.begin(), keys.end(), pos.get_key()) == keys.end())
                             {
                                 if (const int eval = pos.get_side() == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos);
                                     (result == "1-0" && eval > -500) || (result == "0-1" && eval < 500) ||
                                     (result == "1/2-1/2" && (eval > -500 && eval < 500)))
                                 {
-                                    keys.push_back(pos.bs->key);
+                                    keys.push_back(pos.get_key());
                                     ofs << pos.get_fen() + " \"" + result + "\";" << '\n';
                                 }
                             }

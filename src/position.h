@@ -9,18 +9,6 @@ namespace clovis {
 
 constexpr std::string_view PIECE_STR = " PNBRQK  pnbrqk";
 
-// linked list implementation for board state info
-struct BoardState
-{
-    constexpr BoardState() = default;
-
-    int castle{0}, hmc{0}, fmc{0}, ply_null{0}, game_phase{0};
-    Piece captured_piece{NO_PIECE};
-    Square en_passant{SQ_NONE};
-    std::unique_ptr<BoardState> prev;
-    Key key{0ULL}, pawn_key{0ULL};
-};
-
 struct Position
 {
   public:
@@ -45,9 +33,11 @@ struct Position
     [[nodiscard]] Piece get_pc(Square sq) const { return pc_table[sq]; }
     [[nodiscard]] Bitboard get_pc_bb(Piece pc) const { return pc_bb[pc]; }
     [[nodiscard]] Bitboard get_occ_bb(Colour col) const { return occ_bb[col]; }
+    [[nodiscard]] Key get_key() const { return bs->key; }
+    [[nodiscard]] Key get_pawn_key() const { return bs->pawn_key; }
+    [[nodiscard]] Square get_en_passant() const { return bs->en_passant; }
     [[nodiscard]] int get_full_move_clock() const { return bs->fmc; }
     [[nodiscard]] int get_castle_rights() const { return bs->castle; }
-    [[nodiscard]] int get_en_passant() const { return bs->en_passant; }
 
     // Utility Functions
     void print_position() const;
@@ -73,6 +63,18 @@ struct Position
     [[nodiscard]] bool is_material_draw() const;
     template <bool NM> void new_board_state();
     template <Colour US> [[nodiscard]] bool is_insufficient() const;
+
+    // Nested BoardState Struct
+    struct BoardState
+    {
+        constexpr BoardState() = default;
+
+        int castle{0}, hmc{0}, fmc{0}, ply_null{0}, game_phase{0};
+        Piece captured_piece{NO_PIECE};
+        Square en_passant{SQ_NONE};
+        std::unique_ptr<BoardState> prev;
+        Key key{0ULL}, pawn_key{0ULL};
+    };
 
     // Member Variables
     Colour side{WHITE};

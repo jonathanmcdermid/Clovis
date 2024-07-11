@@ -337,12 +337,12 @@ template <bool TRACE> int evaluate(const Position& pos)
     if constexpr (TRACE) { memset(T.data(), 0, sizeof(T)); }
     if constexpr (TRACE) { ++T[TEMPO][pos.get_side()]; }
 
-    EvalInfo ei(tt.probe_pawn(pos.bs->pawn_key));
+    EvalInfo ei(tt.probe_pawn(pos.get_pawn_key()));
 
-    if (TRACE || ei.key != pos.bs->pawn_key)
+    if (TRACE || ei.key != pos.get_pawn_key())
     {
         ei = EvalInfo();
-        ei.key = pos.bs->pawn_key;
+        ei.key = pos.get_pawn_key();
         ei.ksq[WHITE] = bitboards::lsb(pos.get_pc_bb(W_KING));
         ei.ksq[BLACK] = bitboards::lsb(pos.get_pc_bb(B_KING));
         ei.score = evaluate_pawns<WHITE, TRACE>(pos, ei) - evaluate_pawns<BLACK, TRACE>(pos, ei);
