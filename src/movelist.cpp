@@ -83,9 +83,9 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
                     *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
                 }
 
-                if (bitboards::PAWN_ATTACKS[US][src] & pos.bs->en_passant)
+                if (bitboards::PAWN_ATTACKS[US][src] & pos.get_en_passant())
                 {
-                    *moves++ = encode_move(src, pos.bs->en_passant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
+                    *moves++ = encode_move(src, pos.get_en_passant(), make_piece(PAWN, US), NO_PIECE, true, false, true, false);
                 }
             }
         }
@@ -93,13 +93,13 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
 
     if (QUIETS && !pos.is_attacked<US>(relative_square(US, E1)))
     {
-        if (pos.bs->castle & ks_castle_rights(US) && !(pos.get_occ_bb(BOTH) & (relative_square(US, F1) | relative_square(US, G1))) &&
+        if (pos.get_castle_rights() & ks_castle_rights(US) && !(pos.get_occ_bb(BOTH) & (relative_square(US, F1) | relative_square(US, G1))) &&
             !pos.is_attacked<US>(relative_square(US, F1)))
         {
             *moves++ = encode_move(relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, false, false, false, true);
         }
 
-        if (pos.bs->castle & qs_castle_rights(US) &&
+        if (pos.get_castle_rights() & qs_castle_rights(US) &&
             !(pos.get_occ_bb(BOTH) & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
             !pos.is_attacked<US>(relative_square(US, D1)))
         {

@@ -25,32 +25,40 @@ struct Position
 {
   public:
     explicit Position(const char* fen) : bs{nullptr} { set(fen); }
-    [[nodiscard]] std::string get_fen() const;
+
+    // State Modifiers
     void set(const char* fen);
-    [[nodiscard]] bool see_ge(Move move, int threshold) const;
     void do_null_move();
     void undo_null_move();
     [[nodiscard]] bool do_move(Move move);
     void undo_move(Move move);
-    void print_position() const;
 
-    template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
-    template <Colour US> [[nodiscard]] bool discovery_threat(Square sq) const;
-    template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
-
+    // State Queries
+    [[nodiscard]] std::string get_fen() const;
     [[nodiscard]] int get_game_phase() const;
     [[nodiscard]] bool is_king_in_check() const;
     [[nodiscard]] bool stm_has_promoted() const;
     [[nodiscard]] bool is_draw() const;
 
+    // Member Accessors
     [[nodiscard]] Colour get_side() const { return side; }
     [[nodiscard]] Piece get_pc(Square sq) const { return pc_table[sq]; }
     [[nodiscard]] Bitboard get_pc_bb(Piece pc) const { return pc_bb[pc]; }
     [[nodiscard]] Bitboard get_occ_bb(Colour col) const { return occ_bb[col]; }
+    [[nodiscard]] int get_full_move_clock() const { return bs->fmc; }
+    [[nodiscard]] int get_castle_rights() const { return bs->castle; }
+    [[nodiscard]] int get_en_passant() const { return bs->en_passant; }
 
-    std::unique_ptr<BoardState> bs;
+    // Utility Functions
+    void print_position() const;
+    [[nodiscard]] bool see_ge(Move move, int threshold) const;
+
+    template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
+    template <Colour US> [[nodiscard]] bool discovery_threat(Square sq) const;
+    template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
 
   private:
+    // Private Helper Functions
     void reset();
     void put_piece(Piece pc, Square sq);
     void replace_piece(Piece pc, Square sq);
@@ -66,10 +74,12 @@ struct Position
     template <bool NM> void new_board_state();
     template <Colour US> [[nodiscard]] bool is_insufficient() const;
 
+    // Member Variables
     Colour side{WHITE};
     std::array<Piece, SQ_N> pc_table{};
     std::array<Bitboard, 15> pc_bb{};
     std::array<Bitboard, COLOUR_N + 1> occ_bb{};
+    std::unique_ptr<BoardState> bs;
 };
 
 // returns whether a square is attacked by opposing side

@@ -28,7 +28,7 @@ Move parse(const Position& pos, std::string move)
                                                                                      : to - pawn_push(pos.get_side());
 
         return encode_move(from, to, make_piece(PAWN, pos.get_side()), promo, move.find('x') != std::string::npos,
-                           abs(rank_of(to) - rank_of(from)) == 2, pos.bs->en_passant == to, false);
+                           abs(rank_of(to) - rank_of(from)) == 2, pos.get_en_passant() == to, false);
     }
     // major moves
     const Piece piece = make_piece(static_cast<PieceType>(PIECE_STR.find(move[0])), pos.get_side());
@@ -103,8 +103,8 @@ void generate_data()
 
         while (getline(ifs, line))
         {
-            if (line.find(std::to_string(pos.bs->fmc) + "... ") != std::string::npos ||
-                line.find(std::to_string(pos.bs->fmc) + ". ") != std::string::npos)
+            if (line.find(std::to_string(pos.get_full_move_clock()) + "... ") != std::string::npos ||
+                line.find(std::to_string(pos.get_full_move_clock()) + ". ") != std::string::npos)
             {
                 break;
             }
@@ -130,7 +130,7 @@ void generate_data()
                 {
                     if (!pos.do_move(parse(pos, token))) { exit(EXIT_FAILURE); }
 
-                    if (pos.bs->fmc > 8 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
+                    if (pos.get_full_move_clock() > 8 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
                     {
                         search::SearchLimits limits;
                         limits.depth = 1;
