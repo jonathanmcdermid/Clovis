@@ -7,7 +7,7 @@
 
 namespace clovis::move_pick {
 
-constexpr size_t COLOUR_FROM_TO_SIZE = COLOUR_N * SQ_N * SQ_N;
+constexpr size_t COLOUR_FROM_TO_SIZE = 2 * SQ_N * SQ_N;
 
 struct KEntry
 {

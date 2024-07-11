@@ -82,8 +82,8 @@ double linear_eval(const TEntry& entry, TGradient* tg)
 {
     std::array<double, PHASE_N> normal{};
     double safety = 0.0;
-    std::array<std::array<double, COLOUR_N>, EVAL_TYPE_N> mg{};
-    std::array<std::array<double, COLOUR_N>, EVAL_TYPE_N> eg{};
+    std::array<std::array<double, 2>, EVAL_TYPE_N> mg{};
+    std::array<std::array<double, 2>, EVAL_TYPE_N> eg{};
 
     for (const auto& it : entry.tuples)
     {

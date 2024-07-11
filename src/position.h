@@ -80,26 +80,9 @@ struct Position
     Colour side{WHITE};
     std::array<Piece, SQ_N> pc_table{};
     std::array<Bitboard, 15> pc_bb{};
-    std::array<Bitboard, COLOUR_N + 1> occ_bb{};
+    std::array<Bitboard, 3> occ_bb{};
     std::unique_ptr<BoardState> bs;
 };
-
-// returns whether a square is attacked by opposing side
-template <Colour US> bool Position::is_attacked(const Square sq) const
-{
-    return (pc_bb[make_piece(PAWN, ~US)] & bitboards::PAWN_ATTACKS[US][sq]) || (pc_bb[make_piece(KNIGHT, ~US)] & bitboards::KNIGHT_ATTACKS[sq]) ||
-           (pc_bb[make_piece(BISHOP, ~US)] & bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) ||
-           (pc_bb[make_piece(ROOK, ~US)] & bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) ||
-           (pc_bb[make_piece(QUEEN, ~US)] & bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) ||
-           (pc_bb[make_piece(KING, ~US)] & bitboards::KING_ATTACKS[sq]);
-}
-
-template <Colour US> bool Position::is_insufficient() const
-{
-    return std::popcount(pc_bb[make_piece(PAWN, US)]) == 0 && std::popcount(pc_bb[make_piece(ROOK, US)]) == 0 &&
-           std::popcount(pc_bb[make_piece(QUEEN, US)]) == 0 && std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3 &&
-           std::popcount(pc_bb[make_piece(BISHOP, US)]) + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2;
-}
 
 // updates a bitboard of attackers after a piece has moved to include possible x ray attackers
 inline Bitboard Position::consider_xray(const Bitboard occ, const Square to, const PieceType pt) const
@@ -117,6 +100,23 @@ inline Bitboard Position::attackers_to(const Square sq) const
            (bitboards::KNIGHT_ATTACKS[sq] & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT])) | (bitboards::KING_ATTACKS[sq] & (pc_bb[W_KING] | pc_bb[B_KING])) |
            (bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK])) |
            (bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
+}
+
+// returns whether a square is attacked by opposing side
+template <Colour US> bool Position::is_attacked(const Square sq) const
+{
+    return (pc_bb[make_piece(PAWN, ~US)] & bitboards::PAWN_ATTACKS[US][sq]) || (pc_bb[make_piece(KNIGHT, ~US)] & bitboards::KNIGHT_ATTACKS[sq]) ||
+           (pc_bb[make_piece(BISHOP, ~US)] & bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq)) ||
+           (pc_bb[make_piece(ROOK, ~US)] & bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq)) ||
+           (pc_bb[make_piece(QUEEN, ~US)] & bitboards::get_attacks<QUEEN>(occ_bb[BOTH], sq)) ||
+           (pc_bb[make_piece(KING, ~US)] & bitboards::KING_ATTACKS[sq]);
+}
+
+template <Colour US> bool Position::is_insufficient() const
+{
+    return std::popcount(pc_bb[make_piece(PAWN, US)]) == 0 && std::popcount(pc_bb[make_piece(ROOK, US)]) == 0 &&
+           std::popcount(pc_bb[make_piece(QUEEN, US)]) == 0 && std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3 &&
+           std::popcount(pc_bb[make_piece(BISHOP, US)]) + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2;
 }
 
 inline bool Position::is_king_in_check() const

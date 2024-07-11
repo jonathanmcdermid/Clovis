@@ -10,7 +10,7 @@ struct EvalInfo : PTEntry
     constexpr EvalInfo() = default;
     explicit EvalInfo(const PTEntry& pte) : PTEntry(pte) {}
 
-    std::array<int, COLOUR_N> n_att{0, 0};
+    std::array<int, 2> n_att{0, 0};
 };
 
 // clang-format off
@@ -195,7 +195,7 @@ constexpr auto PIECE_TABLE = [] {
 }();
 
 constexpr auto PASSED_TABLE = [] {
-    std::array<std::array<Score, SQ_N>, COLOUR_N> arr{};
+    std::array<std::array<Score, SQ_N>, 2> arr{};
 
     for (const auto col : {WHITE, BLACK})
     {
@@ -206,7 +206,7 @@ constexpr auto PASSED_TABLE = [] {
 }();
 
 constexpr auto SHIELD_TABLE = [] {
-    std::array<std::array<short, SQ_N>, COLOUR_N> arr{};
+    std::array<std::array<short, SQ_N>, 2> arr{};
 
     for (const auto col : {WHITE, BLACK})
     {
@@ -229,7 +229,7 @@ constexpr auto ISOLATED_MASKS = [] {
 }();
 
 constexpr auto PASSED_MASKS = [] {
-    std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
+    std::array<std::array<Bitboard, SQ_N>, 2> arr{};
 
     for (const auto c : {WHITE, BLACK})
     {
@@ -243,7 +243,7 @@ constexpr auto PASSED_MASKS = [] {
 }();
 
 constexpr auto OUTPOST_PAWN_MASKS = [] {
-    std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr = PASSED_MASKS;
+    std::array<std::array<Bitboard, SQ_N>, 2> arr = PASSED_MASKS;
 
     for (const auto c : {WHITE, BLACK})
     {
@@ -254,7 +254,7 @@ constexpr auto OUTPOST_PAWN_MASKS = [] {
 }();
 
 constexpr auto ROOK_ON_PASSER_MASKS = [] {
-    std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr = PASSED_MASKS;
+    std::array<std::array<Bitboard, SQ_N>, 2> arr = PASSED_MASKS;
 
     for (const auto c : {WHITE, BLACK})
     {
@@ -285,16 +285,16 @@ constexpr auto OUTER_RING = [] {
     return arr;
 }();
 
-constexpr std::array<Bitboard, COLOUR_N> OUTPOST_MASKS = {bitboards::RANK_MASKS[A4] | bitboards::RANK_MASKS[A5] | bitboards::RANK_MASKS[A6],
+constexpr std::array<Bitboard, 2> OUTPOST_MASKS = {bitboards::RANK_MASKS[A4] | bitboards::RANK_MASKS[A5] | bitboards::RANK_MASKS[A6],
                                                           bitboards::RANK_MASKS[A3] | bitboards::RANK_MASKS[A4] | bitboards::RANK_MASKS[A5]};
 
 constexpr Bitboard LIGHT_MASK = 0x55aa55aa55aa55aaULL;
 
 constexpr Bitboard DARK_MASK = 0xaa55aa55aa55aa55ULL;
 
-constexpr std::array<Bitboard, COLOUR_N> FIANCHETTO_BISHOP_MASK = {B2 | G2, B7 | G7};
+constexpr std::array<Bitboard, 2> FIANCHETTO_BISHOP_MASK = {B2 | G2, B7 | G7};
 
-constexpr std::array<Bitboard, COLOUR_N> CENTER_MASK = {D5 | E5, D4 | E4};
+constexpr std::array<Bitboard, 2> CENTER_MASK = {D5 | E5, D4 | E4};
 
 extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 

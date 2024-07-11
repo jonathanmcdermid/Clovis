@@ -35,13 +35,13 @@ struct PTEntry
 {
     constexpr PTEntry() = default;
 
-    std::array<short, COLOUR_N> weight{0};
+    std::array<short, 2> weight{0};
     Score score;
-    std::array<Square, COLOUR_N> ksq{SQ_NONE};
+    std::array<Square, 2> ksq{SQ_NONE};
     Key key{0ULL};
-    std::array<Bitboard, COLOUR_N> pawn_attacks{0ULL};
-    std::array<Bitboard, COLOUR_N> passers{0ULL};
-    std::array<Bitboard, COLOUR_N> potential_pawn_attacks{0ULL};
+    std::array<Bitboard, 2> pawn_attacks{0ULL};
+    std::array<Bitboard, 2> passers{0ULL};
+    std::array<Bitboard, 2> potential_pawn_attacks{0ULL};
 };
 
 class TranspositionTable

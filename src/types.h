@@ -56,8 +56,7 @@ enum Colour : int
 {
     WHITE,
     BLACK,
-    COLOUR_N,
-    BOTH = COLOUR_N
+    BOTH
 };
 
 enum PieceType : int

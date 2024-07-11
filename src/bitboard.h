@@ -84,7 +84,7 @@ constexpr auto RANK_MASKS = [] {
 }();
 
 constexpr auto PAWN_ATTACKS = [] {
-    std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
+    std::array<std::array<Bitboard, SQ_N>, 2> arr{};
 
     for (const auto c : {WHITE, BLACK})
     {

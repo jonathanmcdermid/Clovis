@@ -10,7 +10,7 @@ struct SearchLimits
     constexpr SearchLimits() = default;
 
     int move_time{0}, start_time{0}, moves_left{20}, depth{0}, mate{0}, perft{0};
-    std::array<int, COLOUR_N> time{{5000, 5000}}, inc{{0, 0}};
+    std::array<int, 2> time{{5000, 5000}}, inc{{0, 0}};
     bool infinite{false};
     uint64_t nodes{0};
 };

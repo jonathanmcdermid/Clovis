@@ -205,7 +205,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         if (!PV_NODE && depth <= FUTILITY_PRUNING_DEPTH && score - depth * FUTILITY_PRUNING_FACTOR > beta) { return score; }
 
         // null move pruning
-        if (!PV_NODE && !NULL_NODE && depth >= NULL_MOVE_DEPTH && pos.stm_has_promoted())
+        if (!PV_NODE && !NULL_NODE && depth >= NULL_MOVE_DEPTH && pos.is_stm_major())
         {
             pos.do_null_move();
             Line line;
