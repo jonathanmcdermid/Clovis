@@ -5,17 +5,17 @@ namespace clovis::move_gen {
 template <typename T, MoveType M, PieceType PT, Colour US> T* generate_majors(const Position& pos, T* moves)
 {
     Bitboard bb = pos.pc_bb[make_piece(PT, US)];
-    Bitboard tar_bb = M == ALL_MOVES ? ~pos.occ_bb[US] : M == QUIET_MOVES ? ~pos.occ_bb[BOTH] : pos.occ_bb[~US];
+    Bitboard tar_bb = M == ALL_MOVES ? ~pos.get_occ_bb(US) : M == QUIET_MOVES ? ~pos.get_occ_bb(BOTH) : pos.get_occ_bb(~US);
 
     while (bb)
     {
         const Square src = bitboards::pop_lsb(bb);
-        Bitboard att = bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
+        Bitboard att = bitboards::get_attacks<PT>(pos.get_occ_bb(BOTH), src) & tar_bb;
 
         while (att)
         {
             const Square tar = bitboards::pop_lsb(att);
-            *moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.occ_bb[BOTH] & tar, false, false, false);
+            *moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.get_occ_bb(BOTH) & tar, false, false, false);
         }
     }
 
@@ -50,9 +50,9 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
 
         if (rank_of(src) == relative_rank(US, RANK_7))
         {
-            Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.occ_bb[~US];
+            Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.get_occ_bb(~US);
 
-            if (!(pos.occ_bb[BOTH] & tar)) { moves = generate_promotions<T, M, US, false>(moves, src, tar); }
+            if (!(pos.get_occ_bb(BOTH) & tar)) { moves = generate_promotions<T, M, US, false>(moves, src, tar); }
 
             while (att)
             {
@@ -62,19 +62,19 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
         }
         else
         {
-            if (QUIETS && !(pos.occ_bb[BOTH] & tar))
+            if (QUIETS && !(pos.get_occ_bb(BOTH) & tar))
             {
                 // single push
                 *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, false, false, false, false);
                 // double push
-                if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
+                if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.get_occ_bb(BOTH) & (tar + pawn_push(US))))
                 {
                     *moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, false, true, false, false);
                 }
             }
             if constexpr (CAPTURES)
             {
-                Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.occ_bb[~US];
+                Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.get_occ_bb(~US);
 
                 while (att)
                 {
@@ -92,14 +92,14 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
 
     if (QUIETS && !pos.is_attacked<US>(relative_square(US, E1)))
     {
-        if (pos.bs->castle & ks_castle_rights(US) && !(pos.occ_bb[BOTH] & (relative_square(US, F1) | relative_square(US, G1))) &&
+        if (pos.bs->castle & ks_castle_rights(US) && !(pos.get_occ_bb(BOTH) & (relative_square(US, F1) | relative_square(US, G1))) &&
             !pos.is_attacked<US>(relative_square(US, F1)))
         {
             *moves++ = encode_move(relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, false, false, false, true);
         }
 
         if (pos.bs->castle & qs_castle_rights(US) &&
-            !(pos.occ_bb[BOTH] & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
+            !(pos.get_occ_bb(BOTH) & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
             !pos.is_attacked<US>(relative_square(US, D1)))
         {
             *moves++ = encode_move(relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE, false, false, false, true);

@@ -44,11 +44,11 @@ struct Position
     [[nodiscard]] bool is_draw() const;
 
     [[nodiscard]] Colour get_side() const { return side; }
+    [[nodiscard]] Bitboard get_occ_bb(Colour col) const { return occ_bb[col]; }
 
     std::unique_ptr<BoardState> bs;
     std::array<Piece, SQ_N> pc_table{};
     std::array<Bitboard, 15> pc_bb{};
-    std::array<Bitboard, COLOUR_N + 1> occ_bb{};
 
   private:
     void reset();
@@ -67,6 +67,7 @@ struct Position
     template <Colour US> [[nodiscard]] bool is_insufficient() const;
 
     Colour side{WHITE};
+    std::array<Bitboard, COLOUR_N + 1> occ_bb{};
 };
 
 // returns whether a square is attacked by opposing side

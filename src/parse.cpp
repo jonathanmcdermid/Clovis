@@ -33,7 +33,7 @@ Move parse(const Position& pos, std::string move)
     // major moves
     const Piece piece = make_piece(static_cast<PieceType>(PIECE_STR.find(move[0])), pos.get_side());
     const Square to = str2sq(move.substr(move.length() - 2));
-    Bitboard bb = bitboards::get_attacks(piece_type(piece), pos.occ_bb[BOTH], to) & pos.pc_bb[piece];
+    Bitboard bb = bitboards::get_attacks(piece_type(piece), pos.get_occ_bb(BOTH), to) & pos.pc_bb[piece];
     Square from = bitboards::pop_lsb(bb);
 
     if (move[1] == 'x' || move.length() == 3)

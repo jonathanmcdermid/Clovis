@@ -74,7 +74,7 @@ template <Colour US, PieceType PT> Bitboard worthy_trades(const Position& pos)
 
     return (PT == QUEEN)  ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)]
            : (PT == ROOK) ? pos.pc_bb[make_piece(KING, ~US)] | pos.pc_bb[make_piece(QUEEN, ~US)] | pos.pc_bb[make_piece(ROOK, ~US)]
-                          : pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, ~US)];
+                          : pos.get_occ_bb(~US) ^ pos.pc_bb[make_piece(PAWN, ~US)];
 }
 
 template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors(const Position& pos, EvalInfo& ei, Score& score)
@@ -84,9 +84,9 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
     Bitboard bb = pos.pc_bb[make_piece(PT, US)];
 
     const Bitboard transparent_occ =
-        PT == BISHOP ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)] ^ ei.ksq[~US]
-        : PT == ROOK ? pos.occ_bb[BOTH] ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, US)] ^ ei.ksq[~US]
-                     : pos.occ_bb[BOTH];
+        PT == BISHOP ? pos.get_occ_bb(BOTH) ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, ~US)] ^ ei.ksq[~US]
+        : PT == ROOK ? pos.get_occ_bb(BOTH) ^ pos.pc_bb[W_QUEEN] ^ pos.pc_bb[B_QUEEN] ^ pos.pc_bb[make_piece(ROOK, US)] ^ ei.ksq[~US]
+                     : pos.get_occ_bb(BOTH);
 
     while (bb)
     {
@@ -100,13 +100,13 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         const Bitboard trades = worthy_trades<US, PT>(pos);
         const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
 
-        score += QUIET_MOBILITY_BONUS[PT] * std::popcount(safe_attacks & ~pos.occ_bb[BOTH]);
-        score += CAPTURE_MOBILITY_BONUS[PT] * std::popcount(safe_attacks & pos.occ_bb[~US]);
+        score += QUIET_MOBILITY_BONUS[PT] * std::popcount(safe_attacks & ~pos.get_occ_bb(BOTH));
+        score += CAPTURE_MOBILITY_BONUS[PT] * std::popcount(safe_attacks & pos.get_occ_bb(~US));
 
         if constexpr (SAFETY) { king_danger<US, PT, TRACE>(safe_attacks, ei); }
         if constexpr (TRACE) { psqt_trace<US, PT>(sq); }
-        if constexpr (TRACE) { T[QUIET_MOBILITY + PT][US] += std::popcount(safe_attacks & ~pos.occ_bb[BOTH]); }
-        if constexpr (TRACE) { T[CAPTURE_MOBILITY + PT][US] += std::popcount(safe_attacks & pos.occ_bb[~US]); }
+        if constexpr (TRACE) { T[QUIET_MOBILITY + PT][US] += std::popcount(safe_attacks & ~pos.get_occ_bb(BOTH)); }
+        if constexpr (TRACE) { T[CAPTURE_MOBILITY + PT][US] += std::popcount(safe_attacks & pos.get_occ_bb(~US)); }
         if constexpr (PT == KNIGHT)
         {
             if (is_outpost<US>(sq, ei))
@@ -203,7 +203,7 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
         assert(ei.n_att[US] < 10);
 
         if (const int mob =
-                std::popcount(bitboards::get_attacks<QUEEN>(pos.occ_bb[~US] ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
+                std::popcount(bitboards::get_attacks<QUEEN>(pos.get_occ_bb(~US) ^ pos.pc_bb[make_piece(PAWN, US)], ei.ksq[~US]) & ~ei.pawn_attacks[~US]);
             mob > 4)
         {
             ei.weight[US] += VIRTUAL_MOBILITY * std::min(13, mob);
