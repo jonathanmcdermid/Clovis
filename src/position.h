@@ -12,7 +12,7 @@ constexpr std::string_view PIECE_STR = " PNBRQK  pnbrqk";
 struct Position
 {
   public:
-    explicit Position(const char* fen) : bs{nullptr} { set(fen); }
+    explicit Position(const char* fen) { set(fen); }
 
     // State Modifiers
     void set(const char* fen);
