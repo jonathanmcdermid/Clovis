@@ -48,22 +48,26 @@ struct Position
     template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
 
   private:
-    // Private Helper Functions
+    // State Modifiers
     void reset();
     void put_piece(Piece pc, Square sq);
     void replace_piece(Piece pc, Square sq);
     void remove_piece(Square sq);
+    template <bool NM> void new_board_state();
+
+    // State Queries
+    [[nodiscard]] bool is_repeat() const;
+    [[nodiscard]] bool is_draw_50() const;
+    [[nodiscard]] bool is_material_draw() const;
+    template <Colour US> [[nodiscard]] bool is_insufficient() const;
+
+    // Utility Functions
     [[nodiscard]] Key make_key() const;
     [[nodiscard]] Key make_pawn_key() const;
     [[nodiscard]] Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
     [[nodiscard]] Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
     [[nodiscard]] Bitboard attackers_to(Square sq) const;
-    [[nodiscard]] bool is_repeat() const;
-    [[nodiscard]] bool is_draw_50() const;
-    [[nodiscard]] bool is_material_draw() const;
-    template <bool NM> void new_board_state();
-    template <Colour US> [[nodiscard]] bool is_insufficient() const;
-
+    
     // Nested BoardState Struct
     struct BoardState
     {
