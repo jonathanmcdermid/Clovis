@@ -196,10 +196,14 @@ void Position::set(const char* fen)
 
     while ((ss >> token) && !isspace(token))
     {
-        if (token == 'K') { bs->castle |= WHITE_KS; }
-        else if (token == 'Q') { bs->castle |= WHITE_QS; }
-        else if (token == 'k') { bs->castle |= BLACK_KS; }
-        else if (token == 'q') { bs->castle |= BLACK_QS; }
+        switch (token)
+        {
+        case 'K': bs->castle |= WHITE_KS; break;
+        case 'Q': bs->castle |= WHITE_QS; break;
+        case 'k': bs->castle |= BLACK_KS; break;
+        case 'q': bs->castle |= BLACK_QS; break;
+        default: exit(EXIT_FAILURE);
+        }
     }
 
     ss >> token;
