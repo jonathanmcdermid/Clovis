@@ -156,7 +156,7 @@ jobs:
         ./build/cutechess-cli \
           -engine name=clovis-new cmd="../build/bin/Release/clovis" \
           -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
-          -each tc=inf/5+0.1 \
+          -each proto=uci tc=inf/5+0.1 \
           -games 2 -rounds 1000 -repeat 2 -maxmoves 200 \
           -sprt elo0=0 elo1=10 alpha=0.10 beta=0.10 \
           -concurrency 4 \
