@@ -72,8 +72,8 @@ struct Position
         int castle{0}, hmc{0}, fmc{0}, ply_null{0}, game_phase{0};
         Piece captured_piece{NO_PIECE};
         Square en_passant{SQ_NONE};
-        std::unique_ptr<BoardState> prev;
         Key key{0ULL}, pawn_key{0ULL};
+        std::unique_ptr<BoardState> prev;
     };
 
     // Member Variables
