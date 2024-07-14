@@ -97,7 +97,7 @@ template Square Position::get_pinner<WHITE>(Square sq) const;
 template Square Position::get_pinner<BLACK>(Square sq) const;
 
 // returns if a square is in danger of a discovery attack by a rook or bishop
-template <Colour US> bool Position::discovery_threat(const Square sq) const
+template <Colour US> bool Position::is_discovery_threat(const Square sq) const
 {
     // pawn is immobile if it attacks no enemies and is blocked by a piece
     // we don't have to worry about shift because discovery pawns will never be on outer files

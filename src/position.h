@@ -26,6 +26,11 @@ struct Position
     [[nodiscard]] bool is_king_in_check() const;
     [[nodiscard]] bool is_stm_major() const;
     [[nodiscard]] bool is_draw() const;
+    [[nodiscard]] bool see_ge(Move move, int threshold) const;
+
+    template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
+    template <Colour US> [[nodiscard]] bool is_discovery_threat(Square sq) const;
+    template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
 
     // Member Accessors
     [[nodiscard]] Colour get_side() const { return side; }
@@ -41,11 +46,6 @@ struct Position
 
     // Utility Functions
     void print_position() const;
-    [[nodiscard]] bool see_ge(Move move, int threshold) const;
-
-    template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
-    template <Colour US> [[nodiscard]] bool discovery_threat(Square sq) const;
-    template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
 
   private:
     // State Modifiers
@@ -53,12 +53,14 @@ struct Position
     void put_piece(Piece pc, Square sq);
     void replace_piece(Piece pc, Square sq);
     void remove_piece(Square sq);
+
     template <bool NM> void new_board_state();
 
     // State Queries
     [[nodiscard]] bool is_repeat() const;
     [[nodiscard]] bool is_draw_50() const;
     [[nodiscard]] bool is_material_draw() const;
+
     template <Colour US> [[nodiscard]] bool is_insufficient() const;
 
     // Utility Functions

@@ -179,7 +179,7 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         }
         if constexpr (PT == QUEEN)
         {
-            if (pos.discovery_threat<US>(sq))
+            if (pos.is_discovery_threat<US>(sq))
             {
                 score -= WEAK_QUEEN_PENALTY;
                 if constexpr (TRACE) { --T[WEAK_QUEEN][US]; }
