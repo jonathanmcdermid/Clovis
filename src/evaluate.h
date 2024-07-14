@@ -286,7 +286,7 @@ constexpr auto OUTER_RING = [] {
 }();
 
 constexpr std::array<Bitboard, 2> OUTPOST_MASKS = {bitboards::RANK_MASKS[A4] | bitboards::RANK_MASKS[A5] | bitboards::RANK_MASKS[A6],
-                                                          bitboards::RANK_MASKS[A3] | bitboards::RANK_MASKS[A4] | bitboards::RANK_MASKS[A5]};
+                                                   bitboards::RANK_MASKS[A3] | bitboards::RANK_MASKS[A4] | bitboards::RANK_MASKS[A5]};
 
 constexpr Bitboard LIGHT_MASK = 0x55aa55aa55aa55aaULL;
 
