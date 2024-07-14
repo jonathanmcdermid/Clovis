@@ -69,7 +69,7 @@ struct Position
     [[nodiscard]] Square get_smallest_attacker(Bitboard attackers, Colour stm) const;
     [[nodiscard]] Bitboard consider_xray(Bitboard occ, Square to, PieceType pt) const;
     [[nodiscard]] Bitboard attackers_to(Square sq) const;
-    
+
     // Nested BoardState Struct
     struct BoardState
     {
