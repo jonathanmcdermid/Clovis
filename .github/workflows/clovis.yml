@@ -158,8 +158,8 @@ jobs:
           -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
           -each proto=uci tc=inf/5+0.1 \
           -games 2 -rounds 100 -repeat 2 -maxmoves 200 \
-          -sprt elo0=0 elo1=-10 alpha=0.05 beta=0.3 \
-          -concurrency 16 \
+          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
+          -concurrency 32 \
           -resultformat "results - %s wins, %s draws, %s losses" > results.log
         
         cat results.log
