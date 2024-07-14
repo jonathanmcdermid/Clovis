@@ -202,7 +202,7 @@ void Position::set(const char* fen)
         case 'Q': bs->castle |= WHITE_QS; break;
         case 'k': bs->castle |= BLACK_KS; break;
         case 'q': bs->castle |= BLACK_QS; break;
-        default: exit(EXIT_FAILURE);
+        default: break;
         }
     }
 
