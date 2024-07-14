@@ -159,7 +159,7 @@ jobs:
           -each proto=uci tc=inf/5+0.1 \
           -games 2 -rounds 100 -repeat 2 -maxmoves 200 \
           -sprt elo0=0 elo1=-10 alpha=0.05 beta=0.3 \
-          -concurrency 4 \
+          -concurrency 8 \
           -resultformat "results - %s wins, %s draws, %s losses" > results.log
         
         cat results.log
