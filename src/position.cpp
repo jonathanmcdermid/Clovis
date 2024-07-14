@@ -121,8 +121,8 @@ template <Colour US> bool Position::is_discovery_threat(const Square sq) const
 }
 
 // explicit template instantiations
-template bool Position::discovery_threat<WHITE>(Square sq) const;
-template bool Position::discovery_threat<BLACK>(Square sq) const;
+template bool Position::is_discovery_threat<WHITE>(Square sq) const;
+template bool Position::is_discovery_threat<BLACK>(Square sq) const;
 
 std::string Position::get_fen() const
 {
