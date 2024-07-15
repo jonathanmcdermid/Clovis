@@ -144,7 +144,7 @@ void generate_data()
                                 if (!pos.do_move(it)) { exit(EXIT_FAILURE); }
                             }
 
-                            if (std::ranges::find(keys.begin(), keys.end(), pos.get_key()) == keys.end())
+                            if (std::find(keys.begin(), keys.end(), pos.get_key()) == keys.end())
                             {
                                 if (const int eval = pos.get_side() == WHITE ? eval::evaluate<false>(pos) : -eval::evaluate<false>(pos);
                                     (result == "1-0" && eval > -500) || (result == "0-1" && eval < 500) ||

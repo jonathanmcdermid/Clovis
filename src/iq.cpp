@@ -42,7 +42,7 @@ void iq_test()
         search::SearchInfo info;
         search::start_search(pos, limits, info);
 
-        if (std::ranges::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) != it.moves.end())
+        if (std::find(it.moves.begin(), it.moves.end(), info.pv_line.moves[0]) != it.moves.end())
         {
             std::cout << "PASS!" << '\n';
             ++passes;
