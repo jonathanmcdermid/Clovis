@@ -45,6 +45,11 @@ template <Colour US> bool is_fianchetto(const Position& pos, const Square sq)
            CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN), sq);
 }
 
+template <Colour US> bool is_tall_pawn(const Position& pos, const Square sq)
+{
+    return bitboards::multiple_bits(bitboards::PAWN_ATTACKS[US][sq] & pos.get_pc_bb(make_piece(PAWN, US)));
+}
+
 template <Colour US, PieceType PT, bool TRACE> void king_danger(const Bitboard attacks, EvalInfo& ei)
 {
     const Bitboard or_att_bb = attacks & OUTER_RING[ei.ksq[~US]];
@@ -136,7 +141,7 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
                     score += BISHOP_OUTPOST_BONUS;
                     if constexpr (TRACE) { ++T[BISHOP_OUTPOST][US]; }
                 }
-                if (bitboards::multiple_bits(bitboards::PAWN_ATTACKS[US][sq] & pos.get_pc_bb(make_piece(PAWN, US))))
+                if (is_tall_pawn<US>(pos, sq))
                 {
                     score -= TALL_PAWN_PENALTY;
                     if constexpr (TRACE) { --T[TALL_PAWN][US]; }
@@ -382,6 +387,8 @@ template bool is_outpost<WHITE>(const Square sq, const EvalInfo& ei);
 template bool is_outpost<BLACK>(const Square sq, const EvalInfo& ei);
 template bool is_fianchetto<WHITE>(const Position& pos, const Square sq);
 template bool is_fianchetto<BLACK>(const Position& pos, const Square sq);
+template bool is_tall_pawn<WHITE>(const Position& pos, const Square sq);
+template bool is_tall_pawn<BLACK>(const Position& pos, const Square sq);
 template int evaluate<true>(const Position& pos);
 template int evaluate<false>(const Position& pos);
 
