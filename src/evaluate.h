@@ -14,6 +14,7 @@ struct EvalInfo : PTEntry
 };
 
 // clang-format off
+
 constexpr std::array<Score, 32> PAWN_SOURCE = {{
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
     {184, 244}, {182, 248}, {158, 235}, {195, 203},
