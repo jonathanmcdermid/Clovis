@@ -38,51 +38,54 @@ void init_params()
 {
     using namespace eval;
 
-    for (auto& it : pawn_source) add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - pawn_source));
-    for (auto& it : knight_source) add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - knight_source));
-    for (auto& it : bishop_source) add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - bishop_source));
-    for (auto& it : rook_source) add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - rook_source));
-    for (auto& it : queen_source) add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - queen_source));
-    for (auto& it : king_source) add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - king_source));
-    for (auto& it : passed_pawn) add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN - passed_pawn));
-    for (auto& it : candidate_passer) add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER - candidate_passer));
-    for (auto& it : quiet_mobility) add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - quiet_mobility));
-    for (auto& it : capture_mobility) add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - capture_mobility));
+    for (const auto& it : PAWN_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - PAWN_SOURCE.data())); }
+    for (const auto& it : KNIGHT_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - KNIGHT_SOURCE.data())); }
+    for (const auto& it : BISHOP_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - BISHOP_SOURCE.data())); }
+    for (const auto& it : ROOK_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + ROOK_PSQT - ROOK_SOURCE.data())); }
+    for (const auto& it : QUEEN_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUEEN_PSQT - QUEEN_SOURCE.data())); }
+    for (const auto& it : KING_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + KING_PSQT - KING_SOURCE.data())); }
+    for (const auto& it : PASSED_PAWN) { add_param<Score>(it, static_cast<TraceIndex>(&it + PASSED_PAWN_PSQT - PASSED_PAWN.data())); }
+    for (const auto& it : CANDIDATE_PASSER) { add_param<Score>(it, static_cast<TraceIndex>(&it + CANDIDATE_PASSER_PSQT - CANDIDATE_PASSER.data())); }
+    for (const auto& it : QUIET_MOBILITY_BONUS) { add_param<Score>(it, static_cast<TraceIndex>(&it + QUIET_MOBILITY - QUIET_MOBILITY_BONUS.data())); }
+    for (const auto& it : CAPTURE_MOBILITY_BONUS)
+    {
+        add_param<Score>(it, static_cast<TraceIndex>(&it + CAPTURE_MOBILITY - CAPTURE_MOBILITY_BONUS.data()));
+    }
 
-    add_param<Score>(double_pawn_penalty, DOUBLE_PAWN);
-    add_param<Score>(isolated_pawn_penalty, ISOLATED_PAWN);
-    add_param<Score>(bishop_pair_bonus, BISHOP_PAIR);
-    add_param<Score>(rook_open_file_bonus, ROOK_FULL);
-    add_param<Score>(rook_semi_open_file_bonus, ROOK_SEMI);
-    add_param<Score>(rook_closed_file_penalty, ROOK_CLOSED);
-    add_param<Score>(tempo_bonus, TEMPO);
-    add_param<Score>(king_open_penalty, KING_OPEN);
-    add_param<Score>(king_adjacent_open_penalty, KING_ADJ_OPEN);
-    add_param<Score>(knight_outpost_bonus, KNIGHT_OUTPOST);
-    add_param<Score>(bishop_outpost_bonus, BISHOP_OUTPOST);
-    add_param<Score>(weak_queen_penalty, WEAK_QUEEN);
-    add_param<Score>(rook_on_our_passer_file, ROOK_OUR_PASSER);
-    add_param<Score>(rook_on_their_passer_file, ROOK_THEIR_PASSER);
-    add_param<Score>(tall_pawn_penalty, TALL_PAWN);
-    add_param<Score>(fianchetto_bonus, FIANCHETTO);
-    add_param<Score>(rook_on_seventh, ROOK_ON_SEVENTH);
+    add_param<Score>(DOUBLE_PAWN_PENALTY, DOUBLE_PAWN);
+    add_param<Score>(ISOLATED_PAWN_PENALTY, ISOLATED_PAWN);
+    add_param<Score>(BISHOP_PAIR_BONUS, BISHOP_PAIR);
+    add_param<Score>(ROOK_OPEN_FILE_BONUS, ROOK_FULL);
+    add_param<Score>(ROOK_SEMI_OPEN_FILE_BONUS, ROOK_SEMI);
+    add_param<Score>(ROOK_CLOSED_FILE_PENALTY, ROOK_CLOSED);
+    add_param<Score>(TEMPO_BONUS, TEMPO);
+    add_param<Score>(KING_OPEN_PENALTY, KING_OPEN);
+    add_param<Score>(KING_ADJACENT_OPEN_PENALTY, KING_ADJ_OPEN);
+    add_param<Score>(KNIGHT_OUTPOST_BONUS, KNIGHT_OUTPOST);
+    add_param<Score>(BISHOP_OUTPOST_BONUS, BISHOP_OUTPOST);
+    add_param<Score>(WEAK_QUEEN_PENALTY, WEAK_QUEEN);
+    add_param<Score>(ROOK_ON_OUR_PASSER_FILE, ROOK_OUR_PASSER);
+    add_param<Score>(ROOK_ON_THEIR_PASSER_FILE, ROOK_THEIR_PASSER);
+    add_param<Score>(TALL_PAWN_PENALTY, TALL_PAWN);
+    add_param<Score>(FIANCHETTO_BONUS, FIANCHETTO);
+    add_param<Score>(ROOK_ON_SEVENTH_RANK, ROOK_ON_SEVENTH);
 
-    for (auto& it : pawn_shield) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - pawn_shield));
-    for (auto& it : inner_ring_attack) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - inner_ring_attack));
-    for (auto& it : outer_ring_attack) add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - outer_ring_attack));
+    for (const auto& it : PAWN_SHIELD) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_PAWN_SHIELD - PAWN_SHIELD.data())); }
+    for (const auto& it : INNER_RING_ATTACK) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_INNER_RING - INNER_RING_ATTACK.data())); }
+    for (const auto& it : OUTER_RING_ATTACK) { add_param<short>(it, static_cast<TraceIndex>(&it + SAFETY_OUTER_RING - OUTER_RING_ATTACK.data())); }
 
-    add_param<short>(virtual_mobility, SAFETY_VIRTUAL_MOBILITY);
-    add_param<short>(attack_factor, SAFETY_N_ATT);
+    add_param<short>(VIRTUAL_MOBILITY, SAFETY_VIRTUAL_MOBILITY);
+    add_param<short>(ATTACK_FACTOR, SAFETY_N_ATT);
 }
 
 double linear_eval(const TEntry& entry, TGradient* tg)
 {
     std::array<double, PHASE_N> normal{};
     double safety = 0.0;
-    std::array<std::array<double, COLOUR_N>, EVAL_TYPE_N> mg{};
-    std::array<std::array<double, COLOUR_N>, EVAL_TYPE_N> eg{};
+    std::array<std::array<double, 2>, EVAL_TYPE_N> mg{};
+    std::array<std::array<double, 2>, EVAL_TYPE_N> eg{};
 
-    for (auto& it : entry.tuples)
+    for (const auto& it : entry.tuples)
     {
         const EvalType et = it.index >= TI_SAFETY ? SAFETY : NORMAL;
 
@@ -112,7 +115,7 @@ double linear_eval(const TEntry& entry, TGradient* tg)
 
 template <bool STATIC> double mse(const double k)
 {
-    const int n_threads = std::thread::hardware_concurrency();
+    const unsigned int n_threads = std::thread::hardware_concurrency();
     std::atomic<double> total(0.0);
     std::vector<std::thread> threads(n_threads);
 
@@ -126,9 +129,9 @@ template <bool STATIC> double mse(const double k)
         }
     };
 
-    for (int i = 0; i < n_threads; ++i) threads[i] = std::thread(compute_chunk, i * chunk_size, i * chunk_size + chunk_size);
+    for (unsigned int i = 0; i < n_threads; ++i) { threads[i] = std::thread(compute_chunk, i * chunk_size, i * chunk_size + chunk_size); }
 
-    for (int i = 0; i < n_threads; ++i) threads[i].join();
+    for (unsigned int i = 0; i < n_threads; ++i) { threads[i].join(); }
 
     return total / static_cast<double>(entries.size());
 }
@@ -141,9 +144,9 @@ void update_single_gradient(const TEntry& entry, TVector& gradient, const double
     const double s = sigmoid(k, e);
     const double a = (entry.result - s) * s * (1 - s);
 
-    const double base[PHASE_N] = {a * entry.phase, a * (MAX_GAME_PHASE - entry.phase)};
+    const std::array<double, PHASE_N> base = {a * entry.phase, a * (MAX_GAME_PHASE - entry.phase)};
 
-    for (auto& it : entry.tuples)
+    for (const auto& it : entry.tuples)
     {
         if (it.index < TI_SAFETY)
         {
@@ -169,86 +172,91 @@ TVector compute_gradient(const double k)
 {
     TVector gradient{};
 
-    for (auto& entry : entries) update_single_gradient(entry, gradient, k);
+    for (auto& entry : entries) { update_single_gradient(entry, gradient, k); }
 
     return gradient;
 }
 
 void print_table(const std::string& name, const int index, const int size, const int cols)
 {
-    std::cout << "\t\tconstexpr" << ((index < TI_SAFETY) ? " Score " : " short ") << name << "[] = {" << std::endl << "\t\t";
+    std::cout << "constexpr std::array<" << (index < TI_SAFETY ? "Score" : "short") << ", " << size << "> " << name << " = {{" << '\n';
 
     for (int i = 0; i < size; ++i)
     {
-        if (!(i % cols)) std::cout << '\t';
-        if (index < TI_SAFETY)
-            std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
-        else
-            std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n\t\t" : " ");
+        if (!(i % cols)) { std::cout << '\t'; }
+        if (index < TI_SAFETY) { std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n" : " "); }
+        else { std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n" : " "); }
     }
 
-    std::cout << "};" << std::endl << std::endl;
+    std::cout << "}};" << '\n' << '\n';
 }
 
 void print_params()
 {
     using namespace eval;
+    // TODO: print_table is broken as it doesn't print as std::arrays
+    print_table("PAWN_SOURCE", PAWN_PSQT, sizeof(PAWN_SOURCE) / sizeof(Score), 4);
+    print_table("KNIGHT_SOURCE", KNIGHT_PSQT, sizeof(KNIGHT_SOURCE) / sizeof(Score), 4);
+    print_table("BISHOP_SOURCE", BISHOP_PSQT, sizeof(BISHOP_SOURCE) / sizeof(Score), 4);
+    print_table("ROOK_SOURCE", ROOK_PSQT, sizeof(ROOK_SOURCE) / sizeof(Score), 4);
+    print_table("QUEEN_SOURCE", QUEEN_PSQT, sizeof(QUEEN_SOURCE) / sizeof(Score), 4);
+    print_table("KING_SOURCE", KING_PSQT, sizeof(KING_SOURCE) / sizeof(Score), 4);
+    print_table("PASSED_PAWN", PASSED_PAWN_PSQT, sizeof(PASSED_PAWN) / sizeof(Score), 4);
+    print_table("CANDIDATE_PASSER", CANDIDATE_PASSER_PSQT, sizeof(CANDIDATE_PASSER) / sizeof(Score), 8);
+    print_table("QUIET_MOBILITY_BONUS", QUIET_MOBILITY, 7, 7);
+    print_table("CAPTURE_MOBILITY_BONUS", CAPTURE_MOBILITY, 7, 7);
 
-    print_table("pawn_source", PAWN_PSQT, sizeof(pawn_source) / sizeof(Score), 4);
-    print_table("knight_source", KNIGHT_PSQT, sizeof(knight_source) / sizeof(Score), 4);
-    print_table("bishop_source", BISHOP_PSQT, sizeof(bishop_source) / sizeof(Score), 4);
-    print_table("rook_source", ROOK_PSQT, sizeof(rook_source) / sizeof(Score), 4);
-    print_table("queen_source", QUEEN_PSQT, sizeof(queen_source) / sizeof(Score), 4);
-    print_table("king_source", KING_PSQT, sizeof(king_source) / sizeof(Score), 4);
-    print_table("passed_pawn", PASSED_PAWN, sizeof(passed_pawn) / sizeof(Score), 4);
-    print_table("candidate_passer", CANDIDATE_PASSER, sizeof(candidate_passer) / sizeof(Score), 8);
-    print_table("quiet_mobility", QUIET_MOBILITY, 7, 7);
-    print_table("capture_mobility", CAPTURE_MOBILITY, 7, 7);
+    std::cout << "constexpr Score DOUBLE_PAWN_PENALTY = " << DOUBLE_PAWN_PENALTY << ";" << '\n'
+              << "constexpr Score ISOLATED_PAWN_PENALTY = " << ISOLATED_PAWN_PENALTY << ";" << '\n'
+              << "constexpr Score BISHOP_PAIR_BONUS = " << BISHOP_PAIR_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_OPEN_FILE_BONUS = " << ROOK_OPEN_FILE_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_SEMI_OPEN_FILE_BONUS = " << ROOK_SEMI_OPEN_FILE_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_CLOSED_FILE_PENALTY = " << ROOK_CLOSED_FILE_PENALTY << ";" << '\n'
+              << "constexpr Score TEMPO_BONUS = " << TEMPO_BONUS << ";" << '\n'
+              << "constexpr Score KING_OPEN_PENALTY = " << KING_OPEN_PENALTY << ";" << '\n'
+              << "constexpr Score KING_ADJACENT_OPEN_PENALTY = " << KING_ADJACENT_OPEN_PENALTY << ";" << '\n'
+              << "constexpr Score KNIGHT_OUTPOST_BONUS = " << KNIGHT_OUTPOST_BONUS << ";" << '\n'
+              << "constexpr Score BISHOP_OUTPOST_BONUS = " << BISHOP_OUTPOST_BONUS << ";" << '\n'
+              << "constexpr Score WEAK_QUEEN_PENALTY = " << WEAK_QUEEN_PENALTY << ";" << '\n'
+              << "constexpr Score ROOK_ON_OUR_PASSER_FILE = " << ROOK_ON_OUR_PASSER_FILE << ";" << '\n'
+              << "constexpr Score ROOK_ON_THEIR_PASSER_FILE = " << ROOK_ON_THEIR_PASSER_FILE << ";" << '\n'
+              << "constexpr Score TALL_PAWN_PENALTY = " << TALL_PAWN_PENALTY << ";" << '\n'
+              << "constexpr Score FIANCHETTO_BONUS = " << FIANCHETTO_BONUS << ";" << '\n'
+              << "constexpr Score ROOK_ON_SEVENTH_RANK = " << ROOK_ON_SEVENTH_RANK << ";" << '\n'
+              << '\n';
 
-    std::cout << "\t\tconstexpr Score double_pawn_penalty = " << Score(params[DOUBLE_PAWN]) << ";" << std::endl
-              << "\t\tconstexpr Score isolated_pawn_penalty = " << Score(params[ISOLATED_PAWN]) << ";" << std::endl
-              << "\t\tconstexpr Score bishop_pair_bonus = " << Score(params[BISHOP_PAIR]) << ";" << std::endl
-              << "\t\tconstexpr Score rook_open_file_bonus = " << Score(params[ROOK_FULL]) << ";" << std::endl
-              << "\t\tconstexpr Score rook_semi_open_file_bonus = " << Score(params[ROOK_SEMI]) << ";" << std::endl
-              << "\t\tconstexpr Score rook_closed_file_penalty = " << Score(params[ROOK_CLOSED]) << ";" << std::endl
-              << "\t\tconstexpr Score tempo_bonus = " << Score(params[TEMPO]) << ";" << std::endl
-              << "\t\tconstexpr Score king_open_penalty = " << Score(params[KING_OPEN]) << ";" << std::endl
-              << "\t\tconstexpr Score king_adjacent_open_penalty = " << Score(params[KING_ADJ_OPEN]) << ";" << std::endl
-              << "\t\tconstexpr Score knight_outpost_bonus = " << Score(params[KNIGHT_OUTPOST]) << ";" << std::endl
-              << "\t\tconstexpr Score bishop_outpost_bonus = " << Score(params[BISHOP_OUTPOST]) << ";" << std::endl
-              << "\t\tconstexpr Score weak_queen_penalty = " << Score(params[WEAK_QUEEN]) << ";" << std::endl
-              << "\t\tconstexpr Score rook_on_our_passer_file = " << Score(params[ROOK_OUR_PASSER]) << ";" << std::endl
-              << "\t\tconstexpr Score rook_on_their_passer_file = " << Score(params[ROOK_THEIR_PASSER]) << ";" << std::endl
-              << "\t\tconstexpr Score tall_pawn_penalty = " << Score(params[TALL_PAWN]) << ";" << std::endl
-              << "\t\tconstexpr Score fianchetto_bonus = " << Score(params[FIANCHETTO]) << ";" << std::endl
-              << "\t\tconstexpr Score rook_on_seventh = " << Score(params[ROOK_ON_SEVENTH]) << ";" << std::endl
-              << std::endl;
+    print_table("PAWN_SHIELD", SAFETY_PAWN_SHIELD, sizeof(PAWN_SHIELD) / sizeof(short), 4);
+    print_table("INNER_RING_ATTACK", SAFETY_INNER_RING, 7, 7);
+    print_table("OUTER_RING_ATTACK", SAFETY_OUTER_RING, 7, 7);
 
-    print_table("pawn_shield", SAFETY_PAWN_SHIELD, sizeof(pawn_shield) / sizeof(short), 4);
-    print_table("inner_ring_attack", SAFETY_INNER_RING, 7, 7);
-    print_table("outer_ring_attack", SAFETY_OUTER_RING, 7, 7);
-
-    std::cout << "\t\tconstexpr short attack_factor = " << round(params[SAFETY_N_ATT][MG]) << ";" << std::endl
-              << "\t\tconstexpr short virtual_mobility = " << round(params[SAFETY_VIRTUAL_MOBILITY][MG]) << ";" << std::endl;
+    std::cout << "constexpr short ATTACK_FACTOR = " << ATTACK_FACTOR << ";" << '\n'
+              << "constexpr short VIRTUAL_MOBILITY = " << VIRTUAL_MOBILITY << ";" << '\n';
 }
 
 double find_k()
 {
-    double start = -10, end = 10, step = 1, best = mse<true>(start);
+    double start = -10;
+    double end = 10;
+    double step = 1;
+    double best = mse<true>(start);
 
     for (int epoch = 0; epoch < 10; ++epoch)
     {
-        for (double curr = start; curr < end; curr += step)
+        double curr = start;
+
+        while (true)
         {
             if (const double error = mse<true>(curr); error <= best)
             {
                 best = error;
                 start = curr;
             }
+            curr += step;
+            if (curr > end) { break; }
         }
 
         std::cout.precision(17);
-        std::cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]" << std::endl;
+        std::cout << "Epoch [" << epoch << "] Error = [" << best << "], K = [" << start << "]" << '\n';
 
         end = start + step;
         start -= step;
@@ -258,48 +266,54 @@ double find_k()
     return start;
 }
 
-void tune_eval()
+void tune_eval(std::vector<std::string>& args)
 {
+    if (args.size() != 3)
+    {
+        std::cerr << "Error: Please provide the path to a .epd file as the second argument.\n";
+        exit(EXIT_FAILURE);
+    }
+
     init_params();
 
     TVector adaptive_gradient{};
-    std::ifstream ifs("../src/tuner.epd");
+    std::ifstream ifs(args.at(2));
     std::string line;
 
     while (getline(ifs, line))
     {
-        if (line.empty()) continue;
+        if (line.empty()) { continue; }
 
         TEntry entry;
         memset(eval::T.data(), 0, sizeof(eval::T));
         const size_t idx = line.find('\"');
         const size_t idx_end = line.find('\"', idx + 1);
 
-        if (const std::string res = line.substr(idx + 1, idx_end - idx - 1); res == "1-0")
-            entry.result = 1.0;
-        else if (res == "0-1")
-            entry.result = 0.0;
-        else if (res == "1/2-1/2")
-            entry.result = 0.5;
-        else
-            exit(EXIT_FAILURE);
+        if (const std::string res = line.substr(idx + 1, idx_end - idx - 1); res == "1-0") { entry.result = 1.0; }
+        else if (res == "0-1") { entry.result = 0.0; }
+        else if (res == "1/2-1/2") { entry.result = 0.5; }
+        else { exit(EXIT_FAILURE); }
 
         Position pos(line.substr(0, idx).c_str());
 
-        entry.phase = pos.get_game_phase();
+        entry.phase = std::min(pos.get_game_phase(), MAX_GAME_PHASE);
 
         entry.static_eval = eval::evaluate<true>(pos);
-        if (pos.side == BLACK) entry.static_eval = -entry.static_eval;
+        if (pos.get_side() == BLACK) { entry.static_eval = -entry.static_eval; }
 
-        entry.stm = pos.side;
+        entry.stm = pos.get_side();
 
         entry.n_att[WHITE] = eval::T[SAFETY_N_ATT][WHITE];
         entry.n_att[BLACK] = eval::T[SAFETY_N_ATT][BLACK];
 
         for (int j = 0; j < TI_N; ++j)
+        {
             if ((j < TI_SAFETY && eval::T[j][WHITE] - eval::T[j][BLACK] != 0) ||
                 (j >= TI_SAFETY && (eval::T[j][WHITE] != 0 || eval::T[j][BLACK] != 0)))
+            {
                 entry.tuples.emplace_back(j, eval::T[j][WHITE], eval::T[j][BLACK]);
+            }
+        }
 
         entries.push_back(entry);
     }
@@ -309,8 +323,8 @@ void tune_eval()
     const double k = find_k();
     double rate = 1.0;
 
-    std::cout << mse<true>(k) << std::endl;
-    std::cout << mse<false>(k) << std::endl;
+    std::cout << mse<true>(k) << '\n';
+    std::cout << mse<false>(k) << '\n';
 
     for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch)
     {
@@ -328,10 +342,10 @@ void tune_eval()
             params[i][EG] = std::max(0.0, params[i][EG]);
         }
 
-        if (epoch && epoch % 250 == 0) rate = rate / 1.01;
-        if (epoch % 100 == 0) print_params();
+        if (epoch && epoch % 250 == 0) { rate = rate / 1.01; }
+        if (epoch % 100 == 0) { print_params(); }
 
-        std::cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate << "]" << std::endl;
+        std::cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate << "]" << '\n';
     }
 }
 

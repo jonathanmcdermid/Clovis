@@ -1,5 +1,42 @@
 Checks: '-*,
-portability-*,
-'
-HeaderFilterRegex: 'src/.*'
+readability-*,
+    -readability-magic-numbers,
+    -readability-identifier-length,
+    -readability-implicit-bool-conversion,
+    -readability-function-cognitive-complexity,
+performance-*,
+clang-analyzer-*,
+    -clang-analyzer-core.UndefinedBinaryOperatorResult,
+cppcoreguidelines-*,
+    -cppcoreguidelines-narrowing-conversions,
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+    -cppcoreguidelines-pro-bounds-constant-array-index,
+    -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+    -cppcoreguidelines-avoid-non-const-global-variables,
+    -cppcoreguidelines-avoid-const-or-ref-data-members,
+    -cppcoreguidelines-avoid-magic-numbers,
+bugprone-*, 
+    -bugprone-implicit-widening-of-multiplication-result,
+    -bugprone-easily-swappable-parameters,
+modernize-*,
+    -modernize-use-trailing-return-type,
+portability-*'
+HeaderFilterRegex: 'src/.*|test/.*'
 WarningsAsErrors: '*'
+ExtraArgs: - -Wno-unknown-pragmas # TODO: remove this after switch to clang-tidy-18
+
+CheckOptions:
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case

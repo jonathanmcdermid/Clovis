@@ -24,17 +24,15 @@ constexpr bool multiple_bits(const Bitboard bb) { return bb & (bb - 1); }
 
 template <Direction D> constexpr Bitboard shift(const Bitboard bb)
 {
-    if constexpr (D >= 0)
-        return bb << D;
-    else
-        return bb >> -D;
+    if constexpr (D >= 0) { return bb << D; }
+    else { return bb >> -D; }
 }
 
-constexpr int bishop_attack_indices = 512;
-constexpr int rook_attack_indices = 4096;
+constexpr int BISHOP_ATTACK_INDICES = 512;
+constexpr int ROOK_ATTACK_INDICES = 4096;
 
 // pre-calculated magic numbers for generating rook attacks
-constexpr auto rook_magic = std::array{
+constexpr auto ROOK_MAGIC = std::array{
     0x8a80104000800020ULL, 0x140002000100040ULL,  0x2801880a0017001ULL,  0x100081001000420ULL,  0x200020010080420ULL,  0x3001c0002010008ULL,
     0x8480008002000100ULL, 0x2080088004402900ULL, 0x800098204000ULL,     0x2024401000200040ULL, 0x100802000801000ULL,  0x120800800801000ULL,
     0x208808088000400ULL,  0x2802200800400ULL,    0x2200800100020080ULL, 0x801000060821100ULL,  0x80044006422000ULL,   0x100808020004000ULL,
@@ -49,7 +47,7 @@ constexpr auto rook_magic = std::array{
 };
 
 // pre-calculated magic numbers for generating bishop attacks
-constexpr auto bishop_magic = std::array{
+constexpr auto BISHOP_MAGIC = std::array{
     0x40040844404084ULL,   0x2004208a004208ULL,   0x10190041080202ULL,   0x108060845042010ULL,  0x581104180800210ULL,  0x2112080446200010ULL,
     0x1080820820060210ULL, 0x3c0808410220200ULL,  0x4050404440404ULL,    0x21001420088ULL,      0x24d0080801082102ULL, 0x1020a0a020400ULL,
     0x40308200402ULL,      0x4011002100800ULL,    0x401484104104005ULL,  0x801010402020200ULL,  0x400210c3880100ULL,   0x404022024108200ULL,
@@ -63,36 +61,46 @@ constexpr auto bishop_magic = std::array{
     0x28000010020204ULL,   0x6000020202d0240ULL,  0x8918844842082200ULL, 0x4010011029020020ULL,
 };
 
-constexpr auto file_masks = [] {
+constexpr auto FILE_MASKS = [] {
     std::array<Bitboard, SQ_N> arr{};
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-        for (Rank r = RANK_1; r < RANK_N; ++r) arr[sq] |= make_square(file_of(sq), r);
+    {
+        for (Rank r = RANK_1; r < RANK_N; ++r) { arr[sq] |= make_square(file_of(sq), r); }
+    }
 
     return arr;
 }();
 
-constexpr auto rank_masks = [] {
+constexpr auto RANK_MASKS = [] {
     std::array<Bitboard, SQ_N> arr{};
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-        for (File f = FILE_A; f < FILE_N; ++f) arr[sq] |= make_square(f, rank_of(sq));
+    {
+        for (File f = FILE_A; f < FILE_N; ++f) { arr[sq] |= make_square(f, rank_of(sq)); }
+    }
 
     return arr;
 }();
 
-constexpr auto pawn_attacks = [] {
-    std::array<std::array<Bitboard, SQ_N>, COLOUR_N> arr{};
+constexpr auto PAWN_ATTACKS = [] {
+    std::array<std::array<Bitboard, SQ_N>, 2> arr{};
 
     for (const auto c : {WHITE, BLACK})
+    {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+        {
             for (const auto dir : {EAST, WEST})
-                if (is_valid(sq + pawn_push(c)) && rank_of(sq) == rank_of(sq + dir)) arr[c][sq] |= sq + pawn_push(c) + dir;
+            {
+                if (is_valid(sq + pawn_push(c)) && rank_of(sq) == rank_of(sq + dir)) { arr[c][sq] |= sq + pawn_push(c) + dir; }
+            }
+        }
+    }
 
     return arr;
 }();
 
-constexpr auto knight_attacks = [] {
+constexpr auto KNIGHT_ATTACKS = [] {
     std::array<Bitboard, SQ_N> arr{};
 
     for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
@@ -101,8 +109,8 @@ constexpr auto knight_attacks = [] {
         {
             for (const auto d2 : {EAST, WEST})
             {
-                if (is_valid(sq + d1 + d1) && rank_of(sq) == rank_of(sq + d2)) arr[sq] |= sq + d1 + d1 + d2;
-                if (is_valid(sq + d1) && rank_of(sq) == rank_of(sq + d2 + d2)) arr[sq] |= sq + d1 + d2 + d2;
+                if (is_valid(sq + d1 + d1) && rank_of(sq) == rank_of(sq + d2)) { arr[sq] |= sq + d1 + d1 + d2; }
+                if (is_valid(sq + d1) && rank_of(sq) == rank_of(sq + d2 + d2)) { arr[sq] |= sq + d1 + d2 + d2; }
             }
         }
     }
@@ -110,152 +118,186 @@ constexpr auto knight_attacks = [] {
     return arr;
 }();
 
-constexpr auto empty_bishop_attacks = [] {
+constexpr auto EMPTY_BISHOP_ATTACKS = [] {
     std::array<Bitboard, SQ_N> arr{};
 
     for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
+    {
         for (const auto d1 : {NORTH, SOUTH})
-            for (const auto d2 : {EAST, WEST})
-                for (Square s2 = s1 + d1 + d2; is_valid(s2) && rank_of(s2) == rank_of(s2 - d2); s2 += d1 + d2) arr[s1] |= s2;
-
-    return arr;
-}();
-
-constexpr auto empty_rook_attacks = [] {
-    std::array<Bitboard, SQ_N> arr{};
-
-    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-    {
-        for (const auto dir : {NORTH, SOUTH})
-            for (Square s2 = s1 + dir; is_valid(s2); s2 += dir) arr[s1] |= s2;
-        for (const auto dir : {EAST, WEST})
-            for (Square s2 = s1 + dir; rank_of(s2) == rank_of(s2 - dir); s2 += dir) arr[s1] |= s2;
-    }
-
-    return arr;
-}();
-
-constexpr auto empty_queen_attacks = [] {
-    std::array<Bitboard, SQ_N> arr{};
-
-    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[sq] = empty_bishop_attacks[sq] | empty_rook_attacks[sq];
-
-    return arr;
-}();
-
-constexpr auto king_attacks = [] {
-    std::array<Bitboard, SQ_N> arr{};
-
-    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
-        for (const auto d1 : {NO_DIR, NORTH, SOUTH})
-            for (const auto d2 : {NO_DIR, EAST, WEST})
-                if (d1 != d2 && is_valid(sq + d1) && rank_of(sq) == rank_of(sq + d2)) arr[sq] |= sq + d1 + d2;
-
-    return arr;
-}();
-
-constexpr auto bishop_masks = [] {
-    std::array<Bitboard, SQ_N> arr{};
-
-    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-        for (const auto d1 : {NORTH, SOUTH})
-            for (const auto d2 : {EAST, WEST})
-                for (Square s2 = s1; is_valid(s2 + d1) && rank_of(s2) == rank_of(s2 + d2); s2 += d1 + d2)
-                    if (s2 != s1) arr[s1] |= s2;
-
-    return arr;
-}();
-
-constexpr auto rook_masks = [] {
-    std::array<Bitboard, SQ_N> arr{};
-
-    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
-    {
-        for (const auto dir : {NORTH, SOUTH})
-            for (Square s2 = s1; is_valid(s2 + dir); s2 += dir)
-                if (s2 != s1) arr[s1] |= s2;
-        for (const auto dir : {EAST, WEST})
-            for (Square s2 = s1; rank_of(s2) == rank_of(s2 + dir); s2 += dir)
-                if (s2 != s1) arr[s1] |= s2;
-    }
-
-    return arr;
-}();
-
-constexpr auto bishop_bit_count = [] {
-    std::array<int, SQ_N> arr{};
-
-    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[sq] = SQ_N - std::popcount(bishop_masks[sq]);
-
-    return arr;
-}();
-
-constexpr auto rook_bit_count = [] {
-    std::array<int, SQ_N> arr{};
-
-    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) arr[sq] = SQ_N - std::popcount(rook_masks[sq]);
-
-    return arr;
-}();
-
-constexpr auto between_bb = [] {
-    std::array<std::array<Bitboard, SQ_N>, SQ_N> arr{};
-
-    for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1)
-    {
-        for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2)
         {
-            Bitboard bb = (empty_bishop_attacks[sq1] & sq2) ? empty_bishop_attacks[sq1] & empty_bishop_attacks[sq2]
-                          : (empty_rook_attacks[sq1] & sq2) ? empty_rook_attacks[sq1] & empty_rook_attacks[sq2]
-                                                            : 0ULL;
-
-            while (bb)
-                if (const Square sq3 = pop_lsb(bb); (sq1 < sq3) == (sq3 < sq2)) arr[sq1][sq2] |= sq3;
+            for (const auto d2 : {EAST, WEST})
+            {
+                for (Square s2 = s1 + d1 + d2; is_valid(s2) && rank_of(s2) == rank_of(s2 - d2); s2 += d1 + d2) { arr[s1] |= s2; }
+            }
         }
     }
 
     return arr;
 }();
 
-extern std::array<std::array<Bitboard, bishop_attack_indices>, SQ_N> bishop_attacks;
-extern std::array<std::array<Bitboard, rook_attack_indices>, SQ_N> rook_attacks;
+constexpr auto EMPTY_ROOK_ATTACKS = [] {
+    std::array<Bitboard, SQ_N> arr{};
+
+    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
+    {
+        for (const auto dir : {NORTH, SOUTH})
+        {
+            for (Square s2 = s1 + dir; is_valid(s2); s2 += dir) { arr[s1] |= s2; }
+        }
+        for (const auto dir : {EAST, WEST})
+        {
+            for (Square s2 = s1 + dir; rank_of(s2) == rank_of(s2 - dir); s2 += dir) { arr[s1] |= s2; }
+        }
+    }
+
+    return arr;
+}();
+
+constexpr auto EMPTY_QUEEN_ATTACKS = [] {
+    std::array<Bitboard, SQ_N> arr{};
+
+    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = EMPTY_BISHOP_ATTACKS[sq] | EMPTY_ROOK_ATTACKS[sq]; }
+
+    return arr;
+}();
+
+constexpr auto KING_ATTACKS = [] {
+    std::array<Bitboard, SQ_N> arr{};
+
+    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
+    {
+        for (const auto d1 : {NO_DIR, NORTH, SOUTH})
+        {
+            for (const auto d2 : {NO_DIR, EAST, WEST})
+            {
+                if (d1 != d2 && is_valid(sq + d1) && rank_of(sq) == rank_of(sq + d2)) { arr[sq] |= sq + d1 + d2; }
+            }
+        }
+    }
+
+    return arr;
+}();
+
+constexpr auto BISHOP_MASKS = [] {
+    std::array<Bitboard, SQ_N> arr{};
+
+    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
+    {
+        for (const auto d1 : {NORTH, SOUTH})
+        {
+            for (const auto d2 : {EAST, WEST})
+            {
+                for (Square s2 = s1; is_valid(s2 + d1) && rank_of(s2) == rank_of(s2 + d2); s2 += d1 + d2)
+                {
+                    if (s2 != s1) { arr[s1] |= s2; }
+                }
+            }
+        }
+    }
+
+    return arr;
+}();
+
+constexpr auto ROOK_MASKS = [] {
+    std::array<Bitboard, SQ_N> arr{};
+
+    for (Square s1 = SQ_ZERO; s1 < SQ_N; ++s1)
+    {
+        for (const auto dir : {NORTH, SOUTH})
+        {
+            for (Square s2 = s1; is_valid(s2 + dir); s2 += dir)
+            {
+                if (s2 != s1) { arr[s1] |= s2; }
+            }
+        }
+        for (const auto dir : {EAST, WEST})
+        {
+            for (Square s2 = s1; rank_of(s2) == rank_of(s2 + dir); s2 += dir)
+            {
+                if (s2 != s1) { arr[s1] |= s2; }
+            }
+        }
+    }
+
+    return arr;
+}();
+
+constexpr auto BISHOP_BIT_COUNT = [] {
+    std::array<int, SQ_N> arr{};
+
+    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = SQ_N - std::popcount(BISHOP_MASKS[sq]); }
+
+    return arr;
+}();
+
+constexpr auto ROOK_BIT_COUNT = [] {
+    std::array<int, SQ_N> arr{};
+
+    for (Square sq = SQ_ZERO; sq < SQ_N; ++sq) { arr[sq] = SQ_N - std::popcount(ROOK_MASKS[sq]); }
+
+    return arr;
+}();
+
+constexpr auto BETWEEN_BITBOARD = [] {
+    std::array<std::array<Bitboard, SQ_N>, SQ_N> arr{};
+
+    for (Square sq1 = SQ_ZERO; sq1 < SQ_N; ++sq1)
+    {
+        for (Square sq2 = SQ_ZERO; sq2 < SQ_N; ++sq2)
+        {
+            Bitboard bb = (EMPTY_BISHOP_ATTACKS[sq1] & sq2) ? EMPTY_BISHOP_ATTACKS[sq1] & EMPTY_BISHOP_ATTACKS[sq2]
+                          : (EMPTY_ROOK_ATTACKS[sq1] & sq2) ? EMPTY_ROOK_ATTACKS[sq1] & EMPTY_ROOK_ATTACKS[sq2]
+                                                            : 0ULL;
+
+            while (bb)
+            {
+                if (const Square sq3 = pop_lsb(bb); (sq1 < sq3) == (sq3 < sq2)) { arr[sq1][sq2] |= sq3; }
+            }
+        }
+    }
+
+    return arr;
+}();
+
+extern std::array<std::array<Bitboard, BISHOP_ATTACK_INDICES>, SQ_N> bishop_attacks;
+extern std::array<std::array<Bitboard, ROOK_ATTACK_INDICES>, SQ_N> rook_attacks;
 
 void print_bitboard(const Bitboard& bb);
 void init_bitboards();
 
-constexpr Bitboard between_squares(const Square sq1, const Square sq2) { return between_bb[sq1][sq2]; }
+constexpr Bitboard between_squares(const Square sq1, const Square sq2) { return BETWEEN_BITBOARD[sq1][sq2]; }
 
 template <PieceType PT> constexpr Bitboard get_attacks(const Bitboard occ, const Square sq)
 {
     static_assert(PT != PAWN);
 
-    return PT == KNIGHT   ? knight_attacks[sq]
-           : PT == BISHOP ? bishop_attacks[sq][(occ & bishop_masks[sq]) * bishop_magic[sq] >> bishop_bit_count[sq]]
-           : PT == ROOK   ? rook_attacks[sq][(occ & rook_masks[sq]) * rook_magic[sq] >> rook_bit_count[sq]]
+    return PT == KNIGHT   ? KNIGHT_ATTACKS[sq]
+           : PT == BISHOP ? bishop_attacks[sq][(occ & BISHOP_MASKS[sq]) * BISHOP_MAGIC[sq] >> BISHOP_BIT_COUNT[sq]]
+           : PT == ROOK   ? rook_attacks[sq][(occ & ROOK_MASKS[sq]) * ROOK_MAGIC[sq] >> ROOK_BIT_COUNT[sq]]
            : PT == QUEEN  ? get_attacks<BISHOP>(occ, sq) | get_attacks<ROOK>(occ, sq)
-                          : king_attacks[sq];
+                          : KING_ATTACKS[sq];
 }
 
 template <PieceType PT> constexpr Bitboard get_attacks(const Square sq)
 {
     static_assert(PT != PAWN);
 
-    return PT == KNIGHT   ? knight_attacks[sq]
-           : PT == BISHOP ? empty_bishop_attacks[sq]
-           : PT == ROOK   ? empty_rook_attacks[sq]
-           : PT == QUEEN  ? empty_queen_attacks[sq]
-                          : king_attacks[sq];
+    return PT == KNIGHT   ? KNIGHT_ATTACKS[sq]
+           : PT == BISHOP ? EMPTY_BISHOP_ATTACKS[sq]
+           : PT == ROOK   ? EMPTY_ROOK_ATTACKS[sq]
+           : PT == QUEEN  ? EMPTY_QUEEN_ATTACKS[sq]
+                          : KING_ATTACKS[sq];
 }
 
 constexpr Bitboard get_attacks(const PieceType pt, const Bitboard occ, const Square sq)
 {
     assert(pt != PAWN);
 
-    return pt == KNIGHT   ? knight_attacks[sq]
+    return pt == KNIGHT   ? KNIGHT_ATTACKS[sq]
            : pt == BISHOP ? get_attacks<BISHOP>(occ, sq)
            : pt == ROOK   ? get_attacks<ROOK>(occ, sq)
            : pt == QUEEN  ? get_attacks<QUEEN>(occ, sq)
-                          : king_attacks[sq];
+                          : KING_ATTACKS[sq];
 }
 
 } // namespace clovis::bitboards

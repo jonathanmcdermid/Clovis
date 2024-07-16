@@ -8,7 +8,7 @@
 
 namespace clovis::bench {
 
-void benchmark(const int argc, char* argv[])
+void benchmark(std::vector<std::string>& args)
 {
     std::vector<std::string> bm;
     std::ifstream ifs("../src/bench.csv");
@@ -16,7 +16,7 @@ void benchmark(const int argc, char* argv[])
 
     while (std::getline(ifs, line))
     {
-        if (line.empty()) continue;
+        if (line.empty()) { continue; }
         const size_t idx = line.find('\"');
         const size_t idx_end = line.find('\"', idx + 1);
         bm.push_back(line.substr(idx + 1, idx_end - idx - 1));
@@ -24,8 +24,8 @@ void benchmark(const int argc, char* argv[])
 
     ifs.close();
 
-    const int depth = argc > 2 ? atoi(argv[2]) : DEFAULT_BENCH_DEPTH;
-    const int mb = argc > 4 ? atoi(argv[4]) : DEFAULT_BENCH_MB;
+    const int depth = args.size() > 2 ? stoi(args[2]) : DEFAULT_BENCH_DEPTH;
+    const int mb = args.size() > 4 ? stoi(args[4]) : DEFAULT_BENCH_MB;
 
     tt.resize(mb);
 
@@ -46,7 +46,7 @@ void benchmark(const int argc, char* argv[])
         search::clear();
     }
 
-    std::cout << "bench: " << total_nodes << " nps: " << 1000ULL * total_nodes / (total_time + 1) << " time: " << total_time << " ms" << std::endl;
+    std::cout << "bench: " << total_nodes << " nps: " << 1000ULL * total_nodes / (total_time + 1) << " time: " << total_time << " ms" << '\n';
 }
 
 } // namespace clovis::bench

@@ -15,9 +15,9 @@
 
 namespace clovis {
 
-typedef uint64_t Key;
-typedef uint64_t Bitboard;
-typedef int64_t Duration;
+using Key = uint64_t;
+using Bitboard = uint64_t;
+using Duration = int64_t;
 
 constexpr int MAX_SCALING = 32;
 constexpr int MAX_GAME_PHASE = 24;
@@ -30,8 +30,8 @@ constexpr int DEFAULT_BENCH_DEPTH = 13;
 constexpr int DEFAULT_BENCH_THREADS = 1;
 constexpr int DEFAULT_BENCH_MB = 16;
 
-constexpr auto game_phase_inc = std::array{0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0};
-constexpr auto piece_value = std::array{0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000};
+constexpr auto GAME_PHASE_INCREMENT = std::array{0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0};
+constexpr auto PIECE_VALUE = std::array{0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000};
 
 /*
 MOVE BIT FORMATTING
@@ -56,8 +56,7 @@ enum Colour : int
 {
     WHITE,
     BLACK,
-    COLOUR_N,
-    BOTH = COLOUR_N
+    BOTH
 };
 
 enum PieceType : int
@@ -145,70 +144,16 @@ enum Direction : int
 
 enum Square : int
 {
-    A1,
-    B1,
-    C1,
-    D1,
-    E1,
-    F1,
-    G1,
-    H1,
-    A2,
-    B2,
-    C2,
-    D2,
-    E2,
-    F2,
-    G2,
-    H2,
-    A3,
-    B3,
-    C3,
-    D3,
-    E3,
-    F3,
-    G3,
-    H3,
-    A4,
-    B4,
-    C4,
-    D4,
-    E4,
-    F4,
-    G4,
-    H4,
-    A5,
-    B5,
-    C5,
-    D5,
-    E5,
-    F5,
-    G5,
-    H5,
-    A6,
-    B6,
-    C6,
-    D6,
-    E6,
-    F6,
-    G6,
-    H6,
-    A7,
-    B7,
-    C7,
-    D7,
-    E7,
-    F7,
-    G7,
-    H7,
-    A8,
-    B8,
-    C8,
-    D8,
-    E8,
-    F8,
-    G8,
-    H8,
+    // clang-format off
+    A1, B1, C1, D1, E1, F1, G1, H1,
+    A2, B2, C2, D2, E2, F2, G2, H2,
+    A3, B3, C3, D3, E3, F3, G3, H3,
+    A4, B4, C4, D4, E4, F4, G4, H4,
+    A5, B5, C5, D5, E5, F5, G5, H5,
+    A6, B6, C6, D6, E6, F6, G6, H6,
+    A7, B7, C7, D7, E7, F7, G7, H7,
+    A8, B8, C8, D8, E8, F8, G8, H8,
+    // clang-format on
     SQ_N,
     SQ_ZERO = A1,
     SQ_NONE = SQ_N
@@ -244,7 +189,6 @@ enum Rank : int
 
 enum TraceIndex : int
 {
-
     TI_NORMAL,
 
     PAWN_PSQT = TI_NORMAL,
@@ -253,9 +197,9 @@ enum TraceIndex : int
     ROOK_PSQT = BISHOP_PSQT + 16,
     QUEEN_PSQT = ROOK_PSQT + 16,
     KING_PSQT = QUEEN_PSQT + 32,
-    PASSED_PAWN = KING_PSQT + 16,
-    CANDIDATE_PASSER = PASSED_PAWN + 32,
-    QUIET_MOBILITY = CANDIDATE_PASSER + 8,
+    PASSED_PAWN_PSQT = KING_PSQT + 16,
+    CANDIDATE_PASSER_PSQT = PASSED_PAWN_PSQT + 32,
+    QUIET_MOBILITY = CANDIDATE_PASSER_PSQT + 8,
     CAPTURE_MOBILITY = QUIET_MOBILITY + 7,
     DOUBLE_PAWN = CAPTURE_MOBILITY + 7,
     ISOLATED_PAWN,
@@ -324,7 +268,8 @@ struct Score
         return *this;
     }
     bool operator==(const Score& rhs) const { return mg == rhs.mg && eg == rhs.eg; }
-    short mg{0}, eg{0};
+    short mg{0};
+    short eg{0};
 };
 
 struct ScoredMove
@@ -356,7 +301,11 @@ constexpr Square operator-(const Square sq, const Direction dir) { return static
 constexpr Square& operator+=(Square& sq, const Direction dir) { return sq = sq + dir; }
 constexpr Square& operator-=(Square& sq, const Direction dir) { return sq = sq - dir; }
 
-constexpr Bitboard sq_bb(const Square sq) { return 1ULL << sq; }
+constexpr Bitboard sq_bb(const Square sq)
+{
+    assert(sq < 64);
+    return 1ULL << sq;
+}
 
 constexpr Bitboard operator|(const Square sq1, const Square sq2) { return sq_bb(sq1) | sq_bb(sq2); }
 constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sq_bb(sq); }
@@ -411,7 +360,7 @@ constexpr Square flip_square(const Square sq) { return static_cast<Square>(sq ^ 
 
 constexpr bool is_valid(const Square sq) { return !(sq & 0xffffffc0); }
 
-constexpr Colour get_side(const Piece pc) { return static_cast<Colour>(pc >> 3); }
+constexpr Colour piece_colour(const Piece pc) { return static_cast<Colour>(pc >> 3); }
 
 constexpr Piece make_piece(const PieceType pt, const Colour c) { return static_cast<Piece>((c << 3) | pt); }
 
@@ -453,12 +402,18 @@ inline Square str2sq(const std::string& s)
     return make_square(static_cast<File>(s[0] - 'a'), static_cast<Rank>(s[1] - '1'));
 }
 
-constexpr char sq_names[65][3] = {"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", "a3",
-                                  "b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4", "a5", "b5",
-                                  "c5", "d5", "e5", "f5", "g5", "h5", "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", "a7", "b7", "c7",
-                                  "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", "-"};
+constexpr std::array<std::array<char, 3>, SQ_N + 1> SQ_NAMES = {
+    {{'a', '1', '\0'}, {'b', '1', '\0'}, {'c', '1', '\0'}, {'d', '1', '\0'}, {'e', '1', '\0'}, {'f', '1', '\0'}, {'g', '1', '\0'}, {'h', '1', '\0'},
+     {'a', '2', '\0'}, {'b', '2', '\0'}, {'c', '2', '\0'}, {'d', '2', '\0'}, {'e', '2', '\0'}, {'f', '2', '\0'}, {'g', '2', '\0'}, {'h', '2', '\0'},
+     {'a', '3', '\0'}, {'b', '3', '\0'}, {'c', '3', '\0'}, {'d', '3', '\0'}, {'e', '3', '\0'}, {'f', '3', '\0'}, {'g', '3', '\0'}, {'h', '3', '\0'},
+     {'a', '4', '\0'}, {'b', '4', '\0'}, {'c', '4', '\0'}, {'d', '4', '\0'}, {'e', '4', '\0'}, {'f', '4', '\0'}, {'g', '4', '\0'}, {'h', '4', '\0'},
+     {'a', '5', '\0'}, {'b', '5', '\0'}, {'c', '5', '\0'}, {'d', '5', '\0'}, {'e', '5', '\0'}, {'f', '5', '\0'}, {'g', '5', '\0'}, {'h', '5', '\0'},
+     {'a', '6', '\0'}, {'b', '6', '\0'}, {'c', '6', '\0'}, {'d', '6', '\0'}, {'e', '6', '\0'}, {'f', '6', '\0'}, {'g', '6', '\0'}, {'h', '6', '\0'},
+     {'a', '7', '\0'}, {'b', '7', '\0'}, {'c', '7', '\0'}, {'d', '7', '\0'}, {'e', '7', '\0'}, {'f', '7', '\0'}, {'g', '7', '\0'}, {'h', '7', '\0'},
+     {'a', '8', '\0'}, {'b', '8', '\0'}, {'c', '8', '\0'}, {'d', '8', '\0'}, {'e', '8', '\0'}, {'f', '8', '\0'}, {'g', '8', '\0'}, {'h', '8', '\0'},
+     {'-', '\0', '\0'}}};
 
-inline std::string sq2str(const Square sq) { return sq_names[sq]; }
+inline std::string sq2str(const Square sq) { return SQ_NAMES[sq].data(); }
 
 // convert move to std::string
 inline std::string move2str(const Move m)
@@ -482,34 +437,16 @@ inline std::ostream& operator<<(std::ostream& os, const Score& s)
 inline std::ostream& operator<<(std::ostream& os, const Move& m)
 {
     os << move_from_sq(m) << move_to_sq(m);
-    if (move_promotion_type(m)) os << " pnbrqk  pnbrqk"[move_promotion_type(m)];
+    if (move_promotion_type(m)) { os << " pnbrqk  pnbrqk"[move_promotion_type(m)]; }
     return os;
 }
 
-#define INCR_OPERATORS(T)                                                                                                                            \
-    constexpr T& operator++(T& d) { return d = static_cast<T>(static_cast<int>(d) + 1); }                                                            \
-    constexpr T& operator--(T& d) { return d = static_cast<T>(static_cast<int>(d) - 1); }
-
-#define BASE_OPERATORS(T)                                                                                                                            \
-    constexpr T operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }                                                                      \
-    constexpr T operator+(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) + d2); }                                                        \
-    constexpr T operator-(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) - d2); }                                                        \
-    constexpr T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }                                                                                  \
-    constexpr T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }
-
-INCR_OPERATORS(Piece)
-INCR_OPERATORS(PieceType)
-INCR_OPERATORS(File)
-INCR_OPERATORS(Rank)
-INCR_OPERATORS(Direction)
-INCR_OPERATORS(Square)
-
-BASE_OPERATORS(File)
-BASE_OPERATORS(Rank)
-BASE_OPERATORS(Direction)
-BASE_OPERATORS(Square)
-
-#undef INCR_OPERATORS
-#undef BASE_OPERATORS
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator+(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) + d2); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator-(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) - d2); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator+=(T& d1, int d2) { return d1 = d1 + d2; }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator-=(T& d1, int d2) { return d1 = d1 - d2; }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator++(T& d) { return d = static_cast<T>(static_cast<int>(d) + 1); }
+template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T&> operator--(T& d) { return d = static_cast<T>(static_cast<int>(d) - 1); }
 
 } // namespace clovis

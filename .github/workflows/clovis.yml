@@ -58,9 +58,9 @@ jobs:
         elif [ "${{ env.COMPILER }}" == "clang-cl" ]; then
           cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Visual Studio 17 2022" -T ClangCL
         elif [ "${{ env.COMPILER }}" == "clang" ]; then
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=clang++
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DWARNINGS_AS_ERRORS=ON
         elif [ "${{ env.COMPILER }}" == "gcc" ]; then
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++ -DWARNINGS_AS_ERRORS=ON
         fi
 
     - name: Build
@@ -98,6 +98,82 @@ jobs:
       with:
         name: bench-output
         path: output
+
+  # =========================================================
+  # Self Play Job
+  # =========================================================
+  self-play:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+
+    - name: Install CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Configure
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+    - name: Build
+      run: cmake --build build --parallel --config debug
+
+    - name: Checkout cutechess
+      uses: actions/checkout@v4
+      with:
+        repository: cutechess/cutechess
+        path: cutechess
+        ref: master
+        persist-credentials: false
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qtbase5-dev qt5-qmake libqt5svg5-dev
+    
+    - name: Build cutechess
+      working-directory: cutechess
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make -j
+    
+    - name: Download clovis-release-gcc-linux artifact
+      run: |
+        curl -L -o build/clovis-release-gcc-linux https://github.com/jonathanmcdermid/Clovis/releases/download/III/clovis-release-gcc-linux
+        chmod +x build/clovis-release-gcc-linux
+    
+    - name: Self-play
+      shell: bash
+      working-directory: cutechess
+      run: |
+        set -e
+        ./build/cutechess-cli \
+          -engine name=clovis-new cmd="../build/bin/Release/clovis" \
+          -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
+          -each proto=uci tc=inf/5+0.1 \
+          -games 2 -rounds 200 -repeat 2 -maxmoves 200 \
+          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
+          -concurrency 32 \
+          -resultformat "results - %s wins, %s draws, %s losses" > results.log
+        
+        cat results.log
+      
+        los_line=$(grep "LOS:" results.log)
+        echo "LOS line: $los_line"
+        
+        los_percentage=$(echo "$los_line" | awk '{print $7}' | tr -d '%')
+        echo "LOS percentage: $los_percentage"
+        
+        if [ $(echo "$los_percentage < 5.0" | bc) -eq 1 ]; then
+          echo "Error: Likelihood of superiority (LOS) is less than 10%."
+          exit 1
+        fi
 
   # =========================================================
   # Clang Format Job
@@ -160,7 +236,7 @@ jobs:
 
       - name: Static code analysis
         run: |
-          cmake -S . -B build -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CC=clang -DCMAKE_CXX=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_COMPILER_TARGET=x86_64-pc-linux-gnu -DCMAKE_C_COMPILER_TARGET=x86_64-pc-linux-gnu
+          cmake -S . -B build -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CXX_COMPILER=clang++
           cmake --build build --parallel --config Debug
   
   # =========================================================
