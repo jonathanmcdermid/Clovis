@@ -298,14 +298,14 @@ constexpr std::array<Bitboard, 2> CENTER_MASK = {D5 | E5, D4 | E4};
 
 extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
-bool is_open_file(const Bitboard pawns, const File f);
-bool is_doubled_pawn(const Bitboard bb, const Square sq);
-bool is_isolated_pawn(const Bitboard bb, const Square sq);
+bool is_open_file(Bitboard pawns, File f);
+bool is_doubled_pawn(Bitboard bb, Square sq);
+bool is_isolated_pawn(Bitboard bb, Square sq);
 
-template <Colour US> bool is_passed_pawn(const Bitboard bb, const Square sq);
+template <Colour US> bool is_passed_pawn(Bitboard bb, Square sq);
 template <Colour US> bool is_candidate_passer(const Position& pos, Square sq);
-template <Colour US> bool is_outpost(const Square sq, const EvalInfo& ei);
-template <Colour US> bool is_fianchetto(const Position& pos, const Square sq);
+template <Colour US> bool is_outpost(Square sq, const EvalInfo& ei);
+template <Colour US> bool is_fianchetto(const Position& pos, Square sq);
 
 template <bool TRACE> int evaluate(const Position& pos);
 
