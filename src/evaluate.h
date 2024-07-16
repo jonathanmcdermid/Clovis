@@ -298,8 +298,18 @@ constexpr std::array<Bitboard, 2> CENTER_MASK = {D5 | E5, D4 | E4};
 
 extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
-template <bool TRACE> int evaluate(const Position& pos);
+bool is_open_file(const Bitboard pawns, const File f);
+bool is_doubled_pawn(const Bitboard bb, const Square sq);
+bool is_isolated_pawn(const Bitboard bb, const Square sq);
 
-bool is_doubled_pawn(Bitboard bb, Square sq);
+template <Colour US> bool is_passed_pawn(const Bitboard bb, const Square sq);
+template <Colour US> bool is_candidate_passer(const Position& pos, Square sq);
+template <Colour US> bool is_outpost(const Square sq, const EvalInfo& ei);
+template <Colour US> bool is_fianchetto(const Position& pos, const Square sq);
+
+template <bool TRACE> int evaluate(const Position& pos);
+template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalInfo& ei);
+template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInfo& ei);
+template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors(const Position& pos, EvalInfo& ei, Score& score);
 
 } // namespace clovis::eval

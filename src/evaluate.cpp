@@ -6,6 +6,8 @@ namespace clovis::eval {
 
 std::array<std::array<int, PHASE_N>, TI_MISC> T;
 
+bool is_open_file(const Bitboard pawns, const File f) { return !(bitboards::FILE_MASKS[f] & pawns); }
+
 bool is_doubled_pawn(const Bitboard bb, const Square sq) { return bitboards::multiple_bits(bb & bitboards::FILE_MASKS[sq]); }
 
 bool is_isolated_pawn(const Bitboard bb, const Square sq) { return !(bb & ISOLATED_MASKS[sq]); }
@@ -14,6 +16,7 @@ template <Colour US> bool is_passed_pawn(const Bitboard bb, const Square sq) { r
 
 template <Colour US> bool is_candidate_passer(const Position& pos, Square sq)
 {
+    // a candidate passers is an open file pawn with no square on its path controlled by more enemy pawns than friendly pawns
     if (pos.get_pc_bb(make_piece(PAWN, ~US)) & ROOK_ON_PASSER_MASKS[US][sq]) { return false; }
 
     while (true)
@@ -40,8 +43,6 @@ template <Colour US> bool is_fianchetto(const Position& pos, const Square sq)
 {
     return FIANCHETTO_BISHOP_MASK[US] & sq && CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN), sq);
 }
-
-inline bool is_open_file(const Position& pos, const File f) { return !(bitboards::FILE_MASKS[f] & (pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN))); }
 
 template <Colour US, PieceType PT, bool TRACE> void king_danger(const Bitboard attacks, EvalInfo& ei)
 {
@@ -309,7 +310,7 @@ template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalI
             if constexpr (TRACE) { ++T[SAFETY_PAWN_SHIELD + SOURCE_32[f]][~US]; }
         }
 
-        if (is_open_file(pos, f))
+        if (is_open_file(pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN), f))
         {
             if (f == kf)
             {
