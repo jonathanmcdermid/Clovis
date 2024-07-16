@@ -41,7 +41,8 @@ template <Colour US> bool is_outpost(const Square sq, const EvalInfo& ei)
 
 template <Colour US> bool is_fianchetto(const Position& pos, const Square sq)
 {
-    return FIANCHETTO_BISHOP_MASK[US] & sq && CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN), sq);
+    return FIANCHETTO_BISHOP_MASK[US] & sq && pos.get_pc[sq + pawn_push(US)] == make_piece(PAWN, US) &&
+           CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN), sq);
 }
 
 template <Colour US, PieceType PT, bool TRACE> void king_danger(const Bitboard attacks, EvalInfo& ei)
