@@ -308,8 +308,5 @@ template <Colour US> bool is_outpost(const Square sq, const EvalInfo& ei);
 template <Colour US> bool is_fianchetto(const Position& pos, const Square sq);
 
 template <bool TRACE> int evaluate(const Position& pos);
-template <Colour US, bool TRACE> Score evaluate_pawns(const Position& pos, EvalInfo& ei);
-template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInfo& ei);
-template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors(const Position& pos, EvalInfo& ei, Score& score);
 
 } // namespace clovis::eval

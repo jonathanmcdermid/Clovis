@@ -120,16 +120,6 @@ TEST_F(EvaluateTest, OUTPOST_TEST_DISABLED)
     //   a b c d e f g h
 
     // Position pos("8/4p3/8/1p1p1Pp1/1N1N1bP1/2P2P2/8/8 w - - 0 1");
-    // EvalInfo ei;
-    // 
-    // we need to populate the potential pawn attack tables, this is done in evaluate_pawns
-    // TODO: this doesnt seem to work, we may need to set up ei object beforehand
-    // evaluate_pawns<WHITE, false>(pos, ei);
-    // evaluate_pawns<BLACK, false>(pos, ei);
-    //
-    // ASSERT_EQ(ei.potential_pawn_attacks[WHITE], 0ULL);
-    // ASSERT_EQ(ei.potential_pawn_attacks[BLACK], 0ULL);
-    // 
     // ASSERT_FALSE(is_outpost<WHITE>(D4, ei));
     // 
     // ASSERT_TRUE(is_outpost<WHITE>(B4, ei));
