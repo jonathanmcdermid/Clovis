@@ -10,8 +10,6 @@ int main(const int argc, char* argv[])
 
     for (int i = 0; i < argc; ++i) { args.emplace_back(argv[i]); }
 
-    const std::string_view arg = argc > 1 ? argv[1] : "";
-
     if (argc < 2) { clovis::uci::loop(args); }
     else { return EXIT_FAILURE; }
 
