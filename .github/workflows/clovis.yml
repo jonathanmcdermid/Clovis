@@ -89,7 +89,7 @@ jobs:
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/clovis perft
+        ./build/bin/$BUILD_TYPE/perft ./src/perft/perft.epd
 
     - name: Archive Output
       if: always()
