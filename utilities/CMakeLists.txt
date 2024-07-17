@@ -1,0 +1,5 @@
+add_subdirectory(bench)
+add_subdirectory(convert)
+add_subdirectory(iq)
+add_subdirectory(perft)
+#add_subdirectory(tune)

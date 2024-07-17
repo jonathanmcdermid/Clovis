@@ -73,7 +73,7 @@ jobs:
       if: env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows'
       shell: bash
       run: |
-        ./build/bin/$BUILD_TYPE/bench ./src/bench/bench.csv > output
+        ./build/bin/$BUILD_TYPE/bench ./utilities/bench/bench.csv > output
         
         expected=14914348
         actual=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
@@ -89,7 +89,7 @@ jobs:
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/perft ./src/perft/perft.epd
+        ./build/bin/$BUILD_TYPE/perft ./utilities/perft/perft.epd
 
     - name: Archive Output
       if: always()
@@ -116,7 +116,7 @@ jobs:
       uses: lukka/get-cmake@latest
 
     - name: Configure
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DBUILD_TESTS=OFF -DBUILD_UTILITY=OFF
 
     - name: Build
       run: cmake --build build --parallel --config debug
@@ -261,7 +261,7 @@ jobs:
         sudo apt-get install -y gcovr
 
     - name: Configure
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON -DBUILD_UTILITY=OFF
 
     - name: Build
       run: cmake --build build --parallel --config debug
