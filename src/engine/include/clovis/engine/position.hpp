@@ -46,7 +46,7 @@ struct Position
 
     // Utility Functions
     void print_position() const;
-    Move parse(std::string move) const;
+    [[nodiscard]] Move parse(std::string move) const;
 
   private:
     // State Modifiers
