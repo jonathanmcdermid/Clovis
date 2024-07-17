@@ -70,7 +70,6 @@ jobs:
       run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
     - name: Bench
-      if: env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows'
       shell: bash
       run: |
         ./build/bin/$BUILD_TYPE/bench ./utilities/bench/bench.csv > output
