@@ -78,7 +78,9 @@ jobs:
         cat output
         ACTUAL=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
         echo "Actual ${ACTUAL} Expected ${EXPECTED}"
-        [[ "$EXPECTED" != "$ACTUAL" ]] && exit 1
+        if [[ "$expected" != "$actual" ]]; then
+          exit 1
+        fi
 
     - name: Perft
       if: env.BUILD_TYPE == 'Release'
