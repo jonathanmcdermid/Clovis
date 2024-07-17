@@ -85,7 +85,7 @@ jobs:
         fi
 
     - name: Perft
-      if: env.BUILD_TYPE == 'Release' && (env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows')
+      if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
