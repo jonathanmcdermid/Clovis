@@ -324,7 +324,9 @@ void tune_eval(std::vector<std::string>& args)
     std::cout << mse<true>(k) << '\n';
     std::cout << mse<false>(k) << '\n';
 
-    for (int epoch = 1; epoch < args.at(2); ++epoch)
+    int epochs = std::stoi(args.at(2));
+
+    for (int epoch = 1; epoch < epochs; ++epoch)
     {
         TVector gradient = compute_gradient(k);
 
