@@ -90,7 +90,6 @@ jobs:
     - name: IQ
       shell: bash
       run: | 
-        set -e # Exit immediately if a command exits with a non-zero status
         ./build/bin/$BUILD_TYPE/iq ./utilities/iq/iq.epd
 
     - name: Archive Output
