@@ -97,13 +97,13 @@ TEST_F(EvaluateTest, CANDIDATE_PASSER_TEST)
     ASSERT_FALSE(is_candidate_passer<WHITE>(pos, A5));
     ASSERT_FALSE(is_candidate_passer<WHITE>(pos, F3));
     ASSERT_FALSE(is_candidate_passer<WHITE>(pos, H3));
-    
+
     ASSERT_TRUE(is_candidate_passer<WHITE>(pos, B5));
 
     ASSERT_FALSE(is_candidate_passer<BLACK>(pos, A7));
     ASSERT_FALSE(is_candidate_passer<BLACK>(pos, F5));
     ASSERT_FALSE(is_candidate_passer<BLACK>(pos, H5));
-    
+
     ASSERT_TRUE(is_candidate_passer<BLACK>(pos, G5));
 }
 
@@ -121,7 +121,7 @@ TEST_F(EvaluateTest, OUTPOST_TEST_DISABLED)
 
     // Position pos("8/4p3/8/1p1p1Pp1/1N1N1bP1/2P2P2/8/8 w - - 0 1");
     // ASSERT_FALSE(is_outpost<WHITE>(D4, ei));
-    // 
+    //
     // ASSERT_TRUE(is_outpost<WHITE>(B4, ei));
     // ASSERT_TRUE(is_outpost<BLACK>(F4, ei));
 }
@@ -139,13 +139,13 @@ TEST_F(EvaluateTest, IS_FIANCHETTO_TEST)
     //   a b c d e f g h
 
     Position pos("8/1b4b1/6p1/8/1p1P4/1P4P1/1B4B1/8 w - - 0 1");
-    
+
     ASSERT_FALSE(is_fianchetto<WHITE>(pos, B2));
 
     ASSERT_TRUE(is_fianchetto<WHITE>(pos, G2));
 
     ASSERT_FALSE(is_fianchetto<BLACK>(pos, B7));
-    
+
     ASSERT_TRUE(is_fianchetto<BLACK>(pos, G7));
 }
 

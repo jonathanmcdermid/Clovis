@@ -92,7 +92,8 @@ int main(const int argc, char* argv[])
 
                             if (std::find(keys.begin(), keys.end(), pos.get_key()) == keys.end())
                             {
-                                if (const int eval = pos.get_side() == clovis::WHITE ? clovis::eval::evaluate<false>(pos) : -clovis::eval::evaluate<false>(pos);
+                                if (const int eval =
+                                        pos.get_side() == clovis::WHITE ? clovis::eval::evaluate<false>(pos) : -clovis::eval::evaluate<false>(pos);
                                     (result == "1-0" && eval > -500) || (result == "0-1" && eval < 500) ||
                                     (result == "1/2-1/2" && (eval > -500 && eval < 500)))
                                 {
