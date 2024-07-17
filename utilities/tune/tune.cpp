@@ -13,8 +13,6 @@ using TVector = std::array<std::array<double, PHASE_N>, TI_MISC>;
 std::vector<TEntry> entries;
 TVector params;
 
-constexpr int MAX_EPOCHS = 1000000;
-
 inline double sigmoid(const double k, const double e) { return 1.0 / (1.0 + exp(-k * e / 400.0)); }
 
 template <typename T> void add_param(T t, const TraceIndex ti)
@@ -268,9 +266,9 @@ double find_k()
 
 void tune_eval(std::vector<std::string>& args)
 {
-    if (args.size() != 2)
+    if (args.size() != 3)
     {
-        std::cerr << "Error: Please provide the path to a .epd file as the second argument.\n";
+        std::cerr << "Error: Please provide the path to an epd file and the number of epochs.\n";
         exit(EXIT_FAILURE);
     }
 
@@ -326,7 +324,7 @@ void tune_eval(std::vector<std::string>& args)
     std::cout << mse<true>(k) << '\n';
     std::cout << mse<false>(k) << '\n';
 
-    for (int epoch = 1; epoch < MAX_EPOCHS; ++epoch)
+    for (int epoch = 1; epoch < args.at(2); ++epoch)
     {
         TVector gradient = compute_gradient(k);
 
