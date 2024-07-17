@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 
-#include "evaluate.hpp"
+#include "clovis/engine/evaluate.hpp"
 
-namespace clovis::tuner {
+namespace clovis::tune {
 
 struct TTuple
 {
@@ -38,4 +38,4 @@ struct TEntry
 
 void tune_eval(std::vector<std::string>& args);
 
-} // namespace clovis::tuner
+} // namespace clovis::tune

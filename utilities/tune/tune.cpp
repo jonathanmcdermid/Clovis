@@ -1,4 +1,4 @@
-#include "tuner.hpp"
+#include "tune.hpp"
 
 #include <cmath>
 #include <cstring>
@@ -6,7 +6,7 @@
 #include <iostream>
 #include <thread>
 
-namespace clovis::tuner {
+namespace clovis::tune {
 
 using TVector = std::array<std::array<double, PHASE_N>, TI_MISC>;
 
@@ -349,4 +349,18 @@ void tune_eval(std::vector<std::string>& args)
     }
 }
 
-} // namespace clovis::tuner
+} // namespace clovis::tune
+
+int main(const int argc, char* argv[])
+{
+    clovis::bitboards::init_bitboards();
+
+    std::vector<std::string> args;
+    args.reserve(argc);
+
+    for (int i = 0; i < argc; ++i) { args.emplace_back(argv[i]); }
+
+    clovis::tune::tune_eval(args);
+
+    return EXIT_SUCCESS;
+}
