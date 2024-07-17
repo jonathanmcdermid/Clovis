@@ -91,6 +91,12 @@ jobs:
         set -e # Exit immediately if a command exits with a non-zero status
         ./build/bin/$BUILD_TYPE/perft ./utilities/perft/perft.epd
 
+    - name: IQ
+      shell: bash
+      run: | 
+        set -e # Exit immediately if a command exits with a non-zero status
+        ./build/bin/$BUILD_TYPE/iq ./utilities/iq/iq.epd
+
     - name: Archive Output
       if: always()
       uses: actions/upload-artifact@v2

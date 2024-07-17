@@ -43,7 +43,8 @@ int main(const int argc, char* argv[])
     ifs.close();
 
     clovis::search::SearchLimits limits;
-    limits.time = {100000, 100000};
+    limits.time = {1000, 1000};
+    limits.moves_left = 0;
     int passes = 0;
     int fails = 0;
 
