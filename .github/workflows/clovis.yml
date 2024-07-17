@@ -87,6 +87,13 @@ jobs:
         set -e # Exit immediately if a command exits with a non-zero status
         ./build/bin/$BUILD_TYPE/perft ./utilities/perft/perft.epd
 
+    - name: Tune
+      if: env.BUILD_TYPE == 'Release'
+      shell: bash
+      run: | 
+        set -e # Exit immediately if a command exits with a non-zero status
+        ./build/bin/$BUILD_TYPE/tune ./utilities/tune/tune.epd
+
     - name: IQ
       shell: bash
       run: ./build/bin/$BUILD_TYPE/iq ./utilities/iq/iq.epd
