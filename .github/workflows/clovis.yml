@@ -89,15 +89,7 @@ jobs:
 
     - name: IQ
       shell: bash
-      run: | 
-        ./build/bin/$BUILD_TYPE/iq ./utilities/iq/iq.epd
-
-    - name: Archive Output
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: bench-output
-        path: output
+      run: ./build/bin/$BUILD_TYPE/iq ./utilities/iq/iq.epd
 
   # =========================================================
   # Self Play Job
