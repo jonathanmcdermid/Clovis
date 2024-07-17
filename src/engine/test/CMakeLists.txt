@@ -1,0 +1,7 @@
+set(TARGET_NAME "evaluate_test")
+add_executable(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/evaluate_test.cpp)
+set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "tests")
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
+find_package(GTest REQUIRED CONFIG)
+target_link_libraries(${TARGET_NAME} PUBLIC clovis::engine GTest::gtest GTest::gtest_main)
+add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} ${CMAKE_SOURCE_DIR})

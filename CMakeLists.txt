@@ -56,18 +56,14 @@ foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
 endforeach()
 
+add_subdirectory(src)
+
 if(BUILD_TESTS)
     enable_testing()
-    add_subdirectory(test)
+    add_subdirectory(src/engine/test)
 endif()
 
-file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-add_executable(${PROJECT_NAME} ${SOURCES})
-add_library("engine" STATIC ${SOURCES})
-
 add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
 if(WIN32)
     # Copy third-party DLLs to the build directory for tests
