@@ -72,7 +72,7 @@ jobs:
     - name: Bench
       shell: bash
       env: 
-        EXPECTED: 14914348
+        EXPECTED: 149143481
       run: |
         ./build/bin/$BUILD_TYPE/bench ./utilities/bench/bench.csv > output
         cat output
