@@ -5,7 +5,7 @@
 #include "clovis/engine/search.hpp"
 
 constexpr int DEFAULT_BENCH_DEPTH = 13;
-//constexpr int DEFAULT_BENCH_THREADS = 1;
+// constexpr int DEFAULT_BENCH_THREADS = 1;
 constexpr int DEFAULT_BENCH_MB = 16;
 
 int main(const int argc, char* argv[])
