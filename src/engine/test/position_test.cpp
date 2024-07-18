@@ -14,7 +14,7 @@ class PositionTest : public testing::Test
 TEST_F(PositionTest, BOARD_STATE_TEST)
 {
     Position pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    
+
     ASSERT_EQ(pos.get_fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     ASSERT_FALSE(pos.is_king_in_check());
     ASSERT_TRUE(pos.is_stm_major());
