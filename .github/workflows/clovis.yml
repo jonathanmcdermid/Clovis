@@ -50,11 +50,6 @@ jobs:
     - name: Install CMake
       uses: lukka/get-cmake@latest
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
     - name: Configure
       shell: bash
       run: |
@@ -76,7 +71,7 @@ jobs:
 
     - name: Bench
       shell: bash
-      run: python build/bin/$BUILD_TYPE/clovis 14535565 resources/bench.csv
+      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14535565 resources/bench.csv
 
     - name: Perft
       if: env.BUILD_TYPE == 'Release'
