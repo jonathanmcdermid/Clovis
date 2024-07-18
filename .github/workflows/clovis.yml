@@ -92,7 +92,7 @@ jobs:
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/clovis tune ./tools/tune/tune.epd 100
+        ./build/bin/$BUILD_TYPE/tune ./tools/tune/tune.epd 100
 
     - name: IQ
       shell: bash
