@@ -147,7 +147,7 @@ TEST_F(PositionTest, SEE_TEST)
         int val;
     };
 
-    const std::array<SeeData, 18> seeData = {
+    const std::array<SeeData, 20> seeData = {
         {{"4R3/2r3p1/5bk1/1p1r3p/p2PR1P1/P1BK1P2/1P6/8 b - -", "hxg4", 0},
          {"4R3/2r3p1/5bk1/1p1r1p1p/p2PR1P1/P1BK1P2/1P6/8 b - -", "hxg4", 0},
          {"4r1k1/5pp1/nbp4p/1p2p2q/1P2P1b1/1BP2N1P/1B2QPPK/3R4 b - -", "Bxf3", 0},
@@ -165,8 +165,8 @@ TEST_F(PositionTest, SEE_TEST)
          {"2r2r1k/6bp/p7/2q2p1Q/3PpP2/1B6/P5PP/2RR3K b - -", "Qxc1", 2 * PIECE_VALUE[ROOK] - PIECE_VALUE[QUEEN]},
          {"r2qk1nr/pp2ppbp/2b3p1/2p1p3/8/2N2N2/PPPP1PPP/R1BQR1K1 w kq -", "Nxe5", PIECE_VALUE[PAWN]},
          {"6r1/4kq2/b2p1p2/p1pPb3/p1P2B1Q/2P4P/2B1R1P1/6K1 w - -", "Bxe5", 0},
-         // {"3q2nk/pb1r1p2/np6/3P2Pp/2p1P3/2R4B/PQ3P1P/3R2K1 w - h6", "gxh6", 0},
-         // {"3q2nk/pb1r1p2/np6/3P2Pp/2p1P3/2R1B2B/PQ3P1P/3R2K1 w - h6", "gxh6", PIECE_VALUE[PAWN]},
+         {"3q2nk/pb1r1p2/np6/3P2Pp/2p1P3/2R4B/PQ3P1P/3R2K1 w - h6", "gxh6", 0},
+         {"3q2nk/pb1r1p2/np6/3P2Pp/2p1P3/2R1B2B/PQ3P1P/3R2K1 w - h6", "gxh6", PIECE_VALUE[PAWN]},
          {"2r4r/1P4pk/p2p1b1p/7n/BB3p2/2R2p2/P1P2P2/4RK2 w - -", "Rxc8", PIECE_VALUE[ROOK]},
          {"2r5/1P4pk/p2p1b1p/5b1n/BB3p2/2R2p2/P1P2P2/4RK2 w - -", "Rxc8", PIECE_VALUE[BISHOP]},
          {"2r4k/2r4p/p7/2b2p1b/4pP2/1BR5/P1R3PP/2Q4K w - -", "Rxc5", PIECE_VALUE[BISHOP]},

@@ -10,7 +10,7 @@ namespace clovis {
 #if defined(__GNUC__)
 constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {"·", "♙", "♘", "♗", "♖", "♕", "♔", "", "", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 #else
-constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "k", "b", "r", "q", "k"};
+constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "n", "b", "r", "q", "k"};
 #endif
 
 constexpr auto CASTLING_RIGHTS = [] {
@@ -265,7 +265,7 @@ Key Position::make_pawn_key() const
 int Position::see(const Move move) const
 {
     // don't even bother
-    if (move_promotion_type(move) || move_en_passant(move)) { return true; }
+    if (move_promotion_type(move)) { return true; }
 
     std::array<int, 32> gain{};
     int d = 0;
@@ -275,7 +275,19 @@ int Position::see(const Move move) const
     Bitboard attackers = attackers_to(to);
     Colour stm = side;
 
-    gain[d] = PIECE_VALUE[pc_table[to]];
+    if (move_en_passant(move)) { 
+        gain[0] = PIECE_VALUE[PAWN];
+        stm = ~stm;
+        d = 1;
+        gain[1] = 0;
+
+        attackers ^= from;
+        occ ^= from;
+        occ ^= to - pawn_push(side);
+        attackers |= consider_xray(occ, to, QUEEN);
+        from = get_smallest_attacker(attackers, stm);
+    }
+    else { gain[d] = PIECE_VALUE[pc_table[to]]; }
 
     while (true)
     {
