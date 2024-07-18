@@ -149,7 +149,7 @@ TEST_F(PositionTest, SEE_TEST)
 
     // clang-format off
 
-    const std::array<SeeData, 5> seeData = {{
+    const std::array<SeeData, 18> seeData = {{
         {"4R3/2r3p1/5bk1/1p1r3p/p2PR1P1/P1BK1P2/1P6/8 b - -",               "hxg4",  0},
         {"4R3/2r3p1/5bk1/1p1r1p1p/p2PR1P1/P1BK1P2/1P6/8 b - -",             "hxg4",  0},
         {"4r1k1/5pp1/nbp4p/1p2p2q/1P2P1b1/1BP2N1P/1B2QPPK/3R4 b - -",       "Bxf3",  0},
