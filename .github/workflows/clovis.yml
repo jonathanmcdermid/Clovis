@@ -119,7 +119,7 @@ jobs:
       run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DBUILD_TESTS=OFF -DBUILD_UTILITIES=OFF
 
     - name: Build
-      run: cmake --build build --parallel --config debug
+      run: cmake --build build --parallel --config Release
 
     - name: Checkout cutechess
       uses: actions/checkout@v4
