@@ -71,7 +71,7 @@ jobs:
 
     - name: Bench
       shell: bash
-      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14535565 resources/bench.csv
+      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14535568 resources/bench.csv
 
     - name: Perft
       if: env.BUILD_TYPE == 'Release'
