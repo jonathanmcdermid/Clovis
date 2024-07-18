@@ -284,7 +284,7 @@ bool Position::see_ge(const Move move, const int threshold) const
         assert(d < 32);
         gain[d] = PIECE_VALUE[pc_table[from]] - gain[d - 1];
 
-        if (std::max(-gain[d - 1], gain[d]) < threshold) { break; }
+        //if (std::max(-gain[d - 1], gain[d]) < threshold) { break; }
 
         attackers ^= from;
         occ ^= from;
