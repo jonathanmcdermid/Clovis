@@ -281,7 +281,6 @@ int Position::see(const Move move) const
         stm = ~stm;
         d = 1;
         gain[1] = 0;
-
         attackers ^= from;
         occ ^= from;
         occ ^= to - pawn_push(side);
@@ -290,7 +289,7 @@ int Position::see(const Move move) const
     }
     else { gain[d] = PIECE_VALUE[pc_table[to]]; }
 
-    while (true)
+    while (from != SQ_NONE)
     {
         stm = ~stm;
         d++;
@@ -301,8 +300,6 @@ int Position::see(const Move move) const
         occ ^= from;
         attackers |= consider_xray(occ, to, piece_type(pc_table[from]));
         from = get_smallest_attacker(attackers, stm);
-
-        if (from == SQ_NONE) { break; }
     }
 
     while (--d) { gain[d - 1] = -std::max(-gain[d - 1], gain[d]); }
