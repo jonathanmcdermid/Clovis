@@ -262,7 +262,7 @@ Key Position::make_pawn_key() const
     return k;
 }
 
-bool Position::see_ge(const Move move, const int threshold) const
+int Position::see(const Move move) const
 {
     // don't even bother
     if (move_promotion_type(move) || move_en_passant(move)) { return true; }
@@ -284,8 +284,6 @@ bool Position::see_ge(const Move move, const int threshold) const
         assert(d < 32);
         gain[d] = PIECE_VALUE[pc_table[from]] - gain[d - 1];
 
-        // if (std::max(-gain[d - 1], gain[d]) < threshold) { break; }
-
         attackers ^= from;
         occ ^= from;
         attackers |= consider_xray(occ, to, piece_type(pc_table[from]));
@@ -296,7 +294,7 @@ bool Position::see_ge(const Move move, const int threshold) const
 
     while (--d) { gain[d - 1] = -std::max(-gain[d - 1], gain[d]); }
 
-    return gain[0] >= threshold;
+    return gain[0];
 }
 
 // updates bitboards to represent a new piece on a square

@@ -28,7 +28,7 @@ Move MovePicker::get_next(const bool play_quiets)
             assert(move_capture(*curr) || piece_type(move_promotion_type(*curr)) == QUEEN);
             if (curr->move != tt_move)
             {
-                if (pos.see_ge(*curr, play_quiets ? -100 : 0)) { return *curr++; }
+                if (pos.see(*curr) >= (play_quiets ? -100 : 0)) { return *curr++; }
                 if (play_quiets) { *last_bad_cap++ = *curr; }
             }
             ++curr;

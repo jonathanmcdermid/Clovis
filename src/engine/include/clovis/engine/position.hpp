@@ -26,7 +26,7 @@ struct Position
     [[nodiscard]] bool is_king_in_check() const;
     [[nodiscard]] bool is_stm_major() const;
     [[nodiscard]] bool is_draw() const;
-    [[nodiscard]] bool see_ge(Move move, int threshold) const;
+    [[nodiscard]] int see(Move move) const;
 
     template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
     template <Colour US> [[nodiscard]] bool is_discovery_threat(Square sq) const;

@@ -182,8 +182,7 @@ TEST_F(PositionTest, SEE_TEST)
         pos.print_position();
         std::cout << it.move << '\n';
 
-        ASSERT_TRUE(pos.see_ge(move, it.val));
-        ASSERT_FALSE(pos.see_ge(move, it.val + 1));
+        ASSERT_EQ(pos.see(move), it.val);
     }
 }
 
