@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 include(cmake/third_party.cmake)
 project(clovis LANGUAGES CXX)
 
-option(BUILD_UTILITIES "Build utilities" ON)
+option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" ON)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(COVERAGE "Coverage" OFF)
@@ -59,8 +59,8 @@ endforeach()
 
 add_subdirectory(src)
 
-if(BUILD_UTILITIES)
-    add_subdirectory(utilities)
+if(BUILD_TOOLS)
+    add_subdirectory(tools)
 endif()
 
 if(BUILD_TESTS)

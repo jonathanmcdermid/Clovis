@@ -74,7 +74,7 @@ jobs:
       env: 
         EXPECTED: 14914348
       run: |
-        ./build/bin/$BUILD_TYPE/bench ./utilities/bench/bench.csv > output
+        ./build/bin/$BUILD_TYPE/bench ./tools/bench/bench.csv > output
         cat output
         ACTUAL=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
         echo "Actual ${ACTUAL} Expected ${EXPECTED}"
@@ -85,18 +85,18 @@ jobs:
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/perft ./utilities/perft/perft.epd
+        ./build/bin/$BUILD_TYPE/perft ./tools/perft/perft.epd
 
     - name: Tune
       if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/tune ./utilities/tune/tune.epd 100
+        ./build/bin/$BUILD_TYPE/clovis tune ./tools/tune/tune.epd 100
 
     - name: IQ
       shell: bash
-      run: ./build/bin/$BUILD_TYPE/iq ./utilities/iq/iq.epd
+      run: ./build/bin/$BUILD_TYPE/iq ./tools/iq/iq.epd
 
   # =========================================================
   # Self Play Job
@@ -121,7 +121,7 @@ jobs:
       uses: lukka/get-cmake@latest
 
     - name: Configure
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DBUILD_TESTS=OFF -DBUILD_UTILITIES=OFF
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DBUILD_TESTS=OFF -DBUILD_TOOLS=OFF
 
     - name: Build
       run: cmake --build build --parallel --config Release
@@ -266,7 +266,7 @@ jobs:
         sudo apt-get install -y gcovr
 
     - name: Configure
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON -DBUILD_UTILITIES=OFF
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON -DBUILD_TOOLS=OFF
 
     - name: Build
       run: cmake --build build --parallel --config debug
