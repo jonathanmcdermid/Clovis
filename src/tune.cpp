@@ -275,7 +275,7 @@ void tune_eval(const std::vector<std::string>& args)
     init_params();
 
     TVector adaptive_gradient{};
-    std::ifstream ifs(args.at(1));
+    std::ifstream ifs(args.at(2));
     std::string line;
 
     while (getline(ifs, line))
@@ -324,7 +324,7 @@ void tune_eval(const std::vector<std::string>& args)
     std::cout << mse<true>(k) << '\n';
     std::cout << mse<false>(k) << '\n';
 
-    int epochs = std::stoi(args.at(2));
+    int epochs = std::stoi(args.at(3));
 
     for (int epoch = 1; epoch < epochs; ++epoch)
     {
