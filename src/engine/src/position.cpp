@@ -275,7 +275,8 @@ int Position::see(const Move move) const
     Bitboard attackers = attackers_to(to);
     Colour stm = side;
 
-    if (move_en_passant(move)) { 
+    if (move_en_passant(move))
+    {
         gain[0] = PIECE_VALUE[PAWN];
         stm = ~stm;
         d = 1;
