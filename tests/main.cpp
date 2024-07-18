@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "clovis/engine/bitboard.hpp"
+#include "bitboard.hpp"
 
 int main(int argc, char** argv)
 {

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "clovis/engine/evaluate.hpp"
+#include "evaluate.hpp"
 
 namespace clovis::tune {
 
@@ -36,6 +36,6 @@ struct TEntry
     std::vector<TTuple> tuples;
 };
 
-void tune_eval(std::vector<std::string>& args);
+void tune_eval(const std::vector<std::string>& args);
 
 } // namespace clovis::tune

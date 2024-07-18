@@ -1,4 +1,4 @@
-#include "clovis/engine/position.hpp"
+#include "position.hpp"
 
 #include <cassert>
 #include <cstring>

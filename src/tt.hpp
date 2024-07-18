@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "clovis/engine/common.hpp"
+#include "common.hpp"
 
 namespace clovis {
 

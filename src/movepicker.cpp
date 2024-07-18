@@ -1,4 +1,4 @@
-#include "clovis/engine/movepicker.hpp"
+#include "movepicker.hpp"
 
 namespace clovis::move_pick {
 

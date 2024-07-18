@@ -2,7 +2,7 @@
 #include <fstream>
 #include <vector>
 
-#include "clovis/engine/search.hpp"
+#include "search.hpp"
 
 constexpr int DEFAULT_BENCH_DEPTH = 13;
 // constexpr int DEFAULT_BENCH_THREADS = 1;

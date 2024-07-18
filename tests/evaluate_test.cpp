@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "clovis/engine/evaluate.hpp"
+#include "evaluate.hpp"
 
 using namespace clovis;
 using namespace clovis::eval;

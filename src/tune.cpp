@@ -264,9 +264,9 @@ double find_k()
     return start;
 }
 
-void tune_eval(std::vector<std::string>& args)
+void tune_eval(const std::vector<std::string>& args)
 {
-    if (args.size() != 3)
+    if (args.size() != 4)
     {
         std::cerr << "Error: Please provide the path to an epd file and the number of epochs.\n";
         exit(EXIT_FAILURE);
@@ -350,17 +350,3 @@ void tune_eval(std::vector<std::string>& args)
 }
 
 } // namespace clovis::tune
-
-int main(const int argc, char* argv[])
-{
-    clovis::bitboards::init_bitboards();
-
-    std::vector<std::string> args;
-    args.reserve(argc);
-
-    for (int i = 0; i < argc; ++i) { args.emplace_back(argv[i]); }
-
-    clovis::tune::tune_eval(args);
-
-    return EXIT_SUCCESS;
-}

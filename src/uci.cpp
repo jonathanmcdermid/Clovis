@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "clovis/engine/search.hpp"
+#include "search.hpp"
 
 namespace clovis::uci {
 

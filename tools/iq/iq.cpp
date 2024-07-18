@@ -2,7 +2,7 @@
 #include <sstream>
 #include <vector>
 
-#include "clovis/engine/search.hpp"
+#include "search.hpp"
 
 struct IQPosition
 {

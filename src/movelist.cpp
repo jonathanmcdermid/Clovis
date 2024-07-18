@@ -1,4 +1,4 @@
-#include "clovis/engine/movelist.hpp"
+#include "movelist.hpp"
 
 namespace clovis::move_gen {
 

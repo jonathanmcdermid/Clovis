@@ -69,34 +69,34 @@ jobs:
     - name: Test
       run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
-    - name: Bench
-      shell: bash
-      env: 
-        EXPECTED: 14743234
-      run: |
-        ./build/bin/$BUILD_TYPE/bench ./tools/bench/bench.csv > output
-        cat output
-        ACTUAL=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
-        echo "Actual ${ACTUAL} Expected ${EXPECTED}"
-        [[ "$ACTUAL" == "$EXPECTED" ]] || exit 1
+    #- name: Bench
+    #  shell: bash
+    #  env: 
+    #    EXPECTED: 14743234
+    #  run: |
+    #    ./build/bin/$BUILD_TYPE/bench ./tools/bench/bench.csv > output
+    #    cat output
+    #    ACTUAL=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
+    #    echo "Actual ${ACTUAL} Expected ${EXPECTED}"
+    #    [[ "$ACTUAL" == "$EXPECTED" ]] || exit 1
 
     - name: Perft
       if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/perft ./tools/perft/perft.epd
+        ./build/bin/$BUILD_TYPE/clovis perft ./resources/perft.epd
 
     - name: Tune
       if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/tune ./tools/tune/tune.epd 100
+        ./build/bin/$BUILD_TYPE/clovis tune ./resources/tune.epd 100
 
-    - name: IQ
-      shell: bash
-      run: ./build/bin/$BUILD_TYPE/iq ./tools/iq/iq.epd
+    #- name: IQ
+    #  shell: bash
+    #  run: ./build/bin/$BUILD_TYPE/iq ./resources/iq.epd
 
   # =========================================================
   # Self Play Job

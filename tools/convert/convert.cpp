@@ -2,9 +2,9 @@
 #include <sstream>
 #include <vector>
 
-#include "clovis/engine/evaluate.hpp"
-#include "clovis/engine/movepicker.hpp"
-#include "clovis/engine/search.hpp"
+#include "evaluate.hpp"
+#include "movepicker.hpp"
+#include "search.hpp"
 
 int main(const int argc, char* argv[])
 {

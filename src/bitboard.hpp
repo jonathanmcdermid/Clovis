@@ -2,7 +2,7 @@
 
 #include <bit>
 
-#include "clovis/engine/common.hpp"
+#include "common.hpp"
 
 namespace clovis::bitboards {
 

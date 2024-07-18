@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "clovis/engine/position.hpp"
+#include "position.hpp"
 
 using namespace clovis;
 
@@ -183,7 +183,23 @@ TEST_F(PositionTest, SEE_TEST)
     }
 }
 
-// template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
-// template <Colour US> [[nodiscard]] bool is_discovery_threat(Square sq) const;
-// template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
-//  void print_position() const;
+// TEST_F(PositionTest, PINNER_TEST)
+// {
+//     Position pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+// 
+//     ASSERT_EQ(pos.get_pinner<WHITE>(A1), A1);
+// }
+// 
+// TEST_F(PositionTest, DISCOVERY_TEST)
+// {
+//     Position pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+// 
+//     ASSERT_TRUE(pos.is_discovery_threat<WHITE>(A1));
+// }
+// 
+// TEST_F(PositionTest, ATTACKED_TEST)
+// {
+//     Position pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+// 
+//     ASSERT_TRUE(pos.is_attacked<WHITE>(A1));
+// }

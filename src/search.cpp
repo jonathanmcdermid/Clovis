@@ -1,10 +1,10 @@
-#include "clovis/engine/search.hpp"
+#include "search.hpp"
 
 #include <chrono>
 #include <climits>
 #include <iomanip>
 
-#include "clovis/engine/evaluate.hpp"
+#include "evaluate.hpp"
 
 namespace clovis::search {
 

@@ -6,7 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "clovis/engine/movelist.hpp"
+#include "movelist.hpp"
+
+namespace clovis::perft {
 
 struct PerftPosition
 {
@@ -14,7 +16,7 @@ struct PerftPosition
     std::vector<uint64_t> nodes;
 };
 
-void perft(clovis::Position& pos, const size_t depth, uint64_t& nodes)
+void helper(clovis::Position& pos, const size_t depth, uint64_t& nodes)
 {
     if (depth == 0)
     {
@@ -25,22 +27,21 @@ void perft(clovis::Position& pos, const size_t depth, uint64_t& nodes)
     for (const auto& m : clovis::move_gen::MoveList(pos))
     {
         if (!pos.do_move(m)) { continue; }
-        perft(pos, depth - 1, nodes);
+        helper(pos, depth - 1, nodes);
         pos.undo_move(m);
     }
 }
 
-int main(const int argc, char* argv[])
+void perft(const std::vector<std::string>& args)
 {
-    clovis::bitboards::init_bitboards();
-
-    std::vector<std::string> args;
-    args.reserve(argc);
-
-    for (int i = 0; i < argc; ++i) { args.emplace_back(argv[i]); }
+    if (args.size() != 3)
+    {
+        std::cerr << "Error: Please provide the path to an epd.\n";
+        exit(EXIT_FAILURE);
+    }
 
     std::vector<PerftPosition> pp;
-    std::ifstream ifs(args[1]);
+    std::ifstream ifs(args[2]);
     std::string line;
     std::string token;
 
@@ -74,7 +75,7 @@ int main(const int argc, char* argv[])
         for (size_t depth = 1; depth - 1 < nodes.size(); ++depth)
         {
             uint64_t result_nodes = 0;
-            perft(pos, depth, result_nodes);
+            helper(pos, depth, result_nodes);
             failed = (result_nodes != nodes[depth - 1]);
             std::cout << (failed ? " FAIL! " : " PASS! ") << "depth: " << depth << "expected: " << std::setw(10) << nodes[depth - 1]
                       << " result: " << std::setw(10) << result_nodes << " time:" << std::setw(7)
@@ -83,6 +84,6 @@ int main(const int argc, char* argv[])
     }
 
     std::cout << "Done!" << '\n' << (failed ? "Some tests failed." : "All tests passed!") << '\n';
-
-    return EXIT_SUCCESS;
 }
+
+} // namespace clovis::perft
