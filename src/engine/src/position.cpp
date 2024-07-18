@@ -264,6 +264,8 @@ Key Position::make_pawn_key() const
 
 int Position::see(const Move move) const
 {
+    // this function will not work for quiet moves that arent promotions because of how we update attackers bitboard
+    assert(move_capture(move) || move_promotion_type(move));
     std::array<int, 32> gain{};
     int d = 0;
     Square from = move_from_sq(move);
