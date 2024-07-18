@@ -147,7 +147,7 @@ TEST_F(PositionTest, SEE_TEST)
         int val;
     };
 
-    const std::array<SeeData, 20> seeData = {
+    const std::array<SeeData, 25> seeData = {
         {{"4R3/2r3p1/5bk1/1p1r3p/p2PR1P1/P1BK1P2/1P6/8 b - -", "hxg4", 0},
          {"4R3/2r3p1/5bk1/1p1r1p1p/p2PR1P1/P1BK1P2/1P6/8 b - -", "hxg4", 0},
          {"4r1k1/5pp1/nbp4p/1p2p2q/1P2P1b1/1BP2N1P/1B2QPPK/3R4 b - -", "Bxf3", 0},
@@ -155,11 +155,11 @@ TEST_F(PositionTest, SEE_TEST)
          {"7r/5qpk/p1Qp1b1p/3r3n/BB3p2/5p2/P1P2P2/4RK1R w - -", "Re8", 0},
          {"6rr/6pk/p1Qp1b1p/2n5/1B3p2/5p2/P1P2P2/4RK1R w - -", "Re8", -PIECE_VALUE[ROOK]},
          {"7r/5qpk/2Qp1b1p/1N1r3n/BB3p2/5p2/P1P2P2/4RK1R w - -", "Re8", -PIECE_VALUE[ROOK]},
-         // {"6RR/4bP2/8/8/5r2/3K4/5p2/4k3 w - -", "f8=Q", PIECE_VALUE[BISHOP] - PIECE_VALUE[PAWN]},
-         // {"6RR/4bP2/8/8/5r2/3K4/5p2/4k3 w - -", "f8=N", PIECE_VALUE[KNIGHT] - PIECE_VALUE[PAWN]},
-         // {"7R/5P2/8/8/8/3K2r1/5p2/4k3 w - -", "f8=Q", PIECE_VALUE[QUEEN] - PIECE_VALUE[PAWN]},
-         // {"7R/5P2/8/8/8/3K2r1/5p2/4k3 w - -", "f8=B", PIECE_VALUE[BISHOP] - PIECE_VALUE[PAWN]},
-         // {"7R/4bP2/8/8/1q6/3K4/5p2/4k3 w - -", "f8=R", -PIECE_VALUE[PAWN]},
+         {"6RR/4bP2/8/8/5r2/3K4/5p2/4k3 w - -", "f8=Q", PIECE_VALUE[BISHOP] - PIECE_VALUE[PAWN]},
+         {"6RR/4bP2/8/8/5r2/3K4/5p2/4k3 w - -", "f8=N", PIECE_VALUE[KNIGHT] - PIECE_VALUE[PAWN]},
+         {"7R/5P2/8/8/8/3K2r1/5p2/4k3 w - -", "f8=Q", PIECE_VALUE[QUEEN] - PIECE_VALUE[PAWN]},
+         {"7R/5P2/8/8/8/3K2r1/5p2/4k3 w - -", "f8=B", PIECE_VALUE[BISHOP] - PIECE_VALUE[PAWN]},
+         {"7R/4bP2/8/8/1q6/3K4/5p2/4k3 w - -", "f8=R", -PIECE_VALUE[PAWN]},
          {"8/4kp2/2npp3/1Nn5/1p2PQP1/7q/1PP1B3/4KR1r b - -", "Rxf1+", 0},
          {"8/4kp2/2npp3/1Nn5/1p2P1P1/7q/1PP1B3/4KR1r b - -", "Rxf1+", 0},
          {"2r2r1k/6bp/p7/2q2p1Q/3PpP2/1B6/P5PP/2RR3K b - -", "Qxc1", 2 * PIECE_VALUE[ROOK] - PIECE_VALUE[QUEEN]},
@@ -178,9 +178,6 @@ TEST_F(PositionTest, SEE_TEST)
     {
         Position pos(it.fen.c_str());
         Move move = pos.parse(it.move);
-
-        pos.print_position();
-        std::cout << it.move << '\n';
 
         ASSERT_EQ(pos.see(move), it.val);
     }
