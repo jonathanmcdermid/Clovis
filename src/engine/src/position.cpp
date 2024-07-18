@@ -275,7 +275,7 @@ int Position::see(const Move move) const
     Colour stm = side;
 
     if (move_promotion_type(move))
-    { 
+    {
         gain[0] = PIECE_VALUE[pc_table[to]] + PIECE_VALUE[move_promotion_type(move)] - PIECE_VALUE[PAWN];
         stm = ~stm;
         d = 1;
