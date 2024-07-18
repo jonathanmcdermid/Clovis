@@ -108,6 +108,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install Clang
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "17.0"
+
     - name: Install Conan
       id: conan
       uses: turtlebrowser/get-conan@main
