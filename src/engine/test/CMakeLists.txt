@@ -1,5 +1,6 @@
-set(TARGET_NAME "evaluate_test")
-add_executable(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/evaluate_test.cpp)
+set(TARGET_NAME "engine_test")
+file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+add_executable(${TARGET_NAME} ${SOURCES})
 set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "tests")
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 find_package(GTest REQUIRED CONFIG)

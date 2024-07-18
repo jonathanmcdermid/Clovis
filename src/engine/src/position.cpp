@@ -347,7 +347,7 @@ template <bool NM> void Position::new_board_state()
     auto bs_new = std::make_unique<BoardState>();
     bs_new->en_passant = bs->en_passant;
     bs_new->castle = bs->castle;
-    bs_new->hmc = bs->hmc + 1;
+    bs_new->hmc = NM ? bs->hmc : bs->hmc + 1; // TODO: does a null move increase HMC?
     bs_new->fmc = bs->fmc + (side == BLACK);
     bs_new->ply_null = NM ? 0 : bs->ply_null + 1;
     bs_new->key = bs->key ^ zobrist::ZOBRIST_COLOUR;
