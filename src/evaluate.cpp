@@ -100,9 +100,13 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         Square sq = bitboards::pop_lsb(bb);
         score += PIECE_TABLE[make_piece(PT, US)][sq];
         Bitboard attacks = bitboards::get_attacks<PT>(transparent_occ, sq);
-        Square pinner = pos.get_pinner<US>(sq);
 
-        if (pinner != SQ_NONE) { attacks &= bitboards::between_squares(ei.ksq[US], pinner) | pinner; }
+        // if we are a blocker for our own king, we are pinned
+        if (sq & pos.get_blockers<US>())
+        {
+            Square pinner = pos.get_pinner<US>(sq);
+            attacks &= bitboards::between_squares(ei.ksq[US], pinner) | pinner;
+        }
 
         const Bitboard trades = worthy_trades<US, PT>(pos);
         const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
