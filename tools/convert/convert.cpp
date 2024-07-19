@@ -17,7 +17,7 @@ int main(const int argc, char* argv[])
 
     if (argc < 3)
     {
-        std::cerr << "Usage: " << args[0] << " <input_file> <output_file>\n";
+        std::cerr << "Usage: " << args[0] << " <input_file> <output_file> [number_of_positons]\n";
         return EXIT_FAILURE;
     }
 
@@ -41,7 +41,9 @@ int main(const int argc, char* argv[])
     std::string result;
     std::string fen;
 
-    while (!ifs.eof())
+    std::vector<clovis::Key> keys;
+
+    while (!ifs.eof() && (args.size() < 4 || keys.size() < std::stoi(args[3])))
     {
         while (getline(ifs, line))
         {
@@ -77,7 +79,6 @@ int main(const int argc, char* argv[])
         }
 
         bool live = true;
-        std::vector<clovis::Key> keys;
 
         while (true)
         {
@@ -99,10 +100,17 @@ int main(const int argc, char* argv[])
                     // dont take positions if they are too early in the game or if there is a checkmate within 10 moves
                     if (pos.get_full_move_clock() > 8 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
                     {
+                        if (std::find(keys.begin(), keys.end(), pos.get_key()) != keys.end()) { continue; }
+
                         clovis::search::SearchLimits limits;
                         limits.depth = 1;
                         clovis::search::SearchInfo info;
                         clovis::search::start_search(pos, limits, info);
+                        // it would be better to check if the next token is the result (a draw) to determine if this position has no moves
+                        clovis::move_gen::MoveList ml(pos);
+                        ml.remove_illegal(pos);
+
+                        if (ml.size() == 0) { continue; }
 
                         // if there is a checkmate on the principal variation, we ignore this position
                         if (info.score < clovis::MIN_CHECKMATE_SCORE && info.score > -clovis::MIN_CHECKMATE_SCORE)
@@ -115,9 +123,8 @@ int main(const int argc, char* argv[])
                             if (std::find(keys.begin(), keys.end(), pos.get_key()) == keys.end())
                             {
                                 // if the evaluation is completely different from the result of the game, we will ignore this position
-                                if (const int eval =
-                                        pos.get_side() == clovis::WHITE ? clovis::eval::evaluate<false>(pos) : -clovis::eval::evaluate<false>(pos);
-                                    (result == "1-0" && eval > -500) || (result == "0-1" && eval < 500) ||
+                                int eval = pos.get_side() == clovis::WHITE ? clovis::eval::evaluate<false>(pos) : -clovis::eval::evaluate<false>(pos);
+                                if ((result == "1-0" && eval > -500) || (result == "0-1" && eval < 500) ||
                                     (result == "1/2-1/2" && (eval > -500 && eval < 500)))
                                 {
                                     keys.push_back(pos.get_key());

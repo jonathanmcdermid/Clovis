@@ -396,7 +396,11 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
             }
         }
     }
-    else { *info.pv_line.last++ = *ml.begin(); }
+    else
+    {
+        assert(ml.size() != 0);
+        *info.pv_line.last++ = *ml.begin();
+    }
 
     std::cout << "bestmove " << info.pv_line.moves[0] << '\n';
 }
