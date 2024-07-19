@@ -58,7 +58,7 @@ foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
 endforeach()
 
 if(BUILD_TOOLS)
-    add_subdirectory(tools/convert)
+    add_subdirectory(tools/process)
 endif()
 
 if(BUILD_TESTS)
