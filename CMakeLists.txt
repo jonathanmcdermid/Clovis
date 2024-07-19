@@ -57,9 +57,9 @@ foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
 endforeach()
 
-# if(BUILD_TOOLS)
-#     add_subdirectory(tools)
-# endif()
+if(BUILD_TOOLS)
+    add_subdirectory(tools/convert)
+endif()
 
 if(BUILD_TESTS)
     enable_testing()

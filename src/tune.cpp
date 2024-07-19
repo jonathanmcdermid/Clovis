@@ -274,8 +274,14 @@ void tune_eval(const std::vector<std::string>& args)
 
     init_params();
 
-    TVector adaptive_gradient{};
     std::ifstream ifs(args.at(2));
+    if (!ifs.is_open())
+    {
+        std::cerr << "Error opening input file: " << args[2] << '\n';
+        exit(EXIT_FAILURE);
+    }
+
+    TVector adaptive_gradient{};
     std::string line;
 
     while (getline(ifs, line))

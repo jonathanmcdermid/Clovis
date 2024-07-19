@@ -40,8 +40,14 @@ void perft(const std::vector<std::string>& args)
         exit(EXIT_FAILURE);
     }
 
-    std::vector<PerftPosition> pp;
     std::ifstream ifs(args[2]);
+    if (!ifs.is_open())
+    {
+        std::cerr << "Error opening input file: " << args[2] << '\n';
+        exit(EXIT_FAILURE);
+    }
+
+    std::vector<PerftPosition> pp;
     std::string line;
     std::string token;
 

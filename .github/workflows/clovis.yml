@@ -69,10 +69,6 @@ jobs:
     - name: Test
       run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
-    - name: Bench
-      shell: bash
-      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14535568 resources/bench.csv
-
     - name: Perft
       if: env.BUILD_TYPE == 'Release'
       shell: bash
@@ -80,16 +76,24 @@ jobs:
         set -e # Exit immediately if a command exits with a non-zero status
         ./build/bin/$BUILD_TYPE/clovis perft ./resources/perft.epd
 
-    - name: Tune
+    - name: Benchmark
+      shell: bash
+      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14535568 resources/bench.csv
+
+    - name: Process Data
       if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/clovis tune ./resources/tune.epd 100
+        ./build/bin/$BUILD_TYPE/convert resources/games.pgn resources/processed.epd
+      #run: python tools/process.py build/bin/$BUILD_TYPE/clovis resources/games.pgn resources/processed.epd
 
-    #- name: IQ
-    #  shell: bash
-    #  run: ./build/bin/$BUILD_TYPE/iq ./resources/iq.epd
+    - name: Tune Evaluation
+      if: env.BUILD_TYPE == 'Release'
+      shell: bash
+      run: | 
+        set -e # Exit immediately if a command exits with a non-zero status
+        ./build/bin/$BUILD_TYPE/clovis tune ./resources/processed.epd 100
 
   # =========================================================
   # Self Play Job

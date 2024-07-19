@@ -15,8 +15,28 @@ int main(const int argc, char* argv[])
 
     for (int i = 0; i < argc; ++i) { args.emplace_back(argv[i]); }
 
+    if (argc < 3)
+    {
+        std::cerr << "Usage: " << args[0] << " <input_file> <output_file>\n";
+        return EXIT_FAILURE;
+    }
+
+    clovis::bitboards::init_bitboards();
+
     std::ifstream ifs(args[1]);
+    if (!ifs.is_open())
+    {
+        std::cerr << "Error opening input file: " << args[1] << '\n';
+        return EXIT_FAILURE;
+    }
+
     std::ofstream ofs(args[2]);
+    if (!ofs.is_open())
+    {
+        std::cerr << "Error opening output file: " << args[2] << '\n';
+        return EXIT_FAILURE;
+    }
+
     std::string line;
     std::string result;
     std::string fen;
@@ -76,6 +96,7 @@ int main(const int argc, char* argv[])
                 {
                     if (!pos.do_move(pos.parse(token))) { exit(EXIT_FAILURE); }
 
+                    // dont take positions if they are too early in the game or if there is a checkmate within 10 moves
                     if (pos.get_full_move_clock() > 8 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
                     {
                         clovis::search::SearchLimits limits;
@@ -83,6 +104,7 @@ int main(const int argc, char* argv[])
                         clovis::search::SearchInfo info;
                         clovis::search::start_search(pos, limits, info);
 
+                        // if there is a checkmate on the principal variation, we ignore this position
                         if (info.score < clovis::MIN_CHECKMATE_SCORE && info.score > -clovis::MIN_CHECKMATE_SCORE)
                         {
                             for (const auto& it : info.pv_line)
@@ -92,6 +114,7 @@ int main(const int argc, char* argv[])
 
                             if (std::find(keys.begin(), keys.end(), pos.get_key()) == keys.end())
                             {
+                                // if the evaluation is completely different from the result of the game, we will ignore this position
                                 if (const int eval =
                                         pos.get_side() == clovis::WHITE ? clovis::eval::evaluate<false>(pos) : -clovis::eval::evaluate<false>(pos);
                                     (result == "1-0" && eval > -500) || (result == "0-1" && eval < 500) ||
@@ -111,9 +134,6 @@ int main(const int argc, char* argv[])
             if (!live || !getline(ifs, line)) { break; }
         }
     }
-
-    ifs.close();
-    ofs.close();
 
     return EXIT_SUCCESS;
 }
