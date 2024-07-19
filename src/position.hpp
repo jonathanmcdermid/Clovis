@@ -37,6 +37,8 @@ struct Position
     [[nodiscard]] Piece get_pc(Square sq) const { return pc_table[sq]; }
     [[nodiscard]] Bitboard get_pc_bb(Piece pc) const { return pc_bb[pc]; }
     [[nodiscard]] Bitboard get_occ_bb(Colour col) const { return occ_bb[col]; }
+    [[nodiscard]] Bitboard blockers_for_king(Colour col) const { return bs->blockers[col]; }
+    [[nodiscard]] Bitboard pinners(Colour col) const { return bs->pinners[col]; }
     [[nodiscard]] Key get_key() const { return bs->key; }
     [[nodiscard]] Key get_pawn_key() const { return bs->pawn_key; }
     [[nodiscard]] Square get_en_passant() const { return bs->en_passant; }
@@ -81,7 +83,9 @@ struct Position
         Piece captured_piece{NO_PIECE};
         Square en_passant{SQ_NONE};
         Key key{0ULL}, pawn_key{0ULL};
-        std::array<Bitboard, 2> pinners{0ULL}, blockers{0ULL};
+        std::array<Bitboard, 2> pinners{0ULL};
+        // blockers are pieces of either colour that are the sole piece between a king and an attacking sliding piece
+        std::array<Bitboard, 2> blockers{0ULL};
         std::unique_ptr<BoardState> prev;
     };
 

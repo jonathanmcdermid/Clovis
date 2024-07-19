@@ -82,17 +82,17 @@ TEST_F(EvaluateTest, PASSED_PAWN_TEST)
 
 TEST_F(EvaluateTest, CANDIDATE_PASSER_TEST)
 {
-    // 8 . . . . . . . .
+    // 8 k . . . . . . .
     // 7 p . . . . . . .
     // 6 . . . . . . . .
     // 5 P P . . . p p p
     // 4 . . . . . . . .
     // 3 . . . . . P . P
     // 2 . . . . . . . .
-    // 1 . . . . . . . .
+    // 1 K . . . . . . .
     //   a b c d e f g h
 
-    Position pos("8/p7/8/PP3ppp/8/5P1P/8/8 w - - 0 1");
+    Position pos("k7/p7/8/PP3ppp/8/5P1P/8/K7 w - - 0 1");
 
     ASSERT_FALSE(is_candidate_passer<WHITE>(pos, A5));
     ASSERT_FALSE(is_candidate_passer<WHITE>(pos, F3));
@@ -109,17 +109,17 @@ TEST_F(EvaluateTest, CANDIDATE_PASSER_TEST)
 
 TEST_F(EvaluateTest, OUTPOST_TEST_DISABLED)
 {
-    // 8 . . . . . . . .
+    // 8 k . . . . . . .
     // 7 . . . . p . . .
     // 6 . . . . . . . .
     // 5 . p . p . P p .
     // 4 . N . N . b P .
     // 3 . . P . . P . .
     // 2 . . . . . . . .
-    // 1 . . . . . . . .
+    // 1 K . . . . . . .
     //   a b c d e f g h
 
-    // Position pos("8/4p3/8/1p1p1Pp1/1N1N1bP1/2P2P2/8/8 w - - 0 1");
+    // Position pos("k7/4p3/8/1p1p1Pp1/1N1N1bP1/2P2P2/8/K7 w - - 0 1");
     // ASSERT_FALSE(is_outpost<WHITE>(D4, ei));
     //
     // ASSERT_TRUE(is_outpost<WHITE>(B4, ei));
@@ -128,17 +128,17 @@ TEST_F(EvaluateTest, OUTPOST_TEST_DISABLED)
 
 TEST_F(EvaluateTest, IS_FIANCHETTO_TEST)
 {
-    // 8 . . . . . . . .
+    // 8 k . . . . . . .
     // 7 . b . . . . b .
     // 6 . . . . . . p .
     // 5 . . . . . . . .
     // 4 . p . P . . . .
     // 3 . P . . . . P .
     // 2 . B . . . . B .
-    // 1 . . . . . . . .
+    // 1 K . . . . . . .
     //   a b c d e f g h
 
-    Position pos("8/1b4b1/6p1/8/1p1P4/1P4P1/1B4B1/8 w - - 0 1");
+    Position pos("k7/1b4b1/6p1/8/1p1P4/1P4P1/1B4B1/K7 w - - 0 1");
 
     ASSERT_FALSE(is_fianchetto<WHITE>(pos, B2));
 
@@ -151,17 +151,17 @@ TEST_F(EvaluateTest, IS_FIANCHETTO_TEST)
 
 TEST_F(EvaluateTest, OPEN_FILE_TEST)
 {
-    // 8 . . . . . . . .
+    // 8 . . . . . . . k
     // 7 . P . . . . p .
     // 6 . . . . . . P .
     // 5 p . . p . . P .
     // 4 . p . . . . . .
     // 3 . . . . P . . .
     // 2 P . . . . . . .
-    // 1 . . . . . . . .
+    // 1 K . . . . . . .
     //   a b c d e f g h
 
-    Position pos("8/1P4p1/6P1/p2p2P1/1p6/4P3/P7/8 w - - 0 1");
+    Position pos("7k/1P4p1/6P1/p2p2P1/1p6/4P3/P7/K7 w - - 0 1");
 
     Bitboard pawns = pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN);
 

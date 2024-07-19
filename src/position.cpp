@@ -77,15 +77,16 @@ constexpr Key ZOBRIST_COLOUR = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 // returns the square that pins a piece if it exists
 template <Colour US> Square Position::get_pinner(const Square sq) const
 {
-    if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq)
+    if (bs->blockers[US] & sq)
     {
-        Bitboard candidates =
-            ((bitboards::get_attacks<ROOK>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
-             (bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
+        const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
+        Bitboard pinners = bs->pinners[~US];
 
-        while (candidates)
+        while (pinners)
         {
-            if (const Square candidate = bitboards::pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq) { return candidate; }
+            const Square pinner_sq = bitboards::pop_lsb(pinners);
+
+            if (bitboards::between_squares(ksq, pinner_sq) & sq) { return pinner_sq; }
         }
     }
 
@@ -124,7 +125,7 @@ template <Colour US> bool Position::is_discovery_threat(const Square sq) const
 template bool Position::is_discovery_threat<WHITE>(Square sq) const;
 template bool Position::is_discovery_threat<BLACK>(Square sq) const;
 
-template<Colour US> void Position::update_pinners_blockers() const
+template <Colour US> void Position::update_pinners_blockers() const
 {
     const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
 
@@ -138,7 +139,7 @@ template<Colour US> void Position::update_pinners_blockers() const
     while (candidates)
     {
         const Square sq = bitboards::pop_lsb(candidates);
-        const Bitboard bb = bitboards::BETWEEN_BITBOARD[ksq][sq] & occupancy;
+        const Bitboard bb = bitboards::between_squares(ksq, sq) & occupancy;
 
         if (bb && !bitboards::multiple_bits(bb))
         {
@@ -249,6 +250,8 @@ void Position::set(const char* fen)
     bs->key = make_key();
     bs->pawn_key = make_pawn_key();
     bs->ply_null = 0;
+    update_pinners_blockers<WHITE>();
+    update_pinners_blockers<BLACK>();
 }
 
 void Position::reset()
@@ -416,7 +419,6 @@ void Position::do_null_move()
     side = ~side;
     update_pinners_blockers<WHITE>();
     update_pinners_blockers<BLACK>();
-
 }
 
 // reverts a null move and rolls back the position
