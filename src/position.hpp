@@ -56,6 +56,7 @@ struct Position
     void remove_piece(Square sq);
 
     template <bool NM> void new_board_state();
+    template <Colour US> void update_pinners_blockers() const;
 
     // State Queries
     [[nodiscard]] bool is_repeat() const;
@@ -80,6 +81,7 @@ struct Position
         Piece captured_piece{NO_PIECE};
         Square en_passant{SQ_NONE};
         Key key{0ULL}, pawn_key{0ULL};
+        std::array<Bitboard, 2> pinners{0ULL}, blockers{0ULL};
         std::unique_ptr<BoardState> prev;
     };
 

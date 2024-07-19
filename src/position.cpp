@@ -124,6 +124,34 @@ template <Colour US> bool Position::is_discovery_threat(const Square sq) const
 template bool Position::is_discovery_threat<WHITE>(Square sq) const;
 template bool Position::is_discovery_threat<BLACK>(Square sq) const;
 
+template<Colour US> void Position::update_pinners_blockers() const
+{
+    const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
+
+    bs->blockers[US] = 0ULL;
+    bs->pinners[~US] = 0ULL;
+
+    Bitboard candidates = (bitboards::get_attacks<ROOK>(ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
+                          (bitboards::get_attacks<BISHOP>(ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)]));
+    const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
+
+    while (candidates)
+    {
+        const Square sq = bitboards::pop_lsb(candidates);
+        const Bitboard bb = bitboards::BETWEEN_BITBOARD[ksq][sq] & occupancy;
+
+        if (bb && !bitboards::multiple_bits(bb))
+        {
+            bs->blockers[US] |= bb;
+            if (bb & occ_bb[US]) { bs->pinners[~US] |= sq; }
+        }
+    }
+}
+
+// explicit template instantiations
+template void Position::update_pinners_blockers<WHITE>() const;
+template void Position::update_pinners_blockers<BLACK>() const;
+
 std::string Position::get_fen() const
 {
     std::stringstream fen;
@@ -386,6 +414,9 @@ void Position::do_null_move()
 {
     new_board_state<true>();
     side = ~side;
+    update_pinners_blockers<WHITE>();
+    update_pinners_blockers<BLACK>();
+
 }
 
 // reverts a null move and rolls back the position
@@ -489,6 +520,10 @@ bool Position::do_move(const Move move)
     const bool valid = !is_king_in_check();
     side = ~side;
     if (!valid) { undo_move(move); }
+
+    update_pinners_blockers<WHITE>();
+    update_pinners_blockers<BLACK>();
+
     return valid;
 }
 
