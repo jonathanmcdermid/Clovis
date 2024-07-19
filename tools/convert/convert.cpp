@@ -37,13 +37,13 @@ int main(const int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    std::size_t number_of_positions = argc == 4 ? static_cast<std::size_t>(std::stoi(argv[3])) : std ::numeric_limits<std::size_t>::max();
     std::string line;
     std::string result;
     std::string fen;
-
     std::vector<clovis::Key> keys;
 
-    while (!ifs.eof() && (args.size() < 4 || keys.size() < std::stoi(args[3])))
+    while (keys.size() < number_of_positions && !ifs.eof())
     {
         while (getline(ifs, line))
         {
