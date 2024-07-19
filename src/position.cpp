@@ -85,7 +85,8 @@ template <Colour US> Square Position::get_pinner(const Square sq) const
 
         while (candidates)
         {
-            if (const Square candidate = bitboards::pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq) { return candidate; }
+            const Square candidate = bitboards::pop_lsb(candidates);
+            if (bitboards::between_squares(ksq, candidate) & sq) { return candidate; }
         }
     }
 
@@ -105,6 +106,17 @@ template <Colour US> bool Position::is_discovery_threat(const Square sq) const
                                     ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
     if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
+
+    Bitboard their_pawns = pc_bb[make_piece(PAWN, ~US)];
+    while (their_pawns)
+    {
+        Square temp = bitboards::pop_lsb(their_pawns);
+        if ((temp & ~their_immobile_pawns))
+        {
+            Square pinner = get_pinner<~US>(temp);
+            if (pinner != SQ_NONE && (bitboards::PAWN_ATTACKS[~US][temp] & pinner) == 0ULL) { their_immobile_pawns |= temp; }
+        }
+    }
 
     Bitboard candidates =
         ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
