@@ -90,7 +90,7 @@ struct Position
         int hmc{0};        // Half-move clock for fifty-move rule
         int fmc{0};        // Full-move counter
         int ply_null{0};   // Ply counter for null moves
-        int game_phase{0}; // Game phase (e.g., opening, middle, endgame)
+        int game_phase{0}; // Game phase based on the major pieces remaining
 
         // 8-bit types
         Piece captured_piece{NO_PIECE}; // Last captured piece

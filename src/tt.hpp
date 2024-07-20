@@ -16,11 +16,11 @@ struct TTEntry
     {
     }
 
-    uint8_t depth{0}; // 1 bytes
-    uint8_t flags{0}; // 1 bytes
-    int16_t eval{0};  // 2 bytes
-    Move move{0};     // 4 bytes
-    Key key{0ULL};    // 8 bytes
+    Key key{0ULL};    // 64-bits
+    Move move{0};     // 32-bits
+    int16_t eval{0};  // 16-bits
+    uint8_t depth{0}; // 8-bits
+    uint8_t flags{0}; // 8-bits
 };
 
 struct TTBucket
