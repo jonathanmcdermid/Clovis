@@ -238,31 +238,6 @@ constexpr auto ROOK_BIT_COUNT = [] {
     return arr;
 }();
 
-constexpr auto DIRECTION_BETWEEN = [] {
-    std::array<std::array<Direction, SQ_N>, SQ_N> arr{};
-
-    for (Square from = SQ_ZERO; from < SQ_N; ++from)
-    {
-        for (Square to = SQ_ZERO; to < SQ_N; ++to)
-        {
-            int file_diff = file_of(to) - file_of(from);
-            int rank_diff = rank_of(to) - rank_of(from);
-
-            if (file_diff > 0 && rank_diff > 0) { arr[from][to] = NORTH_EAST; }
-            else if (file_diff > 0 && rank_diff < 0) { arr[from][to] = SOUTH_EAST; }
-            else if (file_diff < 0 && rank_diff > 0) { arr[from][to] = NORTH_WEST; }
-            else if (file_diff < 0 && rank_diff < 0) { arr[from][to] = SOUTH_WEST; }
-            else if (file_diff > 0) { arr[from][to] = EAST; }
-            else if (file_diff < 0) { arr[from][to] = WEST; }
-            else if (rank_diff > 0) { arr[from][to] = NORTH; }
-            else if (rank_diff < 0) { arr[from][to] = SOUTH; }
-            else { arr[from][to] = NO_DIR; }
-        }
-    }
-
-    return arr;
-}();
-
 constexpr auto BETWEEN_BITBOARD = [] {
     std::array<std::array<Bitboard, SQ_N>, SQ_N> arr{};
 
@@ -289,8 +264,6 @@ extern std::array<std::array<Bitboard, ROOK_ATTACK_INDICES>, SQ_N> rook_attacks;
 
 void print_bitboard(const Bitboard& bb);
 void init_bitboards();
-
-constexpr Direction direction(const Square from, const Square to) { return DIRECTION_BETWEEN[from][to]; }
 
 constexpr Bitboard between_squares(const Square sq1, const Square sq2) { return BETWEEN_BITBOARD[sq1][sq2]; }
 
