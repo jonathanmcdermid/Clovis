@@ -139,7 +139,7 @@ enum Direction : int
     NORTH_WEST = NORTH + WEST
 };
 
-enum Square : char
+enum Square : int
 {
     // clang-format off
     A1, B1, C1, D1, E1, F1, G1, H1,
