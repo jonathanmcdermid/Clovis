@@ -274,6 +274,8 @@ int Position::see(const Move move) const
 {
     // this function will not work for quiet moves that arent promotions because of how we update attackers bitboard
     assert(move_capture(move) || move_promotion_type(move));
+    // don't even bother with special moves
+    if (move_en_passant(move) || move_promotion_type(move)) { return 0; }
     std::array<int, 32> gain{};
     int d = 0;
     Square from = move_from_sq(move);
@@ -282,30 +284,7 @@ int Position::see(const Move move) const
     Bitboard attackers = attackers_to(to);
     Colour stm = side;
 
-    if (move_promotion_type(move))
-    {
-        gain[0] = PIECE_VALUE[pc_table[to]] + PIECE_VALUE[move_promotion_type(move)] - PIECE_VALUE[PAWN];
-        stm = ~stm;
-        d = 1;
-        gain[1] = PIECE_VALUE[move_promotion_type(move)] - gain[0];
-        attackers &= ~from; // no ^= as this may be a quiet move
-        occ ^= from;
-        attackers |= consider_xray(occ, to, move_capture(move) ? BISHOP : ROOK);
-        from = get_smallest_attacker(attackers, stm);
-    }
-    else if (move_en_passant(move))
-    {
-        gain[0] = PIECE_VALUE[PAWN];
-        stm = ~stm;
-        d = 1;
-        gain[1] = 0;
-        attackers ^= from;
-        occ ^= from;
-        occ ^= to - pawn_push(side);
-        attackers |= consider_xray(occ, to, QUEEN);
-        from = get_smallest_attacker(attackers, stm);
-    }
-    else { gain[0] = PIECE_VALUE[pc_table[to]]; }
+    gain[0] = PIECE_VALUE[pc_table[to]];
 
     while (from != SQ_NONE)
     {
