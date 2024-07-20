@@ -90,17 +90,17 @@ struct Position
         int hmc{0};                     // Half-move clock for fifty-move rule
         int fmc{0};                     // Full-move counter
         int ply_null{0};                // Ply counter for null moves
-        int game_phase{0};              // Game phase (e.g., opening, middle, endgame)
+        int game_phase{0};              // Game phase based on major pieces
         Piece captured_piece{NO_PIECE}; // Last captured piece
         Square en_passant{SQ_NONE};     // En passant target square
     };
 
     // Member Variables
-    Colour side{WHITE};
-    std::array<Piece, SQ_N> pc_table{};
-    std::array<Bitboard, 15> pc_bb{};
-    std::array<Bitboard, 3> occ_bb{};
-    std::unique_ptr<BoardState> bs;
+    std::array<Bitboard, 15> pc_bb{};   // 120 bytes
+    std::array<Bitboard, 3> occ_bb{};   // 24 bytes
+    std::array<Piece, SQ_N> pc_table{}; // 256 bytes
+    std::unique_ptr<BoardState> bs;     // 8 bytes
+    Colour side{WHITE};                 // 4 bytes
 };
 
 // updates a bitboard of attackers after a piece has moved to include possible x ray attackers
