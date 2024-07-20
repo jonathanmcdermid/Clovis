@@ -103,8 +103,17 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
 
         if (pos.get_blockers<US>() & sq)
         {
-            Square pinner = pos.get_pinner<US>(sq);
-            attacks &= bitboards::between_squares(ei.ksq[US], pinner) | pinner;
+            Bitboard pinners = pos.get_pinners<~US>();
+
+            while (pinners)
+            {
+                const Square pinner_sq = bitboards::pop_lsb(pinners);
+
+                if (bitboards::between_squares(ei.ksq[US], pinner_sq) & sq) { 
+                    attacks &= bitboards::between_squares(ei.ksq[US], pinner_sq) | pinner_sq;
+                    break;
+                }
+            }
         }
 
         const Bitboard trades = worthy_trades<US, PT>(pos);
