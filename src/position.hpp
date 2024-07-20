@@ -76,16 +76,23 @@ struct Position
     // Nested BoardState Struct
     struct BoardState
     {
-        constexpr BoardState() = default;
+        BoardState() = default;
 
-        int castle{0}, hmc{0}, fmc{0}, ply_null{0}, game_phase{0};
-        Piece captured_piece{NO_PIECE};
-        Square en_passant{SQ_NONE};
-        Key key{0ULL}, pawn_key{0ULL};
-        std::array<Bitboard, 2> pinners{0ULL};
-        // blockers are pieces of either colour that are the sole piece between a king and an attacking sliding piece
-        std::array<Bitboard, 2> blockers{0ULL};
-        std::unique_ptr<BoardState> prev;
+        // 64-bit types
+        Key key{0ULL};                                // Zobrist hash key for board state
+        Key pawn_key{0ULL};                           // Zobrist hash key for pawn structure
+        std::array<Bitboard, 2> pinners{0ULL, 0ULL};  // Pinners bitboards
+        std::array<Bitboard, 2> blockers{0ULL, 0ULL}; // Blockers bitboards
+        std::unique_ptr<BoardState> prev;             // Pointer to previous board state for undo
+
+        // 32-bit types
+        int castle{0};                  // Castling rights
+        int hmc{0};                     // Half-move clock for fifty-move rule
+        int fmc{0};                     // Full-move counter
+        int ply_null{0};                // Ply counter for null moves
+        int game_phase{0};              // Game phase (e.g., opening, middle, endgame)
+        Piece captured_piece{NO_PIECE}; // Last captured piece
+        Square en_passant{SQ_NONE};     // En passant target square
     };
 
     // Member Variables
