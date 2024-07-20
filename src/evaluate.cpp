@@ -109,7 +109,8 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
             {
                 const Square pinner_sq = bitboards::pop_lsb(pinners);
 
-                if (bitboards::between_squares(ei.ksq[US], pinner_sq) & sq) { 
+                if (bitboards::between_squares(ei.ksq[US], pinner_sq) & sq)
+                {
                     attacks &= bitboards::between_squares(ei.ksq[US], pinner_sq) | pinner_sq;
                     break;
                 }
