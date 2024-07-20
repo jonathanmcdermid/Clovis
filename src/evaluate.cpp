@@ -42,7 +42,7 @@ template <Colour US> bool is_outpost(const Square sq, const EvalInfo& ei)
 template <Colour US> bool is_fianchetto(const Position& pos, const Square sq)
 {
     return FIANCHETTO_BISHOP_MASK[US] & sq && // TODO: pos.get_pc(sq + pawn_push(US)) == make_piece(PAWN, US) &&
-           CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.combine_piece_type_bitboards<PAWN>(), sq);
+           CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.piece_types<PAWN>(), sq);
 }
 
 template <Colour US> bool is_tall_pawn(const Position& pos, const Square sq)
@@ -79,8 +79,8 @@ template <Colour US, PieceType PT> Bitboard worthy_trades(const Position& pos)
 {
     static_assert(PT >= KNIGHT && PT <= QUEEN);
 
-    return PT == QUEEN  ? pos.combine_piece_bitboards<make_piece(KING, ~US), make_piece(QUEEN, ~US)>()
-           : PT == ROOK ? pos.combine_piece_bitboards<make_piece(KING, ~US), make_piece(QUEEN, ~US), make_piece(ROOK, ~US)>()
+    return PT == QUEEN  ? pos.pieces<make_piece(KING, ~US), make_piece(QUEEN, ~US)>()
+           : PT == ROOK ? pos.pieces<make_piece(KING, ~US), make_piece(QUEEN, ~US), make_piece(ROOK, ~US)>()
                         : pos.get_occ_bb(~US) ^ pos.get_pc_bb(make_piece(PAWN, ~US));
 }
 
@@ -91,8 +91,8 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
     Bitboard bb = pos.get_pc_bb(make_piece(PT, US));
 
     const Bitboard transparent_occ =
-        PT == BISHOP ? pos.get_occ_bb(BOTH) ^ pos.combine_piece_bitboards<W_QUEEN, B_QUEEN, make_piece(ROOK, ~US)>() ^ ei.ksq[~US]
-        : PT == ROOK ? pos.get_occ_bb(BOTH) ^ pos.combine_piece_bitboards<W_QUEEN, B_QUEEN, make_piece(ROOK, US)>() ^ ei.ksq[~US]
+        PT == BISHOP ? pos.get_occ_bb(BOTH) ^ pos.pieces<W_QUEEN, B_QUEEN, make_piece(ROOK, ~US)>() ^ ei.ksq[~US]
+        : PT == ROOK ? pos.get_occ_bb(BOTH) ^ pos.pieces<W_QUEEN, B_QUEEN, make_piece(ROOK, US)>() ^ ei.ksq[~US]
                      : pos.get_occ_bb(BOTH);
 
     while (bb)
