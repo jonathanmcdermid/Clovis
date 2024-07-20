@@ -109,8 +109,8 @@ template <Colour US> void Position::update_pinners_blockers() const
     bs->blockers[US] = 0ULL;
     bs->pinners[~US] = 0ULL;
 
-    Bitboard candidates = (bitboards::get_attacks<ROOK>(ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
-                          (bitboards::get_attacks<BISHOP>(ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)]));
+    Bitboard candidates = (bitboards::get_attacks<ROOK>(ksq) & (combine_piece_bitboards<make_piece(QUEEN, ~US), make_piece(ROOK, ~US)>())) |
+                          (bitboards::get_attacks<BISHOP>(ksq) & (combine_piece_bitboards<make_piece(QUEEN, ~US), make_piece(BISHOP, ~US)>()));
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
     while (candidates)

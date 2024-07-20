@@ -44,6 +44,8 @@ struct Position
     [[nodiscard]] int get_full_move_clock() const { return bs->fmc; }
     [[nodiscard]] int get_castle_rights() const { return bs->castle; }
     [[nodiscard]] int get_game_phase() const { return bs->game_phase; }
+    template <Piece... pieces> [[nodiscard]] Bitboard combine_piece_bitboards() const;
+    template <PieceType... piece_types> [[nodiscard]] Bitboard combine_piece_type_bitboards() const;
 
     // Utility Functions
     void print_position() const;
@@ -106,19 +108,25 @@ struct Position
 // updates a bitboard of attackers after a piece has moved to include possible x ray attackers
 inline Bitboard Position::consider_xray(const Bitboard occ, const Square to, const PieceType pt) const
 {
-    return (pt == PAWN || pt == BISHOP)
-               ? occ & (bitboards::get_attacks<BISHOP>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]))
-           : pt == ROOK  ? occ & (bitboards::get_attacks<ROOK>(occ, to) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK]))
-           : pt == QUEEN ? consider_xray(occ, to, BISHOP) | consider_xray(occ, to, ROOK)
-                         : 0ULL;
+    return (pt == PAWN || pt == BISHOP) ? occ & (bitboards::get_attacks<BISHOP>(occ, to) & combine_piece_type_bitboards<QUEEN, BISHOP>())
+           : pt == ROOK                 ? occ & (bitboards::get_attacks<ROOK>(occ, to) & combine_piece_type_bitboards<QUEEN, ROOK>())
+           : pt == QUEEN                ? consider_xray(occ, to, BISHOP) | consider_xray(occ, to, ROOK)
+                                        : 0ULL;
 }
 
 inline Bitboard Position::attackers_to(const Square sq) const
 {
     return (bitboards::PAWN_ATTACKS[BLACK][sq] & pc_bb[W_PAWN]) | (bitboards::PAWN_ATTACKS[WHITE][sq] & pc_bb[B_PAWN]) |
-           (bitboards::KNIGHT_ATTACKS[sq] & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT])) | (bitboards::KING_ATTACKS[sq] & (pc_bb[W_KING] | pc_bb[B_KING])) |
-           (bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_ROOK] | pc_bb[B_ROOK])) |
-           (bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & (pc_bb[W_QUEEN] | pc_bb[B_QUEEN] | pc_bb[W_BISHOP] | pc_bb[B_BISHOP]));
+           (bitboards::KNIGHT_ATTACKS[sq] & (pc_bb[W_KNIGHT] | pc_bb[B_KNIGHT])) | (bitboards::KING_ATTACKS[sq] & combine_piece_type_bitboards<KING>()) |
+           (bitboards::get_attacks<ROOK>(occ_bb[BOTH], sq) & combine_piece_type_bitboards<QUEEN, ROOK>()) |
+           (bitboards::get_attacks<BISHOP>(occ_bb[BOTH], sq) & combine_piece_type_bitboards<QUEEN, BISHOP>());
+}
+
+template <Piece... pieces> Bitboard Position::combine_piece_bitboards() const { return (pc_bb[pieces] | ... | 0ULL); }
+
+template <PieceType... piece_types> Bitboard Position::combine_piece_type_bitboards() const
+{
+    return ((pc_bb[make_piece(piece_types, WHITE)] | pc_bb[make_piece(piece_types, BLACK)]) | ... | 0ULL);
 }
 
 // returns whether a square is attacked by opposing side
@@ -133,8 +141,8 @@ template <Colour US> bool Position::is_attacked(const Square sq) const
 
 template <Colour US> bool Position::is_insufficient() const
 {
-    return std::popcount(pc_bb[make_piece(PAWN, US)]) == 0 && std::popcount(pc_bb[make_piece(ROOK, US)]) == 0 &&
-           std::popcount(pc_bb[make_piece(QUEEN, US)]) == 0 && std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3 &&
+    return std::popcount(combine_piece_bitboards<make_piece(PAWN, US), make_piece(ROOK, US), make_piece(QUEEN, US)>()) == 0 &&
+           std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 3 &&
            std::popcount(pc_bb[make_piece(BISHOP, US)]) + std::popcount(pc_bb[make_piece(KNIGHT, US)]) < 2;
 }
 
@@ -143,10 +151,7 @@ inline bool Position::is_king_in_check() const
     return side == WHITE ? is_attacked<WHITE>(bitboards::lsb(pc_bb[W_KING])) : is_attacked<BLACK>(bitboards::lsb(pc_bb[B_KING]));
 }
 
-inline bool Position::is_stm_major() const
-{
-    return pc_bb[make_piece(KNIGHT, side)] | pc_bb[make_piece(BISHOP, side)] | pc_bb[make_piece(ROOK, side)] | pc_bb[make_piece(QUEEN, side)];
-}
+inline bool Position::is_stm_major() const { return (combine_piece_type_bitboards<KNIGHT, BISHOP, ROOK, QUEEN>() & occ_bb[side]) != 0ULL; }
 
 inline bool Position::is_draw_50() const { return bs->hmc >= 100; }
 
