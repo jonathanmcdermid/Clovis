@@ -162,9 +162,7 @@ jobs:
           -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
           -concurrency 32 \
           -resultformat "results - %s wins, %s draws, %s losses" > results.log
-        
-        cat results.log
-      
+              
         los_line=$(grep "LOS:" results.log)
         echo "LOS line: $los_line"
         
