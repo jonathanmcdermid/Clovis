@@ -28,7 +28,6 @@ struct Position
     [[nodiscard]] bool is_draw() const;
     [[nodiscard]] int see(Move move) const;
 
-    template <Colour US> [[nodiscard]] Square get_pinner(Square sq) const;
     template <Colour US> [[nodiscard]] bool is_discovery_threat(Square sq) const;
     template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
 

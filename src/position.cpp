@@ -74,29 +74,6 @@ constexpr Key ZOBRIST_COLOUR = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 
 } // namespace zobrist
 
-// returns the square that pins a piece if it exists
-template <Colour US> Square Position::get_pinner(const Square sq) const
-{
-    if (bs->blockers[US] & sq)
-    {
-        const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
-        Bitboard pinners = bs->pinners[~US];
-
-        while (pinners)
-        {
-            const Square pinner_sq = bitboards::pop_lsb(pinners);
-
-            if (bitboards::between_squares(ksq, pinner_sq) & sq) { return pinner_sq; }
-        }
-    }
-
-    return SQ_NONE;
-}
-
-// explicit template instantiations
-template Square Position::get_pinner<WHITE>(Square sq) const;
-template Square Position::get_pinner<BLACK>(Square sq) const;
-
 // returns if a square is in danger of a discovery attack by a rook or bishop
 template <Colour US> bool Position::is_discovery_threat(const Square sq) const
 {
@@ -129,8 +106,8 @@ template <Colour US> void Position::update_pinners_blockers() const
 {
     const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
 
-    bs->blockers[US] = 0ULL;
     bs->pinners[~US] = 0ULL;
+    bs->blockers[US] = 0ULL;
 
     Bitboard candidates = (bitboards::get_attacks<ROOK>(ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
                           (bitboards::get_attacks<BISHOP>(ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)]));
