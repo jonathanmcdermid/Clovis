@@ -37,8 +37,8 @@ struct Position
     [[nodiscard]] Piece get_pc(Square sq) const { return pc_table[sq]; }
     [[nodiscard]] Bitboard get_pc_bb(Piece pc) const { return pc_bb[pc]; }
     [[nodiscard]] Bitboard get_occ_bb(Colour col) const { return occ_bb[col]; }
-    [[nodiscard]] Bitboard blockers_for_king(Colour col) const { return bs->blockers[col]; }
-    [[nodiscard]] Bitboard pinners(Colour col) const { return bs->pinners[col]; }
+    template <Colour US> [[nodiscard]] Bitboard get_blockers() const { return bs->blockers[US]; }
+    template <Colour US> [[nodiscard]] Bitboard get_pinners() const { return bs->pinners[US]; }
     [[nodiscard]] Key get_key() const { return bs->key; }
     [[nodiscard]] Key get_pawn_key() const { return bs->pawn_key; }
     [[nodiscard]] Square get_en_passant() const { return bs->en_passant; }

@@ -638,11 +638,11 @@ Move Position::parse(std::string move) const
         {
             if (side == WHITE)
             {
-                while (get_pinner<WHITE>(from) != SQ_NONE) { from = bitboards::pop_lsb(bb); }
+                while (get_blockers<WHITE>() & from) { from = bitboards::pop_lsb(bb); }
             }
             else
             {
-                while (get_pinner<BLACK>(from) != SQ_NONE) { from = bitboards::pop_lsb(bb); }
+                while (get_blockers<BLACK>() & from) { from = bitboards::pop_lsb(bb); }
             }
         }
     }

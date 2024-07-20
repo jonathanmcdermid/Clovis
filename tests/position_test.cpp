@@ -183,14 +183,6 @@ TEST_F(PositionTest, SEE_TEST)
     }
 }
 
-TEST_F(PositionTest, PINNER_TEST)
-{
-    Position pos("4k3/8/8/4q3/8/8/4N3/4K3 w - - 0 1");
-    ASSERT_EQ(pos.get_pinner<WHITE>(E2), E5);
-    pos.set("4k3/8/8/4q3/8/4b3/4N3/4K3 w - - 0 1");
-    ASSERT_EQ(pos.get_pinner<WHITE>(E2), SQ_NONE);
-}
-
 TEST_F(PositionTest, DISCOVERY_TEST)
 {
     Position pos("4k3/6q1/8/8/8/2P5/1B6/4K3 w - - 0 1");
