@@ -12,7 +12,7 @@ struct TTEntry
 {
     constexpr TTEntry() = default;
     TTEntry(const Key k, const int d, const HashFlag f, const int e, const Move m)
-        : key(k), move(m), eval(static_cast<int16_t>(e)), depth(static_cast<uint8_t>(d)), flags(static_cast<uint8_t>(f))
+        : depth(static_cast<uint8_t>(d)), flags(static_cast<uint8_t>(f)), eval(static_cast<int16_t>(e)), move(m), key(k)
     {
     }
 
