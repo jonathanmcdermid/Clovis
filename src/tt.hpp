@@ -12,15 +12,15 @@ struct TTEntry
 {
     constexpr TTEntry() = default;
     TTEntry(const Key k, const int d, const HashFlag f, const int e, const Move m)
-        : depth(static_cast<uint8_t>(d)), flags(static_cast<uint8_t>(f)), eval(static_cast<int16_t>(e)), move(m), key(k)
+        : key(k), move(m), eval(static_cast<int16_t>(e)), depth(static_cast<uint8_t>(d)), flags(static_cast<uint8_t>(f))
     {
     }
 
-    uint8_t depth{0}; // 1 bytes
-    uint8_t flags{0}; // 1 bytes
-    int16_t eval{0};  // 2 bytes
-    Move move{0};     // 4 bytes
     Key key{0ULL};    // 8 bytes
+    Move move{0};     // 4 bytes
+    int16_t eval{0};  // 2 bytes
+    uint8_t depth{0}; // 1 byte
+    uint8_t flags{0}; // 1 byte
 };
 
 struct TTBucket
@@ -35,13 +35,13 @@ struct PTEntry
 {
     constexpr PTEntry() = default;
 
-    std::array<short, 2> weight{0};
-    Score score;
-    std::array<Square, 2> ksq{SQ_NONE};
-    Key key{0ULL};
-    std::array<Bitboard, 2> pawn_attacks{0ULL};
-    std::array<Bitboard, 2> passers{0ULL};
-    std::array<Bitboard, 2> potential_pawn_attacks{0ULL};
+    Key key{0ULL};                                        // 8 bytes
+    std::array<Bitboard, 2> pawn_attacks{0ULL};           // 16 bytes (2 x 8 bytes)
+    std::array<Bitboard, 2> passers{0ULL};                // 16 bytes (2 x 8 bytes)
+    std::array<Bitboard, 2> potential_pawn_attacks{0ULL}; // 16 bytes (2 x 8 bytes)
+    std::array<Square, 2> ksq{SQ_NONE};                   // 8 bytes (2 x 4 bytes)
+    std::array<short, 2> weight{0};                       // 4 bytes (2 x 2 bytes)
+    Score score;                                          // 4 bytes
 };
 
 class TranspositionTable
