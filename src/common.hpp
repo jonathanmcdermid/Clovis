@@ -43,20 +43,20 @@ MOVE BIT FORMATTING
 1000 0000 0000 0000 0000 0000   castling flag
 */
 
-enum Move : int
+enum Move : uint32_t
 {
     MOVE_NONE,
     MOVE_NULL = 65
 };
 
-enum Colour : int
+enum Colour : uint8_t
 {
     WHITE,
     BLACK,
     BOTH
 };
 
-enum PieceType : int
+enum PieceType : uint8_t
 {
     PIECE_TYPE_NONE,
     PAWN,
@@ -68,7 +68,7 @@ enum PieceType : int
     PIECE_TYPE_N = KING
 };
 
-enum Piece
+enum Piece : uint8_t
 {
     NO_PIECE,
     W_PAWN = PAWN,
@@ -126,7 +126,7 @@ enum NodeType : int
     NODE_NULL
 };
 
-enum Direction : int
+enum Direction : int8_t
 {
     NO_DIR,
     NORTH = 8,
@@ -139,7 +139,7 @@ enum Direction : int
     NORTH_WEST = NORTH + WEST
 };
 
-enum Square : char
+enum Square : uint8_t
 {
     // clang-format off
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -158,7 +158,6 @@ enum Square : char
 
 enum File : int
 {
-    FILE_NONE = -1,
     FILE_A,
     FILE_B,
     FILE_C,
@@ -167,12 +166,12 @@ enum File : int
     FILE_F,
     FILE_G,
     FILE_H,
-    FILE_N
+    FILE_N,
+    FILE_NONE = FILE_N
 };
 
 enum Rank : int
 {
-    RANK_NONE = -1,
     RANK_1,
     RANK_2,
     RANK_3,
@@ -181,7 +180,8 @@ enum Rank : int
     RANK_6,
     RANK_7,
     RANK_8,
-    RANK_N
+    RANK_N,
+    RANK_NONE = RANK_N
 };
 
 enum TraceIndex : int
