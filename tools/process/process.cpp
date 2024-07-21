@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "evaluate.hpp"
-#include "movepicker.hpp"
+#include "move_selector.hpp"
 #include "search.hpp"
 
 int main(const int argc, char* argv[])

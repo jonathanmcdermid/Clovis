@@ -70,7 +70,7 @@ int64_t allocated_time;
 // reset transposition table, set search to standard conditions
 void clear()
 {
-    move_pick::clear();
+    move_selector::clear();
     tt.clear();
 }
 
@@ -108,7 +108,7 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
         if (eval > alpha) { alpha = eval; }
     }
 
-    move_pick::MovePicker mp(pos, 0, MOVE_NONE, (tte.key == pos.get_key()) ? tte.move : MOVE_NONE);
+    move_selector::MoveSelector mp(pos, 0, MOVE_NONE, (tte.key == pos.get_key()) ? tte.move : MOVE_NONE);
     Move best_move = MOVE_NONE;
     int best_eval = INT_MIN;
 
@@ -237,7 +237,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
     }
     else { ++depth; }
 
-    move_pick::MovePicker mp(pos, ply, prev_move, tte.key == pos.get_key() ? tte.move : MOVE_NONE);
+    move_selector::MoveSelector mp(pos, ply, prev_move, tte.key == pos.get_key() ? tte.move : MOVE_NONE);
     Move best_move = MOVE_NONE;
     int best_score = INT_MIN;
     int moves_searched = 0;
@@ -259,13 +259,13 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             if (moves_searched > 1 && depth > LMR_DEPTH && move_capture(curr_move) == NO_PIECE && move_promotion_type(curr_move) == NO_PIECE)
             {
                 const int lmr_history_value =
-                    std::clamp(move_pick::get_history_entry(~pos.get_side(), curr_move) / LMR_HISTORY_DIVISOR, -LMR_HISTORY_MIN, LMR_HISTORY_MAX);
+                    std::clamp(move_selector::get_history_entry(~pos.get_side(), curr_move) / LMR_HISTORY_DIVISOR, -LMR_HISTORY_MIN, LMR_HISTORY_MAX);
                 // reduction factor
                 int R = LMR_TABLE[depth][std::min(moves_searched, 63)];
                 // reduce for pv nodes
                 R -= PV_NODE;
                 // reduce for killers
-                R -= move_pick::is_killer(curr_move, ply);
+                R -= move_selector::is_killer(curr_move, ply);
                 // reduce based on history heuristic and lmr reduction
                 R = std::clamp(R - lmr_history_value, 0, depth - LMR_REDUCTION);
                 // search current move with reduced depth:
@@ -295,8 +295,8 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             if (move_capture(curr_move) == NO_PIECE)
             {
                 mp.update_history<HashFlag::BETA>(curr_move, depth);
-                move_pick::update_killers(curr_move, ply);
-                move_pick::update_counter_entry(pos.get_side(), prev_move, curr_move);
+                move_selector::update_killers(curr_move, ply);
+                move_selector::update_counter_entry(pos.get_side(), prev_move, curr_move);
             }
             tt.new_entry(pos.get_key(), depth, beta, HashFlag::BETA, curr_move);
             return beta;
@@ -349,8 +349,8 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
         int beta = CHECKMATE_SCORE;
         int alpha = -beta;
 
-        move_pick::reset_killers();
-        move_pick::age_history();
+        move_selector::reset_killers();
+        move_selector::age_history();
 
         info.nodes = 0;
 

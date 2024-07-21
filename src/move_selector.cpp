@@ -1,13 +1,13 @@
-#include "movepicker.hpp"
+#include "move_selector.hpp"
 
-namespace clovis::move_pick {
+namespace clovis::move_selector {
 
 std::array<int, COLOUR_FROM_TO_SIZE> history_table;
 std::array<Move, COLOUR_FROM_TO_SIZE> counter_table;
 std::array<KEntry, MAX_PLY> killer_table;
 
 // return the next ordered move
-Move MovePicker::get_next(const bool play_quiets)
+Move MoveSelector::get_next(const bool play_quiets)
 {
     switch (stage)
     {
@@ -73,7 +73,7 @@ Move MovePicker::get_next(const bool play_quiets)
     return MOVE_NONE;
 }
 
-void MovePicker::score_captures()
+void MoveSelector::score_captures()
 {
     for (auto& sm : std::ranges::subrange(moves.data(), last))
     {
@@ -82,7 +82,7 @@ void MovePicker::score_captures()
     }
 }
 
-void MovePicker::score_quiets()
+void MoveSelector::score_quiets()
 {
     const auto counter = get_counter_entry(pos.get_side(), prev_move);
 
@@ -95,4 +95,4 @@ void MovePicker::score_quiets()
     }
 }
 
-} // namespace clovis::move_pick
+} // namespace clovis::move_selector

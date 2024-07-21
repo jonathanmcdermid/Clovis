@@ -6,7 +6,7 @@
 #include "movelist.hpp"
 #include "tt.hpp"
 
-namespace clovis::move_pick {
+namespace clovis::move_selector {
 
 constexpr size_t COLOUR_FROM_TO_SIZE = 2 * SQ_N * SQ_N;
 
@@ -92,10 +92,10 @@ inline void update_counter_entry(const Colour c, const Move prev, const Move cur
 
 inline bool is_killer(const Move m, const int ply) { return m == killer_table[ply].primary || m == killer_table[ply].secondary; }
 
-class MovePicker
+class MoveSelector
 {
   public:
-    MovePicker(const Position& p, const int pl, const Move pm, const Move ttm)
+    MoveSelector(const Position& p, const int pl, const Move pm, const Move ttm)
         : pos(p), ply(pl), curr(moves.data()), last(moves.data()), last_bad_cap(moves.data()), prev_move(pm), tt_move(ttm)
     {
     }
@@ -117,7 +117,7 @@ class MovePicker
     Move tt_move;
 };
 
-template <HashFlag HF> void MovePicker::update_history(const Move best_move, const int depth) const
+template <HashFlag HF> void MoveSelector::update_history(const Move best_move, const int depth) const
 {
     assert(!move_capture(best_move) || move_promotion_type(best_move));
     update_history_entry(best_move, pos.get_side(), HISTORY_BONUS[depth]);
@@ -129,4 +129,4 @@ template <HashFlag HF> void MovePicker::update_history(const Move best_move, con
     }
 }
 
-} // namespace clovis::move_pick
+} // namespace clovis::move_selector
