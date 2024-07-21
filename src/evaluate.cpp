@@ -90,10 +90,9 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
 
     Bitboard bb = pos.get_pc_bb(make_piece(PT, US));
 
-    const Bitboard transparent_occ =
-        PT == BISHOP ? pos.get_occ_bb(BOTH) ^ pos.pieces<W_QUEEN, B_QUEEN, make_piece(ROOK, ~US)>() ^ ei.ksq[~US]
-        : PT == ROOK ? pos.get_occ_bb(BOTH) ^ pos.pieces<W_QUEEN, B_QUEEN, make_piece(ROOK, US)>() ^ ei.ksq[~US]
-                     : pos.get_occ_bb(BOTH);
+    const Bitboard transparent_occ = PT == BISHOP ? pos.get_occ_bb(BOTH) ^ pos.pieces<W_QUEEN, B_QUEEN, make_piece(ROOK, ~US)>() ^ ei.ksq[~US]
+                                     : PT == ROOK ? pos.get_occ_bb(BOTH) ^ pos.pieces<W_QUEEN, B_QUEEN, make_piece(ROOK, US)>() ^ ei.ksq[~US]
+                                                  : pos.get_occ_bb(BOTH);
 
     while (bb)
     {
