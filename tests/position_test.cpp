@@ -21,7 +21,7 @@ TEST_F(PositionTest, BOARD_STATE_TEST)
     ASSERT_FALSE(pos.is_draw());
     ASSERT_EQ(pos.get_side(), WHITE);
     ASSERT_EQ(pos.get_pc(A1), ROOK);
-    ASSERT_EQ(pos.get_pc_bb(W_KING), sq_bb(E1));
+    ASSERT_EQ(pos.pieces<W_KING>(), sq_bb(E1));
     ASSERT_EQ(pos.get_occ_bb(WHITE), A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | A2 | B2 | C2 | D2 | E2 | F2 | G2 | H2);
     ASSERT_EQ(pos.get_en_passant(), SQ_NONE);
     ASSERT_EQ(pos.get_full_move_clock(), 1);
@@ -44,7 +44,7 @@ TEST_F(PositionTest, SET_TEST)
     ASSERT_FALSE(pos.is_draw());
     ASSERT_EQ(pos.get_side(), BLACK);
     ASSERT_EQ(pos.get_pc(E8), B_ROOK);
-    ASSERT_EQ(pos.get_pc_bb(B_KING), sq_bb(D8));
+    ASSERT_EQ(pos.pieces<B_KING>(), sq_bb(D8));
     ASSERT_EQ(pos.get_occ_bb(WHITE), A1 | E1 | E2 | F2 | G2 | H2 | G3 | F4 | C4 | B5 | A6 | F7);
     ASSERT_EQ(pos.get_en_passant(), SQ_NONE);
     ASSERT_EQ(pos.get_full_move_clock(), 5);
@@ -69,7 +69,7 @@ TEST_F(PositionTest, VALID_MOVE_TEST)
     ASSERT_FALSE(pos.is_draw());
     ASSERT_EQ(pos.get_side(), BLACK);
     ASSERT_EQ(pos.get_pc(E2), NO_PIECE);
-    ASSERT_EQ(pos.get_pc_bb(W_PAWN), A2 | B2 | C2 | D2 | F2 | G2 | H2 | E4);
+    ASSERT_EQ(pos.pieces<W_PAWN>(), A2 | B2 | C2 | D2 | F2 | G2 | H2 | E4);
     ASSERT_EQ(pos.get_occ_bb(WHITE), A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | A2 | B2 | C2 | D2 | F2 | G2 | H2 | E4);
     ASSERT_EQ(pos.get_en_passant(), E3);
     ASSERT_EQ(pos.get_full_move_clock(), 1);
@@ -86,7 +86,7 @@ TEST_F(PositionTest, VALID_MOVE_TEST)
     ASSERT_FALSE(pos.is_draw());
     ASSERT_EQ(pos.get_side(), WHITE);
     ASSERT_EQ(pos.get_pc(A1), ROOK);
-    ASSERT_EQ(pos.get_pc_bb(W_KING), sq_bb(E1));
+    ASSERT_EQ(pos.pieces<W_KING>(), sq_bb(E1));
     ASSERT_EQ(pos.get_occ_bb(WHITE), A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | A2 | B2 | C2 | D2 | E2 | F2 | G2 | H2);
     ASSERT_EQ(pos.get_en_passant(), SQ_NONE);
     ASSERT_EQ(pos.get_full_move_clock(), 1);
@@ -111,7 +111,7 @@ TEST_F(PositionTest, NULL_MOVE_TEST)
     ASSERT_FALSE(pos.is_draw());
     ASSERT_EQ(pos.get_side(), BLACK);
     ASSERT_EQ(pos.get_pc(A1), ROOK);
-    ASSERT_EQ(pos.get_pc_bb(W_KING), sq_bb(E1));
+    ASSERT_EQ(pos.pieces<W_KING>(), sq_bb(E1));
     ASSERT_EQ(pos.get_occ_bb(WHITE), A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | A2 | B2 | C2 | D2 | E2 | F2 | G2 | H2);
     ASSERT_EQ(pos.get_en_passant(), SQ_NONE);
     ASSERT_EQ(pos.get_full_move_clock(), 1);
@@ -128,7 +128,7 @@ TEST_F(PositionTest, NULL_MOVE_TEST)
     ASSERT_FALSE(pos.is_draw());
     ASSERT_EQ(pos.get_side(), WHITE);
     ASSERT_EQ(pos.get_pc(A1), ROOK);
-    ASSERT_EQ(pos.get_pc_bb(W_KING), sq_bb(E1));
+    ASSERT_EQ(pos.pieces<W_KING>(), sq_bb(E1));
     ASSERT_EQ(pos.get_occ_bb(WHITE), A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 | A2 | B2 | C2 | D2 | E2 | F2 | G2 | H2);
     ASSERT_EQ(pos.get_en_passant(), SQ_NONE);
     ASSERT_EQ(pos.get_full_move_clock(), 1);

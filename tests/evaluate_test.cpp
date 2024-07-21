@@ -163,7 +163,7 @@ TEST_F(EvaluateTest, OPEN_FILE_TEST)
 
     Position pos("7k/1P4p1/6P1/p2p2P1/1p6/4P3/P7/K7 w - - 0 1");
 
-    Bitboard pawns = pos.get_pc_bb(W_PAWN) | pos.get_pc_bb(B_PAWN);
+    Bitboard pawns = pos.piece_types<PAWN>();
 
     ASSERT_FALSE(is_open_file(pawns, FILE_A));
     ASSERT_FALSE(is_open_file(pawns, FILE_B));

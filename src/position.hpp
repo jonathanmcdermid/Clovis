@@ -38,7 +38,6 @@ struct Position
     // Member Accessors
     [[nodiscard]] Colour get_side() const { return side; }
     [[nodiscard]] Piece get_pc(Square sq) const { return pc_table[sq]; }
-    [[nodiscard]] Bitboard get_pc_bb(Piece pc) const { return pc_bb[pc]; }
     [[nodiscard]] Bitboard get_occ_bb(Colour col) const { return occ_bb[col]; }
     template <Colour US> [[nodiscard]] Bitboard get_blockers() const { return bs->blockers[US]; }
     template <Colour US> [[nodiscard]] Bitboard get_pinners() const { return bs->pinners[US]; }

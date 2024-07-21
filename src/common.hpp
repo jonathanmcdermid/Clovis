@@ -152,6 +152,9 @@ enum GamePhase
     EG
 };
 
+// =========================================================
+// Evaluation Structs
+// =========================================================
 struct Score
 {
     constexpr Score() = default;
@@ -188,107 +191,25 @@ struct ScoredMove
     int score{0};
 };
 
-constexpr Score operator-(const Score s) { return {static_cast<short>(-s.mg), static_cast<short>(-s.eg)}; }
-constexpr Score operator+(const Score s1, const Score s2) { return {static_cast<short>(s1.mg + s2.mg), static_cast<short>(s1.eg + s2.eg)}; }
-constexpr Score operator+(const Score s, const short i) { return {static_cast<short>(s.mg + i), static_cast<short>(s.eg + i)}; }
-constexpr Score operator-(const Score s1, const Score s2) { return {static_cast<short>(s1.mg - s2.mg), static_cast<short>(s1.eg - s2.eg)}; }
-constexpr Score operator-(const Score s, const short i) { return {static_cast<short>(s.mg - i), static_cast<short>(s.eg - i)}; }
-constexpr Score operator*(const Score s, const short i) { return {static_cast<short>(s.mg * i), static_cast<short>(s.eg * i)}; }
-constexpr Score operator*(const Score s1, const Score s2) { return {static_cast<short>(s1.mg * s2.mg), static_cast<short>(s1.eg * s2.eg)}; }
-constexpr Score operator/(const Score s, const short i) { return {static_cast<short>(s.mg / i), static_cast<short>(s.eg / i)}; }
-constexpr Score operator/(const Score s1, const Score s2) { return {static_cast<short>(s1.mg / s2.mg), static_cast<short>(s1.eg / s2.eg)}; }
-constexpr Score operator<<(const Score s, const short i) { return {static_cast<short>(s.mg << i), static_cast<short>(s.eg << i)}; }
+// =========================================================
+// Board Functions
+// =========================================================
 constexpr Square operator+(const Square sq, const Direction dir) { return static_cast<Square>(static_cast<int>(sq) + static_cast<int>(dir)); }
 constexpr Square operator-(const Square sq, const Direction dir) { return static_cast<Square>(static_cast<int>(sq) - static_cast<int>(dir)); }
 constexpr Square& operator+=(Square& sq, const Direction dir) { return sq = sq + dir; }
 constexpr Square& operator-=(Square& sq, const Direction dir) { return sq = sq - dir; }
 
-constexpr Bitboard sq_bb(const Square sq)
-{
-    assert(sq < 64);
-    return 1ULL << sq;
-}
-
-constexpr Bitboard operator|(const Square sq1, const Square sq2) { return sq_bb(sq1) | sq_bb(sq2); }
-constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sq_bb(sq); }
-constexpr Bitboard operator|(const Bitboard bb, const Square sq) { return bb | sq_bb(sq); }
-constexpr Bitboard operator^(const Bitboard bb, const Square sq) { return bb ^ sq_bb(sq); }
-constexpr Bitboard& operator|=(Bitboard& bb, const Square sq) { return bb |= sq_bb(sq); }
-constexpr Bitboard& operator^=(Bitboard& bb, const Square sq) { return bb ^= sq_bb(sq); }
-
-constexpr CastleRights ks_castle_rights(const Colour c) { return static_cast<CastleRights>(1 << (c << 1)); }
-
-constexpr CastleRights qs_castle_rights(const Colour c) { return static_cast<CastleRights>(1 << ((c << 1) | 1)); }
-
-constexpr CastleRights castle_rights(const Colour c) { return static_cast<CastleRights>(3 << (c << 1)); }
-
-constexpr Move encode_move(const Square from, const Square to, const Piece piece, const Piece promo, const bool cap, const bool dub, const bool ep,
-                           const bool cast)
-{
-    return static_cast<Move>(from | (to << 6) | (piece << 12) | (promo << 16) | (cap << 20) | (dub << 21) | (ep << 22) | (cast << 23));
-}
-
-constexpr Square move_from_sq(const Move m) { return static_cast<Square>(m & 0x3f); }
-
-constexpr Square move_to_sq(const Move m) { return static_cast<Square>((m & 0xfc0) >> 6); }
-
-constexpr Piece move_piece_type(const Move m) { return static_cast<Piece>((m & 0xf000) >> 12); }
-
-constexpr Piece move_promotion_type(const Move m) { return static_cast<Piece>((m & 0xf0000) >> 16); }
-
-constexpr bool move_capture(const Move m) { return m & 0x100000; }
-
-constexpr bool move_double(const Move m) { return m & 0x200000; }
-
-constexpr bool move_en_passant(const Move m) { return m & 0x400000; }
-
-constexpr bool move_castling(const Move m) { return m & 0x800000; }
-
 constexpr Direction pawn_push(const Colour c) { return static_cast<Direction>((8 ^ (c * 0xffffffff)) + c); }
-
 constexpr File file_of(const Square sq) { return static_cast<File>(sq & 7); }
-
 constexpr Rank rank_of(const Square sq) { return static_cast<Rank>(sq >> 3); }
-
 constexpr Rank relative_rank(const Colour c, const Rank r) { return static_cast<Rank>(r ^ (c * 7)); }
-
 constexpr Square relative_square(const Colour c, const Square sq) { return static_cast<Square>(sq ^ (c * 56)); }
-
 constexpr Square make_square(const int f, const int r) { return static_cast<Square>((r << 3) | f); }
-
 constexpr Square make_square(const File f, const Rank r) { return static_cast<Square>((r << 3) | f); }
-
 constexpr Square flip_square(const Square sq) { return static_cast<Square>(sq ^ 56); }
-
 constexpr bool is_valid(const Square sq) { return !(sq & 0xffffffc0); }
-
-constexpr Colour piece_colour(const Piece pc) { return static_cast<Colour>(pc >> 3); }
-
-constexpr Piece make_piece(const PieceType pt, const Colour c) { return static_cast<Piece>((c << 3) | pt); }
-
-constexpr PieceType piece_type(const Piece pc) { return static_cast<PieceType>(pc & 7); }
-
-constexpr Colour operator~(const Colour c) { return static_cast<Colour>(c ^ 1); }
-
 constexpr int distance_between(const Square s1, const Square s2) { return std::max(abs(file_of(s2) - file_of(s1)), abs(rank_of(s2) - rank_of(s1))); }
 
-constexpr bool king_side_castle(const Square to) { return file_of(to) == FILE_G; }
-
-constexpr void get_castle_rook_squares(const Square king_tar, Square& rf, Square& rt)
-{
-    if (king_side_castle(king_tar))
-    {
-        rf = king_tar + EAST;
-        rt = king_tar + WEST;
-    }
-    else
-    {
-        rf = king_tar + WEST + WEST;
-        rt = king_tar + EAST;
-    }
-}
-
-// returns whether or not a direction can be moved to from a given square
 constexpr bool valid_dir(const Square sq, const Direction dir)
 {
     return dir == NORTH   ? rank_of(sq) != RANK_8
@@ -317,13 +238,90 @@ constexpr std::array<std::array<char, 3>, SQ_N + 1> SQ_NAMES = {
 
 inline std::string sq2str(const Square sq) { return SQ_NAMES[sq].data(); }
 
-// convert move to std::string
+// =========================================================
+// Piece Functions
+// =========================================================
+constexpr CastleRights ks_castle_rights(const Colour c) { return static_cast<CastleRights>(1 << (c << 1)); }
+constexpr CastleRights qs_castle_rights(const Colour c) { return static_cast<CastleRights>(1 << ((c << 1) | 1)); }
+constexpr CastleRights castle_rights(const Colour c) { return static_cast<CastleRights>(3 << (c << 1)); }
+
+constexpr Colour piece_colour(const Piece pc) { return static_cast<Colour>(pc >> 3); }
+constexpr Piece make_piece(const PieceType pt, const Colour c) { return static_cast<Piece>((c << 3) | pt); }
+constexpr PieceType piece_type(const Piece pc) { return static_cast<PieceType>(pc & 7); }
+constexpr Colour operator~(const Colour c) { return static_cast<Colour>(c ^ 1); }
+constexpr bool king_side_castle(const Square to) { return file_of(to) == FILE_G; }
+
+constexpr void get_castle_rook_squares(const Square king_tar, Square& rf, Square& rt)
+{
+    if (king_side_castle(king_tar))
+    {
+        rf = king_tar + EAST;
+        rt = king_tar + WEST;
+    }
+    else
+    {
+        rf = king_tar + WEST + WEST;
+        rt = king_tar + EAST;
+    }
+}
+
+// =========================================================
+// Move Functions
+// =========================================================
+constexpr Square move_from_sq(const Move m) { return static_cast<Square>(m & 0x3f); }
+constexpr Square move_to_sq(const Move m) { return static_cast<Square>((m & 0xfc0) >> 6); }
+constexpr Piece move_piece_type(const Move m) { return static_cast<Piece>((m & 0xf000) >> 12); }
+constexpr Piece move_promotion_type(const Move m) { return static_cast<Piece>((m & 0xf0000) >> 16); }
+constexpr bool move_capture(const Move m) { return m & 0x100000; }
+constexpr bool move_double(const Move m) { return m & 0x200000; }
+constexpr bool move_en_passant(const Move m) { return m & 0x400000; }
+constexpr bool move_castling(const Move m) { return m & 0x800000; }
+
+constexpr Move encode_move(const Square from, const Square to, const Piece pc, const Piece pro, const bool cap, const bool dp, const bool ep,
+                           const bool cast)
+{
+    return static_cast<Move>(from | (to << 6) | (pc << 12) | (pro << 16) | (cap << 20) | (dp << 21) | (ep << 22) | (cast << 23));
+}
+
 inline std::string move2str(const Move m)
 {
     return (move_promotion_type(m)) ? sq2str(move_from_sq(m)) + sq2str(move_to_sq(m)) + " pnbrqk  pnbrqk"[move_promotion_type(m)]
                                     : sq2str(move_from_sq(m)) + sq2str(move_to_sq(m));
 }
 
+// =========================================================
+// Score Functions
+// =========================================================
+constexpr Score operator-(const Score s) { return {static_cast<short>(-s.mg), static_cast<short>(-s.eg)}; }
+constexpr Score operator+(const Score s1, const Score s2) { return {static_cast<short>(s1.mg + s2.mg), static_cast<short>(s1.eg + s2.eg)}; }
+constexpr Score operator+(const Score s, const short i) { return {static_cast<short>(s.mg + i), static_cast<short>(s.eg + i)}; }
+constexpr Score operator-(const Score s1, const Score s2) { return {static_cast<short>(s1.mg - s2.mg), static_cast<short>(s1.eg - s2.eg)}; }
+constexpr Score operator-(const Score s, const short i) { return {static_cast<short>(s.mg - i), static_cast<short>(s.eg - i)}; }
+constexpr Score operator*(const Score s, const short i) { return {static_cast<short>(s.mg * i), static_cast<short>(s.eg * i)}; }
+constexpr Score operator*(const Score s1, const Score s2) { return {static_cast<short>(s1.mg * s2.mg), static_cast<short>(s1.eg * s2.eg)}; }
+constexpr Score operator/(const Score s, const short i) { return {static_cast<short>(s.mg / i), static_cast<short>(s.eg / i)}; }
+constexpr Score operator/(const Score s1, const Score s2) { return {static_cast<short>(s1.mg / s2.mg), static_cast<short>(s1.eg / s2.eg)}; }
+constexpr Score operator<<(const Score s, const short i) { return {static_cast<short>(s.mg << i), static_cast<short>(s.eg << i)}; }
+
+// =========================================================
+// Bitboard Functions
+// =========================================================
+constexpr Bitboard sq_bb(const Square sq)
+{
+    assert(sq < 64);
+    return 1ULL << sq;
+}
+
+constexpr Bitboard operator|(const Square sq1, const Square sq2) { return sq_bb(sq1) | sq_bb(sq2); }
+constexpr Bitboard operator&(const Bitboard bb, const Square sq) { return bb & sq_bb(sq); }
+constexpr Bitboard operator|(const Bitboard bb, const Square sq) { return bb | sq_bb(sq); }
+constexpr Bitboard operator^(const Bitboard bb, const Square sq) { return bb ^ sq_bb(sq); }
+constexpr Bitboard& operator|=(Bitboard& bb, const Square sq) { return bb |= sq_bb(sq); }
+constexpr Bitboard& operator^=(Bitboard& bb, const Square sq) { return bb ^= sq_bb(sq); }
+
+// =========================================================
+// Print Functions
+// =========================================================
 inline std::ostream& operator<<(std::ostream& os, const Square& sq)
 {
     os << sq2str(sq);
@@ -343,6 +341,9 @@ inline std::ostream& operator<<(std::ostream& os, const Move& m)
     return os;
 }
 
+// =========================================================
+// Enum Operators
+// =========================================================
 template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator+(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) + d2); }
 template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator-(T d1, int d2) { return static_cast<T>(static_cast<int>(d1) - d2); }
 template <typename T> constexpr std::enable_if_t<std::is_enum_v<T>, T> operator-(T d) { return static_cast<T>(-static_cast<int>(d)); }

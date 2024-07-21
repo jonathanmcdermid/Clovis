@@ -4,7 +4,7 @@ namespace clovis::move_gen {
 
 template <typename T, MoveType M, PieceType PT, Colour US> T* generate_majors(const Position& pos, T* moves)
 {
-    Bitboard bb = pos.get_pc_bb(make_piece(PT, US));
+    Bitboard bb = pos.pieces<make_piece(PT, US)>();
     Bitboard tar_bb = M == MoveType::ALL ? ~pos.get_occ_bb(US) : M == MoveType::QUIET ? ~pos.get_occ_bb(BOTH) : pos.get_occ_bb(~US);
 
     while (bb)
@@ -42,7 +42,7 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
     constexpr bool CAPTURES = M != MoveType::QUIET;
     constexpr bool QUIETS = M != MoveType::CAPTURE;
 
-    Bitboard bb = pos.get_pc_bb(make_piece(PAWN, US));
+    Bitboard bb = pos.pieces<make_piece(PAWN, US)>();
 
     while (bb)
     {

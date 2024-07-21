@@ -25,10 +25,10 @@ struct TTEntry
     {
     }
 
-    Key key{0ULL};                       // 8 bytes
-    Move move{0};                        // 4 bytes
-    int16_t eval{0};                     // 2 bytes
-    uint8_t depth{0};                    // 1 byte
+    Key key{0ULL};                  // 8 bytes
+    Move move{0};                   // 4 bytes
+    int16_t eval{0};                // 2 bytes
+    uint8_t depth{0};               // 1 byte
     HashFlag flags{HashFlag::NONE}; // 1 byte
 };
 
