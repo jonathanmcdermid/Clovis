@@ -17,7 +17,7 @@ Move MovePicker::get_next(const bool play_quiets)
         [[fallthrough]];
     case StageType::INIT_CAPTURES:
         curr = last_bad_cap = moves.data();
-        last = move_gen::generate<ScoredMove, MoveType::CAPTURE_MOVES>(pos, moves.data());
+        last = move_gen::generate<ScoredMove, MoveType::CAPTURE>(pos, moves.data());
         score_captures();
         std::stable_sort(moves.data(), last, [](const ScoredMove& lhs, const ScoredMove& rhs) { return lhs.score > rhs.score; });
         ++stage;
@@ -39,7 +39,7 @@ Move MovePicker::get_next(const bool play_quiets)
         if (play_quiets)
         {
             curr = last_bad_cap;
-            last = move_gen::generate<ScoredMove, MoveType::QUIET_MOVES>(pos, curr);
+            last = move_gen::generate<ScoredMove, MoveType::QUIET>(pos, curr);
             score_quiets();
             std::stable_sort(last_bad_cap, last, [](const ScoredMove& lhs, const ScoredMove& rhs) { return lhs.score > rhs.score; });
         }

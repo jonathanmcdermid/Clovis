@@ -12,7 +12,7 @@ template <typename T> void print_moves(const T* m, const T* end);
 class MoveList
 {
   public:
-    explicit MoveList(const Position& pos) : last(generate<Move, MoveType::ALL_MOVES>(pos, moves.data())) {}
+    explicit MoveList(const Position& pos) : last(generate<Move, MoveType::ALL>(pos, moves.data())) {}
     [[nodiscard]] int size() const { return static_cast<int>(last - moves.data()); }
     [[nodiscard]] auto begin() const { return moves.data(); }
     [[nodiscard]] auto end() const { return last; }

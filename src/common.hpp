@@ -87,9 +87,9 @@ enum Piece
 
 enum class MoveType
 {
-    QUIET_MOVES,
-    CAPTURE_MOVES,
-    ALL_MOVES
+    QUIET,
+    CAPTURE,
+    ALL
 };
 
 enum class StageType
@@ -111,18 +111,18 @@ enum GamePhase
 
 enum class HashFlag : uint8_t
 {
-    HASH_NONE,
-    HASH_ALPHA,
-    HASH_BETA,
-    HASH_EXACT,
+    NONE,
+    ALPHA,
+    BETA,
+    EXACT,
 };
 
 enum class NodeType
 {
-    NODE_ROOT,
-    NODE_PV,
-    NODE_NON_PV,
-    NODE_NULL
+    ROOT,
+    PV,
+    NON_PV,
+    NULL_MOVE
 };
 
 enum Direction : int

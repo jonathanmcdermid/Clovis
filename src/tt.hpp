@@ -20,7 +20,7 @@ struct TTEntry
     Move move{0};                        // 4 bytes
     int16_t eval{0};                     // 2 bytes
     uint8_t depth{0};                    // 1 byte
-    HashFlag flags{HashFlag::HASH_NONE}; // 1 byte
+    HashFlag flags{HashFlag::NONE}; // 1 byte
 };
 
 struct TTBucket
