@@ -297,7 +297,7 @@ constexpr std::array<Bitboard, 2> FIANCHETTO_BISHOP_MASK = {B2 | G2, B7 | G7};
 
 constexpr std::array<Bitboard, 2> CENTER_MASK = {D5 | E5, D4 | E4};
 
-extern std::array<std::array<int, PHASE_N>, TI_MISC> T;
+extern std::array<std::array<int, 2>, TI_MISC> T;
 
 bool is_open_file(Bitboard pawns, File f);
 bool is_doubled_pawn(Bitboard bb, Square sq);

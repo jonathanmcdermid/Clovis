@@ -11,18 +11,18 @@ Move MovePicker::get_next(const bool play_quiets)
 {
     switch (stage)
     {
-    case TT_MOVE:
+    case StageType::TT_MOVE:
         ++stage;
         if (tt_move != MOVE_NONE && (play_quiets || move_capture(tt_move) || move_promotion_type(tt_move))) { return tt_move; }
         [[fallthrough]];
-    case INIT_CAPTURES:
+    case StageType::INIT_CAPTURES:
         curr = last_bad_cap = moves.data();
-        last = move_gen::generate<ScoredMove, CAPTURE_MOVES>(pos, moves.data());
+        last = move_gen::generate<ScoredMove, MoveType::CAPTURE_MOVES>(pos, moves.data());
         score_captures();
         std::stable_sort(moves.data(), last, [](const ScoredMove& lhs, const ScoredMove& rhs) { return lhs.score > rhs.score; });
         ++stage;
         [[fallthrough]];
-    case WINNING_CAPTURES:
+    case StageType::WINNING_CAPTURES:
         while (curr < last)
         {
             assert(move_capture(*curr) || piece_type(move_promotion_type(*curr)) == QUEEN);
@@ -35,17 +35,17 @@ Move MovePicker::get_next(const bool play_quiets)
         }
         ++stage;
         [[fallthrough]];
-    case INIT_QUIETS:
+    case StageType::INIT_QUIETS:
         if (play_quiets)
         {
             curr = last_bad_cap;
-            last = move_gen::generate<ScoredMove, QUIET_MOVES>(pos, curr);
+            last = move_gen::generate<ScoredMove, MoveType::QUIET_MOVES>(pos, curr);
             score_quiets();
             std::stable_sort(last_bad_cap, last, [](const ScoredMove& lhs, const ScoredMove& rhs) { return lhs.score > rhs.score; });
         }
         ++stage;
         [[fallthrough]];
-    case QUIETS:
+    case StageType::QUIETS:
         while (play_quiets && curr < last)
         {
             assert(!move_capture(*curr) || piece_type(move_promotion_type(*curr)) != QUEEN);
@@ -55,7 +55,7 @@ Move MovePicker::get_next(const bool play_quiets)
         curr = moves.data();
         ++stage;
         [[fallthrough]];
-    case LOSING_CAPTURES:
+    case StageType::LOSING_CAPTURES:
         if (play_quiets)
         {
             while (curr < last_bad_cap)

@@ -85,14 +85,14 @@ enum Piece
     B_KING,
 };
 
-enum MoveType : int
+enum class MoveType
 {
     QUIET_MOVES,
     CAPTURE_MOVES,
     ALL_MOVES
 };
 
-enum StageType : int
+enum class StageType
 {
     TT_MOVE,
     INIT_CAPTURES,
@@ -103,14 +103,13 @@ enum StageType : int
     FINISHED
 };
 
-enum GamePhase : int
+enum GamePhase
 {
     MG,
-    EG,
-    PHASE_N = 2
+    EG
 };
 
-enum HashFlag : uint8_t
+enum class HashFlag : uint8_t
 {
     HASH_NONE,
     HASH_ALPHA,
@@ -118,7 +117,7 @@ enum HashFlag : uint8_t
     HASH_EXACT,
 };
 
-enum NodeType : int
+enum class NodeType
 {
     NODE_ROOT,
     NODE_PV,
@@ -251,7 +250,7 @@ struct Score
 {
     constexpr Score() = default;
     constexpr Score(const short m, const short e) : mg(m), eg(e) {}
-    explicit Score(const std::array<double, PHASE_N> param) : mg(static_cast<short>(round(param[MG]))), eg(static_cast<short>(round(param[EG]))) {}
+    explicit Score(const std::array<double, 2> param) : mg(static_cast<short>(round(param[MG]))), eg(static_cast<short>(round(param[EG]))) {}
     Score& operator+=(const Score& rhs)
     {
         mg = static_cast<short>(mg + rhs.mg);

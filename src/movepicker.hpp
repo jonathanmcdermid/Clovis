@@ -97,7 +97,7 @@ class MovePicker
     const Position& pos;
     std::array<ScoredMove, MAX_MOVES> moves;
     int ply;
-    int stage{TT_MOVE};
+    StageType stage{StageType::TT_MOVE};
     ScoredMove* curr;
     ScoredMove* last;
     ScoredMove* last_bad_cap;
@@ -110,7 +110,7 @@ template <HashFlag HF> void MovePicker::update_history(const Move best_move, con
     assert(!move_capture(best_move) || move_promotion_type(best_move));
     update_history_entry(best_move, pos.get_side(), HISTORY_BONUS[depth]);
 
-    for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HASH_EXACT ? last : curr))
+    for (const auto& sm : std::ranges::subrange(last_bad_cap, HF == HashFlag::HASH_EXACT ? last : curr))
     {
         assert(!move_capture(sm) || move_promotion_type(sm));
         if (sm != best_move) { update_history_entry(sm, pos.get_side(), -HISTORY_BONUS[depth]); }

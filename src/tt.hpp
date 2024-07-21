@@ -12,15 +12,15 @@ struct TTEntry
 {
     constexpr TTEntry() = default;
     TTEntry(const Key k, const int d, const HashFlag f, const int e, const Move m)
-        : key(k), move(m), eval(static_cast<int16_t>(e)), depth(static_cast<uint8_t>(d)), flags(static_cast<uint8_t>(f))
+        : key(k), move(m), eval(static_cast<int16_t>(e)), depth(static_cast<uint8_t>(d)), flags(f)
     {
     }
 
-    Key key{0ULL};    // 8 bytes
-    Move move{0};     // 4 bytes
-    int16_t eval{0};  // 2 bytes
-    uint8_t depth{0}; // 1 byte
-    uint8_t flags{0}; // 1 byte
+    Key key{0ULL};                       // 8 bytes
+    Move move{0};                        // 4 bytes
+    int16_t eval{0};                     // 2 bytes
+    uint8_t depth{0};                    // 1 byte
+    HashFlag flags{HashFlag::HASH_NONE}; // 1 byte
 };
 
 struct TTBucket

@@ -4,7 +4,7 @@
 
 namespace clovis::eval {
 
-std::array<std::array<int, PHASE_N>, TI_MISC> T;
+std::array<std::array<int, 2>, TI_MISC> T;
 
 bool is_open_file(const Bitboard pawns, const File f) { return !(bitboards::FILE_MASKS[f] & pawns); }
 

@@ -8,7 +8,7 @@
 
 namespace clovis::tune {
 
-using TVector = std::array<std::array<double, PHASE_N>, TI_MISC>;
+using TVector = std::array<std::array<double, 2>, TI_MISC>;
 
 std::vector<TEntry> entries;
 TVector params;
@@ -78,7 +78,7 @@ void init_params()
 
 double linear_eval(const TEntry& entry, TGradient* tg)
 {
-    std::array<double, PHASE_N> normal{};
+    std::array<double, 2> normal{};
     double safety = 0.0;
     std::array<std::array<double, 2>, EVAL_TYPE_N> mg{};
     std::array<std::array<double, 2>, EVAL_TYPE_N> eg{};
@@ -142,7 +142,7 @@ void update_single_gradient(const TEntry& entry, TVector& gradient, const double
     const double s = sigmoid(k, e);
     const double a = (entry.result - s) * s * (1 - s);
 
-    const std::array<double, PHASE_N> base = {a * entry.phase, a * (MAX_GAME_PHASE - entry.phase)};
+    const std::array<double, 2> base = {a * entry.phase, a * (MAX_GAME_PHASE - entry.phase)};
 
     for (const auto& it : entry.tuples)
     {

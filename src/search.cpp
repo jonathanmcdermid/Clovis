@@ -74,7 +74,7 @@ void clear()
 
 template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_t& nodes, const int ply, Line& pv_line)
 {
-    constexpr bool PV_NODE = N == NODE_ROOT || N == NODE_PV;
+    constexpr bool PV_NODE = N == NodeType::NODE_ROOT || N == NodeType::NODE_PV;
 
     assert(PV_NODE || (alpha == beta - 1));
 
@@ -86,7 +86,8 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
     const auto tte = tt.probe(pos.get_key());
 
     if (!PV_NODE && tte.key == pos.get_key() &&
-        (tte.flags == HASH_EXACT || (tte.flags == HASH_BETA && tte.eval >= beta) || (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+        (tte.flags == HashFlag::HASH_EXACT || (tte.flags == HashFlag::HASH_BETA && tte.eval >= beta) ||
+         (tte.flags == HashFlag::HASH_ALPHA && tte.eval <= alpha)))
     {
         return tte.eval;
     }
@@ -101,7 +102,7 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
         // use TT score instead of static eval if valid TTE and either
         // 1. alpha flag + lower tt score than static eval
         // 2. beta flag + higher tt score than static eval
-        if (tte.key == pos.get_key() && ((tte.flags == HASH_ALPHA) == (tte.eval < eval))) { eval = tte.eval; }
+        if (tte.key == pos.get_key() && ((tte.flags == HashFlag::HASH_ALPHA) == (tte.eval < eval))) { eval = tte.eval; }
         if (eval >= beta) { return beta; }
         if (eval > alpha) { alpha = eval; }
     }
@@ -123,7 +124,7 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
         // fail high
         if (eval >= beta)
         {
-            tt.new_entry(pos.get_key(), 0, beta, HASH_BETA, curr_move);
+            tt.new_entry(pos.get_key(), 0, beta, HashFlag::HASH_BETA, curr_move);
             return beta;
         }
         if (eval > best_eval)
@@ -146,16 +147,16 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
 
     if (in_check && best_eval == INT_MIN) { return ply - CHECKMATE_SCORE; }
 
-    tt.new_entry(pos.get_key(), 0, alpha, alpha > old_alpha ? HASH_EXACT : HASH_ALPHA, best_move);
+    tt.new_entry(pos.get_key(), 0, alpha, alpha > old_alpha ? HashFlag::HASH_EXACT : HashFlag::HASH_ALPHA, best_move);
 
     return alpha;
 }
 
 template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth, const int ply, const Move prev_move, uint64_t& nodes, Line& pv_line)
 {
-    constexpr bool NULL_NODE = N == NODE_NULL;
-    constexpr bool ROOT_NODE = N == NODE_ROOT;
-    constexpr bool PV_NODE = N == NODE_ROOT || N == NODE_PV;
+    constexpr bool NULL_NODE = N == NodeType::NODE_NULL;
+    constexpr bool ROOT_NODE = N == NodeType::NODE_ROOT;
+    constexpr bool PV_NODE = N == NodeType::NODE_ROOT || N == NodeType::NODE_PV;
 
     assert(PV_NODE || (alpha == beta - 1));
 
@@ -188,7 +189,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             *pv_line.last++ = tte.move;
         }
         if (!PV_NODE && tte.depth >= depth &&
-            (tte.flags == HASH_EXACT || (tte.flags == HASH_BETA && tte.eval >= beta) || (tte.flags == HASH_ALPHA && tte.eval <= alpha)))
+            (tte.flags == HashFlag::HASH_EXACT || (tte.flags == HashFlag::HASH_BETA && tte.eval >= beta) || (tte.flags == HashFlag::HASH_ALPHA && tte.eval <= alpha)))
         {
             return tte.eval;
         }
@@ -209,7 +210,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         {
             pos.do_null_move();
             Line line;
-            score = -negamax<NODE_NULL>(pos, -beta, -beta + 1, depth - NULL_MOVE_REDUCTION, ply + 1, MOVE_NULL, nodes, line);
+            score = -negamax<NodeType::NODE_NULL>(pos, -beta, -beta + 1, depth - NULL_MOVE_REDUCTION, ply + 1, MOVE_NULL, nodes, line);
             pos.undo_null_move();
 
             if (score >= beta) { return beta; }
@@ -219,7 +220,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         if (tte.key != pos.get_key() && depth >= IID_DEPTH[PV_NODE])
         {
             Line line;
-            negamax<N == NODE_NULL ? NODE_NON_PV : N>(pos, alpha, beta, IID_TABLE[PV_NODE][depth], ply, prev_move, nodes, line);
+            negamax<N == NodeType::NODE_NULL ? NodeType::NODE_NON_PV : N>(pos, alpha, beta, IID_TABLE[PV_NODE][depth], ply, prev_move, nodes, line);
             tte = tt.probe(pos.get_key());
 
             if (tte.key == pos.get_key())
@@ -238,7 +239,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
     Move best_move = MOVE_NONE;
     int best_score = INT_MIN;
     int moves_searched = 0;
-    HashFlag hash_flag = HASH_ALPHA;
+    auto hash_flag = HashFlag::HASH_ALPHA;
     bool play_quiets = true;
 
     while (const Move curr_move = mp.get_next(play_quiets))
@@ -266,19 +267,19 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
                 // reduce based on history heuristic and lmr reduction
                 R = std::clamp(R - lmr_history_value, 0, depth - LMR_REDUCTION);
                 // search current move with reduced depth:
-                score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, curr_move, nodes, line);
+                score = -negamax<NodeType::NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - R - 1, ply + 1, curr_move, nodes, line);
                 // if search does not fail low, we search again without
                 // reduction
-                if (R && score > alpha) { score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line); }
+                if (R && score > alpha) { score = -negamax<NodeType::NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line); }
             }
             else if (!PV_NODE || moves_searched > 1)
             {
-                score = -negamax<NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+                score = -negamax<NodeType::NODE_NON_PV>(pos, -alpha - 1, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
             }
             // full PV search if all options are exhausted
             if (PV_NODE && (moves_searched == 1 || ((ROOT_NODE || score < beta) && score > alpha)))
             {
-                score = -negamax<NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
+                score = -negamax<NodeType::NODE_PV>(pos, -beta, -alpha, depth - 1, ply + 1, curr_move, nodes, line);
             }
         }
 
@@ -291,11 +292,11 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
         {
             if (move_capture(curr_move) == NO_PIECE)
             {
-                mp.update_history<HASH_BETA>(curr_move, depth);
+                mp.update_history<HashFlag::HASH_BETA>(curr_move, depth);
                 move_pick::update_killers(curr_move, ply);
                 move_pick::update_counter_entry(pos.get_side(), prev_move, curr_move);
             }
-            tt.new_entry(pos.get_key(), depth, beta, HASH_BETA, curr_move);
+            tt.new_entry(pos.get_key(), depth, beta, HashFlag::HASH_BETA, curr_move);
             return beta;
         }
 
@@ -313,7 +314,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
                     *pv_line.last++ = curr_move;
                     for (const auto& m : line) { *pv_line.last++ = m; }
                 }
-                hash_flag = HASH_EXACT;
+                hash_flag = HashFlag::HASH_EXACT;
                 // new best move found
                 alpha = score;
             }
@@ -327,7 +328,7 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
 
     tt.new_entry(pos.get_key(), depth, best_score, hash_flag, best_move);
 
-    if (hash_flag == HASH_EXACT && move_capture(best_move) == NO_PIECE) { mp.update_history<HASH_EXACT>(best_move, depth); }
+    if (hash_flag == HashFlag::HASH_EXACT && move_capture(best_move) == NO_PIECE) { mp.update_history<HashFlag::HASH_EXACT>(best_move, depth); }
 
     return alpha;
 }
@@ -353,7 +354,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
 
         for (int depth = 1; depth <= MAX_PLY && (limits.depth == 0 || depth <= limits.depth); ++depth)
         {
-            info.score = negamax<NODE_ROOT>(pos, alpha, beta, depth, 0, MOVE_NONE, info.nodes, info.pv_line);
+            info.score = negamax<NodeType::NODE_ROOT>(pos, alpha, beta, depth, 0, MOVE_NONE, info.nodes, info.pv_line);
 
             if (stop)
             {
