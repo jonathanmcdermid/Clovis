@@ -90,8 +90,7 @@ template <NodeType N> int quiescence(Position& pos, int alpha, int beta, uint64_
     const auto tte = tt.probe(pos.get_key());
 
     if (!PV_NODE && tte.key == pos.get_key() &&
-        (tte.flags == HashFlag::EXACT || (tte.flags == HashFlag::BETA && tte.eval >= beta) ||
-         (tte.flags == HashFlag::ALPHA && tte.eval <= alpha)))
+        (tte.flags == HashFlag::EXACT || (tte.flags == HashFlag::BETA && tte.eval >= beta) || (tte.flags == HashFlag::ALPHA && tte.eval <= alpha)))
     {
         return tte.eval;
     }
@@ -193,7 +192,8 @@ template <NodeType N> int negamax(Position& pos, int alpha, int beta, int depth,
             *pv_line.last++ = tte.move;
         }
         if (!PV_NODE && tte.depth >= depth &&
-            (tte.flags == HashFlag::EXACT || (tte.flags == HashFlag::BETA && tte.eval >= beta) || (tte.flags == HashFlag::ALPHA && tte.eval <= alpha)))
+            (tte.flags == HashFlag::EXACT || (tte.flags == HashFlag::BETA && tte.eval >= beta) ||
+             (tte.flags == HashFlag::ALPHA && tte.eval <= alpha)))
         {
             return tte.eval;
         }
