@@ -6,6 +6,8 @@
 #include <iostream>
 #include <thread>
 
+using namespace clovis::eval;
+
 namespace clovis::tune {
 
 using TVector = std::array<std::array<double, 2>, TI_MISC>;
@@ -15,7 +17,7 @@ TVector params;
 
 inline double sigmoid(const double k, const double e) { return 1.0 / (1.0 + exp(-k * e / 400.0)); }
 
-template <typename T> void add_param(T t, const TraceIndex ti)
+template <typename T> void add_param(T t, const eval::TraceIndex ti)
 {
     if constexpr (std::is_same<T, Score>())
     {
@@ -34,8 +36,6 @@ template <typename T> void add_param(T t, const TraceIndex ti)
 
 void init_params()
 {
-    using namespace eval;
-
     for (const auto& it : PAWN_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + PAWN_PSQT - PAWN_SOURCE.data())); }
     for (const auto& it : KNIGHT_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + KNIGHT_PSQT - KNIGHT_SOURCE.data())); }
     for (const auto& it : BISHOP_SOURCE) { add_param<Score>(it, static_cast<TraceIndex>(&it + BISHOP_PSQT - BISHOP_SOURCE.data())); }
@@ -80,8 +80,8 @@ double linear_eval(const TEntry& entry, TGradient* tg)
 {
     std::array<double, 2> normal{};
     double safety = 0.0;
-    std::array<std::array<double, 2>, EVAL_TYPE_N> mg{};
-    std::array<std::array<double, 2>, EVAL_TYPE_N> eg{};
+    std::array<std::array<double, 2>, 2> mg{};
+    std::array<std::array<double, 2>, 2> eg{};
 
     for (const auto& it : entry.tuples)
     {

@@ -6,6 +6,8 @@
 
 namespace clovis::move_gen {
 
+constexpr int MAX_MOVES = 256;
+
 template <typename T, MoveType M> T* generate(const Position& pos, T* moves);
 template <typename T> void print_moves(const T* m, const T* end);
 

@@ -1,9 +1,16 @@
 #pragma once
 
 #include "movepicker.hpp"
-#include "tt.hpp"
 
 namespace clovis::search {
+
+enum class NodeType
+{
+    ROOT,
+    PV,
+    NON_PV,
+    NULL_MOVE
+};
 
 struct SearchLimits
 {

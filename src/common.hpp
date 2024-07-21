@@ -15,40 +15,75 @@
 
 namespace clovis {
 
-using Key = uint64_t;
 using Bitboard = uint64_t;
-using Duration = int64_t;
 
-constexpr int MAX_SCALING = 32;
 constexpr int MAX_GAME_PHASE = 24;
-constexpr int MAX_PLY = 64;
-constexpr int MAX_MOVES = 256;
 constexpr int CHECKMATE_SCORE = 25000;
+constexpr int MAX_PLY = 64;
 constexpr int MIN_CHECKMATE_SCORE = CHECKMATE_SCORE - MAX_PLY;
-constexpr int DRAW_SCORE = 0;
 
-constexpr auto GAME_PHASE_INCREMENT = std::array{0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0};
-constexpr auto PIECE_VALUE = std::array{0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000};
-
-/*
-MOVE BIT FORMATTING
-
-0000 0000 0000 0000 0011 1111   from square
-0000 0000 0000 1111 1100 0000   to square
-0000 0000 1111 0000 0000 0000   piece
-0000 1111 0000 0000 0000 0000   promoted piece
-0001 0000 0000 0000 0000 0000   capture flag
-0010 0000 0000 0000 0000 0000   double push flag
-0100 0000 0000 0000 0000 0000   en_passant flag
-1000 0000 0000 0000 0000 0000   castling flag
-*/
-
-enum Move : int
+// =========================================================
+// Board Enums
+// =========================================================
+enum Square : int
 {
-    MOVE_NONE,
-    MOVE_NULL = 65
+    // clang-format off
+    A1, B1, C1, D1, E1, F1, G1, H1,
+    A2, B2, C2, D2, E2, F2, G2, H2,
+    A3, B3, C3, D3, E3, F3, G3, H3,
+    A4, B4, C4, D4, E4, F4, G4, H4,
+    A5, B5, C5, D5, E5, F5, G5, H5,
+    A6, B6, C6, D6, E6, F6, G6, H6,
+    A7, B7, C7, D7, E7, F7, G7, H7,
+    A8, B8, C8, D8, E8, F8, G8, H8,
+    // clang-format on
+    SQ_N,
+    SQ_ZERO = A1,
+    SQ_NONE = SQ_N
 };
 
+enum File : int
+{
+    FILE_A,
+    FILE_B,
+    FILE_C,
+    FILE_D,
+    FILE_E,
+    FILE_F,
+    FILE_G,
+    FILE_H,
+    FILE_N,
+};
+
+enum Rank : int
+{
+    RANK_1,
+    RANK_2,
+    RANK_3,
+    RANK_4,
+    RANK_5,
+    RANK_6,
+    RANK_7,
+    RANK_8,
+    RANK_N
+};
+
+enum Direction : int
+{
+    NO_DIR,
+    NORTH = 8,
+    EAST = 1,
+    SOUTH = -NORTH,
+    WEST = -EAST,
+    NORTH_EAST = NORTH + EAST,
+    SOUTH_EAST = SOUTH + EAST,
+    SOUTH_WEST = SOUTH + WEST,
+    NORTH_WEST = NORTH + WEST
+};
+
+// =========================================================
+// Piece Enums
+// =========================================================
 enum Colour : int
 {
     WHITE,
@@ -85,157 +120,6 @@ enum Piece
     B_KING,
 };
 
-enum class MoveType
-{
-    QUIET,
-    CAPTURE,
-    ALL
-};
-
-enum class StageType
-{
-    TT_MOVE,
-    INIT_CAPTURES,
-    WINNING_CAPTURES,
-    INIT_QUIETS,
-    QUIETS,
-    LOSING_CAPTURES,
-    FINISHED
-};
-
-enum GamePhase
-{
-    MG,
-    EG
-};
-
-enum class HashFlag : uint8_t
-{
-    NONE,
-    ALPHA,
-    BETA,
-    EXACT,
-};
-
-enum class NodeType
-{
-    ROOT,
-    PV,
-    NON_PV,
-    NULL_MOVE
-};
-
-enum Direction : int
-{
-    NO_DIR,
-    NORTH = 8,
-    EAST = 1,
-    SOUTH = -NORTH,
-    WEST = -EAST,
-    NORTH_EAST = NORTH + EAST,
-    SOUTH_EAST = SOUTH + EAST,
-    SOUTH_WEST = SOUTH + WEST,
-    NORTH_WEST = NORTH + WEST
-};
-
-enum Square : int
-{
-    // clang-format off
-    A1, B1, C1, D1, E1, F1, G1, H1,
-    A2, B2, C2, D2, E2, F2, G2, H2,
-    A3, B3, C3, D3, E3, F3, G3, H3,
-    A4, B4, C4, D4, E4, F4, G4, H4,
-    A5, B5, C5, D5, E5, F5, G5, H5,
-    A6, B6, C6, D6, E6, F6, G6, H6,
-    A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8,
-    // clang-format on
-    SQ_N,
-    SQ_ZERO = A1,
-    SQ_NONE = SQ_N
-};
-
-enum File : int
-{
-    FILE_NONE = -1,
-    FILE_A,
-    FILE_B,
-    FILE_C,
-    FILE_D,
-    FILE_E,
-    FILE_F,
-    FILE_G,
-    FILE_H,
-    FILE_N
-};
-
-enum Rank : int
-{
-    RANK_NONE = -1,
-    RANK_1,
-    RANK_2,
-    RANK_3,
-    RANK_4,
-    RANK_5,
-    RANK_6,
-    RANK_7,
-    RANK_8,
-    RANK_N
-};
-
-enum TraceIndex : int
-{
-    TI_NORMAL,
-
-    PAWN_PSQT = TI_NORMAL,
-    KNIGHT_PSQT = PAWN_PSQT + 32,
-    BISHOP_PSQT = KNIGHT_PSQT + 16,
-    ROOK_PSQT = BISHOP_PSQT + 16,
-    QUEEN_PSQT = ROOK_PSQT + 16,
-    KING_PSQT = QUEEN_PSQT + 32,
-    PASSED_PAWN_PSQT = KING_PSQT + 16,
-    CANDIDATE_PASSER_PSQT = PASSED_PAWN_PSQT + 32,
-    QUIET_MOBILITY = CANDIDATE_PASSER_PSQT + 8,
-    CAPTURE_MOBILITY = QUIET_MOBILITY + 7,
-    DOUBLE_PAWN = CAPTURE_MOBILITY + 7,
-    ISOLATED_PAWN,
-    BISHOP_PAIR,
-    ROOK_FULL,
-    ROOK_SEMI,
-    ROOK_CLOSED,
-    TEMPO,
-    KING_OPEN,
-    KING_ADJ_OPEN,
-    KNIGHT_OUTPOST,
-    BISHOP_OUTPOST,
-    WEAK_QUEEN,
-    ROOK_OUR_PASSER,
-    ROOK_THEIR_PASSER,
-    TALL_PAWN,
-    FIANCHETTO,
-    ROOK_ON_SEVENTH,
-
-    TI_SAFETY,
-
-    SAFETY_PAWN_SHIELD = TI_SAFETY,
-    SAFETY_INNER_RING = SAFETY_PAWN_SHIELD + 32,
-    SAFETY_OUTER_RING = SAFETY_INNER_RING + 7,
-    SAFETY_VIRTUAL_MOBILITY = SAFETY_OUTER_RING + 7,
-
-    TI_N,
-
-    SAFETY_N_ATT = TI_N,
-
-    TI_MISC
-};
-
-enum EvalType : int
-{
-    NORMAL,
-    SAFETY,
-    EVAL_TYPE_N
-};
-
 enum CastleRights
 {
     NO_CASTLING,
@@ -244,6 +128,28 @@ enum CastleRights
     BLACK_KS = 1 << 2,
     BLACK_QS = 1 << 3,
     ALL_CASTLING = WHITE_KS | WHITE_QS | BLACK_KS | BLACK_QS,
+};
+
+// =========================================================
+// Move Enums
+// =========================================================
+enum Move : int
+{
+    MOVE_NONE,
+    MOVE_NULL = 65
+};
+
+enum class MoveType
+{
+    QUIET,
+    CAPTURE,
+    ALL
+};
+
+enum GamePhase
+{
+    MG,
+    EG
 };
 
 struct Score

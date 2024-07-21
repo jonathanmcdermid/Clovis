@@ -284,14 +284,14 @@ int Position::see(const Move move) const
     Bitboard attackers = attackers_to(to);
     Colour stm = side;
 
-    gain[0] = PIECE_VALUE[pc_table[to]];
+    gain[0] = SEE_PIECE_VALUE[pc_table[to]];
 
     while (from != SQ_NONE)
     {
         stm = ~stm;
         d++;
         assert(d < 32);
-        gain[d] = PIECE_VALUE[pc_table[from]] - gain[d - 1];
+        gain[d] = SEE_PIECE_VALUE[pc_table[from]] - gain[d - 1];
         attackers ^= from;
         occ ^= from;
         attackers |= consider_xray(occ, to, piece_type(pc_table[from]));

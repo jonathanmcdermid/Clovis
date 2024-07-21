@@ -5,8 +5,17 @@
 #include <vector>
 
 #include "common.hpp"
+#include "position.hpp"
 
 namespace clovis {
+
+enum class HashFlag : uint8_t
+{
+    NONE,
+    ALPHA,
+    BETA,
+    EXACT,
+};
 
 struct TTEntry
 {

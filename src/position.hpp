@@ -7,7 +7,11 @@
 
 namespace clovis {
 
+using Key = uint64_t;
+
 constexpr std::string_view PIECE_STR = " PNBRQK  pnbrqk";
+constexpr auto GAME_PHASE_INCREMENT = std::array{0, 0, 1, 1, 2, 4, 0, 0, 0, 0, 1, 1, 2, 4, 0};
+constexpr auto SEE_PIECE_VALUE = std::array{0, 100, 300, 300, 500, 900, 20000, 0, 0, 100, 300, 300, 500, 900, 20000};
 
 struct Position
 {

@@ -4,10 +4,22 @@
 #include <cassert>
 
 #include "movelist.hpp"
+#include "tt.hpp"
 
 namespace clovis::move_pick {
 
 constexpr size_t COLOUR_FROM_TO_SIZE = 2 * SQ_N * SQ_N;
+
+enum class StageType
+{
+    TT_MOVE,
+    INIT_CAPTURES,
+    WINNING_CAPTURES,
+    INIT_QUIETS,
+    QUIETS,
+    LOSING_CAPTURES,
+    FINISHED
+};
 
 struct KEntry
 {
@@ -95,7 +107,7 @@ class MovePicker
     void score_quiets();
 
     const Position& pos;
-    std::array<ScoredMove, MAX_MOVES> moves;
+    std::array<ScoredMove, move_gen::MAX_MOVES> moves;
     int ply;
     StageType stage{StageType::TT_MOVE};
     ScoredMove* curr;
