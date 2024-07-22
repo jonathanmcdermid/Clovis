@@ -106,8 +106,14 @@ template <Colour US> bool Position::weak_queen() const
 {
     const Square qsq = bitboards::lsb(pc_bb[make_piece(QUEEN, US)]);
 
-    Bitboard candidates = (bitboards::get_attacks<ROOK>(qsq) & pieces<make_piece(ROOK, ~US)>()) |
-                          (bitboards::get_attacks<BISHOP>(qsq) & pieces<make_piece(BISHOP, ~US)>());
+    Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
+                                    ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
+
+    if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
+
+    Bitboard candidates = // TODO: this is bad, occupancy logic for rook is wrong and possibly bishop
+        ((bitboards::get_attacks<ROOK>(piece_types<PAWN>(), qsq) & (pc_bb[make_piece(ROOK, ~US)])) |
+         (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, qsq) & (pc_bb[make_piece(BISHOP, ~US)])));
 
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates; // not sure if this ^ is even necessary
 
