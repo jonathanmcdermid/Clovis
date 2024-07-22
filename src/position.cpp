@@ -74,10 +74,6 @@ constexpr Key ZOBRIST_COLOUR = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 
 } // namespace zobrist
 
-// explicit template instantiations
-template bool Position::is_discovery_threat<WHITE>(Square sq) const;
-template bool Position::is_discovery_threat<BLACK>(Square sq) const;
-
 template <Colour US> void Position::update_pinners_blockers() const
 {
     const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
