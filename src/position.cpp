@@ -74,30 +74,6 @@ constexpr Key ZOBRIST_COLOUR = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 
 } // namespace zobrist
 
-// returns if a square is in danger of a pawn discovery attack by a rook or bishop
-template <Colour US> bool Position::is_discovery_threat(const Square sq) const
-{
-    // pawn is immobile if it attacks no enemies and is blocked by a piece
-    // we don't have to worry about shift because discovery pawns will never be on outer files
-    Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
-                                    ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
-
-    if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
-
-    Bitboard candidates =
-        ((bitboards::get_attacks<ROOK>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(ROOK, ~US)])) |
-         (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
-
-    const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
-
-    while (candidates)
-    {
-        if (std::popcount(bitboards::between_squares(sq, bitboards::pop_lsb(candidates)) & occupancy) == 1) { return true; }
-    }
-
-    return false;
-}
-
 // explicit template instantiations
 template bool Position::is_discovery_threat<WHITE>(Square sq) const;
 template bool Position::is_discovery_threat<BLACK>(Square sq) const;
@@ -129,6 +105,30 @@ template <Colour US> void Position::update_pinners_blockers() const
 // explicit template instantiations
 template void Position::update_pinners_blockers<WHITE>() const;
 template void Position::update_pinners_blockers<BLACK>() const;
+
+template <Colour US> bool Position::weak_queen() const
+{
+    const Square qsq = bitboards::lsb(pc_bb[make_piece(QUEEN, US)]);
+
+    Bitboard candidates = (bitboards::get_attacks<ROOK>(qsq) & pieces<make_piece(ROOK, ~US)>()) |
+                          (bitboards::get_attacks<BISHOP>(qsq) & pieces<make_piece(BISHOP, ~US)>());
+
+    const Bitboard occupancy = occ_bb[BOTH] ^ candidates; // not sure if this ^ is even necessary
+
+    while (candidates)
+    {
+        const Square sq = bitboards::pop_lsb(candidates);
+        const Bitboard bb = bitboards::between_squares(qsq, sq) & occupancy;
+
+        if (bb && !bitboards::multiple_bits(bb)) { return true; }
+    }
+
+    return false;
+}
+
+// explicit template instantiations
+template bool Position::weak_queen<WHITE>() const;
+template bool Position::weak_queen<BLACK>() const;
 
 std::string Position::get_fen() const
 {
