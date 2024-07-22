@@ -198,7 +198,7 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         }
         if constexpr (PT == QUEEN)
         {
-            if (pos.weak_queen<US>())
+            if (pos.weak_queen<US>(sq))
             {
                 score -= WEAK_QUEEN_PENALTY;
                 if constexpr (TRACE) { --T[WEAK_QUEEN][US]; }

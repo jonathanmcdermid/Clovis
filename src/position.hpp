@@ -32,7 +32,7 @@ struct Position
     [[nodiscard]] bool is_draw() const;
     [[nodiscard]] int see(Move move) const;
 
-    template <Colour US> [[nodiscard]] bool weak_queen() const;
+    template <Colour US> [[nodiscard]] bool weak_queen(Square sq) const;
     template <Colour US> [[nodiscard]] bool is_attacked(Square sq) const;
 
     // Member Accessors
