@@ -45,3 +45,16 @@ TEST_F(MoveSelectorTest, MOVE_ORDERING_TEST)
     // No moves left
     ASSERT_EQ(mp.get_next(true), MOVE_NONE);
 }
+
+TEST_F(MoveSelectorTest, KILLER_TEST)
+{
+    Position pos("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
+    move_selector::MoveSelector mp(pos, 0, MOVE_NONE, MOVE_NONE);
+    move_selector::update_killers(pos.parse("Kd2"), 0);
+    move_selector::update_killers(pos.parse("Ke2"), 0);
+    move_selector::update_killers(pos.parse("Ke2"), 0);
+    move_selector::update_killers(pos.parse("Kf2"), 1);
+
+    ASSERT_EQ(mp.get_next(true), pos.parse("Ke2"));
+    ASSERT_EQ(mp.get_next(true), pos.parse("Kd2"));
+}

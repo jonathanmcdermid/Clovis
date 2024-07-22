@@ -21,7 +21,7 @@ enum class StageType
     FINISHED
 };
 
-struct KEntry
+struct KillerEntry
 {
     Move primary{MOVE_NONE};
     Move secondary{MOVE_NONE};
@@ -29,7 +29,7 @@ struct KEntry
 
 extern std::array<int, COLOUR_FROM_TO_SIZE> history_table;
 extern std::array<Move, COLOUR_FROM_TO_SIZE> counter_table;
-extern std::array<KEntry, MAX_PLY> killer_table;
+extern std::array<KillerEntry, MAX_PLY> killer_table;
 
 constexpr auto HISTORY_BONUS = [] {
     std::array<int, MAX_PLY + 1> arr{};

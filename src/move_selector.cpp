@@ -4,7 +4,7 @@ namespace clovis::move_selector {
 
 std::array<int, COLOUR_FROM_TO_SIZE> history_table;
 std::array<Move, COLOUR_FROM_TO_SIZE> counter_table;
-std::array<KEntry, MAX_PLY> killer_table;
+std::array<KillerEntry, MAX_PLY> killer_table;
 
 // return the next ordered move
 Move MoveSelector::get_next(const bool play_quiets)
