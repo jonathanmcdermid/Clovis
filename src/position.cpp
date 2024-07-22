@@ -104,16 +104,17 @@ template void Position::update_pinners_blockers<BLACK>() const;
 
 template <Colour US> bool Position::weak_queen(const Square sq) const
 {
-    // pawn is immobile if it attacks no enemies and is blocked by a piece
-    // we don't have to worry about shift because discovery pawns will never be on outer files
-    Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
-                                    ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
+    Bitboard their_pushers = bitboards::shift<pawn_push(US)>(~occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)];
 
-    if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
+    Bitboard their_attackers =
+        (bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US])) & pc_bb[make_piece(PAWN, ~US)];
+
+    // TODO: ep has effects on both sides
+    if (side == ~US && bs->en_passant != SQ_NONE) { their_attackers |= bitboards::PAWN_ATTACKS[US][bs->en_passant] & pc_bb[make_piece(PAWN, ~US)]; }
 
     Bitboard candidates =
-        ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
-         (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
+        ((bitboards::get_attacks<ROOK>(pc_bb[make_piece(PAWN, US)] | their_pushers, sq) & (pc_bb[make_piece(ROOK, ~US)])) |
+         (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] & ~(their_pushers | their_attackers), sq) & (pc_bb[make_piece(BISHOP, ~US)])));
 
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
 
