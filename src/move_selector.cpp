@@ -1,7 +1,5 @@
 #include "move_selector.hpp"
 
-#include "evaluate.hpp"
-
 namespace clovis::move_selector {
 
 std::array<int, COLOUR_FROM_TO_SIZE> history_table;
@@ -93,7 +91,7 @@ void MoveSelector::score_quiets()
         sm.score = sm == killer_table[ply].primary     ? 22000
                    : sm == killer_table[ply].secondary ? 21000
                    : sm == counter                     ? 20000
-                                   : eval::PIECE_TABLE[move_piece_type(sm.move)][move_to_sq(sm.move)].mg; // get_history_entry(pos.get_side(), sm);
+                                                       : get_history_entry(pos.get_side(), sm);
     }
 }
 
