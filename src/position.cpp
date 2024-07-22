@@ -74,7 +74,7 @@ constexpr Key ZOBRIST_COLOUR = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 
 } // namespace zobrist
 
-// returns if a square is in danger of a discovery attack by a rook or bishop
+// returns if a square is in danger of a pawn discovery attack by a rook or bishop
 template <Colour US> bool Position::is_discovery_threat(const Square sq) const
 {
     // pawn is immobile if it attacks no enemies and is blocked by a piece
@@ -85,7 +85,7 @@ template <Colour US> bool Position::is_discovery_threat(const Square sq) const
     if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
 
     Bitboard candidates =
-        ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
+        ((bitboards::get_attacks<ROOK>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(ROOK, ~US)])) |
          (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
 
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
