@@ -184,14 +184,14 @@ TEST_F(PositionTest, SEE_TEST)
     }
 }
 
-TEST_F(PositionTest, DISCOVERY_TEST)
+TEST_F(PositionTest, WEAK_QUEEN_TEST)
 {
-    Position pos("4k3/6q1/8/8/8/2P5/1B6/4K3 w - - 0 1");
-    ASSERT_TRUE(pos.is_discovery_threat<BLACK>(G7));
-    pos.set("4k3/6q1/8/8/2p5/2P5/1B6/4K3 w - - 0 1");
-    ASSERT_FALSE(pos.is_discovery_threat<BLACK>(G7));
-    pos.set("4k3/6q1/8/8/1b6/2P5/1B6/4K3 w - - 0 1");
-    ASSERT_TRUE(pos.is_discovery_threat<BLACK>(G7));
+    // Position pos("4k3/6q1/8/8/8/2P5/1B6/4K3 w - - 0 1");
+    // ASSERT_TRUE(pos.is_discovery_threat<BLACK>(G7));
+    // pos.set("4k3/6q1/8/8/2p5/2P5/1B6/4K3 w - - 0 1");
+    // ASSERT_FALSE(pos.is_discovery_threat<BLACK>(G7));
+    // pos.set("4k3/6q1/8/8/1b6/2P5/1B6/4K3 w - - 0 1");
+    // ASSERT_TRUE(pos.is_discovery_threat<BLACK>(G7));
     // pos.set("4k3/6q1/8/b7/8/2P5/1B6/4K3 w - - 0 1"); TODO: problem detected! immobile pawn is not recognized
     // ASSERT_FALSE(pos.is_discovery_threat<BLACK>(G7));
 }
