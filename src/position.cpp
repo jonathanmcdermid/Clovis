@@ -82,6 +82,8 @@ template <Colour US> bool Position::is_discovery_threat(const Square sq) const
     Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
                                     ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
+    their_immobile_pawns &= ~(get_blockers<US>() & occ_bb[US]);
+
     if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
 
     Bitboard candidates =
