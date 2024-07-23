@@ -353,6 +353,8 @@ void tune_eval(const std::vector<std::string>& args)
 
         std::cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate << "]" << '\n';
     }
+
+    print_params();
 }
 
 } // namespace clovis::tune

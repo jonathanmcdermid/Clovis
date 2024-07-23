@@ -113,7 +113,7 @@ template <Colour US> bool Position::weak_queen(const Square sq) const
     if (side == ~US && bs->en_passant != SQ_NONE) { their_attackers |= bitboards::PAWN_ATTACKS[US][bs->en_passant] & pc_bb[make_piece(PAWN, ~US)]; }
 
     Bitboard candidates =
-        ((bitboards::get_attacks<ROOK>(pc_bb[make_piece(PAWN, US)] | their_pushers, sq) & (pc_bb[make_piece(ROOK, ~US)])) |
+        ((bitboards::get_attacks<ROOK>(piece_types<PAWN>(), sq) & (pc_bb[make_piece(ROOK, ~US)])) |
          (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] & ~(their_pushers | their_attackers), sq) & (pc_bb[make_piece(BISHOP, ~US)])));
 
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
