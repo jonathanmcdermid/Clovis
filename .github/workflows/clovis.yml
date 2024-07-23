@@ -145,7 +145,7 @@ jobs:
           -each proto=uci tc=5+0.1 \
           -openings file=resources/silver-suite.pgn format=pgn order=random \
           -concurrency 32 \
-          -pgnoutput output/self_play.pgn
+          -output output/self_play.pgn
 
     - name: Upload PGN file
       uses: actions/upload-artifact@v2
