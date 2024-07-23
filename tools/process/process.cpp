@@ -41,10 +41,12 @@ int main(const int argc, char* argv[])
     std::string line;
     std::string result;
     std::string fen;
-    std::vector<clovis::Key> keys;
+    int counter = 0;
 
-    while (keys.size() < number_of_positions && !ifs.eof())
+    while (counter++ < number_of_positions && !ifs.eof())
     {
+        std::vector<clovis::Key> keys;
+
         while (getline(ifs, line))
         {
             if (line.find("Result") != std::string::npos)
