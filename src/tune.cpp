@@ -348,7 +348,7 @@ void tune_eval(const std::vector<std::string>& args)
         }
 
         if (epoch && epoch % 250 == 0) { rate = rate / 1.01; }
-        if (epoch % 100 == 0) { print_params(); }
+        if (epoch % 1000 == 0) { print_params(); }
 
         std::cout << "Epoch [" << epoch << "] Error = [" << mse<false>(k) << "], Rate = [" << rate << "]" << '\n';
     }
