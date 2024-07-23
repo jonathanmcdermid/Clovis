@@ -181,7 +181,7 @@ void print_table(const std::string& name, const int index, const int size, const
 
     for (int i = 0; i < size; ++i)
     {
-        if (!(i % cols)) { std::cout << '\t'; }
+        if (!(i % cols)) { std::cout << "    "; }
         if (index < TI_SAFETY) { std::cout << Score(params[index + i]) << "," << ((i % cols == (cols - 1)) ? "\n" : " "); }
         else { std::cout << round(params[index + i][MG]) << "," << ((i % cols == (cols - 1)) ? "\n" : " "); }
     }
@@ -192,7 +192,6 @@ void print_table(const std::string& name, const int index, const int size, const
 void print_params()
 {
     using namespace eval;
-    // TODO: print_table is broken as it doesn't print as std::arrays
     print_table("PAWN_SOURCE", PAWN_PSQT, sizeof(PAWN_SOURCE) / sizeof(Score), 4);
     print_table("KNIGHT_SOURCE", KNIGHT_PSQT, sizeof(KNIGHT_SOURCE) / sizeof(Score), 4);
     print_table("BISHOP_SOURCE", BISHOP_PSQT, sizeof(BISHOP_SOURCE) / sizeof(Score), 4);
