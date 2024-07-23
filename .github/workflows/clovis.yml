@@ -143,7 +143,7 @@ jobs:
           -engine name=clovis-old cmd=./build/your_engine_binary \
           -games 100 \
           -each proto=uci tc=5+0.1 \
-          -openings file=openings.pgn format=pgn order=random \
+          -openings file=resources/silver-suite.pgn format=pgn order=random \
           -concurrency 32 \
           -pgnoutput output/self_play.pgn
 
@@ -151,7 +151,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: self-play-pgn
-        path: output/self_play.pgn
+        path: self_play.pgn
 
   # =========================================================
   # Clang Format Job
