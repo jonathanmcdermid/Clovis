@@ -76,16 +76,16 @@ jobs:
         set -e # Exit immediately if a command exits with a non-zero status
         ./build/bin/$BUILD_TYPE/clovis perft ./resources/perft.epd > /dev/null
 
-    # - name: Benchmark
-    #   shell: bash
-    #   run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14796178 resources/bench.csv
+    - name: Benchmark
+      shell: bash
+      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14796178 resources/bench.csv
 
     - name: Process Data
       if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/process resources/games.pgn resources/processed.epd 2000000 > /dev/null
+        ./build/bin/$BUILD_TYPE/process resources/games.pgn resources/processed.epd 100000 > /dev/null
       #run: python tools/process.py build/bin/$BUILD_TYPE/clovis resources/games.pgn resources/processed.epd
 
     - name: Tune Evaluation
