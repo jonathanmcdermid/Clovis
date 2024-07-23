@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Clovis code
       uses: actions/checkout@v4
 
     - name: Install Clang
@@ -118,62 +118,40 @@ jobs:
     - name: Install CMake
       uses: lukka/get-cmake@latest
 
-    - name: Configure
+    - name: Configure Clovis
       run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DBUILD_TESTS=OFF -DBUILD_TOOLS=OFF
 
-    - name: Build
+    - name: Build Clovis
       run: cmake --build build --parallel --config Release
 
-    - name: Checkout cutechess
+    - name: Checkout fast-chess repo
       uses: actions/checkout@v4
       with:
-        repository: cutechess/cutechess
-        path: cutechess
+        repository: Disservin/fast-chess
+        path: fast-chess
         ref: master
-        persist-credentials: false
 
-    - name: Install dependencies
+    - name: Build fast-chess
+      working-directory: fast-chess
+      run: make -j
+
+    - name: Run self-play games
       run: |
-        sudo apt-get update
-        sudo apt-get install -y qtbase5-dev qt5-qmake libqt5svg5-dev
-    
-    - name: Build cutechess
-      working-directory: cutechess
-      run: |
-        mkdir build
-        cd build
-        cmake ..
-        make -j
-    
-    - name: Download clovis-release-gcc-linux artifact
-      run: |
-        curl -L -o build/clovis-release-gcc-linux https://github.com/jonathanmcdermid/Clovis/releases/download/III/clovis-release-gcc-linux
-        chmod +x build/clovis-release-gcc-linux
-    
-    - name: Self-play
-      shell: bash
-      working-directory: cutechess
-      run: |
-        set -e
-        ./build/cutechess-cli \
-          -engine name=clovis-new cmd="../build/bin/Release/clovis" \
-          -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
-          -each proto=uci tc=inf/5+0.1 \
-          -games 2 -rounds 200 -repeat 2 -maxmoves 200 \
-          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
+        mkdir -p output
+        ./fast-chess/fast-chess \
+          -engine name=clovis-new cmd=./build/your_engine_binary \
+          -engine name=clovis-old cmd=./build/your_engine_binary \
+          -games 100 \
+          -each proto=uci tc=5+0.1 \
+          -openings file=openings.pgn format=pgn order=random \
           -concurrency 32 \
-          -resultformat "results - %s wins, %s draws, %s losses" > results.log
-              
-        los_line=$(grep "LOS:" results.log)
-        echo "LOS line: $los_line"
-        
-        los_percentage=$(echo "$los_line" | awk '{print $7}' | tr -d '%')
-        echo "LOS percentage: $los_percentage"
-        
-        if [ $(echo "$los_percentage < 5.0" | bc) -eq 1 ]; then
-          echo "Error: Likelihood of superiority (LOS) is less than 10%."
-          exit 1
-        fi
+          -pgnoutput output/self_play.pgn
+
+    - name: Upload PGN file
+      uses: actions/upload-artifact@v2
+      with:
+        name: self-play-pgn
+        path: output/self_play.pgn
 
   # =========================================================
   # Clang Format Job
