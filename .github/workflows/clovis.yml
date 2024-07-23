@@ -135,23 +135,28 @@ jobs:
       working-directory: fast-chess
       run: make -j
 
+    - name: Download clovis-release-gcc-linux artifact
+      run: |
+        curl -L -o build/clovis-release-gcc-linux https://github.com/jonathanmcdermid/Clovis/releases/download/III/clovis-release-gcc-linux
+        chmod +x build/clovis-release-gcc-linux
+
     - name: Run self-play games
       run: |
         mkdir -p output
         ./fast-chess/fast-chess \
-          -engine name=clovis-new cmd=./build/bin/Release/clovis \
-          -engine name=clovis-old cmd=./build/clovis-release-gcc-linux \
+          -engine name=clovis-new cmd=build/bin/Release/clovis \
+          -engine name=clovis-old cmd=build/clovis-release-gcc-linux \
           -games 100 \
           -each proto=uci tc=5+0.1 \
           -openings file=resources/silver-suite.pgn format=pgn order=random \
           -concurrency 32 \
-          -output output/self_play.pgn
+          -pgnout file=self-play.pgn
 
     - name: Upload PGN file
       uses: actions/upload-artifact@v2
       with:
         name: self-play-pgn
-        path: self_play.pgn
+        path: self-play.pgn
 
   # =========================================================
   # Clang Format Job
