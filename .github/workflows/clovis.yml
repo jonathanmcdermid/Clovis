@@ -85,7 +85,7 @@ jobs:
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/process resources/games.pgn resources/processed.epd 100000 > /dev/null
+        ./build/bin/$BUILD_TYPE/process resources/games.pgn resources/processed.epd 1000000 > /dev/null
       #run: python tools/process.py build/bin/$BUILD_TYPE/clovis resources/games.pgn resources/processed.epd
 
     - name: Tune Evaluation
