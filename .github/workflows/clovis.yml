@@ -139,8 +139,8 @@ jobs:
       run: |
         mkdir -p output
         ./fast-chess/fast-chess \
-          -engine name=clovis-new cmd=./build/your_engine_binary \
-          -engine name=clovis-old cmd=./build/your_engine_binary \
+          -engine name=clovis-new cmd=./build/bin/Release/clovis \
+          -engine name=clovis-old cmd=./build/clovis-release-gcc-linux \
           -games 100 \
           -each proto=uci tc=5+0.1 \
           -openings file=resources/silver-suite.pgn format=pgn order=random \
