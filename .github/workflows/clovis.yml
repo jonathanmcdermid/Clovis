@@ -111,10 +111,6 @@ jobs:
       with:
         version: "17.0"
 
-    - name: Install Conan
-      id: conan
-      uses: turtlebrowser/get-conan@main
-
     - name: Install CMake
       uses: lukka/get-cmake@latest
 
@@ -142,7 +138,6 @@ jobs:
 
     - name: Run self-play games
       run: |
-        mkdir -p output
         ./fast-chess/fast-chess \
           -engine name=clovis-new cmd=build/bin/Release/clovis \
           -engine name=clovis-old cmd=build/clovis-release-gcc-linux \
