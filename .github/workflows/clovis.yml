@@ -93,7 +93,7 @@ jobs:
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/clovis tune ./resources/processed.epd 1000
+        ./build/bin/$BUILD_TYPE/clovis tune ./resources/quiet-labeled.epd 1000
 
   # =========================================================
   # Self Play Job
