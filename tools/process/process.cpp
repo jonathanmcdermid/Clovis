@@ -37,11 +37,11 @@ int main(const int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    std::size_t number_of_positions = argc == 4 ? static_cast<std::size_t>(std::stoi(argv[3])) : std ::numeric_limits<std::size_t>::max();
+    size_t number_of_positions = argc == 4 ? static_cast<std::size_t>(std::stoi(argv[3])) : std ::numeric_limits<std::size_t>::max();
+    size_t counter = 0;
     std::string line;
     std::string result;
     std::string fen;
-    int counter = 0;
 
     while (counter++ < number_of_positions && !ifs.eof())
     {
