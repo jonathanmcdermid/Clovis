@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 include(cmake/third_party.cmake)
 project(clovis LANGUAGES CXX)
 
+option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" ON)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(COVERAGE "Coverage" OFF)
@@ -56,17 +57,22 @@ foreach(config ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${BUILD_TYPE} "${CMAKE_BINARY_DIR}/bin/${config}")
 endforeach()
 
+if(BUILD_TOOLS)
+    add_subdirectory(tools/process)
+endif()
+
 if(BUILD_TESTS)
     enable_testing()
-    add_subdirectory(test)
+    add_subdirectory(tests)
 endif()
+
+add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
 
 file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
-add_library("engine" STATIC ${SOURCES})
-
-add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_DIR}")
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
+add_library(${PROJECT_NAME}_lib ${SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/src")
+target_include_directories(${PROJECT_NAME}_lib PUBLIC "${CMAKE_SOURCE_DIR}/src")
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
 if(WIN32)

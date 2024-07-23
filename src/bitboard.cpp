@@ -1,4 +1,4 @@
-#include "bitboard.h"
+#include "bitboard.hpp"
 
 namespace clovis::bitboards {
 

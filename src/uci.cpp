@@ -1,8 +1,8 @@
-#include "uci.h"
+#include "uci.hpp"
 
 #include <sstream>
 
-#include "search.h"
+#include "search.hpp"
 
 namespace clovis::uci {
 

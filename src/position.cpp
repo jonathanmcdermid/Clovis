@@ -1,4 +1,4 @@
-#include "position.h"
+#include "position.hpp"
 
 #include <cassert>
 #include <cstring>
@@ -10,7 +10,7 @@ namespace clovis {
 #if defined(__GNUC__)
 constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {"·", "♙", "♘", "♗", "♖", "♕", "♔", "", "", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 #else
-constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "k", "b", "r", "q", "k"};
+constexpr std::array<std::string_view, 15> PIECE_SYMBOLS = {".", "P", "N", "B", "R", "Q", "K", "", "", "p", "n", "b", "r", "q", "k"};
 #endif
 
 constexpr auto CASTLING_RIGHTS = [] {
@@ -74,40 +74,43 @@ constexpr Key ZOBRIST_COLOUR = xor_shift(ZOBRIST_SEED + 16ULL * SQ_N + 16);
 
 } // namespace zobrist
 
-// returns the square that pins a piece if it exists
-template <Colour US> Square Position::get_pinner(const Square sq) const
+template <Colour US> void Position::update_pinners_blockers() const
 {
-    if (const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]); bitboards::get_attacks<QUEEN>(ksq) & sq)
-    {
-        Bitboard candidates =
-            ((bitboards::get_attacks<ROOK>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(ROOK, ~US)])) |
-             (bitboards::get_attacks<BISHOP>(occ_bb[BOTH] ^ sq, ksq) & (pc_bb[make_piece(QUEEN, ~US)] | pc_bb[make_piece(BISHOP, ~US)])));
+    const Square ksq = bitboards::lsb(pc_bb[make_piece(KING, US)]);
 
-        while (candidates)
+    bs->blockers[US] = 0ULL;
+    bs->pinners[~US] = 0ULL;
+
+    Bitboard candidates = (bitboards::get_attacks<ROOK>(ksq) & (pieces<make_piece(QUEEN, ~US), make_piece(ROOK, ~US)>())) |
+                          (bitboards::get_attacks<BISHOP>(ksq) & (pieces<make_piece(QUEEN, ~US), make_piece(BISHOP, ~US)>()));
+    const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
+
+    while (candidates)
+    {
+        const Square sq = bitboards::pop_lsb(candidates);
+        const Bitboard bb = bitboards::between_squares(ksq, sq) & occupancy;
+
+        if (bb && !bitboards::multiple_bits(bb))
         {
-            if (const Square candidate = bitboards::pop_lsb(candidates); bitboards::between_squares(ksq, candidate) & sq) { return candidate; }
+            bs->blockers[US] |= bb;
+            if (bb & occ_bb[US]) { bs->pinners[~US] |= sq; }
         }
     }
-
-    return SQ_NONE;
 }
 
 // explicit template instantiations
-template Square Position::get_pinner<WHITE>(Square sq) const;
-template Square Position::get_pinner<BLACK>(Square sq) const;
+template void Position::update_pinners_blockers<WHITE>() const;
+template void Position::update_pinners_blockers<BLACK>() const;
 
-// returns if a square is in danger of a discovery attack by a rook or bishop
-template <Colour US> bool Position::is_discovery_threat(const Square sq) const
+template <Colour US> bool Position::weak_queen(const Square sq) const
 {
-    // pawn is immobile if it attacks no enemies and is blocked by a piece
-    // we don't have to worry about shift because discovery pawns will never be on outer files
     Bitboard their_immobile_pawns = (bitboards::shift<pawn_push(US)>(occ_bb[BOTH]) & pc_bb[make_piece(PAWN, ~US)]) &
                                     ~(bitboards::shift<pawn_push(US) + EAST>(occ_bb[US]) | bitboards::shift<pawn_push(US) + WEST>(occ_bb[US]));
 
     if (side == ~US && bs->en_passant != SQ_NONE) { their_immobile_pawns &= ~bitboards::PAWN_ATTACKS[US][bs->en_passant]; }
 
     Bitboard candidates =
-        ((bitboards::get_attacks<ROOK>(pc_bb[W_PAWN] | pc_bb[B_PAWN], sq) & (pc_bb[make_piece(ROOK, ~US)])) |
+        ((bitboards::get_attacks<ROOK>(piece_types<PAWN>(), sq) & (pc_bb[make_piece(ROOK, ~US)])) |
          (bitboards::get_attacks<BISHOP>(pc_bb[make_piece(PAWN, US)] | their_immobile_pawns, sq) & (pc_bb[make_piece(BISHOP, ~US)])));
 
     const Bitboard occupancy = occ_bb[BOTH] ^ candidates;
@@ -121,8 +124,8 @@ template <Colour US> bool Position::is_discovery_threat(const Square sq) const
 }
 
 // explicit template instantiations
-template bool Position::is_discovery_threat<WHITE>(Square sq) const;
-template bool Position::is_discovery_threat<BLACK>(Square sq) const;
+template bool Position::weak_queen<WHITE>(const Square sq) const;
+template bool Position::weak_queen<BLACK>(const Square sq) const;
 
 std::string Position::get_fen() const
 {
@@ -221,6 +224,8 @@ void Position::set(const char* fen)
     bs->key = make_key();
     bs->pawn_key = make_pawn_key();
     bs->ply_null = 0;
+    update_pinners_blockers<WHITE>();
+    update_pinners_blockers<BLACK>();
 }
 
 void Position::reset()
@@ -262,11 +267,12 @@ Key Position::make_pawn_key() const
     return k;
 }
 
-bool Position::see_ge(const Move move, const int threshold) const
+int Position::see(const Move move) const
 {
-    // don't even bother
-    if (move_promotion_type(move) || move_en_passant(move)) { return true; }
-
+    // this function will not work for quiet moves that arent promotions because of how we update attackers bitboard
+    assert(move_capture(move) || move_promotion_type(move));
+    // don't even bother with special moves
+    if (move_en_passant(move) || move_promotion_type(move)) { return 0; }
     std::array<int, 32> gain{};
     int d = 0;
     Square from = move_from_sq(move);
@@ -275,28 +281,23 @@ bool Position::see_ge(const Move move, const int threshold) const
     Bitboard attackers = attackers_to(to);
     Colour stm = side;
 
-    gain[d] = PIECE_VALUE[pc_table[to]];
+    gain[0] = SEE_PIECE_VALUE[pc_table[to]];
 
-    while (true)
+    while (from != SQ_NONE)
     {
         stm = ~stm;
         d++;
         assert(d < 32);
-        gain[d] = PIECE_VALUE[pc_table[from]] - gain[d - 1];
-
-        if (std::max(-gain[d - 1], gain[d]) < threshold) { break; }
-
+        gain[d] = SEE_PIECE_VALUE[pc_table[from]] - gain[d - 1];
         attackers ^= from;
         occ ^= from;
         attackers |= consider_xray(occ, to, piece_type(pc_table[from]));
         from = get_smallest_attacker(attackers, stm);
-
-        if (from == SQ_NONE) { break; }
     }
 
     while (--d) { gain[d - 1] = -std::max(-gain[d - 1], gain[d]); }
 
-    return gain[0] >= threshold;
+    return gain[0];
 }
 
 // updates bitboards to represent a new piece on a square
@@ -347,7 +348,7 @@ template <bool NM> void Position::new_board_state()
     auto bs_new = std::make_unique<BoardState>();
     bs_new->en_passant = bs->en_passant;
     bs_new->castle = bs->castle;
-    bs_new->hmc = bs->hmc + 1;
+    bs_new->hmc = NM ? bs->hmc : bs->hmc + 1; // TODO: does a null move increase HMC?
     bs_new->fmc = bs->fmc + (side == BLACK);
     bs_new->ply_null = NM ? 0 : bs->ply_null + 1;
     bs_new->key = bs->key ^ zobrist::ZOBRIST_COLOUR;
@@ -369,6 +370,8 @@ void Position::do_null_move()
 {
     new_board_state<true>();
     side = ~side;
+    update_pinners_blockers<WHITE>();
+    update_pinners_blockers<BLACK>();
 }
 
 // reverts a null move and rolls back the position
@@ -472,6 +475,10 @@ bool Position::do_move(const Move move)
     const bool valid = !is_king_in_check();
     side = ~side;
     if (!valid) { undo_move(move); }
+
+    update_pinners_blockers<WHITE>();
+    update_pinners_blockers<BLACK>();
+
     return valid;
 }
 
@@ -548,6 +555,64 @@ void Position::print_position() const
         std::cout << '\n';
     }
     std::cout << "  a b c d e f g h" << '\n' << '\n' << get_fen() << '\n' << '\n';
+}
+
+Move Position::parse(std::string move) const
+{
+    if (move[move.length() - 1] == '+' || move[move.length() - 1] == '#') { move = move.substr(0, move.length() - 1); }
+
+    if (move.find("O-O") != std::string::npos)
+    {
+        return encode_move(relative_square(side, E1), relative_square(side, move == "O-O" ? G1 : C1), make_piece(KING, side), NO_PIECE, false, false,
+                           false, true);
+    }
+    if (islower(move[0]))
+    { // pawn moves
+        const Piece promo =
+            move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(PIECE_STR.find(move[move.length() - 1])), side) : NO_PIECE;
+        const Square to = (promo == NO_PIECE) ? str2sq(move.substr(move.length() - 2)) : str2sq(move.substr(move.length() - 4, 2));
+        const Square from = (move[1] == 'x') ? make_square(static_cast<File>(move[0] - 'a'), rank_of(to - pawn_push(side)))
+                            : pc_table[to - pawn_push(side)] == NO_PIECE ? to - 2 * pawn_push(side)
+                                                                         : to - pawn_push(side);
+
+        return encode_move(from, to, make_piece(PAWN, side), promo, move.find('x') != std::string::npos, abs(rank_of(to) - rank_of(from)) == 2,
+                           bs->en_passant == to, false);
+    }
+    // major moves
+    const Piece piece = make_piece(static_cast<PieceType>(PIECE_STR.find(move[0])), side);
+    const Square to = str2sq(move.substr(move.length() - 2));
+    Bitboard bb = bitboards::get_attacks(piece_type(piece), occ_bb[BOTH], to) & pc_bb[piece];
+    Square from = bitboards::pop_lsb(bb);
+
+    if (move[1] == 'x' || move.length() == 3)
+    {
+        // one of the pieces that attacks this square is pinned
+        if (bb)
+        {
+            if (side == WHITE)
+            {
+                while (get_blockers<WHITE>() & from) { from = bitboards::pop_lsb(bb); }
+            }
+            else
+            {
+                while (get_blockers<BLACK>() & from) { from = bitboards::pop_lsb(bb); }
+            }
+        }
+    }
+    else if (move[2] == 'x' || move.length() == 4)
+    {
+        // there are multiple matching pieces that attack this square
+        if (isdigit(move[1]))
+        {
+            while (rank_of(from) != static_cast<Rank>(move[1] - '1')) { from = bitboards::pop_lsb(bb); }
+        }
+        else
+        {
+            while (file_of(from) != static_cast<File>(move[1] - 'a')) { from = bitboards::pop_lsb(bb); }
+        }
+    }
+
+    return encode_move(from, to, piece, NO_PIECE, move.find('x') != std::string::npos, false, false, false);
 }
 
 } // namespace clovis
