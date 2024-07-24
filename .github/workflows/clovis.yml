@@ -143,6 +143,7 @@ jobs:
 
     - name: Run self-play games
       run: |
+        set -e
         ./fast-chess/fast-chess \
           -engine cmd=build/bin/Release/clovis name=clovis-new \
           -engine cmd=build/bin/Release/clovis name=clovis-old \
@@ -151,6 +152,7 @@ jobs:
           -rounds 200 \
           -repeat \
           -concurrency 32 \
+          -pgnout file=self-play.pgn \
 
     - name: Upload PGN file
       uses: actions/upload-artifact@v2
