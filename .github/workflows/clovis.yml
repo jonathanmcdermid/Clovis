@@ -139,7 +139,7 @@ jobs:
     - name: test engine
       if: always()
       run: |
-        ./build/bin/Release/clovis perft ./resources/perft.epd > /dev/null
+        ./build/bin/Release/clovis perft ./resources/perft.epd
 
     - name: Run self-play games
       run: |
