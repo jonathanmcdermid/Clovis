@@ -143,11 +143,12 @@ jobs:
           -engine cmd=build/bin/Release/clovis name=clovis-new \
           -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
           -each tc=5+0.1 \
-          -openings file=resources/silver-suite.pgn format=pgn order=random \
+          -openings file=fast-chess/app/tests/data/openings.epd format=epd order=random \
           -rounds 200 \
           -repeat \
           -concurrency 32 \
           -pgnout file=self-play.pgn \
+          -draw movenumber=150 score=1000
 
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
