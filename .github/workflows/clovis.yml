@@ -140,7 +140,7 @@ jobs:
       run: |
         ./fast-chess/fast-chess \
           -engine cmd=build/bin/Release/clovis name=clovis-new \
-          -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
+          -engine cmd=build/bin/Release/clovis name=clovis-old \
           -each tc=5+0.1 \
           -openings file=fast-chess/app/tests/data/openings.epd format=epd order=random \
           -rounds 200 \
