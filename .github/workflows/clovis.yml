@@ -156,13 +156,13 @@ jobs:
           -log file=log.txt level=trace \
 
     - name: Upload PGN file
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4.3.0
       with:
         name: self-play-pgn
         path: self-play.pgn
 
     - name: Upload Log file
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4.3.0
       with:
         name: log.txt
         path: log.txt
