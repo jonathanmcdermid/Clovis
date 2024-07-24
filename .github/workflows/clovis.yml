@@ -151,7 +151,7 @@ jobs:
           -openings file=fast-chess/app/tests/data/openings.epd format=epd order=random \
           -rounds 200 \
           -repeat \
-          -concurrency 32 \
+          -concurrency 1 \
           -pgnout file=self-play.pgn \
           -log file=log.txt level=trace \
 
