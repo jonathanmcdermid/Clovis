@@ -382,8 +382,7 @@ void start_search(Position& pos, const SearchLimits& limits, SearchInfo& info)
 
             const auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count();
 
-            std::cout << "info depth " << std::setw(2) << depth << " score cp " << std::setw(4) << info.score << " nodes " << std::setw(8)
-                      << info.nodes << " time " << std::setw(6) << elapsed_time << " nps " << std::setw(8)
+            std::cout << "info depth " << depth << " score cp " << info.score << " nodes " << info.nodes << " time " << elapsed_time << " nps "
                       << 1000ULL * info.nodes / (elapsed_time + 1) << " pv ";
 
             for (const auto& it : info.pv_line) { std::cout << it << " "; }
