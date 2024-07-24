@@ -153,12 +153,19 @@ jobs:
           -repeat \
           -concurrency 32 \
           -pgnout file=self-play.pgn \
+          -log file=log.txt level=trace \
 
     - name: Upload PGN file
       uses: actions/upload-artifact@v2
       with:
         name: self-play-pgn
         path: self-play.pgn
+
+    - name: Upload Log file
+      uses: actions/upload-artifact@v2
+      with:
+        name: log.txt
+        path: log.txt
 
   # =========================================================
   # Clang Format Job
