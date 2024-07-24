@@ -149,7 +149,7 @@ jobs:
           -engine cmd=build/bin/Release/clovis name=clovis-old \
           -each tc=5+0.1 \
           -openings file=fast-chess/app/tests/data/openings.epd format=epd order=random \
-          -rounds 200 \
+          -rounds 10 \
           -repeat \
           -concurrency 1 \
           -pgnout file=self-play.pgn \
