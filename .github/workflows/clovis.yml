@@ -148,7 +148,7 @@ jobs:
           -repeat \
           -concurrency 32 \
           -pgnout file=self-play.pgn \
-          -draw movenumber=150 score=1000
+          -draw movenumber=100 score=1000
 
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
