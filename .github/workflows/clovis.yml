@@ -131,29 +131,23 @@ jobs:
       working-directory: fast-chess
       run: make -j
 
-    # - name: Download clovis-release-gcc-linux artifact
-    #   run: |
-    #     curl -L -o build/clovis-release-gcc-linux https://github.com/jonathanmcdermid/Clovis/releases/download/III/clovis-release-gcc-linux
-    #     chmod +x build/clovis-release-gcc-linux
-
-    - name: test engine
-      if: always()
+    - name: Download clovis-release-gcc-linux artifact
       run: |
-        ./build/bin/Release/clovis perft ./resources/perft.epd
+        curl -L -o build/clovis-release-gcc-linux https://github.com/jonathanmcdermid/Clovis/releases/download/III/clovis-release-gcc-linux
+        chmod +x build/clovis-release-gcc-linux
 
     - name: Run self-play games
       run: |
         set -e
         ./fast-chess/fast-chess \
           -engine cmd=build/bin/Release/clovis name=clovis-new \
-          -engine cmd=build/bin/Release/clovis name=clovis-old \
+          -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
           -each tc=5+0.1 \
           -openings file=resources/silver-suite.pgn format=pgn order=random \
           -rounds 200 \
           -repeat \
           -concurrency 32 \
           -pgnout file=self-play.pgn \
-          -log file=log.txt level=trace \
 
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
