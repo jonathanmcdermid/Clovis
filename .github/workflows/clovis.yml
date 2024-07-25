@@ -155,7 +155,6 @@ jobs:
       working-directory: cutechess
       run: |
         set -e
-        ./build/cutechess-cli --help
         ./build/cutechess-cli \
           -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
           -engine name=clovis-new cmd="../build/bin/Release/clovis" \
