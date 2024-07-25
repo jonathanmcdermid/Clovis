@@ -163,7 +163,7 @@ jobs:
           -rounds 200 \
           -repeat 2 \
           -maxmoves 200 \
-          -resign score=1000 \
+          -resign movecount=1 score=1000 twosided=true \
           #-openings file=./resources/silver.epd format=epd order=random \
           -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
           -concurrency 32 \
