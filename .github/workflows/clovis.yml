@@ -162,7 +162,7 @@ jobs:
           -each proto=uci tc=inf/5+0.1 \
           -games 2 \
           -rounds 200 \
-          -repeat 2 
+          -repeat 2 \
           -maxmoves 200 \
           -resign score=1000 \
           -openings file=./resources/silver.epd format=epd order=random \
