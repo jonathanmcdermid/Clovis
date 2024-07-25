@@ -149,7 +149,6 @@ jobs:
           -concurrency 4 \
           -pgnout file=self-play.pgn \
           -maxmoves 200 \
-          -resign score=1000 \
           -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
 
     - name: Upload PGN file
