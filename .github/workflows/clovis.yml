@@ -143,11 +143,7 @@ jobs:
     - name: Self-play
       run: |
         set -e
-        ls
-        cd fast-chess
-        ls
-        cd ..
-        ./fast-chess/fast-chess \
+        ./fastchess/fast-chess \
           -engine cmd=build/bin/Release/clovis name=clovis-new \
           -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
           -each tc=5+0.1 \
@@ -157,7 +153,7 @@ jobs:
           -maxmoves 200 \
           -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
           -pgnout file=self-play.pgn \
-              
+             
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
       with:
