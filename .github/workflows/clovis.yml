@@ -143,11 +143,10 @@ jobs:
     - name: Self-play
       run: |
         set -e
-        ls
-        cd fastchess
+        cd fast-chess
         ls
         cd ..
-        ./fastchess/fast-chess \
+        ./fast-chess/fastchess \
           -engine cmd=build/bin/Release/clovis name=clovis-new \
           -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
           -each tc=5+0.1 \
