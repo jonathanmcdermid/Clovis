@@ -124,13 +124,11 @@ jobs:
     - name: Build
       run: cmake --build build --parallel --config Release
 
-    - name: Checkout cutechess
+    - name: Checkout fast-chess
       uses: actions/checkout@v4
       with:
-        repository: cutechess/cutechess
-        path: cutechess
-        ref: master
-        persist-credentials: false
+        repository: Disservin/fast-chess
+        path: fast-chess
 
     - name: Build fast-chess
       working-directory: fast-chess
