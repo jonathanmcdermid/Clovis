@@ -132,18 +132,9 @@ jobs:
         ref: master
         persist-credentials: false
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qtbase5-dev qt5-qmake libqt5svg5-dev
-    
-    - name: Build cutechess
-      working-directory: cutechess
-      run: |
-        mkdir build
-        cd build
-        cmake ..
-        make -j
+    - name: Build fast-chess
+      working-directory: fast-chess
+      run: make -j
     
     - name: Download clovis-release-gcc-linux artifact
       run: |
@@ -151,30 +142,32 @@ jobs:
         chmod +x build/clovis-release-gcc-linux
     
     - name: Self-play
-      shell: bash
-      working-directory: cutechess
       run: |
         set -e
-        ./build/cutechess-cli \
-          -engine name=clovis-new cmd="../build/bin/Release/clovis" \
-          -engine name=clovis-old cmd="../build/clovis-release-gcc-linux" \
-          -each proto=uci tc=inf/5+0.1 \
-          -games 2 -rounds 200 -repeat 2 -maxmoves 200 \
-          -openings file=../resources/silver.epd format=epd order=random \
+        ./fast-chess/fast-chess \
+          -engine cmd=build/bin/Release/clovis name=clovis-new \
+          -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
+          -each tc=5+0.1 \
+          -openings file=resources/silver.epd format=epd order=random \
+          -rounds 200 \
+          -repeat \
+          -concurrency 4 \
+          -maxmoves 200 \
+          -resign score=1000 \
           -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
-          -concurrency 32 \
-          -resultformat "results - %s wins, %s draws, %s losses" # > results.log
+          -pgnout file=self-play.pgn \
               
-        # los_line=$(grep "LOS:" results.log)
-        # echo "LOS line: $los_line"
-        # 
-        # los_percentage=$(echo "$los_line" | awk '{print $7}' | tr -d '%')
-        # echo "LOS percentage: $los_percentage"
-        # 
-        # if [ $(echo "$los_percentage < 5.0" | bc) -eq 1 ]; then
-        #   echo "Error: Likelihood of superiority (LOS) is less than 10%."
-        #   exit 1
-        # fi
+    - name: Upload PGN file
+      uses: actions/upload-artifact@v4.3.0
+      with:
+        name: self-play-pgn
+        path: self-play.pgn
+
+    - name: Upload Log file
+      uses: actions/upload-artifact@v4.3.0
+      with:
+        name: log.txt
+        path: log.txt
 
   # =========================================================
   # Clang Format Job
