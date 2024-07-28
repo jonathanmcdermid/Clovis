@@ -95,6 +95,7 @@ jobs:
 
     - name: Self-play
       if: env.BUILD_TYPE == 'Release'
+      shell: bash
       run: |
         set -e
         ./fast-chess/fastchess \
