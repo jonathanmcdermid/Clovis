@@ -98,8 +98,8 @@ jobs:
       run: |
         set -e
         ./fast-chess/fastchess \
-          -engine cmd=build/bin/Release/clovis name=clovis\
-          -engine cmd=build/bin/Release/clovis name=clovis\
+          -engine cmd=build/bin/Release/clovis name=clovis1\
+          -engine cmd=build/bin/Release/clovis name=clovis2\
           -each tc=1+0.08 \
           -openings file=resources/silver.epd format=epd order=random \
           -rounds 200 \
