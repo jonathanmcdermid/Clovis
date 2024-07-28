@@ -106,11 +106,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Clang
-      uses: KyleMayes/install-llvm-action@v1
-      with:
-        version: "17.0"
-
     - name: Install Conan
       id: conan
       uses: turtlebrowser/get-conan@main
@@ -119,7 +114,7 @@ jobs:
       uses: lukka/get-cmake@latest
 
     - name: Configure
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DBUILD_TESTS=OFF -DBUILD_TOOLS=OFF
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DBUILD_TESTS=OFF -DBUILD_TOOLS=OFF
 
     - name: Build
       run: cmake --build build --parallel --config Release
