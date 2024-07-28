@@ -80,12 +80,40 @@ jobs:
       shell: bash
       run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14299399 resources/bench.csv
 
+    - name: Checkout fast-chess
+      if: env.BUILD_TYPE == 'Release'
+      uses: actions/checkout@v4
+      with:
+        repository: Disservin/fast-chess
+        path: fast-chess
+        ref: master
+
+    - name: Build fast-chess
+      if: env.BUILD_TYPE == 'Release'
+      working-directory: fast-chess
+      run: make -j
+
+    - name: Self-play
+      if: env.BUILD_TYPE == 'Release'
+      run: |
+        set -e
+        ./fast-chess/fastchess \
+          -engine cmd=build/bin/Release/clovis name=clovis\
+          -engine cmd=build/bin/Release/clovis name=clovis\
+          -each tc=1+0.08 \
+          -openings file=resources/silver.epd format=epd order=random \
+          -rounds 200 \
+          -repeat \
+          -concurrency 4 \
+          -maxmoves 200 \
+          -pgnout file=self-play.pgn
+
     - name: Process Data
       if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/process resources/games.pgn resources/processed.epd 100000 > /dev/null
+        ./build/bin/$BUILD_TYPE/process self-play.pgn resources/processed.epd > /dev/null
       #run: python tools/process.py build/bin/$BUILD_TYPE/clovis resources/games.pgn resources/processed.epd
 
     - name: Tune Evaluation
@@ -141,7 +169,7 @@ jobs:
         ./fast-chess/fastchess \
           -engine cmd=build/bin/Release/clovis name=clovis-new \
           -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
-          -each tc=5+0.1 \
+          -each tc=1+0.08 \
           -openings file=resources/silver.epd format=epd order=random \
           -rounds 200 \
           -repeat \
