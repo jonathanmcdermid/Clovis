@@ -182,6 +182,7 @@ jobs:
           -each tc=1+0.08 \
           -openings file=resources/silver.epd format=epd order=random \
           -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
+          -rounds 500
           -repeat \
           -concurrency 4 \
           -maxmoves 200 \
