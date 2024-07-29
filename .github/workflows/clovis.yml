@@ -107,8 +107,7 @@ jobs:
           -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
           -each tc=1+0.08 \
           -openings file=resources/silver.epd format=epd order=random \
-          -rounds 200 \
-          -repeat \
+          -rounds 100 \
           -concurrency 4 \
           -maxmoves 200 \
           -pgnout file=self-play.pgn
