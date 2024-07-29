@@ -94,13 +94,17 @@ jobs:
       run: make -j
 
     - name: Self-play
-      if: env.BUILD_TYPE == 'Release'
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
       shell: bash
       run: |
         set -e
+        ls
+        cd fast-chess
+        ls
+        cd ..
         ./fast-chess/fastchess \
-          -engine cmd=build/bin/Release/clovis name=clovis1\
-          -engine cmd=build/bin/Release/clovis name=clovis2\
+          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
+          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
           -each tc=1+0.08 \
           -openings file=resources/silver.epd format=epd order=random \
           -rounds 200 \
