@@ -176,11 +176,11 @@ jobs:
           -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
           -each tc=1+0.08 \
           -openings file=resources/silver.epd format=epd order=random \
-          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
           -rounds 500
           -repeat \
           -concurrency 4 \
           -maxmoves 200 \
+          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
           -pgnout file=self-play.pgn
               
     - name: Upload PGN file
