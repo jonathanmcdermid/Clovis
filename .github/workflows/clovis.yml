@@ -179,9 +179,9 @@ jobs:
           -rounds 500
           -repeat \
           -concurrency 4 \
+          -pgnout file=self-play.pgn \
           -maxmoves 200 \
-          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
-          -pgnout file=self-play.pgn
+          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05
               
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
