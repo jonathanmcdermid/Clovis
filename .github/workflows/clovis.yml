@@ -103,10 +103,11 @@ jobs:
           -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
           -each tc=1+0.08 \
           -openings file=resources/silver.epd format=epd order=random \
-          -rounds 100 \
+          -rounds 50 \
+          -repeat \
           -concurrency 4 \
           -maxmoves 200 \
-          -pgnout file=self-play.pgn
+          -pgnout file=self-play.pgn min=true
 
     - name: Process Data
       if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
@@ -180,8 +181,8 @@ jobs:
           -repeat \
           -concurrency 4 \
           -maxmoves 200 \
-          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
-          -pgnout file=self-play.pgn
+          -sprt elo0=0 elo1=10 alpha=0.10 beta=0.10 \
+          -pgnout file=self-play.pgn min=true
               
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
