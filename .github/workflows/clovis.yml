@@ -114,16 +114,16 @@ jobs:
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/process resources/games.pgn resources/processed.epd > /dev/null
-      #run: python tools/process.py build/bin/$BUILD_TYPE/clovis resources/games.pgn resources/processed.epd
+        ./build/bin/$BUILD_TYPE/process self-play.pgn resources/self-play.epd > /dev/null
+      #run: python tools/process.py build/bin/$BUILD_TYPE/clovis self-play.pgn resources/processed.epd
 
     - name: Tune Evaluation
       if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        cat resources/processed.epd >> resources/quiet-labeled.epd
-        ./build/bin/$BUILD_TYPE/clovis tune ./resources/quiet-labeled.epd 300
+        #cat resources/self-play.epd >> resources/quiet-labeled.epd
+        ./build/bin/$BUILD_TYPE/clovis tune ./resources/self-play.epd 300
 
   # =========================================================
   # SPRT Job
