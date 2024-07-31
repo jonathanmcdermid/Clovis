@@ -177,27 +177,19 @@ jobs:
           -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
           -openings file=resources/silver.epd format=epd order=random \
           -each tc=1+0.08 \
-          -rounds 50 \
+          -rounds 500 \
           -repeat \
           -concurrency 4 \
           -maxmoves 200 \
           -sprt elo0=0 elo1=10 alpha=0.10 beta=0.10 \
           -pgnout file=self-play.pgn min=true > output.txt 2>&1 # Redirect both stdout and stderr to output.txt
     
+    - name: LOS
+      run: |
         cat output.txt
-
-        # Extract and print the LOS percentage
         LOS=$(grep "LOS:" output.txt | tail -n 1 | awk '{print $2}')
-        echo "Actual LOS: $LOS"
-        
-        # Check if LOS percentage is 100%
-        if [ "$LOS" = "100.00" ]; then
-          echo "Test passed: LOS is 100%"
-          exit 0
-        else
-          echo "Test failed: LOS is not 100%"
-          exit 1
-        fi
+        echo $LOS
+        [ "$LOS" = "100.00%" ] && exit 0 || exit 1
     
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
