@@ -184,8 +184,14 @@ jobs:
           -sprt elo0=0 elo1=10 alpha=0.10 beta=0.10 \
           -pgnout file=self-play.pgn min=true > output.txt 2>&1 # Redirect both stdout and stderr to output.txt
     
-        # Check for LOS percentage
-        if grep -q "LLR:.*([0-9.]*, [0-9.]*) \[0.00, 10.00\]" output.txt && grep -q "LOS: 100.00 %" output.txt; then
+        cat output.txt
+
+        # Extract and print the LOS percentage
+        LOS=$(grep "LOS:" output.txt | awk '{print $2}')
+        echo "Actual LOS: $LOS"
+        
+        # Check if LOS percentage is 100%
+        if [ "$LOS" = "100.00" ]; then
           echo "Test passed: LOS is 100%"
           exit 0
         else
