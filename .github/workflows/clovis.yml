@@ -187,7 +187,7 @@ jobs:
         cat output.txt
 
         # Extract and print the LOS percentage
-        LOS=$(grep "LOS:" output.txt | awk '{print $2}')
+        LOS=$(grep "LOS:" output.txt | tail -n 1 | awk '{print $2}')
         echo "Actual LOS: $LOS"
         
         # Check if LOS percentage is 100%
