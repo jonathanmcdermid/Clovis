@@ -182,19 +182,22 @@ jobs:
           -concurrency 4 \
           -maxmoves 200 \
           -sprt elo0=0 elo1=10 alpha=0.10 beta=0.10 \
-          -pgnout file=self-play.pgn min=true
-              
+          -pgnout file=self-play.pgn min=true > output.txt 2>&1 # Redirect both stdout and stderr to output.txt
+    
+        # Check for LOS percentage
+        if grep -q "LLR:.*([0-9.]*, [0-9.]*) \[0.00, 10.00\]" output.txt && grep -q "LOS: 100.00 %" output.txt; then
+          echo "Test passed: LOS is 100%"
+          exit 0
+        else
+          echo "Test failed: LOS is not 100%"
+          exit 1
+        fi
+    
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
       with:
         name: self-play-pgn
         path: self-play.pgn
-
-    - name: Upload Log file
-      uses: actions/upload-artifact@v4.3.0
-      with:
-        name: log.txt
-        path: log.txt
 
   # =========================================================
   # Clang Format Job
