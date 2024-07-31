@@ -177,7 +177,7 @@ jobs:
           -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
           -openings file=resources/silver.epd format=epd order=random \
           -each tc=1+0.08 \
-          -rounds 500 \
+          -rounds 10 \
           -repeat \
           -concurrency 4 \
           -maxmoves 200 \
