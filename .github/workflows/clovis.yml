@@ -181,7 +181,7 @@ jobs:
           -repeat \
           -concurrency 4 \
           -maxmoves 200 \
-          -sprt elo0=0 elo1=10 alpha=0.10 beta=0.10 \
+          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
           -pgnout file=self-play.pgn min=true > output.txt 2>&1 # Redirect both stdout and stderr to output.txt
     
     - name: LOS
