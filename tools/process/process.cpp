@@ -71,11 +71,7 @@ int main(const int argc, char* argv[])
 
         while (getline(ifs, line))
         {
-            if (line.find(std::to_string(pos.get_full_move_clock()) + "... ") != std::string::npos ||
-                line.find(std::to_string(pos.get_full_move_clock()) + ". ") != std::string::npos)
-            {
-                break;
-            }
+            if (line.find("1... ") != std::string::npos || line.find("1. ") != std::string::npos) { break; }
         }
 
         bool live = true;
