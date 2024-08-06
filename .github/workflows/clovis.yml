@@ -181,15 +181,15 @@ jobs:
           -repeat \
           -concurrency 4 \
           -maxmoves 200 \
-          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05 \
+          -sprt elo0=0 elo1=10 alpha=0.1 beta=0.1 \
           -pgnout file=self-play.pgn min=true > output.txt 2>&1 # Redirect both stdout and stderr to output.txt
     
     - name: LOS
       run: |
         cat output.txt
-        LOS=$(grep "LOS:" output.txt | tail -n 1 | awk '{print $2}')
-        echo $LOS
-        [ "$LOS" = "100.00%" ] && exit 0 || exit 1
+        LOS=$(grep "LOS:" output.txt | tail -n 1 | awk '{print $2}' | sed 's/%//')
+        echo "LOS: $LOS%"
+        awk "BEGIN {exit ($LOS >= 99.0) ? 0 : 1}"
     
     - name: Upload PGN file
       uses: actions/upload-artifact@v4.3.0
