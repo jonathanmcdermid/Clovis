@@ -81,7 +81,7 @@ jobs:
       run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14299399 resources/bench.csv
 
     - name: Checkout fast-chess
-      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      if: env.BUILD_TYPE == 'Release'
       uses: actions/checkout@v4
       with:
         repository: Disservin/fast-chess
@@ -89,12 +89,12 @@ jobs:
         ref: master
 
     - name: Build fast-chess
-      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      if: env.BUILD_TYPE == 'Release'
       working-directory: fast-chess
       run: make -j
 
     - name: Self-play
-      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: |
         set -e
@@ -110,7 +110,7 @@ jobs:
           -pgnout file=self-play.pgn min=true
 
     - name: Process Data
-      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
@@ -118,7 +118,7 @@ jobs:
       #run: python tools/process.py build/bin/$BUILD_TYPE/clovis self-play.pgn resources/processed.epd
 
     - name: Tune Evaluation
-      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
