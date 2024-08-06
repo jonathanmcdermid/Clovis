@@ -98,20 +98,29 @@ jobs:
       shell: bash
       run: |
         set -e
-        ls
-        cd fast-chess
-        ls 
-        cd ..
-        ./fast-chess/fastchess \
-          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
-          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
-          -each tc=1+0.08 \
-          -openings file=resources/silver.epd format=epd order=random \
-          -rounds 50 \
-          -repeat \
-          -concurrency 4 \
-          -maxmoves 200 \
-          -pgnout file=self-play.pgn min=true
+        if [ "${{ env.OPEATING_SYSTEM }}" == "linux" ]; then
+          ./fast-chess/fastchess \
+            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
+            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
+            -each tc=1+0.08 \
+            -openings file=resources/silver.epd format=epd order=random \
+            -rounds 50 \
+            -repeat \
+            -concurrency 4 \
+            -maxmoves 200 \
+            -pgnout file=self-play.pgn min=true
+        elif [ "${{ env.OPEATING_SYSTEM }}" == "windows" ]; then
+          ./fast-chess/fastchess.exe \
+            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
+            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
+            -each tc=1+0.08 \
+            -openings file=resources/silver.epd format=epd order=random \
+            -rounds 50 \
+            -repeat \
+            -concurrency 4 \
+            -maxmoves 200 \
+            -pgnout file=self-play.pgn min=true
+        fi
 
     - name: Process Data
       if: env.BUILD_TYPE == 'Release'
