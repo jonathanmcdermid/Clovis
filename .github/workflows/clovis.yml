@@ -81,7 +81,7 @@ jobs:
       run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14299399 resources/bench.csv
 
     - name: Checkout fast-chess
-      if: env.BUILD_TYPE == 'Release'
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
       uses: actions/checkout@v4
       with:
         repository: Disservin/fast-chess
@@ -89,46 +89,28 @@ jobs:
         ref: master
 
     - name: Build fast-chess
-      if: env.BUILD_TYPE == 'Release'
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
       working-directory: fast-chess
       run: make -j
 
     - name: Self-play
-      if: env.BUILD_TYPE == 'Release'
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
       shell: bash
       run: |
         set -e
-        if [ "${{ env.OPERATING_SYSTEM }}" == "linux" ]; then
-          ./fast-chess/fastchess \
-            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
-            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
-            -each tc=1+0.08 \
-            -openings file=resources/silver.epd format=epd order=random \
-            -rounds 50 \
-            -repeat \
-            -concurrency 4 \
-            -maxmoves 200 \
-            -pgnout file=self-play.pgn min=true
-        elif [ "${{ env.OPERATING_SYSTEM }}" == "windows" ]; then
-          cd fast-chess
-          ls
-          chmod +x fastchess.exe
-          ./fastchess.exe --version
-          cd ..
-          ./fast-chess/fastchess.exe \
-            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
-            -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
-            -each tc=1+0.08 \
-            -openings file=resources/silver.epd format=epd order=random \
-            -rounds 50 \
-            -repeat \
-            -concurrency 4 \
-            -maxmoves 200 \
-            -pgnout file=self-play.pgn min=true
-        fi
+        ./fast-chess/fastchess \
+          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
+          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
+          -each tc=1+0.08 \
+          -openings file=resources/silver.epd format=epd order=random \
+          -rounds 50 \
+          -repeat \
+          -concurrency 4 \
+          -maxmoves 200 \
+          -pgnout file=self-play.pgn min=true
 
     - name: Process Data
-      if: env.BUILD_TYPE == 'Release'
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
@@ -136,7 +118,7 @@ jobs:
       #run: python tools/process.py build/bin/$BUILD_TYPE/clovis self-play.pgn resources/processed.epd
 
     - name: Tune Evaluation
-      if: env.BUILD_TYPE == 'Release'
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
