@@ -98,7 +98,10 @@ jobs:
       shell: bash
       run: |
         set -e
-        ./fast-chess/fastchess --version
+        ls
+        cd fast-chess
+        ls 
+        cd ..
         ./fast-chess/fastchess \
           -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
           -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
