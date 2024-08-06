@@ -110,6 +110,10 @@ jobs:
             -maxmoves 200 \
             -pgnout file=self-play.pgn min=true
         elif [ "${{ env.OPERATING_SYSTEM }}" == "windows" ]; then
+          cd fast-chess
+          ls
+          fastchess.exe --version
+          cd ..
           ./fast-chess/fastchess.exe \
             -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
             -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
