@@ -98,7 +98,7 @@ jobs:
       shell: bash
       run: |
         set -e
-        if [ "${{ env.OPEATING_SYSTEM }}" == "linux" ]; then
+        if [ "${{ env.OPERATING_SYSTEM }}" == "linux" ]; then
           ./fast-chess/fastchess \
             -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
             -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
@@ -109,7 +109,7 @@ jobs:
             -concurrency 4 \
             -maxmoves 200 \
             -pgnout file=self-play.pgn min=true
-        elif [ "${{ env.OPEATING_SYSTEM }}" == "windows" ]; then
+        elif [ "${{ env.OPERATING_SYSTEM }}" == "windows" ]; then
           ./fast-chess/fastchess.exe \
             -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
             -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
