@@ -112,6 +112,7 @@ jobs:
         elif [ "${{ env.OPERATING_SYSTEM }}" == "windows" ]; then
           cd fast-chess
           ls
+          chmod +x fastchess.exe
           ./fastchess.exe --version
           cd ..
           ./fast-chess/fastchess.exe \
