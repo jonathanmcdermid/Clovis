@@ -1,0 +1,7 @@
+set(TARGET_NAME "clovis_test")
+file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+add_executable(${TARGET_NAME} ${SOURCES})
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/src)
+find_package(GTest REQUIRED CONFIG)
+target_link_libraries(${TARGET_NAME} PUBLIC clovis_lib GTest::gtest GTest::gtest_main)
+add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} ${CMAKE_SOURCE_DIR})

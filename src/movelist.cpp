@@ -1,22 +1,22 @@
-#include "movelist.h"
+#include "movelist.hpp"
 
 namespace clovis::move_gen {
 
 template <typename T, MoveType M, PieceType PT, Colour US> T* generate_majors(const Position& pos, T* moves)
 {
-    Bitboard bb = pos.pc_bb[make_piece(PT, US)];
-
-    Bitboard tar_bb = M == ALL_MOVES ? ~pos.occ_bb[US] : M == QUIET_MOVES ? ~pos.occ_bb[BOTH] : pos.occ_bb[~US];
+    Bitboard bb = pos.pieces<make_piece(PT, US)>();
+    Bitboard tar_bb = M == MoveType::ALL ? ~pos.get_occ_bb(US) : M == MoveType::QUIET ? ~pos.get_occ_bb(BOTH) : pos.get_occ_bb(~US);
 
     while (bb)
     {
         const Square src = bitboards::pop_lsb(bb);
-        Bitboard att = bitboards::get_attacks<PT>(pos.occ_bb[BOTH], src) & tar_bb;
+        Bitboard att = bitboards::get_attacks<PT>(pos.get_occ_bb(BOTH), src) & tar_bb;
 
         while (att)
         {
             const Square tar = bitboards::pop_lsb(att);
-            *moves++ = encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == QUIET_MOVES ? false : pos.occ_bb[BOTH] & tar, false, false, false);
+            *moves++ =
+                encode_move(src, tar, make_piece(PT, US), NO_PIECE, M == MoveType::QUIET ? false : pos.get_occ_bb(BOTH) & tar, false, false, false);
         }
     }
 
@@ -25,8 +25,8 @@ template <typename T, MoveType M, PieceType PT, Colour US> T* generate_majors(co
 
 template <typename T, MoveType M, Colour US, bool TC> T* generate_promotions(T* moves, const Square src, const Square tar)
 {
-    if constexpr (M != QUIET_MOVES) *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN, US), TC, false, false, false);
-    if constexpr (M != CAPTURE_MOVES)
+    if constexpr (M != MoveType::QUIET) { *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(QUEEN, US), TC, false, false, false); }
+    if constexpr (M != MoveType::CAPTURE)
     {
         *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(KNIGHT, US), TC, false, false, false);
         *moves++ = encode_move(src, tar, make_piece(PAWN, US), make_piece(BISHOP, US), TC, false, false, false);
@@ -39,10 +39,10 @@ template <typename T, MoveType M, Colour US, bool TC> T* generate_promotions(T* 
 // gen pseudo-legal moves for a position
 template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos, T* moves)
 {
-    constexpr bool CAPTURES = M != QUIET_MOVES;
-    constexpr bool QUIETS = M != CAPTURE_MOVES;
+    constexpr bool CAPTURES = M != MoveType::QUIET;
+    constexpr bool QUIETS = M != MoveType::CAPTURE;
 
-    Bitboard bb = pos.pc_bb[make_piece(PAWN, US)];
+    Bitboard bb = pos.pieces<make_piece(PAWN, US)>();
 
     while (bb)
     {
@@ -51,9 +51,9 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
 
         if (rank_of(src) == relative_rank(US, RANK_7))
         {
-            Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
+            Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.get_occ_bb(~US);
 
-            if (!(pos.occ_bb[BOTH] & tar)) moves = generate_promotions<T, M, US, false>(moves, src, tar);
+            if (!(pos.get_occ_bb(BOTH) & tar)) { moves = generate_promotions<T, M, US, false>(moves, src, tar); }
 
             while (att)
             {
@@ -63,17 +63,19 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
         }
         else
         {
-            if (QUIETS && !(pos.occ_bb[BOTH] & tar))
+            if (QUIETS && !(pos.get_occ_bb(BOTH) & tar))
             {
                 // single push
                 *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, false, false, false, false);
                 // double push
-                if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.occ_bb[BOTH] & (tar + pawn_push(US))))
+                if (rank_of(src) == relative_rank(US, RANK_2) && !(pos.get_occ_bb(BOTH) & (tar + pawn_push(US))))
+                {
                     *moves++ = encode_move(src, tar + pawn_push(US), make_piece(PAWN, US), NO_PIECE, false, true, false, false);
+                }
             }
             if constexpr (CAPTURES)
             {
-                Bitboard att = bitboards::pawn_attacks[US][src] & pos.occ_bb[~US];
+                Bitboard att = bitboards::PAWN_ATTACKS[US][src] & pos.get_occ_bb(~US);
 
                 while (att)
                 {
@@ -81,22 +83,28 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
                     *moves++ = encode_move(src, tar, make_piece(PAWN, US), NO_PIECE, true, false, false, false);
                 }
 
-                if (bitboards::pawn_attacks[US][src] & pos.bs->en_passant)
-                    *moves++ = encode_move(src, pos.bs->en_passant, make_piece(PAWN, US), NO_PIECE, true, false, true, false);
+                if (bitboards::PAWN_ATTACKS[US][src] & pos.get_en_passant())
+                {
+                    *moves++ = encode_move(src, pos.get_en_passant(), make_piece(PAWN, US), NO_PIECE, true, false, true, false);
+                }
             }
         }
     }
 
     if (QUIETS && !pos.is_attacked<US>(relative_square(US, E1)))
     {
-        if (pos.bs->castle & ks_castle_rights(US) && !(pos.occ_bb[BOTH] & (relative_square(US, F1) | relative_square(US, G1))) &&
+        if (pos.get_castle_rights() & ks_castle_rights(US) && !(pos.get_occ_bb(BOTH) & (relative_square(US, F1) | relative_square(US, G1))) &&
             !pos.is_attacked<US>(relative_square(US, F1)))
+        {
             *moves++ = encode_move(relative_square(US, E1), relative_square(US, G1), make_piece(KING, US), NO_PIECE, false, false, false, true);
+        }
 
-        if (pos.bs->castle & qs_castle_rights(US) &&
-            !(pos.occ_bb[BOTH] & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
+        if (pos.get_castle_rights() & qs_castle_rights(US) &&
+            !(pos.get_occ_bb(BOTH) & (relative_square(US, B1) | relative_square(US, C1) | relative_square(US, D1))) &&
             !pos.is_attacked<US>(relative_square(US, D1)))
+        {
             *moves++ = encode_move(relative_square(US, E1), relative_square(US, C1), make_piece(KING, US), NO_PIECE, false, false, false, true);
+        }
     }
 
     moves = generate_majors<T, M, KNIGHT, US>(pos, moves);
@@ -110,42 +118,40 @@ template <typename T, MoveType M, Colour US> T* generate_all(const Position& pos
 
 template <typename T, MoveType M> T* generate(const Position& pos, T* moves)
 {
-    return (pos.side == WHITE) ? generate_all<T, M, WHITE>(pos, moves) : generate_all<T, M, BLACK>(pos, moves);
+    return (pos.get_side() == WHITE) ? generate_all<T, M, WHITE>(pos, moves) : generate_all<T, M, BLACK>(pos, moves);
 }
 
 template <typename T> void print_moves(const T* m, const T* end)
 {
     std::cout << "move\tpiece\tcapture\tdouble\ten pass\tcastle";
 
-    if constexpr (std::is_same<T, ScoredMove>()) std::cout << "\tscore";
+    if constexpr (std::is_same<T, ScoredMove>()) { std::cout << "\tscore"; }
 
-    std::cout << std::endl;
-
+    std::cout << '\n';
     int count = 0;
 
     while (m != end)
     {
-        std::cout << move_from_sq(*m) << move_to_sq(*m) << piece_str[move_promotion_type(*m)] << '\t' << piece_str[move_piece_type(*m)] << '\t'
+        std::cout << move_from_sq(*m) << move_to_sq(*m) << PIECE_STR[move_promotion_type(*m)] << '\t' << PIECE_STR[move_piece_type(*m)] << '\t'
                   << static_cast<int>(move_capture(*m)) << '\t' << static_cast<int>(move_double(*m)) << '\t' << static_cast<int>(move_en_passant(*m))
                   << '\t' << static_cast<int>(move_castling(*m)) << '\t';
 
-        if constexpr (std::is_same<T, ScoredMove>()) std::cout << m->score;
+        if constexpr (std::is_same<T, ScoredMove>()) { std::cout << m->score; }
 
-        std::cout << std::endl;
-
+        std::cout << '\n';
         ++m, ++count;
     }
 
-    std::cout << "Total move count:" << count << std::endl;
+    std::cout << "Total move count:" << count << '\n';
 }
 
 // explicit template instantiations
-template Move* generate<Move, QUIET_MOVES>(const Position& pos, Move* moves);
-template Move* generate<Move, CAPTURE_MOVES>(const Position& pos, Move* moves);
-template Move* generate<Move, ALL_MOVES>(const Position& pos, Move* moves);
-template ScoredMove* generate<ScoredMove, QUIET_MOVES>(const Position& pos, ScoredMove* moves);
-template ScoredMove* generate<ScoredMove, CAPTURE_MOVES>(const Position& pos, ScoredMove* moves);
-template ScoredMove* generate<ScoredMove, ALL_MOVES>(const Position& pos, ScoredMove* moves);
+template Move* generate<Move, MoveType::QUIET>(const Position& pos, Move* moves);
+template Move* generate<Move, MoveType::CAPTURE>(const Position& pos, Move* moves);
+template Move* generate<Move, MoveType::ALL>(const Position& pos, Move* moves);
+template ScoredMove* generate<ScoredMove, MoveType::QUIET>(const Position& pos, ScoredMove* moves);
+template ScoredMove* generate<ScoredMove, MoveType::CAPTURE>(const Position& pos, ScoredMove* moves);
+template ScoredMove* generate<ScoredMove, MoveType::ALL>(const Position& pos, ScoredMove* moves);
 template void print_moves<Move>(const Move* m, const Move* end);
 template void print_moves<ScoredMove>(const ScoredMove* m, const ScoredMove* end);
 

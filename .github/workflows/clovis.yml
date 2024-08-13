@@ -58,9 +58,9 @@ jobs:
         elif [ "${{ env.COMPILER }}" == "clang-cl" ]; then
           cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G "Visual Studio 17 2022" -T ClangCL
         elif [ "${{ env.COMPILER }}" == "clang" ]; then
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=clang++
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DWARNINGS_AS_ERRORS=ON
         elif [ "${{ env.COMPILER }}" == "gcc" ]; then
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_CXX_COMPILER=g++ -DWARNINGS_AS_ERRORS=ON
         fi
 
     - name: Build
@@ -69,35 +69,133 @@ jobs:
     - name: Test
       run: ctest --test-dir build --build-config ${{ env.BUILD_TYPE }} --output-on-failure
 
-    - name: Bench
-      if: env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows'
-      shell: bash
-      working-directory: ./build
-      run: |
-        ./bin/$BUILD_TYPE/clovis bench > output
-        
-        expected=14914348
-        actual=$(grep -o 'bench:[[:space:]]*[0-9][0-9]*' output | grep -o '[0-9][0-9]*')
-        echo "Actual ${actual} Expected ${expected}"
-
-        if [[ "$expected" != "$actual" ]]; then
-          echo "Values did not match."
-          exit 1
-        fi
-
     - name: Perft
-      if: env.BUILD_TYPE == 'Release' && (env.COMPILER != 'gcc' || env.OPERATING_SYSTEM != 'windows')
+      if: env.BUILD_TYPE == 'Release'
       shell: bash
       run: | 
         set -e # Exit immediately if a command exits with a non-zero status
-        ./build/bin/$BUILD_TYPE/clovis perft
+        ./build/bin/$BUILD_TYPE/clovis perft ./resources/perft.epd > /dev/null
 
-    - name: Archive Output
-      if: always()
-      uses: actions/upload-artifact@v2
+    - name: Benchmark
+      shell: bash
+      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14299399 resources/bench.csv
+
+    - name: Checkout fast-chess
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      uses: actions/checkout@v4
       with:
-        name: bench-output
-        path: output
+        repository: Disservin/fast-chess
+        path: fast-chess
+        ref: master
+
+    - name: Build fast-chess
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      working-directory: fast-chess
+      run: make -j
+
+    - name: Self-play
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      shell: bash
+      run: |
+        set -e
+        ./fast-chess/fastchess \
+          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis1\
+          -engine cmd=build/bin/$BUILD_TYPE/clovis name=clovis2\
+          -each tc=1+0.08 \
+          -openings file=resources/silver.epd format=epd order=random \
+          -rounds 50 \
+          -repeat \
+          -concurrency 4 \
+          -maxmoves 200 \
+          -pgnout file=self-play.pgn min=true
+
+    - name: Process Data
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      shell: bash
+      run: | 
+        set -e # Exit immediately if a command exits with a non-zero status
+        ./build/bin/$BUILD_TYPE/process self-play.pgn resources/self-play.epd > /dev/null
+      #run: python tools/process.py build/bin/$BUILD_TYPE/clovis self-play.pgn resources/processed.epd
+
+    - name: Tune Evaluation
+      if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
+      shell: bash
+      run: | 
+        set -e # Exit immediately if a command exits with a non-zero status
+        #cat resources/self-play.epd >> resources/quiet-labeled.epd
+        ./build/bin/$BUILD_TYPE/clovis tune ./resources/self-play.epd 300
+
+  # =========================================================
+  # SPRT Job
+  # =========================================================
+  sprt:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Clang
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "17.0"
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+
+    - name: Install CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Configure
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DBUILD_TESTS=OFF -DBUILD_TOOLS=OFF
+
+    - name: Build
+      run: cmake --build build --parallel --config Release
+
+    - name: Checkout fast-chess
+      uses: actions/checkout@v4
+      with:
+        repository: Disservin/fast-chess
+        path: fast-chess
+        ref: master
+
+    - name: Build fast-chess
+      working-directory: fast-chess
+      run: make -j
+    
+    - name: Download clovis-release-gcc-linux artifact
+      run: |
+        curl -L -o build/clovis-release-gcc-linux https://github.com/jonathanmcdermid/Clovis/releases/download/III/clovis-release-gcc-linux
+        chmod +x build/clovis-release-gcc-linux
+    
+    - name: Self-play
+      run: |
+        set -e
+        ./fast-chess/fastchess \
+          -engine cmd=build/bin/Release/clovis name=clovis-new \
+          -engine cmd=build/clovis-release-gcc-linux name=clovis-old \
+          -openings file=resources/silver.epd format=epd order=random \
+          -each tc=1+0.08 \
+          -rounds 1000 \
+          -repeat \
+          -concurrency 4 \
+          -maxmoves 200 \
+          -sprt elo0=0 elo1=10 alpha=0.1 beta=0.1 \
+          -pgnout file=self-play.pgn min=true > output.txt 2>&1 # Redirect both stdout and stderr to output.txt
+    
+    - name: LOS
+      run: |
+        cat output.txt
+        LOS=$(grep "LOS:" output.txt | tail -n 1 | awk '{print $2}' | sed 's/%//')
+        echo "LOS: $LOS%"
+        awk "BEGIN {exit ($LOS >= 99.0) ? 0 : 1}"
+    
+    - name: Upload PGN file
+      uses: actions/upload-artifact@v4.3.0
+      with:
+        name: self-play-pgn
+        path: self-play.pgn
 
   # =========================================================
   # Clang Format Job
@@ -160,7 +258,7 @@ jobs:
 
       - name: Static code analysis
         run: |
-          cmake -S . -B build -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CC=clang -DCMAKE_CXX=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_COMPILER_TARGET=x86_64-pc-linux-gnu -DCMAKE_C_COMPILER_TARGET=x86_64-pc-linux-gnu
+          cmake -S . -B build -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CXX_COMPILER=clang++
           cmake --build build --parallel --config Debug
   
   # =========================================================
@@ -186,7 +284,7 @@ jobs:
         sudo apt-get install -y gcovr
 
     - name: Configure
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCOVERAGE=ON -DBUILD_TOOLS=OFF
 
     - name: Build
       run: cmake --build build --parallel --config debug
