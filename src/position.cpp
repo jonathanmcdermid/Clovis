@@ -559,17 +559,17 @@ void Position::print_position() const
 
 Move Position::parse(std::string move) const
 {
-    if (move[move.length() - 1] == '+' || move[move.length() - 1] == '#') { move = move.substr(0, move.length() - 1); }
+    if (move.back() == '+' || move.back() == '#') { move.pop_back(); }
 
     if (move.find("O-O") != std::string::npos)
     {
         return encode_move(relative_square(side, E1), relative_square(side, move == "O-O" ? G1 : C1), make_piece(KING, side), NO_PIECE, false, false,
                            false, true);
     }
-    if (islower(move[0]))
+    if (std::islower(move[0]))
     { // pawn moves
         const Piece promo =
-            move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(PIECE_STR.find(move[move.length() - 1])), side) : NO_PIECE;
+            move[move.length() - 2] == '=' ? make_piece(static_cast<PieceType>(PIECE_STR.find(move.back())), side) : NO_PIECE;
         const Square to = (promo == NO_PIECE) ? str2sq(move.substr(move.length() - 2)) : str2sq(move.substr(move.length() - 4, 2));
         const Square from = (move[1] == 'x') ? make_square(static_cast<File>(move[0] - 'a'), rank_of(to - pawn_push(side)))
                             : pc_table[to - pawn_push(side)] == NO_PIECE ? to - 2 * pawn_push(side)
@@ -602,7 +602,7 @@ Move Position::parse(std::string move) const
     else if (move[2] == 'x' || move.length() == 4)
     {
         // there are multiple matching pieces that attack this square
-        if (isdigit(move[1]))
+        if (std::isdigit(move[1]))
         {
             while (rank_of(from) != static_cast<Rank>(move[1] - '1')) { from = bitboards::pop_lsb(bb); }
         }
