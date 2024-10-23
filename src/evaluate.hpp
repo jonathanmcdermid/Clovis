@@ -21,7 +21,7 @@ enum TraceIndex : int
     BISHOP_PSQT = KNIGHT_PSQT + 16,
     ROOK_PSQT = BISHOP_PSQT + 16,
     QUEEN_PSQT = ROOK_PSQT + 16,
-    KING_PSQT = QUEEN_PSQT + 32,
+    KING_PSQT = QUEEN_PSQT + 16,
     PASSED_PAWN_PSQT = KING_PSQT + 16,
     CANDIDATE_PASSER_PSQT = PASSED_PAWN_PSQT + 32,
     QUIET_MOBILITY = CANDIDATE_PASSER_PSQT + 8,
@@ -70,94 +70,90 @@ struct EvalInfo : PTEntry
 
 constexpr std::array<Score, 32> PAWN_SOURCE = {{
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
-    {184, 244}, {182, 248}, {158, 235}, {195, 203},
-    {71, 97}, {89, 96}, {108, 88}, {111, 44},
-    {65, 85}, {79, 80}, {90, 75}, {102, 73},
-    {59, 77}, {67, 80}, {82, 74}, {99, 70},
-    {63, 71}, {72, 72}, {77, 76}, {82, 80},
-    {57, 73}, {78, 75}, {73, 83}, {69, 84},
+    {245, 306}, {270, 305}, {259, 285}, {301, 257},
+    {116, 120}, {135, 112}, {165, 107}, {169, 84},
+    {101, 101}, {118, 96}, {126, 93}, {144, 88},
+    {83, 95}, {93, 95}, {116, 89}, {136, 88},
+    {87, 86}, {102, 87}, {109, 94}, {112, 98},
+    {82, 92}, {107, 90}, {103, 104}, {99, 107},
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
 }};
 
 constexpr std::array<Score, 16> KNIGHT_SOURCE = {{
-    {248, 199}, {294, 209}, {285, 234}, {301, 232},
-    {306, 212}, {298, 235}, {314, 238}, {320, 240},
-    {300, 222}, {316, 236}, {318, 243}, {327, 252},
-    {305, 235}, {309, 244}, {324, 251}, {321, 258},
+    {332, 232}, {434, 238}, {410, 274}, {439, 266},
+    {428, 246}, {429, 274}, {455, 275}, {464, 283},
+    {435, 260}, {457, 274}, {466, 284}, {474, 294},
+    {438, 271}, {447, 286}, {469, 293}, {465, 305},
 }};
 
 constexpr std::array<Score, 16> BISHOP_SOURCE = {{
-    {303, 230}, {335, 223}, {315, 235}, {322, 235},
-    {303, 236}, {332, 220}, {332, 234}, {328, 238},
-    {313, 238}, {331, 238}, {334, 239}, {331, 243},
-    {307, 241}, {311, 241}, {317, 242}, {328, 238},
+    {420, 257}, {474, 258}, {454, 274}, {462, 275},
+    {439, 273}, {475, 256}, {477, 271}, {474, 278},
+    {441, 281}, {472, 275}, {482, 278}, {472, 284},
+    {434, 282}, {441, 285}, {454, 283}, {474, 275},
 }};
 
 constexpr std::array<Score, 16> ROOK_SOURCE = {{
-    {441, 434}, {439, 436}, {442, 437}, {443, 435},
-    {418, 439}, {440, 433}, {451, 429}, {450, 429},
-    {434, 437}, {442, 437}, {446, 434}, {451, 434},
-    {428, 445}, {446, 438}, {447, 438}, {454, 434},
+    {614, 517}, {609, 526}, {620, 524}, {620, 523},
+    {580, 529}, {612, 521}, {630, 514}, {633, 513},
+    {596, 526}, {619, 524}, {624, 519}, {631, 518},
+    {592, 534}, {623, 521}, {617, 529}, {631, 521},
 }};
 
-constexpr std::array<Score, 32> QUEEN_SOURCE = {{
-    {870, 814}, {837, 845}, {833, 856}, {866, 840},
-    {876, 806}, {848, 839}, {869, 843}, {837, 865},
-    {895, 805}, {892, 820}, {885, 830}, {874, 848},
-    {880, 830}, {874, 838}, {872, 838}, {872, 841},
-    {892, 812}, {888, 831}, {887, 819}, {886, 839},
-    {887, 816}, {900, 811}, {892, 826}, {892, 833},
-    {890, 791}, {905, 784}, {908, 798}, {907, 805},
-    {893, 786}, {888, 787}, {889, 790}, {902, 785},
+constexpr std::array<Score, 16> QUEEN_SOURCE = {{
+    {1146, 950}, {1145, 960}, {1145, 964}, {1172, 943},
+    {1137, 962}, {1162, 945}, {1177, 950}, {1175, 963},
+    {1156, 966}, {1171, 957}, {1161, 977}, {1157, 987},
+    {1148, 978}, {1140, 998}, {1146, 977}, {1142, 994},
 }};
 
 constexpr std::array<Score, 16> KING_SOURCE = {{
-    {76, 14}, {105, 36}, {72, 58}, {69, 59},
-    {88, 44}, {107, 56}, {82, 72}, {53, 85},
-    {45, 63}, {89, 68}, {68, 85}, {62, 94},
-    {37, 64}, {70, 79}, {71, 92}, {41, 101},
+    {61, 6}, {110, 28}, {60, 57}, {62, 56},
+    {89, 40}, {124, 54}, {83, 77}, {46, 91},
+    {43, 59}, {103, 70}, {79, 89}, {72, 98},
+    {11, 64}, {89, 79}, {70, 100}, {33, 111},
 }};
 
 constexpr std::array<Score, 32> PASSED_PAWN = {{
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
-    {40, 111}, {29, 110}, {41, 85}, {29, 108},
-    {30, 61}, {22, 63}, {11, 49}, {5, 35},
-    {12, 39}, {8, 40}, {0, 23}, {0, 20},
-    {0, 11}, {0, 20}, {0, 7}, {0, 0},
-    {2, 15}, {0, 13}, {0, 2}, {0, 3},
+    {53, 136}, {27, 138}, {47, 109}, {25, 110},
+    {25, 80}, {17, 79}, {9, 59}, {9, 43},
+    {14, 48}, {3, 49}, {0, 28}, {0, 20},
+    {6, 18}, {0, 27}, {0, 8}, {0, 5},
+    {4, 18}, {0, 20}, {0, 5}, {0, 12},
     {0, 0}, {0, 0}, {0, 0}, {0, 0},
 }};
 
-constexpr std::array<Score, RANK_N> CANDIDATE_PASSER = {{
-    {0, 0}, {0, 5}, {0, 9}, {7, 24}, {20, 49}, {25, 69}, {0, 0}, {0, 0},
+constexpr std::array<Score, 8> CANDIDATE_PASSER = {{
+    {0, 0}, {0, 6}, {0, 6}, {6, 30}, {14, 59}, {21, 67}, {0, 0}, {0, 0},
 }};
 
 constexpr std::array<Score, 7> QUIET_MOBILITY_BONUS = {{
-    {0, 0}, {0, 0}, {6, 1}, {4, 4}, {3, 3}, {1, 3}, {0, 0},
+    {0, 0}, {0, 0}, {8, 2}, {6, 6}, {6, 4}, {2, 8}, {0, 0},
 }};
 
 constexpr std::array<Score, 7> CAPTURE_MOBILITY_BONUS = {{
-    {0, 0}, {0, 0}, {8, 21}, {13, 20}, {10, 23}, {1, 16}, {0, 0},
+    {0, 0}, {0, 0}, {15, 28}, {17, 29}, {18, 31}, {0, 30}, {0, 0},
 }};
 
 constexpr Score DOUBLE_PAWN_PENALTY = {1, 9};
-constexpr Score ISOLATED_PAWN_PENALTY = {12, 6};
-constexpr Score BISHOP_PAIR_BONUS = {23, 43};
-constexpr Score ROOK_OPEN_FILE_BONUS = {18, 2};
+constexpr Score ISOLATED_PAWN_PENALTY = {18, 7};
+constexpr Score BISHOP_PAIR_BONUS = {37, 52};
+constexpr Score ROOK_OPEN_FILE_BONUS = {33, 0};
 constexpr Score ROOK_SEMI_OPEN_FILE_BONUS = {0, 0};
-constexpr Score ROOK_CLOSED_FILE_PENALTY = {14, 4};
-constexpr Score TEMPO_BONUS = {23, 15};
-constexpr Score KING_OPEN_PENALTY = {33, 10};
-constexpr Score KING_ADJACENT_OPEN_PENALTY = {4, 10};
-constexpr Score KNIGHT_OUTPOST_BONUS = {37, 11};
-constexpr Score BISHOP_OUTPOST_BONUS = {35, 0};
-constexpr Score WEAK_QUEEN_PENALTY = {31, 5};
-constexpr Score ROOK_ON_OUR_PASSER_FILE = {4, 8};
-constexpr Score ROOK_ON_THEIR_PASSER_FILE = {5, 29};
-constexpr Score TALL_PAWN_PENALTY = {10, 24};
-constexpr Score FIANCHETTO_BONUS = {17, 11};
-constexpr Score ROOK_ON_SEVENTH_RANK = {0, 23};
+constexpr Score ROOK_CLOSED_FILE_PENALTY = {18, 6};
+constexpr Score TEMPO_BONUS = {32, 18};
+constexpr Score KING_OPEN_PENALTY = {40, 12};
+constexpr Score KING_ADJACENT_OPEN_PENALTY = {0, 13};
+constexpr Score KNIGHT_OUTPOST_BONUS = {53, 19};
+constexpr Score BISHOP_OUTPOST_BONUS = {52, 0};
+constexpr Score WEAK_QUEEN_PENALTY = {49, 0};
+constexpr Score ROOK_ON_OUR_PASSER_FILE = {7, 15};
+constexpr Score ROOK_ON_THEIR_PASSER_FILE = {4, 33};
+constexpr Score TALL_PAWN_PENALTY = {16, 21};
+constexpr Score FIANCHETTO_BONUS = {24, 12};
+constexpr Score ROOK_ON_SEVENTH_RANK = {4, 26};
 
 constexpr std::array<short, 32> PAWN_SHIELD = {{
     0, 0, 0, 0,
@@ -167,15 +163,15 @@ constexpr std::array<short, 32> PAWN_SHIELD = {{
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
-    32, 34, 30, 0,
+    31, 34, 33, 0,
 }};
 
 constexpr std::array<short, 7> INNER_RING_ATTACK = {{
-    0, 19, 18, 26, 23, 21, 0,
+    0, 31, 20, 34, 30, 25, 0,
 }};
 
 constexpr std::array<short, 7> OUTER_RING_ATTACK = {{
-    0, 0, 28, 14, 10, 19, 0,
+    0, 7, 32, 12, 10, 19, 0,
 }};
 
 constexpr short ATTACK_FACTOR = 59;
@@ -237,8 +233,8 @@ constexpr auto PIECE_TABLE = [] {
     {
         for (Square sq = SQ_ZERO; sq < SQ_N; ++sq)
         {
-            for (const auto pt : {PAWN, QUEEN}) { arr[make_piece(pt, col)][sq] = PIECE_TYPE_SOURCE[pt][SOURCE_32[relative_square(col, sq)]]; }
-            for (const auto pt : {KNIGHT, BISHOP, ROOK, KING}) { arr[make_piece(pt, col)][sq] = PIECE_TYPE_SOURCE[pt][SOURCE_16[sq]]; }
+            for (const auto pt : {PAWN}) { arr[make_piece(pt, col)][sq] = PIECE_TYPE_SOURCE[pt][SOURCE_32[relative_square(col, sq)]]; }
+            for (const auto pt : {KNIGHT, BISHOP, ROOK, QUEEN, KING}) { arr[make_piece(pt, col)][sq] = PIECE_TYPE_SOURCE[pt][SOURCE_16[sq]]; }
             // for (const auto pt : {})
             //     arr[make_piece(pt, col)][sq] =
             //     piece_type_source[pt][source10[sq]];
