@@ -190,7 +190,8 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
                     if constexpr (TRACE) { ++T[ROOK_THEIR_PASSER][US]; }
                 }
             }
-            if (rank_of(sq) == relative_rank(US, RANK_7) && rank_of(ei.ksq[~US]) == relative_rank(US, RANK_8))
+            if (rank_of(sq) == relative_rank(US, RANK_7) && rank_of(ei.ksq[~US]) == relative_rank(US, RANK_8) &&
+                attacks & (ei.ksq[~US] + pawn_push(~US)))
             {
                 score += ROOK_ON_SEVENTH_RANK;
                 if constexpr (TRACE) { ++T[ROOK_ON_SEVENTH][US]; }
