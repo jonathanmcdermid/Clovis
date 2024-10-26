@@ -391,17 +391,17 @@ template <bool TRACE> int evaluate(const Position& pos)
 }
 
 // explicit template instantiations
-template bool is_passed_pawn<WHITE>(const Bitboard bb, const Square sq);
-template bool is_passed_pawn<BLACK>(const Bitboard bb, const Square sq);
-template bool is_candidate_passer<WHITE>(const Position& pos, Square sq);
-template bool is_candidate_passer<BLACK>(const Position& pos, Square sq);
-template bool is_outpost<WHITE>(const Square sq, const EvalInfo& ei);
-template bool is_outpost<BLACK>(const Square sq, const EvalInfo& ei);
-template bool is_fianchetto<WHITE>(const Position& pos, const Square sq);
-template bool is_fianchetto<BLACK>(const Position& pos, const Square sq);
-template bool is_tall_pawn<WHITE>(const Position& pos, const Square sq);
-template bool is_tall_pawn<BLACK>(const Position& pos, const Square sq);
-template int evaluate<true>(const Position& pos);
-template int evaluate<false>(const Position& pos);
+template bool is_passed_pawn<WHITE>(Bitboard, Square);
+template bool is_passed_pawn<BLACK>(Bitboard, Square);
+template bool is_candidate_passer<WHITE>(const Position&, Square);
+template bool is_candidate_passer<BLACK>(const Position&, Square);
+template bool is_outpost<WHITE>(Square, const EvalInfo&);
+template bool is_outpost<BLACK>(Square, const EvalInfo&);
+template bool is_fianchetto<WHITE>(const Position&, Square);
+template bool is_fianchetto<BLACK>(const Position&, Square);
+template bool is_tall_pawn<WHITE>(const Position&, Square);
+template bool is_tall_pawn<BLACK>(const Position&, Square);
+template int evaluate<true>(const Position&);
+template int evaluate<false>(const Position&);
 
 } // namespace clovis::eval
