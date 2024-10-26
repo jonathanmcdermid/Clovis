@@ -93,11 +93,13 @@ int main(const int argc, char* argv[])
                 {
                     if (!pos.do_move(pos.parse(token))) { exit(EXIT_FAILURE); }
 
-                    // dont take positions if they are too early in the game
-                    if (pos.get_full_move_clock() > 8 && std::rand() % 16 == 0)
+                    // dont take positions if they are too early in the game or if there is a checkmate within 10 moves
+                    if (pos.get_full_move_clock() > 8 && token[token.length() - 1] != '#' && token[token.length() - 1] != '+')
                     {
+                        if (std::find(keys.begin(), keys.end(), pos.get_key()) != keys.end()) { continue; }
+
                         clovis::search::SearchLimits limits;
-                        limits.depth = 10;
+                        limits.depth = 1;
                         clovis::search::SearchInfo info;
                         clovis::search::start_search(pos, limits, info);
                         // it would be better to check if the next token is the result (a draw) to determine if this position has no moves

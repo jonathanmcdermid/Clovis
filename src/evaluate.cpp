@@ -71,7 +71,7 @@ template <Colour US, PieceType PT> void psqt_trace(const Square sq)
     if constexpr (PT == KNIGHT) { ++T[KNIGHT_PSQT + SOURCE_16[sq]][US]; }
     if constexpr (PT == BISHOP) { ++T[BISHOP_PSQT + SOURCE_16[sq]][US]; }
     if constexpr (PT == ROOK) { ++T[ROOK_PSQT + SOURCE_16[sq]][US]; }
-    if constexpr (PT == QUEEN) { ++T[QUEEN_PSQT + SOURCE_16[relative_square(US, sq)]][US]; }
+    if constexpr (PT == QUEEN) { ++T[QUEEN_PSQT + SOURCE_32[relative_square(US, sq)]][US]; }
     if constexpr (PT == KING) { ++T[KING_PSQT + SOURCE_16[sq]][US]; }
 }
 
