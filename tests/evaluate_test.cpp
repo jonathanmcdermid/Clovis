@@ -141,11 +141,9 @@ TEST_F(EvaluateTest, IS_FIANCHETTO_TEST)
     Position pos("k7/1b4b1/6p1/8/1p1P4/1P4P1/1B4B1/K7 w - - 0 1");
 
     ASSERT_FALSE(is_fianchetto<WHITE>(pos, B2));
+    ASSERT_FALSE(is_fianchetto<BLACK>(pos, B7));
 
     ASSERT_TRUE(is_fianchetto<WHITE>(pos, G2));
-
-    // ASSERT_FALSE(is_fianchetto<BLACK>(pos, B7)); TODO: bad definition for fianchetto!
-
     ASSERT_TRUE(is_fianchetto<BLACK>(pos, G7));
 }
 
@@ -174,6 +172,12 @@ TEST_F(EvaluateTest, OPEN_FILE_TEST)
     ASSERT_TRUE(is_open_file(pawns, FILE_C));
     ASSERT_TRUE(is_open_file(pawns, FILE_F));
     ASSERT_TRUE(is_open_file(pawns, FILE_H));
+}
+
+TEST_F(EvaluateTest, ROOK_SEVENTH_TEST)
+{
+    ASSERT_TRUE(is_rook_on_seventh<WHITE>(bitboards::get_attacks<ROOK>(A7), A7, H8));
+    ASSERT_FALSE(is_rook_on_seventh<BLACK>(bitboards::get_attacks<ROOK>(A7), A7, H8));
 }
 
 TEST_F(EvaluateTest, EVALUATE_TEST)
