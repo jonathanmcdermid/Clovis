@@ -12,6 +12,12 @@ constexpr Square lsb(const Bitboard bb)
     return static_cast<Square>(std::countr_zero(bb));
 }
 
+inline Square msb(Bitboard bb)
+{
+    assert(bb);
+    return static_cast<Square>(std::bit_width(bb) - 1);
+}
+
 constexpr Square pop_lsb(Bitboard& bb)
 {
     assert(bb);
