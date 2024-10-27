@@ -78,7 +78,7 @@ jobs:
 
     - name: Benchmark
       shell: bash
-      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 14299399 resources/bench.csv
+      run: python tools/bench.py build/bin/$BUILD_TYPE/clovis 15313191 resources/bench.csv
 
     - name: Checkout fast-chess
       if: env.BUILD_TYPE == 'Release' && env.OPERATING_SYSTEM == 'linux'
