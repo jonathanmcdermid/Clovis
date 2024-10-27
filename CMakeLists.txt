@@ -29,7 +29,7 @@ if(MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
-    add_compile_options(-Wall -Wextra -pedantic -Wold-style-cast -Wno-deprecated-enum-enum-conversion -Wno-bugprone-narrowing-conversions)
+    add_compile_options(-Wall -Wextra -pedantic -Wold-style-cast -Wno-deprecated-enum-enum-conversion)
     add_compile_options("$<$<CONFIG:Release>:-O3>")
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
