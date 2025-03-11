@@ -361,6 +361,7 @@ template <Colour US> bool is_candidate_passer(const Position& pos, Square sq);
 template <Colour US> bool is_outpost(Square sq, const EvalInfo& ei);
 template <Colour US> bool is_fianchetto(const Position& pos, Square sq);
 template <Colour US> bool is_tall_pawn(const Position& pos, Square sq);
+template <Colour US> bool is_rook_on_seventh(Bitboard attacks, Square sq, Square ksq);
 
 template <bool TRACE> int evaluate(const Position& pos);
 

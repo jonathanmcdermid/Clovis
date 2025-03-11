@@ -36,18 +36,23 @@ template <Colour US> bool is_candidate_passer(const Position& pos, Square sq)
 
 template <Colour US> bool is_outpost(const Square sq, const EvalInfo& ei)
 {
-    return (OUTPOST_MASKS[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US]);
+    return OUTPOST_MASKS[US] & sq & ~ei.potential_pawn_attacks[~US] & ei.pawn_attacks[US];
 }
 
 template <Colour US> bool is_fianchetto(const Position& pos, const Square sq)
 {
-    return FIANCHETTO_BISHOP_MASK[US] & sq && // TODO: pos.get_pc(sq + pawn_push(US)) == make_piece(PAWN, US) &&
+    return FIANCHETTO_BISHOP_MASK[US] & sq && pos.get_pc(sq + pawn_push(US)) == make_piece(PAWN, US) &&
            CENTER_MASK[US] & bitboards::get_attacks<BISHOP>(pos.piece_types<PAWN>(), sq);
 }
 
 template <Colour US> bool is_tall_pawn(const Position& pos, const Square sq)
 {
     return bitboards::multiple_bits(bitboards::PAWN_ATTACKS[US][sq] & pos.pieces<make_piece(PAWN, US)>());
+}
+
+template <Colour US> bool is_rook_on_seventh(const Bitboard attacks, const Square sq, const Square ksq)
+{
+    return rank_of(sq) == relative_rank(US, RANK_7) && rank_of(ksq) == relative_rank(US, RANK_8) && attacks & (ksq + pawn_push(~US));
 }
 
 template <Colour US, PieceType PT, bool TRACE> void king_danger(const Bitboard attacks, EvalInfo& ei)
@@ -116,16 +121,15 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
             }
         }
 
-        const Bitboard trades = worthy_trades<US, PT>(pos);
-        const Bitboard safe_attacks = attacks & (~ei.pawn_attacks[~US] | trades);
+        attacks &= ~ei.pawn_attacks[~US] | worthy_trades<US, PT>(pos);
 
-        score += QUIET_MOBILITY_BONUS[PT] * std::popcount(safe_attacks & ~pos.get_occ_bb(BOTH));
-        score += CAPTURE_MOBILITY_BONUS[PT] * std::popcount(safe_attacks & pos.get_occ_bb(~US));
+        score += QUIET_MOBILITY_BONUS[PT] * std::popcount(attacks & ~pos.get_occ_bb(BOTH));
+        score += CAPTURE_MOBILITY_BONUS[PT] * std::popcount(attacks & pos.get_occ_bb(~US));
 
-        if constexpr (SAFETY) { king_danger<US, PT, TRACE>(safe_attacks, ei); }
+        if constexpr (SAFETY) { king_danger<US, PT, TRACE>(attacks, ei); }
         if constexpr (TRACE) { psqt_trace<US, PT>(sq); }
-        if constexpr (TRACE) { T[QUIET_MOBILITY + PT][US] += std::popcount(safe_attacks & ~pos.get_occ_bb(BOTH)); }
-        if constexpr (TRACE) { T[CAPTURE_MOBILITY + PT][US] += std::popcount(safe_attacks & pos.get_occ_bb(~US)); }
+        if constexpr (TRACE) { T[QUIET_MOBILITY + PT][US] += std::popcount(attacks & ~pos.get_occ_bb(BOTH)); }
+        if constexpr (TRACE) { T[CAPTURE_MOBILITY + PT][US] += std::popcount(attacks & pos.get_occ_bb(~US)); }
         if constexpr (PT == KNIGHT)
         {
             if (is_outpost<US>(sq, ei))
@@ -162,7 +166,7 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
         }
         if constexpr (PT == ROOK)
         {
-            if (!(bitboards::FILE_MASKS[sq] & (pos.piece_types<PAWN>())))
+            if (!(bitboards::FILE_MASKS[sq] & pos.piece_types<PAWN>()))
             {
                 score += ROOK_OPEN_FILE_BONUS;
                 if constexpr (TRACE) { ++T[ROOK_FULL][US]; }
@@ -184,13 +188,13 @@ template <Colour US, PieceType PT, bool SAFETY, bool TRACE> void evaluate_majors
                     score += ROOK_ON_OUR_PASSER_FILE;
                     if constexpr (TRACE) { ++T[ROOK_OUR_PASSER][US]; }
                 }
-                if (safe_attacks & ROOK_ON_PASSER_MASKS[~US][sq] & ei.passers[~US])
+                if (attacks & ROOK_ON_PASSER_MASKS[~US][sq] & ei.passers[~US])
                 {
                     score += ROOK_ON_THEIR_PASSER_FILE;
                     if constexpr (TRACE) { ++T[ROOK_THEIR_PASSER][US]; }
                 }
             }
-            if (rank_of(sq) == relative_rank(US, RANK_7) && rank_of(ei.ksq[~US]) == relative_rank(US, RANK_8))
+            if (is_rook_on_seventh<US>(attacks, sq, ei.ksq[~US]))
             {
                 score += ROOK_ON_SEVENTH_RANK;
                 if constexpr (TRACE) { ++T[ROOK_ON_SEVENTH][US]; }
@@ -211,7 +215,7 @@ template <Colour US, bool TRACE> Score evaluate_all(const Position& pos, EvalInf
 {
     Score score;
 
-    // Conditions for whether or not we consider king safety
+    // Conditions for whether we consider king safety
     if (pos.pieces<make_piece(QUEEN, US)>() && pos.get_game_phase() > 8)
     {
         // we use the number of attacking major pieces in king safety, which are not calculated yet
@@ -391,17 +395,19 @@ template <bool TRACE> int evaluate(const Position& pos)
 }
 
 // explicit template instantiations
-template bool is_passed_pawn<WHITE>(const Bitboard bb, const Square sq);
-template bool is_passed_pawn<BLACK>(const Bitboard bb, const Square sq);
-template bool is_candidate_passer<WHITE>(const Position& pos, Square sq);
-template bool is_candidate_passer<BLACK>(const Position& pos, Square sq);
-template bool is_outpost<WHITE>(const Square sq, const EvalInfo& ei);
-template bool is_outpost<BLACK>(const Square sq, const EvalInfo& ei);
-template bool is_fianchetto<WHITE>(const Position& pos, const Square sq);
-template bool is_fianchetto<BLACK>(const Position& pos, const Square sq);
-template bool is_tall_pawn<WHITE>(const Position& pos, const Square sq);
-template bool is_tall_pawn<BLACK>(const Position& pos, const Square sq);
-template int evaluate<true>(const Position& pos);
-template int evaluate<false>(const Position& pos);
+template bool is_passed_pawn<WHITE>(Bitboard, Square);
+template bool is_passed_pawn<BLACK>(Bitboard, Square);
+template bool is_candidate_passer<WHITE>(const Position&, Square);
+template bool is_candidate_passer<BLACK>(const Position&, Square);
+template bool is_outpost<WHITE>(Square, const EvalInfo&);
+template bool is_outpost<BLACK>(Square, const EvalInfo&);
+template bool is_fianchetto<WHITE>(const Position&, Square);
+template bool is_fianchetto<BLACK>(const Position&, Square);
+template bool is_tall_pawn<WHITE>(const Position&, Square);
+template bool is_tall_pawn<BLACK>(const Position&, Square);
+template bool is_rook_on_seventh<WHITE>(Bitboard, Square, Square);
+template bool is_rook_on_seventh<BLACK>(Bitboard, Square, Square);
+template int evaluate<true>(const Position&);
+template int evaluate<false>(const Position&);
 
 } // namespace clovis::eval
